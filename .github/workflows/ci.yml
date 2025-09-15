@@ -1,0 +1,62 @@
+name: CI & Sync to Upstream
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - "feature/**"
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./client_web
+
+      - name: Run lint
+        run: npm run lint
+        working-directory: ./client_web
+
+      - name: Run tests
+        run: npm test -- --ci
+        working-directory: ./client_web
+
+      - name: Build Docker images
+        run: docker-compose build
+
+      - name: Security scan with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: my-app:latest
+          format: 'table'
+
+  sync-upstream:
+    needs: build-test
+    runs-on: ubuntu-latest
+    if: success()   # seulement si build-test est vert
+    steps:
+      - name: Checkout mirror
+        uses: actions/checkout@v3
+
+      - name: Push to upstream repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git remote add upstream https://github.com/EcoleOrg/area.git
+          git fetch upstream
+          git rebase upstream/main || true
+          git push upstream HEAD:main
+        env:
+          GIT_ASKPASS: /dev/null
+          GITHUB_TOKEN: ${{ secrets.UPSTREAM_TOKEN }}
