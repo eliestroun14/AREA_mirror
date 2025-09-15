@@ -2,7 +2,7 @@ Project initialization.
 
 ## 👥 Contributeurs
 
-Ce projet a été développé par :
+Ce projet a été développé par : 
 
 
 | | | |
