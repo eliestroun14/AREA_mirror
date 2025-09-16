@@ -77,11 +77,14 @@ jobs:
           fetch-depth: 0  # Fetch full history for proper mirroring
 
       - name: Push to upstream repo
-        env:
-          GITHUB_TOKEN: ${{ secrets.MIRRORING }}
         run: |
-          git config user.name "Mirror Bot"
-          git config user.email "mirror@example.com"
-          
-          git remote add upstream https://x-access-token:${GITHUB_TOKEN}@github.com/EpitechPGE3-2025/G-DEV-500-REN-5-1-area-3.git
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Test if we can access the repository first
+          git ls-remote https://${{ secrets.MIRRORING }}@github.com/EpitechPGE3-2025/G-DEV-500-REN-5-1-area-3.git
+
+          git remote add upstream https://${{ secrets.MIRRORING }}@github.com/EpitechPGE3-2025/G-DEV-500-REN-5-1-area-3.git
+          git fetch upstream
+          git rebase upstream/main || true
           git push upstream HEAD:main
