@@ -1,5 +1,13 @@
 Project initialization.
 
+## Area Mirror
+
+To push on original repository, please use the following command:
+
+```bash
+    git push upstream main
+```
+
 ## 👥 Contributeurs
 
 Ce projet a été développé par : 
