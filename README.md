@@ -1,6 +1,6 @@
 Project initialization.
 
-## Area Mirror
+## Area Mirror 
 
 To push on original repository, please use the following command:
 
