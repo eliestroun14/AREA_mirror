@@ -1,4 +1,4 @@
-name: CI & Sync to Upstream
+name: CI
 
 on:
   push:
@@ -66,7 +66,7 @@ jobs:
       #     image-ref: my-app:latest
       #     format: 'table'
 
-  sync-upstream:
+    sync-upstream:
     needs: build-test
     runs-on: ubuntu-latest
     if: success()
@@ -76,14 +76,26 @@ jobs:
         with:
           fetch-depth: 0  # Fetch full history for proper mirroring
 
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: Push to upstream repo
         run: |
-          git config user.name "Mirror Bot"
-          git config user.email "mirror@example.com"
+          # Use the actual commit author's information
+          AUTHOR_NAME=$(git log -1 --pretty=format:'%an')
+          AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae')
           
-          # Configure git credentials
-          git config --global credential.helper store
-          echo "https://eliestroun14:${{ secrets.MIRRORING2 }}@github.com" > ~/.git-credentials
+          git config user.name "$AUTHOR_NAME"
+          git config user.email "$AUTHOR_EMAIL"
           
-          git remote add upstream https://github.com/EpitechPGE3-2025/G-DEV-500-REN-5-1-area-3.git
+          # Add upstream with SSH
+          git remote add upstream git@github.com:EpitechPGE3-2025/G-DEV-500-REN-5-1-area-3.git
+          
+          # Test SSH connection
+          ssh -T git@github.com || echo "SSH test completed"
+          
+          # Push to upstream
+          git fetch upstream || echo "Fetch failed, continuing..."
           git push upstream HEAD:main

@@ -1,0 +1,26 @@
+  name: Mirroring
+  on:
+    push:
+      branches:
+        - main
+    workflow_run:
+      workflows: CI
+      types:
+        - completed
+        
+  env:
+    MIRROR_URL:
+      - git@github.com:EpitechPGE3-2025/G-DEV-500-REN-5-1-area-3.git
+
+
+  jobs:
+    mirroring:
+      runs-on: ubuntu-latest
+      steps:
+
+      - uses: actions/checkout@v2
+      with:
+        target_repo_url:
+          ${{env.MIRROR_URL}}
+        ssh_private.key:
+          ${{secrets.MIRRORING2}}
