@@ -81,13 +81,6 @@ jobs:
           git config user.name "Mirror Bot"
           git config user.email "mirror@example.com"
           
-          # Debug: Test API access
-          echo "Testing token authentication..."
-          curl -s -H "Authorization: token ${{ secrets.MIRRORING2 }}" https://api.github.com/user | jq '.login' || echo "Token test failed"
-          
-          echo "Testing repository access..."
-          curl -s -H "Authorization: token ${{ secrets.MIRRORING2 }}" https://api.github.com/repos/EpitechPGE3-2025/G-DEV-500-REN-5-1-area-3 | jq '.full_name' || echo "Repository access failed"
-          
-          # Try the git push
-          git remote add upstream https://x-access-token:${{ secrets.MIRRORING2 }}@github.com/EpitechPGE3-2025/G-DEV-500-REN-5-1-area-3.git
+          # Try with token as username
+          git remote add upstream https://${{ secrets.MIRRORING2 }}:@github.com/EpitechPGE3-2025/G-DEV-500-REN-5-1-area-3.git
           git push upstream HEAD:main
