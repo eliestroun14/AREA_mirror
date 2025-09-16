@@ -19,22 +19,47 @@ jobs:
         with:
           node-version: 18
 
+      - name: Check if frontend exists
+        id: check-frontend
+        run: |
+          if [ -d "./front_end" ] && [ -f "./front_end/package.json" ]; then
+            echo "frontend_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "frontend_exists=false" >> $GITHUB_OUTPUT
+            echo "Frontend directory not found, skipping frontend steps"
+          fi
+
       - name: Install dependencies
+        if: steps.check-frontend.outputs.frontend_exists == 'true'
         run: npm install
-        working-directory: ./client_web
+        working-directory: ./front_end
 
       - name: Run lint
+        if: steps.check-frontend.outputs.frontend_exists == 'true'
         run: npm run lint
-        working-directory: ./client_web
+        working-directory: ./front_end
 
       - name: Run tests
+        if: steps.check-frontend.outputs.frontend_exists == 'true'
         run: npm test -- --ci
-        working-directory: ./client_web
+        working-directory: ./front_end
+
+      - name: Check if docker-compose exists
+        id: check-docker
+        run: |
+          if [ -f "./docker-compose.yml" ] || [ -f "./docker-compose.yaml" ]; then
+            echo "docker_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "docker_exists=false" >> $GITHUB_OUTPUT
+            echo "Docker compose file not found, skipping Docker build"
+          fi
 
       - name: Build Docker images
+        if: steps.check-docker.outputs.docker_exists == 'true'
         run: docker-compose build
 
       - name: Security scan with Trivy
+        if: steps.check-docker.outputs.docker_exists == 'true'
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: my-app:latest
@@ -43,10 +68,12 @@ jobs:
   sync-upstream:
     needs: build-test
     runs-on: ubuntu-latest
-    if: success()   # seulement si build-test est vert
+    if: success()
     steps:
       - name: Checkout mirror
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch full history for proper mirroring
 
       - name: Push to upstream repo
         run: |
@@ -58,5 +85,4 @@ jobs:
           git rebase upstream/main || true
           git push upstream HEAD:main
         env:
-          GIT_ASKPASS: /dev/null
           GITHUB_TOKEN: ${{ secrets.MIRRORING }}

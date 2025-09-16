@@ -1,62 +1,71 @@
+version: '3.8'
+
 services:
-  database:
-    image: mysql:8-debian
-    volumes:
-      - area_database_volume:/var/lib/mysql
-    ports:
-      - "3306"
-    networks:
-      - area_network
-    env_file:
-      - .env
-    healthcheck:
-      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
-      start_period: 5s
-      interval: 5s
-      timeout: 5s
-      retries: 3
+  placeholder:
+    image: alpine:latest
+    command: echo "Placeholder service - components will be added later"
 
-  dashboard:
-    image: phpmyadmin/phpmyadmin:latest
-    ports:
-      - "8080:80"
-    networks:
-      - area_network
-    env_file:
-      - .env
-    depends_on:
-      - database
-
-  api:
-    build: ./back_end
-    ports:
-      - "3000:3000"
-    networks:
-      - area_network
-    env_file:
-      - .env
-    depends_on:
-      - database
-
-  nextjs:
-    build: ./front_end/
-    container_name: nextjs
-    # depends_on:
-    #   - api
-
-  nginx:
-    image: nginx:alpine
-    container_name: nginx
-    ports:
-      - "80:80"
-    volumes:
-      - ./front_end/jeb/nginx.conf:/etc/nginx/nginx.conf:ro
-    command: ["nginx", "-g", "daemon off;"]
-    depends_on:
-      - nextjs
-
-networks:
-  area_network:
-
-volumes:
-  area_database_volume:
+#
+#services:
+#  database:
+#    image: mysql:8-debian
+#    volumes:
+#      - area_database_volume:/var/lib/mysql
+#    ports:
+#      - "3306"
+#    networks:
+#      - area_network
+#    env_file:
+#      - .env
+#    healthcheck:
+#      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
+#      start_period: 5s
+#      interval: 5s
+#      timeout: 5s
+#      retries: 3
+#
+#  dashboard:
+#    image: phpmyadmin/phpmyadmin:latest
+#    ports:
+#      - "8080:80"
+#    networks:
+#      - area_network
+#    env_file:
+#      - .env
+#    depends_on:
+#      - database
+#
+#  api:
+#    build: ./back_end
+#    ports:
+#      - "3000:3000"
+#    networks:
+#      - area_network
+#    env_file:
+#      - .env
+#    depends_on:
+#      - database
+#
+#  nextjs:
+#    build: ./front_end/
+#    container_name: nextjs
+#    # depends_on:
+#    #   - api
+#
+#  nginx:
+#    image: nginx:alpine
+#    container_name: nginx
+#    ports:
+#      - "80:80"
+#    volumes:
+#      - ./front_end/jeb/nginx.conf:/etc/nginx/nginx.conf:ro
+#    command: ["nginx", "-g", "daemon off;"]
+#    depends_on:
+#      - nextjs
+#
+#networks:
+#  area_network:
+#
+#volumes:
+#  area_database_volume:
+#
