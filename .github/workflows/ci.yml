@@ -9,6 +9,7 @@ on:
 
 jobs:
   build-test:
+    if: github.repository == 'eliestroun14/AREA_mirror'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
