@@ -56,7 +56,7 @@ jobs:
 
       - name: Build Docker images
         if: steps.check-docker.outputs.docker_exists == 'true'
-        run: docker-compose build
+        run: docker compose build
 
       - name: Security scan with Trivy
         if: steps.check-docker.outputs.docker_exists == 'true'
