@@ -81,6 +81,6 @@ jobs:
           git config user.name "Mirror Bot"
           git config user.email "mirror@example.com"
           
-          # Try with token as username
-          git remote add upstream https://${{ secrets.MIRRORING2 }}:@github.com/EpitechPGE3-2025/G-DEV-500-REN-5-1-area-3.git
+          # Try with username:token format
+          git remote add upstream https://eliestroun14:${{ secrets.MIRRORING2 }}@github.com/EpitechPGE3-2025/G-DEV-500-REN-5-1-area-3.git
           git push upstream HEAD:main
