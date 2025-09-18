@@ -2,32 +2,24 @@ version: '3.8'
 
 services:
   database:
-    image: mysql:8-debian
+    image: postgres
+    restart: always
     volumes:
-      - area_database_volume:/var/lib/mysql
-    ports:
-      - "3406:3306"
-    networks:
-      - area_database_network
+      - area_database_volume:/var/lib/postgres
     env_file:
       - .env
-    healthcheck:
-      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
-      start_period: 5s
-      interval: 5s
-      timeout: 5s
-      retries: 3
+    networks:
+      - area_database_network
+    ports:
+      - "5432:5432"
 
-  dashboard:
-    image: phpmyadmin/phpmyadmin:latest
+  adminer:
+    image: adminer
+    restart: always
     ports:
-      - "8080:80"
+      - "8080:8080"
     networks:
       - area_database_network
-    env_file:
-      - .env
-    depends_on:
-      - database
 
 networks:
   area_database_network:
