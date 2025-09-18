@@ -10,6 +10,8 @@ export default function LoginScreen() {
     password: '',
   });
 
+  const [loggedIn, setIsLoggedIn] = useState(false)
+
   const validate = (text:string) => {
       console.log(text);
       let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
@@ -35,83 +37,120 @@ export default function LoginScreen() {
     Alert.alert("Succefully signed in !")
   }
 
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Image
-            source={require('@/assets/images/AreaLogo.png')}
-            style={styles.headerImg}
-          />
+  if (loggedIn === false) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Image
+              source={require('@/assets/images/AreaLogo.png')}
+              style={styles.headerImg}
+            />
 
-          <Text style={styles.title}>
-            Sign in to AREA
-          </Text>
-
-          <Text style={styles.subtitle}>
-            Get access to your profile and more.
-          </Text>
-        </View>
-
-        <View style={styles.form}>
-          <View style={styles.input}>
-            <Text style={styles.inputLabel}>
-              Email address :
+            <Text style={styles.title}>
+              Sign in to AREA
             </Text>
 
-            <TextInput
-              autoCapitalize='none'
-              autoCorrect={false}
-              keyboardType='email-address'
-              style={styles.inputControl}
-              placeholder='john@example.com'
-              placeholderTextColor='#6b7280'
-              value={form.email}
-              onChangeText={email => setForm({ ...form, email })}
-            />
+            <Text style={styles.subtitle}>
+              Get access to your profile and more.
+            </Text>
           </View>
 
-          <View style={styles.input}>
-            <Text style={styles.inputLabel}>
-              Password :
+          <View style={styles.form}>
+            <View style={styles.input}>
+              <Text style={styles.inputLabel}>
+                Email address :
+              </Text>
+
+              <TextInput
+                autoCapitalize='none'
+                autoCorrect={false}
+                keyboardType='email-address'
+                style={styles.inputControl}
+                placeholder='john@example.com'
+                placeholderTextColor='#6b7280'
+                value={form.email}
+                onChangeText={email => setForm({ ...form, email })}
+              />
+            </View>
+
+            <View style={styles.input}>
+              <Text style={styles.inputLabel}>
+                Password :
+              </Text>
+
+              <TextInput
+                secureTextEntry={true}
+                style={styles.inputControl}
+                placeholder='*********'
+                placeholderTextColor='#6b7280'
+                value={form.password}
+                onChangeText={password => setForm({ ...form, password })}
+              />
+            </View>
+
+            <View style={styles.formAction}>
+              <TouchableOpacity
+                onPress={() => {
+                  checkTextInputs()
+                  setIsLoggedIn(true)
+                }}>
+                <View style={styles.button}>
+                  <Text style={styles.buttonText}> Sign in </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={{ marginTop: 'auto'}}
+              onPress={() => {
+                router.push("/sign-up")
+              }}>
+                <Text style={styles.formFooter}>
+                  Don't have an account ?{' '}
+                  <Text style={{ textDecorationLine: 'underline'}}>Sign up</Text>
+                </Text>
+            </TouchableOpacity>
+
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  } else {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
+        <View style={styles.container}>
+
+          <View style={styles.header}>
+            <Image
+              source={require('@/assets/images/AreaLogo.png')}
+              style={styles.profileImg}
+            />
+
+            <Text style={styles.title}>
+              Profile name
             </Text>
 
-            <TextInput
-              secureTextEntry={true}
-              style={styles.inputControl}
-              placeholder='*********'
-              placeholderTextColor='#6b7280'
-              value={form.password}
-              onChangeText={password => setForm({ ...form, password })}
-            />
+            <Text style={styles.subtitle}>
+              Welcome profile name :)
+            </Text>
           </View>
 
           <View style={styles.formAction}>
-            <TouchableOpacity
-              onPress={() => {
-                checkTextInputs()
-              }}>
-              <View style={styles.button}>
-                <Text style={styles.buttonText}> Sign in </Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity
-            style={{ marginTop: 'auto'}}
-            onPress={() => {
-              router.push("/sign-up")
-            }}>
-              <Text style={styles.formFooter}>
-                Don't have an account ?{' '}
-                <Text style={{ textDecorationLine: 'underline'}}>Sign up</Text>
-              </Text>
-          </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setIsLoggedIn(false)
+                }}>
+                <View style={styles.disconnectButton}>
+                  <Text style={styles.buttonText}> Sign out </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
 
         </View>
-      </View>
-    </SafeAreaView>
-  );
+      </SafeAreaView>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -125,13 +164,22 @@ const styles = StyleSheet.create({
   },
 
   headerImg: {
-    width: 80,
-    height: 80,
+    width: 125,
+    height: 125,
     alignSelf: 'center',
+    marginBottom: 15
+  },
+
+  profileImg: {
+    width: 200,
+    height: 200,
+    alignSelf: 'center',
+    marginBottom: 15,
+    borderRadius: 15
   },
 
   title: {
-    fontSize: 27,
+    fontSize: 30,
     fontWeight: 'bold',
     color: '#1e1e1e',
     marginBottom: 6,
@@ -201,5 +249,18 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
 
+  disconnectButton: {
+    backgroundColor: '#ec0707ff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ec0707ff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    maxWidth: 130,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
 
 });
