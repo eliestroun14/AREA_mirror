@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router, useRouter } from 'expo-router';
 
 export default function LoginScreen() {
 
@@ -76,7 +77,7 @@ export default function LoginScreen() {
           <TouchableOpacity
             style={{ marginTop: 'auto'}}
             onPress={() => {
-              // handle onPress
+              router.push("/sign-up")
             }}>
               <Text style={styles.formFooter}>
                 Don't have an account ?{' '}
