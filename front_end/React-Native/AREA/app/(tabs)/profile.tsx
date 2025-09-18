@@ -10,6 +10,31 @@ export default function LoginScreen() {
     password: '',
   });
 
+  const validate = (text:string) => {
+      console.log(text);
+      let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+      if (reg.test(text) === false) {
+        console.log("Email is Not Correct");
+        return false;
+      }
+      else {
+        console.log("Email is Correct");
+        return true
+    }
+  }
+
+  const checkTextInputs = () => {
+    if (!validate(form.email)) {
+      Alert.alert('Please enter valid email.');
+      return;
+    }
+    if (!form.password.trim()) {
+      Alert.alert('Please enter password.');
+      return;
+    }
+    Alert.alert("Succefully signed in !")
+  }
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
       <View style={styles.container}>
@@ -64,9 +89,7 @@ export default function LoginScreen() {
           <View style={styles.formAction}>
             <TouchableOpacity
               onPress={() => {
-                // handle onPress
-
-                Alert.alert('Successfully logged in !')
+                checkTextInputs()
               }}>
               <View style={styles.button}>
                 <Text style={styles.buttonText}> Sign in </Text>
