@@ -28,7 +28,14 @@
 ## Project setup
 
 ```bash
+# Install dependencies
 $ pnpm install
+
+# Migrate database
+$ pnpx prisma migrate
+
+# Generate prisma client
+$ pnpx prisma generate
 ```
 
 ## Compile and run the project
@@ -55,12 +62,6 @@ $ pnpm run test:e2e
 
 # test coverage
 $ pnpm run test:cov
-```
-
-## Migrate the database
-
-```bash
-$ npx prisma migrate dev --name migration_name
 ```
 
 ## Deployment

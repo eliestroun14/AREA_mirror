@@ -24,7 +24,10 @@
     "paths": {
       "@root/*": ["src/*"],
       "@app/*": ["src/app/*"],
-      "@tests/*": ["test/*"],
+      "@config/*": ["src/config/*"],
+      "@filters/*": ["src/filters/*"],
+      "@test/*": ["test/*"]
+//      "@prisma/*": ["src/.generated/prisma/*"]
     }
   }
 }

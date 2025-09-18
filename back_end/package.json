@@ -22,8 +22,11 @@
   "dependencies": {
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
+    "@nestjs/jwt": "^11.0.0",
     "@nestjs/platform-express": "^11.0.1",
     "@prisma/client": "6.16.2",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.2",
     "module-alias": "^2.2.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
@@ -34,6 +37,7 @@
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.10.7",
@@ -72,13 +76,17 @@
     "testEnvironment": "node",
     "moduleNameMapper": {
       "@root/(.*)": "<rootDir>/src/$1",
-      "@app/(.*)": "<rootDir>/app/$1",
+      "@app/(.*)": "<rootDir>/src/app/$1",
+      "@config/(.*)": "<rootDir>/src/config/$1",
+      "@filters/(.*)": "<rootDir>/src/filters/$1",
       "@test/(.*)": "<rootDir>/test/$1"
     }
   },
   "_moduleAliases": {
     "@root": ".",
     "@app": "src/app",
-    "@tests": "test"
+    "@config": "src/config",
+    "@filters": "src/filters",
+    "@test": "test"
   }
 }
