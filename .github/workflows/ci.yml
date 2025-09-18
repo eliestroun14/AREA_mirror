@@ -66,37 +66,3 @@ jobs:
       #  with:
       #    image-ref: my-app:latest
       #    format: 'table'
-
-#    sync-upstream:
-#    needs: build-test
-#    runs-on: ubuntu-latest
-#    if: success()
-#    steps:
-#      - name: Checkout mirror
-#        uses: actions/checkout@v3
-#        with:
-#          fetch-depth: 0  # Fetch full history for proper mirroring
-#
-#      - name: Setup SSH
-#        uses: webfactory/ssh-agent@v0.7.0
-#        with:
-#          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-#
-#      - name: Push to upstream repo
-#        run: |
-#          # Use the actual commit author's information
-#          AUTHOR_NAME=$(git log -1 --pretty=format:'%an')
-#          AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae')
-#          
-#          git config user.name "$AUTHOR_NAME"
-#          git config user.email "$AUTHOR_EMAIL"
-#          
-#          # Add upstream with SSH
-#          git remote add upstream git@github.com:EpitechPGE3-2025/G-DEV-500-REN-5-1-area-3.git
-#          
-#          # Test SSH connection
-#          ssh -T git@github.com || echo "SSH test completed"
-#          
-#          # Push to upstream
-#          git fetch upstream || echo "Fetch failed, continuing..."
-#          git push upstream HEAD:main
