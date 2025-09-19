@@ -413,7 +413,7 @@ default_value: "normal"
 ## Table data_transformations - Le coeur de zapier
 
 ### Rôle et importance critique
-C'est ** table la plus importante** conceptuellement ! Elle résout le problème central de Zapier : comment connecter des services qui parlent des "langues" différentes ?
+C'est **la table la plus importante** conceptuellement ! Elle résout le problème central de Zapier : comment connecter des services qui parlent des "langues" différentes ?
 
 ### Le problème à résoudre
 - Gmail appelle un email un `"message"` avec un champ `"subject"`
