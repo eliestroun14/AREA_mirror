@@ -2,21 +2,21 @@
 
 ## Sommaire
 
-1. [Introduction générale](#introduction)
+1. [Introduction générale](#introduction-generale)
 2. [Table users - Gestion des utilisateurs](#table-users---gestion-des-utilisateurs)
 3. [Table services - Services externes](#table-services---services-externes)
-4. [Table connections - Connexions authentifiées](#table-connections---connexions-authentifiees)
+4. [Table connections - Connexions authentifiees](#table-connections---connexions-authentifiees)
 5. [Table zaps - Workflows d'automatisation](#table-zaps---workflows-dautomatisation)
-6. [Table zap_steps - Étapes d'un workflow](#table-zap_steps---etapes-dun-workflow)
-7. [Table triggers - Événements déclencheurs](#table-triggers---evenements-declencheurs)
-8. [Table actions - Actions exécutables](#table-actions---actions-executables)
-9. [Table zap_executions - Historique des exécutions](#table-zap_executions---historique-des-executions)
-10. [Table step_executions - Détail par étape](#table-step_executions---detail-par-etape)
-11. [Table webhooks - Réception temps réel](#table-webhooks---reception-temps-reel)
+6. [Table zap_steps - Etapes dun workflow](#table-zap_steps---etapes-dun-workflow)
+7. [Table triggers - Evenements declencheurs](#table-triggers---evenements-declencheurs)
+8. [Table actions - Actions executables](#table-actions---actions-executables)
+9. [Table zap_executions - Historique des executions](#table-zap_executions---historique-des-executions)
+10. [Table step_executions - Detail par etape](#table-step_executions---detail-par-etape)
+11. [Table webhooks - Reception temps reel](#table-webhooks---reception-temps-reel)
 12. [Table service_fields - Configuration dynamique](#table-service_fields---configuration-dynamique)
-13. [Table data_transformations - Le cœur de Zapier](#table-data_transformations---le-coeur-de-zapier)
-14. [Table execution_logs - Debugging avancé](#table-execution_logs---debugging-avance)
-15. [Relations et flux de données](#relations-et-flux-de-donnees)
+13. [Table data_transformations - Le coeur de zapier](#table-data_transformations---le-coeur-de-zapier)
+14. [Table execution_logs - Debugging avance](#table-execution_logs---debugging-avance)
+15. [Relations et flux de donnees](#relations-et-flux-de-donnees)
 16. [Lexique des termes techniques](#lexique-des-termes-techniques)
 
 ## 📋 Introduction générale
