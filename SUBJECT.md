@@ -1,17 +1,3 @@
-tices. Make your application usable by as many people as possible, including those with disabilities.
-- type Action (see Action Components)
-- type REAction (see REAction Components)
-tion server the subscription to this service (eg the user subscribes to the Facebook service which requires
-mented on the application server side.
-tions linked through an AREA are recorded.
-playing screens and forwarding requests from the user to the application server.
-ent docker services used.
-tation about depends_on
-velopers understand and build upon your work. Focus on creating simple, scalable designs without code
-tain trust with your users. Similarly, a well-designed database can improve performance, accuracy,
-and speed of your application. Consider these aspects while moving forward with your project.
-vices, intersting interactions, good user interface, deployment using docker, ...).
----
 # ACTION-REACTION
 
 ## < CREATE AN AUTOMATION PLATFORM />
