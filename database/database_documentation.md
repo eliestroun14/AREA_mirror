@@ -2,7 +2,7 @@
 
 ## Sommaire
 
-1. [Introduction générale](#introduction-generale)
+1. [Introduction generale](#introduction-generale)
 2. [Table users - Gestion des utilisateurs](#table-users---gestion-des-utilisateurs)
 3. [Table services - Services externes](#table-services---services-externes)
 4. [Table connections - Connexions authentifiees](#table-connections---connexions-authentifiees)
@@ -19,7 +19,7 @@
 15. [Relations et flux de donnees](#relations-et-flux-de-donnees)
 16. [Lexique des termes techniques](#lexique-des-termes-techniques)
 
-## 📋 Introduction générale
+## Introduction generale
 
 Cette base de données gère un système d'automatisation type Zapier qui permet de :
 - Connecter différents services web (Gmail, Slack, Trello, etc.)
@@ -29,7 +29,7 @@ Cette base de données gère un système d'automatisation type Zapier qui permet
 
 ---
 
-## Table `users` - Gestion des utilisateurs
+## Table users - Gestion des utilisateurs
 
 ### Rôle
 Stocke les informations des comptes utilisateurs de la plateforme.
@@ -53,7 +53,7 @@ Stocke les informations des comptes utilisateurs de la plateforme.
 
 ---
 
-## Table `services` - Services externes
+## Table services - Services externes
 
 ### Rôle
 Catalogue des services tiers intégrés à la plateforme (comme Gmail, Slack, Dropbox, etc.).
@@ -78,7 +78,7 @@ Catalogue des services tiers intégrés à la plateforme (comme Gmail, Slack, Dr
 
 ---
 
-## Table `connections` - Connexions authentifiées
+## Table connections - Connexions authentifiees
 
 ### Rôle
 Stocke les connexions authentifiées entre un utilisateur et un service externe. C'est ici qu'on garde les tokens OAuth pour pouvoir agir au nom de l'utilisateur.
@@ -115,7 +115,7 @@ Les APIs externes limitent le nombre de requêtes par heure/jour. En trackant ce
 
 ---
 
-## Table `zaps` - Workflows d'automatisation
+## Table zaps - Workflows d'automatisation
 
 ### Rôle
 Un "zap" est un workflow automatisé créé par l'utilisateur. Il se compose d'un trigger (événement déclencheur) suivi d'une ou plusieurs actions.
@@ -144,7 +144,7 @@ Un "zap" est un workflow automatisé créé par l'utilisateur. Il se compose d'u
 
 ---
 
-## Table `zap_steps` - Étapes d'un workflow
+## Table zap_steps - Etapes dun workflow
 
 ### Rôle
 Chaque zap est composé d'étapes ordonnées : 1 trigger (étape 1) suivi de 1+ actions (étapes 2, 3, etc.).
@@ -177,7 +177,7 @@ Chaque zap est composé d'étapes ordonnées : 1 trigger (étape 1) suivi de 1+ 
 
 ---
 
-## Table `triggers` - Événements déclencheurs
+## Table triggers - Evenements declencheurs
 
 ### Rôle
 Définit tous les types d'événements disponibles pour déclencher un zap (nouveau email, mention Twitter, fichier uploadé, etc.).
@@ -216,7 +216,7 @@ Définit tous les types d'événements disponibles pour déclencher un zap (nouv
 
 ---
 
-## Table `actions` - Actions exécutables
+## Table actions - Actions executables
 
 ### Rôle
 Définit toutes les actions qu'on peut exécuter sur les services (envoyer email, créer fichier, poster message, etc.).
@@ -250,7 +250,7 @@ Définit toutes les actions qu'on peut exécuter sur les services (envoyer email
 
 ---
 
-## Table `zap_executions` - Historique des exécutions
+## Table zap_executions - Historique des executions
 
 ### Rôle
 Chaque fois qu'un zap se déclenche, on enregistre son exécution complète. Essentiel pour le monitoring et le debugging.
@@ -280,7 +280,7 @@ Chaque fois qu'un zap se déclenche, on enregistre son exécution complète. Ess
 
 ---
 
-## Table `step_executions` - Détail par étape
+## Table step_executions - Detail par etape
 
 ### Rôle
 Pour chaque exécution de zap, on détaille l'exécution de chaque étape (trigger + chaque action).
@@ -324,7 +324,7 @@ Pour chaque exécution de zap, on détaille l'exécution de chaque étape (trigg
 
 ---
 
-## Table `webhooks` - Réception temps réel
+## Table webhooks - Reception temps reel
 
 ### Rôle et concept des webhooks
 Un **webhook** est comme une "sonnette" : quand quelque chose se passe chez le service externe (nouveau email, nouveau commit GitHub), au lieu d'attendre qu'on vienne vérifier, le service nous "sonne" en envoyant une requête HTTP à notre serveur.
@@ -362,7 +362,7 @@ Un **webhook** est comme une "sonnette" : quand quelque chose se passe chez le s
 
 ---
 
-## Table `service_fields` - Configuration dynamique
+## Table service_fields - Configuration dynamique
 
 ### Rôle
 Chaque service et chaque action a des paramètres différents. Au lieu de coder en dur tous les champs possibles, on les stocke dynamiquement en base.
@@ -410,7 +410,7 @@ default_value: "normal"
 
 ---
 
-## Table `data_transformations` - Le cœur de Zapier
+## Table data_transformations - Le coeur de zapier
 
 ### Rôle et importance critique
 C'est ** table la plus importante** conceptuellement ! Elle résout le problème central de Zapier : comment connecter des services qui parlent des "langues" différentes ?
@@ -484,7 +484,7 @@ Avec cet table :
 
 ---
 
-## Table `execution_logs` - Debugging avancé
+## Table execution_logs - Debugging avance
 
 ### Rôle
 Quand un zap échoue, les utilisateurs et le support ont besoin de logs détaillés pour comprendre exactement ce qui s'est passé.
@@ -519,7 +519,7 @@ Quand un zap échoue, les utilisateurs et le support ont besoin de logs détaill
 
 ---
 
-## 🔄 Relations et flux de données
+## Relations et flux de donnees
 
 ### Flux typique d'exécution d'un zap
 
@@ -539,7 +539,7 @@ Quand un zap échoue, les utilisateurs et le support ont besoin de logs détaill
 Cette architecture permet une flexibilité maximale tout en gardant une traçabilité complète de tout ce qui se passe dans le système.
 ---
 
-## 📚 Lexique des termes techniques
+## Lexique des termes techniques
 
 | Terme | Signification | Explication |
 |-------|--------------|-------------|
