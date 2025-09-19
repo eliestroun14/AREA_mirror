@@ -27,13 +27,14 @@ De plus, l'application n'a pas de grosse contrainte technique niveau performance
 en plus d'avoir beaucoup de librairies disponibles.
 
 **API:**
-Nous avons décidé d'utiliser NestJS pour deux raisons. 
+Nous avons décidé d'utiliser NestJS pour deux raisons.
 Tout d'abord, nous avions utilisé Fastify lors d'un projet précédent et nous avons rapidement vu ses limitations : Il faut quasiement tout faire sois-même, contrairement à NestJS qui a énormément d'outils intégrés.
 Nous avons également choisi NestJS plutôt que SpringBoot à cause du langage : le groupe sait programmer en TypeScript, mais pas forcément en Java.
 C'est pourquoi nous préférons apprendre un nouveau framework au lieu d'avoir à apprendre en plus de cela un nouveau langage.
 
 **ORM:**
-Expliquer pourquoi est-ce qu'on a choisit Prisma
+Nous avons écarté Drizzle et MikroORM de notre choix final. Bien que ces deux solutions puissent être intéressantes dans certains cas spécifiques, elles sont soit moins accessibles, soit plus adaptées à des projets nécessitant des configurations avancées.
+Nous avons donc retenu Prisma car il est simple à intégrer, dispose d'une documentation claire et bénéficie d'une communauté active. Pour un projet court où l'apprentissage de nouvelles technologies est déjà un défi, Prisma nous permet de limiter les risques de blocage technique tout en restant productifs. De plus, il facilite la gestion des migrations et du schéma de la base PostgreSQL, offrant un environnement stable et robuste pour le développement.
 
 ### Étude des failles de sécurité
 
