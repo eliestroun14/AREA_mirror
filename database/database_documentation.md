@@ -1,6 +1,6 @@
 # Documentation détaillée de la base de données Zapier
 
-## �️ Sommaire
+## Sommaire
 
 1. [Introduction générale](#introduction)
 2. [Table users - Gestion des utilisateurs](#table-users---gestion-des-utilisateurs)
@@ -19,7 +19,7 @@
 15. [Relations et flux de données](#relations-et-flux-de-donnees)
 16. [Lexique des termes techniques](#lexique-des-termes-techniques)
 
-## �📋 Introduction générale
+## 📋 Introduction générale
 
 Cette base de données gère un système d'automatisation type Zapier qui permet de :
 - Connecter différents services web (Gmail, Slack, Trello, etc.)
