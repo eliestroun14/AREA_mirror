@@ -44,7 +44,7 @@ export default function LoginScreen() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:3000/auth/sign-in", {
+      const res = await fetch("http://10.28.255.73:3000/auth/sign-in", { //FIXME: belek à l'ip, c'est celle d'Epitech
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -54,7 +54,7 @@ export default function LoginScreen() {
       });
       const result = await res.json();
 
-      if (res.status === 200 && result.code === 200) {
+      if (res.status === 200) {
         login();
         Alert.alert("Succefully signed in !")
       } else if (res.status === 400) {
@@ -161,6 +161,8 @@ export default function LoginScreen() {
             <Text style={styles.title}>
               Profile name
             </Text>
+
+            {/* FIXME: change profile name */}
 
             <Text style={styles.subtitle}>
               Welcome profile name :)
