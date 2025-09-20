@@ -20,3 +20,10 @@
 !.gitignore
 !tsconfig.json
 !jest.config.js
+!entrypoint.sh
+
+!prisma
+!prisma/**
+!prisma/**/*.*
+
+node_modules

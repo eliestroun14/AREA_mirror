@@ -1,0 +1,8 @@
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - bcrypt
+  - unrs-resolver
+
+packages:
+  - back_end
+  - front_end

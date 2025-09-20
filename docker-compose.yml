@@ -1,71 +1,80 @@
-version: '3.8'
 
 services:
-  placeholder:
-    image: alpine:latest
-    command: echo "Placeholder service - components will be added later"
+  database:
+    image: postgres:latest
+    restart: always
+    volumes:
+      - area_database_volume:/var/lib/postgresql/data
+    env_file:
+      - .env
+    networks:
+      - area_network
+    ports:
+      - "5432:5432"
 
-#
-#services:
-#  database:
-#    image: mysql:8-debian
-#    volumes:
-#      - area_database_volume:/var/lib/mysql
-#    ports:
-#      - "3306"
-#    networks:
-#      - area_network
-#    env_file:
-#      - .env
-#    healthcheck:
-#      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
-#      start_period: 5s
-#      interval: 5s
-#      timeout: 5s
-#      retries: 3
-#
-#  dashboard:
-#    image: phpmyadmin/phpmyadmin:latest
-#    ports:
-#      - "8080:80"
-#    networks:
-#      - area_network
-#    env_file:
-#      - .env
-#    depends_on:
-#      - database
-#
-#  api:
-#    build: ./back_end
-#    ports:
-#      - "3000:3000"
-#    networks:
-#      - area_network
-#    env_file:
-#      - .env
-#    depends_on:
-#      - database
-#
-#  nextjs:
-#    build: ./front_end/
-#    container_name: nextjs
-#    # depends_on:
-#    #   - api
-#
-#  nginx:
-#    image: nginx:alpine
-#    container_name: nginx
-#    ports:
-#      - "80:80"
-#    volumes:
-#      - ./front_end/jeb/nginx.conf:/etc/nginx/nginx.conf:ro
-#    command: ["nginx", "-g", "daemon off;"]
-#    depends_on:
-#      - nextjs
-#
-#networks:
-#  area_network:
-#
-#volumes:
-#  area_database_volume:
-#
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - area_network
+    depends_on:
+      - database
+
+  wait-for-db:
+    image: busybox
+    depends_on:
+      - database
+    entrypoint: ["sh", "-c", "until nc -z database 5432; do echo 'Waiting for database...'; sleep 2; done; echo 'Database is up.'"]
+    networks:
+      - area_network
+
+  api:
+    build: ./back_end
+    ports:
+      - "3000:3000"
+    networks:
+      - area_network
+    env_file:
+      - .env
+    depends_on:
+      - wait-for-db
+    entrypoint: ["/app/entrypoint.sh"]
+
+  nextjs:
+    build: ./front_end/
+    container_name: nextjs
+    ports:
+      - "3001:3000"  # Add this line to expose the port
+    networks:
+      - area_network
+    depends_on:
+      - api
+
+  wait-for-nextjs:
+    image: busybox
+    depends_on:
+      - nextjs
+    entrypoint: ["sh", "-c", "until nc -z nextjs 3000; do echo 'Waiting for nextjs...'; sleep 2; done; echo 'Nextjs is up.'"]
+    networks:
+      - area_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./front_end/area/nginx.conf:/etc/nginx/nginx.conf:ro
+    command: ["nginx", "-g", "daemon off;"]
+    depends_on:
+      - wait-for-nextjs  # Change this to wait for nextjs to be ready
+    networks:
+      - area_network
+
+networks:
+  area_network:
+
+volumes:
+  area_database_volume:
