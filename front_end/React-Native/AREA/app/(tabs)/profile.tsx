@@ -18,14 +18,10 @@ export default function LoginScreen() {
   const validate = (text:string) => {
       console.log(text);
   const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
-      if (reg.test(text) === false) {
-        console.log("Email is Not Correct");
+      if (reg.test(text) === false)
         return false;
-      }
-      else {
-        console.log("Email is Correct");
+      else
         return true
-    }
   }
 
   const checkTextInputs = () => {
@@ -57,7 +53,8 @@ export default function LoginScreen() {
       if (res.status === 200) {
         login();
         Alert.alert("Succefully signed in !")
-      } else if (res.status === 400) {
+      } else if (res.status === 401) {
+        Alert.alert("Invalid email or password.")
         setError(result.data || "Invalid email or password.");
       } else {
         setError("Failed to login. Please check your credentials.");
