@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert } fro
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import SearchBar from "@/components/molecules/search-bar/search-bar";
-
+import AppCard from '@/components/molecules/app-card/app-card';
 
 export default function HomeScreen() {
 
@@ -28,10 +28,24 @@ export default function HomeScreen() {
 
         <View style={styles.homeConfig}>
 
-          <View>
+          <View style={styles.searchBar}>
             <SearchBar value={search}
               onChangeText={setSearch}
               placeholder='Search...' />
+          </View>
+
+          <View style={styles.appCards}>
+            <AppCard appName='Youtube'
+            appLogoPath={require('@/assets/images/youtubeLogo.webp')}
+            backgroundColor='rgba(255, 17, 0, 1)'
+            />
+          </View>
+
+          <View style={styles.appCards}>
+            <AppCard appName='Linkedin'
+            appLogoPath={require('@/assets/images/linkedinLogo.webp')}
+            backgroundColor='rgba(0, 4, 255, 1)'
+            />
           </View>
 
         </View>
@@ -70,7 +84,15 @@ const styles = StyleSheet.create({
   },
 
   homeConfig: {
-    padding: 10
+    padding: 10,
   },
+
+  searchBar: {
+    marginBottom: 15,
+  },
+
+  appCards: {
+    marginTop: 5
+  }
 
 });
