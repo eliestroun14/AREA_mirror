@@ -1,10 +1,15 @@
+import { IsEmail, IsString } from 'class-validator';
+
 // =========
 //  Sign In
 // =========
-export type SignInRequestDto = {
-  email: any;
-  password: any;
-};
+export class SignInRequestDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  password: string;
+}
 
 export type SignInResponseDto = {
   access_token: string;
@@ -13,11 +18,16 @@ export type SignInResponseDto = {
 // =========
 //  Sign Up
 // =========
-export type SignUpRequestDto = {
-  email: any;
-  name: any;
-  password: any;
-};
+export class SignUpRequestDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  name: string;
+
+  @IsString()
+  password: string;
+}
 
 export type SignUpResponseDto = {
   id: number;

@@ -7,7 +7,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { AuthService } from '@app/auth/auth.service';
-import type {
+import {
   SignInRequestDto,
   SignInResponseDto,
   SignUpRequestDto,
@@ -37,7 +37,7 @@ export class AuthController {
     if (typeof signUpDto.name !== 'string')
       throw new BadRequestException('Invalid name format.');
 
-    const { password, ...result } = await this.authService.signUp(signUpDto);
+    const { password: _, ...result } = await this.authService.signUp(signUpDto);
     return result;
   }
 
