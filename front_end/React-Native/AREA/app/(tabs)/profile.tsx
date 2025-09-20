@@ -8,6 +8,7 @@ import areaLogo from '../../assets/images/AreaLogo.png';
 export default function LoginScreen() {
 
   const { isAuthenticated, login, logout } = useAuth();
+  const [error, setError] = useState("");
 
   const [form, setForm] = useState({
     email: '',
@@ -17,14 +18,10 @@ export default function LoginScreen() {
   const validate = (text:string) => {
       console.log(text);
   const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
-      if (reg.test(text) === false) {
-        console.log("Email is Not Correct");
+      if (reg.test(text) === false)
         return false;
-      }
-      else {
-        console.log("Email is Correct");
+      else
         return true
-    }
   }
 
   const checkTextInputs = () => {
@@ -36,9 +33,36 @@ export default function LoginScreen() {
       Alert.alert('Please enter password.');
       return;
     }
-    Alert.alert("Succefully signed in !")
-    login();
+    handleSignIn()
   }
+
+  const handleSignIn = async () => {
+    setError("");
+
+    try {
+      const res = await fetch("http://10.28.255.73:3000/auth/sign-in", { //FIXME: belek à l'ip, c'est celle d'Epitech
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: form.email, password: form.password }),
+        credentials: "include", // to receive set-cookie
+      });
+      const result = await res.json();
+
+      if (res.status === 200) {
+        login();
+        Alert.alert("Succefully signed in !")
+      } else if (res.status === 401) {
+        Alert.alert("Invalid email or password.")
+        setError(result.data || "Invalid email or password.");
+      } else {
+        setError("Failed to login. Please check your credentials.");
+      }
+    } catch {
+      setError("Failed to login. Please check your credentials.");
+    }
+  };
 
   if (isAuthenticated === false) {
     return (
@@ -134,6 +158,8 @@ export default function LoginScreen() {
             <Text style={styles.title}>
               Profile name
             </Text>
+
+            {/* FIXME: change profile name */}
 
             <Text style={styles.subtitle}>
               Welcome profile name :)
