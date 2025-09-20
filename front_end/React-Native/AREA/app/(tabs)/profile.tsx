@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert } fro
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
+import areaLogo from '../../assets/images/AreaLogo.png';
 
 export default function LoginScreen() {
 
@@ -15,7 +16,7 @@ export default function LoginScreen() {
 
   const validate = (text:string) => {
       console.log(text);
-      let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+  const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
       if (reg.test(text) === false) {
         console.log("Email is Not Correct");
         return false;
@@ -45,8 +46,9 @@ export default function LoginScreen() {
         <View style={styles.container}>
           <View style={styles.header}>
             <Image
-              source={require('@/assets/images/AreaLogo.png')}
+              source={areaLogo}
               style={styles.headerImg}
+              alt="Area Logo"
             />
 
             <Text style={styles.title}>
@@ -72,7 +74,7 @@ export default function LoginScreen() {
                 placeholder='john@example.com'
                 placeholderTextColor='#6b7280'
                 value={form.email}
-                onChangeText={email => setForm({ ...form, email })}
+                onChangeText={(email: string) => setForm({ ...form, email })}
               />
             </View>
 
@@ -87,7 +89,7 @@ export default function LoginScreen() {
                 placeholder='*********'
                 placeholderTextColor='#6b7280'
                 value={form.password}
-                onChangeText={password => setForm({ ...form, password })}
+                onChangeText={(password: string) => setForm({ ...form, password })}
               />
             </View>
 
@@ -108,7 +110,7 @@ export default function LoginScreen() {
                 router.push("/sign-up")
               }}>
                 <Text style={styles.formFooter}>
-                  Don't have an account ?{' '}
+                  Don&apos;t have an account ?{' '}
                   <Text style={{ textDecorationLine: 'underline'}}>Sign up</Text>
                 </Text>
             </TouchableOpacity>
@@ -124,8 +126,9 @@ export default function LoginScreen() {
 
           <View style={styles.header}>
             <Image
-              source={require('@/assets/images/AreaLogo.png')}
+              source={areaLogo}
               style={styles.profileImg}
+              alt="Area Logo"
             />
 
             <Text style={styles.title}>

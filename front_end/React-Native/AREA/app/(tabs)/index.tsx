@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
 import SearchBar from "@/components/molecules/search-bar/search-bar";
 import AppCard from '@/components/molecules/app-card/app-card';
+import defaultPfp from '../../assets/images/Default_pfp.svg.png';
+import youtubeLogo from '../../assets/images/youtubeLogo.webp';
+import linkedinLogo from '../../assets/images/linkedinLogo.webp';
 
 export default function HomeScreen() {
 
@@ -20,8 +22,9 @@ export default function HomeScreen() {
           </Text>
 
           <Image
-            source={require('@/assets/images/Default_pfp.svg.png')}
+            source={defaultPfp}
             style={styles.profileImage}
+            alt="Profile picture"
           />
 
         </View>
@@ -36,14 +39,14 @@ export default function HomeScreen() {
 
           <View style={styles.appCards}>
             <AppCard appName='Youtube'
-            appLogoPath={require('@/assets/images/youtubeLogo.webp')}
+            appLogoPath={youtubeLogo}
             backgroundColor='rgba(255, 17, 0, 1)'
             />
           </View>
 
           <View style={styles.appCards}>
             <AppCard appName='Linkedin'
-            appLogoPath={require('@/assets/images/linkedinLogo.webp')}
+            appLogoPath={linkedinLogo}
             backgroundColor='rgba(0, 4, 255, 1)'
             />
           </View>
