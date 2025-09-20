@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginScreen() {
+
+  const { isAuthenticated, login, logout } = useAuth();
 
   const [form, setForm] = useState({
     email: '',
     password: '',
   });
-
-  const [loggedIn, setIsLoggedIn] = useState(false)
 
   const validate = (text:string) => {
       console.log(text);
@@ -35,9 +36,10 @@ export default function LoginScreen() {
       return;
     }
     Alert.alert("Succefully signed in !")
+    login();
   }
 
-  if (loggedIn === false) {
+  if (isAuthenticated === false) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
         <View style={styles.container}>
@@ -93,7 +95,6 @@ export default function LoginScreen() {
               <TouchableOpacity
                 onPress={() => {
                   checkTextInputs()
-                  setIsLoggedIn(true)
                 }}>
                 <View style={styles.button}>
                   <Text style={styles.buttonText}> Sign in </Text>
@@ -139,7 +140,7 @@ export default function LoginScreen() {
           <View style={styles.formAction}>
               <TouchableOpacity
                 onPress={() => {
-                  setIsLoggedIn(false)
+                  logout();
                 }}>
                 <View style={styles.disconnectButton}>
                   <Text style={styles.buttonText}> Sign out </Text>
