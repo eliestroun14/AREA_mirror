@@ -64,6 +64,7 @@ export default function SignUpScreen() {
         //     ? error.message
         //     : JSON.stringify(error)
         // );
+        Alert.alert("Email already used.");
       }
     } catch {
       Alert.alert("Network error");
