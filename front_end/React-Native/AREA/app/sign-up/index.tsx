@@ -15,14 +15,9 @@ export default function SignUpScreen() {
   const validate = (text:string) => {
     console.log(text);
   const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
-    if (reg.test(text) === false) {
-      console.log("Email is Not Correct");
+    if (reg.test(text) === false)
       return false;
-    }
-    else {
-      console.log("Email is Correct");
-      return true
-  }
+    return true
 }
 
   const checkTextInputs = async () => {
