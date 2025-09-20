@@ -8,6 +8,7 @@ import areaLogo from '../../assets/images/AreaLogo.png';
 export default function LoginScreen() {
 
   const { isAuthenticated, login, logout } = useAuth();
+  const [error, setError] = useState("");
 
   const [form, setForm] = useState({
     email: '',
@@ -36,9 +37,35 @@ export default function LoginScreen() {
       Alert.alert('Please enter password.');
       return;
     }
-    Alert.alert("Succefully signed in !")
-    login();
+    handleSignIn()
   }
+
+  const handleSignIn = async () => {
+    setError("");
+
+    try {
+      const res = await fetch("http://localhost:3000/auth/sign-in", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: form.email, password: form.password }),
+        credentials: "include", // to receive set-cookie
+      });
+      const result = await res.json();
+
+      if (res.status === 200 && result.code === 200) {
+        login();
+        Alert.alert("Succefully signed in !")
+      } else if (res.status === 400) {
+        setError(result.data || "Invalid email or password.");
+      } else {
+        setError("Failed to login. Please check your credentials.");
+      }
+    } catch {
+      setError("Failed to login. Please check your credentials.");
+    }
+  };
 
   if (isAuthenticated === false) {
     return (
