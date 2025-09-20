@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function LoginScreen() {
+export default function SignUpScreen() {
 
   const [form, setForm] = useState({
     username: '',
@@ -24,7 +24,7 @@ export default function LoginScreen() {
   }
 }
 
-  const checkTextInputs = () => {
+  const checkTextInputs = async () => {
     if (!form.username.trim()) {
       Alert.alert('Please enter username.');
       return;
@@ -41,7 +41,27 @@ export default function LoginScreen() {
       Alert.alert('Confirm password not validated.');
       return;
     }
-    Alert.alert("Succefully signed up !")
+
+    try {
+      const response = await fetch("http://localhost:3000/auth/sign-up", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: form.username,
+          email: form.email,
+          password: form.password
+        }),
+      });
+
+      if (response.ok) {
+        Alert.alert("Successfully signed up !");
+      } else {
+        const error = await response.json();
+        Alert.alert("Error", error.message || "Something went wrong.");
+      }
+    } catch (err) {
+      Alert.alert("Network error");
+    }
   }
 
   return (
