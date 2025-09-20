@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
 
 export default function LoginScreen() {
 
