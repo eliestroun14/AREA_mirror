@@ -6,7 +6,7 @@ import areaLogo from '../../assets/images/AreaLogo.png';
 export default function SignUpScreen() {
 
   const [form, setForm] = useState({
-    username: '',
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -26,8 +26,8 @@ export default function SignUpScreen() {
 }
 
   const checkTextInputs = async () => {
-    if (!form.username.trim()) {
-      Alert.alert('Please enter username.');
+    if (!form.name.trim()) {
+      Alert.alert('Please enter name.');
       return;
     }
     if (!validate(form.email)) {
@@ -44,11 +44,11 @@ export default function SignUpScreen() {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/auth/sign-up", {
+      const response = await fetch("http://10.28.255.73:3000/auth/sign-up", { // FIXME: belek à l'ip, c'est celle d'Epitech
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: form.username,
+          name: form.name,
           email: form.email,
           password: form.password
         }),
@@ -58,7 +58,12 @@ export default function SignUpScreen() {
         Alert.alert("Successfully signed up !");
       } else {
         const error = await response.json();
-        Alert.alert("Error", error.message || "Something went wrong.");
+        // Alert.alert(
+        //   "Error",
+        //   typeof error.message === "string"
+        //     ? error.message
+        //     : JSON.stringify(error)
+        // );
       }
     } catch {
       Alert.alert("Network error");
@@ -88,7 +93,7 @@ export default function SignUpScreen() {
 
           <View style={styles.input}>
             <Text style={styles.inputLabel}>
-              Username :
+              Name :
             </Text>
 
             <TextInput
@@ -97,8 +102,8 @@ export default function SignUpScreen() {
               style={styles.inputControl}
               placeholder='MyNth'
               placeholderTextColor='#6b7280'
-              value={form.username}
-              onChangeText={(username: string) => setForm({ ...form, username })}
+              value={form.name}
+              onChangeText={(name: string) => setForm({ ...form, name })}
             />
           </View>
 
