@@ -6,7 +6,7 @@ import areaLogo from '../../assets/images/AreaLogo.png';
 export default function SignUpScreen() {
 
   const [form, setForm] = useState({
-    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -15,14 +15,19 @@ export default function SignUpScreen() {
   const validate = (text:string) => {
     console.log(text);
   const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
-    if (reg.test(text) === false)
+    if (reg.test(text) === false) {
+      console.log("Email is Not Correct");
       return false;
-    return true
+    }
+    else {
+      console.log("Email is Correct");
+      return true
+  }
 }
 
   const checkTextInputs = async () => {
-    if (!form.name.trim()) {
-      Alert.alert('Please enter name.');
+    if (!form.username.trim()) {
+      Alert.alert('Please enter username.');
       return;
     }
     if (!validate(form.email)) {
@@ -39,11 +44,11 @@ export default function SignUpScreen() {
     }
 
     try {
-      const response = await fetch("http://10.28.255.73:3000/auth/sign-up", { // FIXME: belek à l'ip, c'est celle d'Epitech
+      const response = await fetch("http://localhost:3000/auth/sign-up", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: form.name,
+          username: form.username,
           email: form.email,
           password: form.password
         }),
@@ -53,13 +58,7 @@ export default function SignUpScreen() {
         Alert.alert("Successfully signed up !");
       } else {
         const error = await response.json();
-        // Alert.alert(
-        //   "Error",
-        //   typeof error.message === "string"
-        //     ? error.message
-        //     : JSON.stringify(error)
-        // );
-        Alert.alert("Email already used.");
+        Alert.alert("Error", error.message || "Something went wrong.");
       }
     } catch {
       Alert.alert("Network error");
@@ -89,7 +88,7 @@ export default function SignUpScreen() {
 
           <View style={styles.input}>
             <Text style={styles.inputLabel}>
-              Name :
+              Username :
             </Text>
 
             <TextInput
@@ -98,8 +97,8 @@ export default function SignUpScreen() {
               style={styles.inputControl}
               placeholder='MyNth'
               placeholderTextColor='#6b7280'
-              value={form.name}
-              onChangeText={(name: string) => setForm({ ...form, name })}
+              value={form.username}
+              onChangeText={(username: string) => setForm({ ...form, username })}
             />
           </View>
 
