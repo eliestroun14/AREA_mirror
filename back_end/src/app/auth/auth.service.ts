@@ -4,7 +4,8 @@ import { UserService } from '@app/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import '@config/env';
-import { secretConstants } from '@app/auth/constants';
+import { envConstants } from '@app/auth/constants';
+import { JwtPayload } from '@app/auth/jwt/jwt.dto';
 
 @Injectable()
 export class AuthService {
@@ -16,13 +17,12 @@ export class AuthService {
   async signUp(data: Prisma.UserCreateInput): Promise<User> {
     data.password = await bcrypt.hash(
       data.password,
-      Number(secretConstants.bcryptSaltRounds ?? 10),
+      Number(envConstants.bcryptSaltRounds ?? 10),
     );
     try {
       return this.userService.createUser(data);
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      }
+      console.log('error:', error);
       throw error;
     }
   }
@@ -35,7 +35,7 @@ export class AuthService {
     if (!isValidCredentials)
       throw new UnauthorizedException('Invalid credentials.');
 
-    const payload = { sub: user.id };
+    const payload: JwtPayload = { userId: user.id };
     return this.jwtService.signAsync(payload);
   }
 }

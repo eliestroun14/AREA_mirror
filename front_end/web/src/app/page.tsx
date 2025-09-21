@@ -3,9 +3,12 @@ import HomeCard from '@/components/HomeCard'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button';
 import React from 'react'
+import {useAuth} from "@/context/AuthContext";
 
 export default function HomePage() {
+  const { isAuthenticated, logout } = useAuth();
   const cardsData = [
     { title: "Linkedin", imageUrl: "/assets/linkedin.png" },
     { title: "Youtube", imageUrl: "/assets/youtube.jpg" },
@@ -30,6 +33,30 @@ export default function HomePage() {
             />
           ))}
         </Grid>
+        {isAuthenticated &&
+          <>
+          <Button
+            color="success"
+            variant="contained"
+            onClick={() => {
+              window.location.href = 'http://localhost:3000/connection/spotify';
+              // window.open('http://localhost:3000/connection/spotify', '_blank')
+            }}
+          >
+            Connect to spotify
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={() => {
+
+              window.location.href = 'http://localhost:3000/connection/google';
+            }}
+          >
+            Connect to Google
+          </Button>
+        </>
+        }
       </Box>
     </>
   )

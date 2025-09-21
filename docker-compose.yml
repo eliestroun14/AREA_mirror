@@ -23,10 +23,10 @@ services:
       - database
 
   wait-for-db:
-    image: busybox
+    image: postgres:latest
     depends_on:
       - database
-    entrypoint: ["sh", "-c", "until nc -z database 5432; do echo 'Waiting for database...'; sleep 2; done; echo 'Database is up.'"]
+    entrypoint: ["sh", "-c", "until pg_isready -h database -p 5432; do echo 'Waiting for database...'; sleep 2; done; echo 'Database is up.'"]
     networks:
       - area_network
 
