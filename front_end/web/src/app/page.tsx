@@ -8,12 +8,11 @@ import Typography from '@mui/material/Typography'
 export default function HomePage() {
   const cardsData = [
     { title: "Linkedin", imageUrl: "/assets/linkedin.png" },
-    { title: "Youtube", imageUrl: "/assets/youtue.jgp" },
+    { title: "Youtube", imageUrl: "/assets/youtube.jpg" },
   ]
 
   return (
     <>
-      <Header />
       <Box sx={{ p: 4, bgcolor: '#121212', minHeight: '100vh' }}>
         <Typography variant="h3" align="center" color="white" gutterBottom>
           AREA
