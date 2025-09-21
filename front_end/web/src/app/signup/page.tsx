@@ -43,7 +43,7 @@ export default function SignupPage() {
         onChange={e => setConfirmPassword(e.target.value)}
       />
       <MyButton fullWidth onClick={handleSignup}>
-        S'inscrire
+        S&apos;inscrire
       </MyButton>
       <Typography variant="body2" align="center" sx={{ mt: 2 }}>
         Déjà un compte ? <Link href="/login">Connexion</Link>
