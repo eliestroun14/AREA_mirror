@@ -39,7 +39,8 @@ export default function HomePage() {
             color="success"
             variant="contained"
             onClick={() => {
-              window.open('http://localhost:3000/connection/spotify', '_blank')
+              window.location.href = 'http://localhost:3000/connection/spotify';
+              // window.open('http://localhost:3000/connection/spotify', '_blank')
             }}
           >
             Connect to spotify
@@ -49,7 +50,7 @@ export default function HomePage() {
             variant="contained"
             onClick={() => {
 
-              window.open('http://localhost:3000/connection/google', '_blank')
+              window.location.href = 'http://localhost:3000/connection/google';
             }}
           >
             Connect to Google

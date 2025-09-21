@@ -1,3 +1,5 @@
 export interface SpotifyTrack {
-  id: string;
+  track: {
+    id: string;
+  }
 }

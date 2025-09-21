@@ -45,10 +45,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('sign-in')
-  async signIn(
-    @Body() signInDto: SignInRequestDto,
-    @Res() res: Response,
-  ) {
+  async signIn(@Body() signInDto: SignInRequestDto, @Res() res: Response) {
     if (
       typeof signInDto.email !== 'string' ||
       !this.isValidEmail(signInDto.email)
@@ -63,7 +60,7 @@ export class AuthController {
     );
 
     res
-      .cookie('access_token', token, { httpOnly: false })
+      .cookie('access_token', token, { httpOnly: true, sameSite: 'none', secure: true })
       .status(HttpStatus.OK)
       .json({
         access_token: token,

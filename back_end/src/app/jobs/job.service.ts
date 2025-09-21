@@ -33,8 +33,12 @@ export class JobService implements OnModuleInit {
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         const tracks: SpotifyTrack[] = data.tracks?.items ?? [];
+        console.log(tracks);
         for (const track of tracks) {
-          const isSaved = await spotifyService.saveTrack(track.id, trigger.id);
+          const isSaved = await spotifyService.saveTrack(
+            track.track.id,
+            trigger.id,
+          );
 
           if (!isSaved) {
             const access_token = await googleService.getAccessTokenOf(
