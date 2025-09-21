@@ -2,11 +2,7 @@ Project initialization.
 
 ## Area Mirror 
 
-To push on original repository, please use the following command:
-
-```bash
-    git push upstream main
-```
+this project is a mirror of the AREA project, which is a collaborative project developed by a group of students at Epitech. When pushing on this repository, the changes are automatically mirrored to the main AREA repository after the CI tests have passed successfully.
 
 ## 👥 Contributeurs
 
