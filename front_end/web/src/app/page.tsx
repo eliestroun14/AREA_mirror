@@ -1,5 +1,4 @@
 "use client"
-import Header from '@/components/Header'
 import HomeCard from '@/components/HomeCard'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
