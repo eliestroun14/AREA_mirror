@@ -4,12 +4,17 @@ import HomeCard from '@/components/HomeCard'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
+import React from 'react'
 
 export default function HomePage() {
   const cardsData = [
     { title: "Linkedin", imageUrl: "/assets/linkedin.png" },
     { title: "Youtube", imageUrl: "/assets/youtube.jpg" },
   ]
+  const [isMounted, setIsMounted] = React.useState(false);
+  React.useEffect(() => { setIsMounted(true); }, []);
+
+  if (!isMounted) return null;
 
   return (
     <>
