@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Res,
 } from '@nestjs/common';
 import { AuthService } from '@app/auth/auth.service';
 import {
@@ -13,6 +14,7 @@ import {
   SignUpRequestDto,
   SignUpResponseDto,
 } from '@app/auth/auth.dto';
+import type { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -43,9 +45,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('sign-in')
-  async signIn(
-    @Body() signInDto: SignInRequestDto,
-  ): Promise<SignInResponseDto> {
+  async signIn(@Body() signInDto: SignInRequestDto, @Res() res: Response) {
     if (
       typeof signInDto.email !== 'string' ||
       !this.isValidEmail(signInDto.email)
@@ -54,11 +54,19 @@ export class AuthController {
     if (typeof signInDto.password !== 'string')
       throw new BadRequestException('Invalid password format.');
 
-    return {
-      access_token: await this.authService.signIn(
-        signInDto.email,
-        signInDto.password,
-      ),
-    };
+    const token = await this.authService.signIn(
+      signInDto.email,
+      signInDto.password,
+    );
+
+    res
+      .cookie('access_token', token, { httpOnly: true, sameSite: 'none', secure: true })
+      .status(HttpStatus.OK)
+      .json({
+        access_token: token,
+      });
+    // return {
+    //   access_token: token,
+    // };
   }
 }
