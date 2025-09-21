@@ -9,6 +9,8 @@ WORKDIR /app
 
 FROM base AS build
 RUN pnpm install
+# Supprime le dossier des migrations si présent
+RUN rm -rf prisma/migrations
 RUN pnpx prisma generate
 RUN pnpm run build
 
