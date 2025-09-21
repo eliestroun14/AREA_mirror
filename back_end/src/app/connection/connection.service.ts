@@ -39,19 +39,6 @@ export class ConnectionService {
     }
   }
 
-  async insertSpotifyTrack(userId: number, trackId: string) {
-    const spotify = await this.getSpotifyConnection(userId);
-
-    if (!spotify) return;
-
-    await this.prisma.pOC_spotify_track.create({
-      data: {
-        trigger_id: spotify.id,
-        id: trackId,
-      },
-    });
-  }
-
   async getSpotifyConnection(userId: number) {
     return this.prisma.pOC_trigger.findFirst({ where: { user_id: userId } });
   }

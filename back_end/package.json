@@ -32,6 +32,7 @@
     "class-validator": "^0.14.2",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.2",
+    "googleapis": "^160.0.0",
     "module-alias": "^2.2.3",
     "passport": "^0.7.0",
     "passport-deezer": "^0.2.0",

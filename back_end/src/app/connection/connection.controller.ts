@@ -61,16 +61,13 @@ export class ConnectionController {
 
   @Get('spotify')
   @UseGuards(SpotifyLinkGuard)
-  spotifyAuth() {
-    console.log('redirecting...');
-  }
+  spotifyAuth() {}
 
   @Get('spotify/callback')
   @UseGuards(JwtAuthGuard, SpotifyLinkGuard)
   async spotifyAuthRedirect(@Req() req: StrategyCallbackRequest) {
     if (!req.user) throw new BadRequestException('Invalid request.');
 
-    console.log(req.user);
     await this.connectionService.createSpotifyConnection(
       req.user.userId,
       req.provider,
