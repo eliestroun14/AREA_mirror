@@ -324,41 +324,54 @@ Pour chaque exécution de zap, on détaille l'exécution de chaque étape (trigg
 
 ---
 
-## Table webhooks - Reception temps reel
 
-### Rôle et concept des webhooks
-Un **webhook** est comme une "sonnette" : quand quelque chose se passe chez le service externe (nouveau email, nouveau commit GitHub), au lieu d'attendre qu'on vienne vérifier, le service nous "sonne" en envoyant une requête HTTP à notre serveur.
+## Table webhooks_triggers - Webhooks de triggers
+
+### Rôle
+Stocke les webhooks associés aux triggers pour la réception d'événements en temps réel.
 
 ### Champs détaillés
 
 | Champ | Type | Description détaillée |
 |-------|------|---------------------|
-| `id` | int [pk] | **Identifiant unique** |
-| `trigger_id` | int [fk] | **Trigger associé** - quand ce webhook est appelé, il déclenche ce trigger |
-| `webhook_url` | varchar [unique] | **URL publique** que le service externe doit appeler (ex: https://monapp.com/webhook/abc123) |
-| `webhook_secret` | varchar | **Secret partagé** pour vérifier que la requête vient bien du service (sécurité) |
-| `expected_headers` | json | **Headers attendus** dans la requête webhook |
-| `signature_header` | varchar | **Nom du header** contenant la signature de sécurité |
-| `active` | boolean | **Webhook opérationnel** |
-| `total_received` | int | **Nombre de webhooks reçus** - statistiques |
-| `last_received_at` | timestamp | **Dernier webhook reçu** - aide à détecter si ça fonctionne |
-| `created_at` | timestamp | **Date de création** |
+| `id` | int [pk] | Identifiant unique du webhook trigger |
+| `trigger_id` | int [fk] | Trigger associé à ce webhook |
+| `webhook_url` | varchar [unique, not null] | URL publique appelée par le service externe |
+| `webhook_secret` | varchar [not null] | Secret partagé pour vérifier l'origine de la requête |
+| `expected_headers` | json | Headers attendus dans la requête |
+| `signature_header` | varchar [default: 'X-Signature'] | Nom du header contenant la signature |
+| `active` | boolean [default: true, not null] | Webhook opérationnel |
+| `total_received` | int [default: 0] | Nombre de webhooks reçus |
+| `last_received_at` | timestamp | Dernier webhook reçu |
+| `created_at` | timestamp [default: `now()`] | Date de création |
 
-### Pourquoi les webhooks ?
-**Avantages** :
-- ⚡ **Instantané** : pas de délai d'attente
-- 📉 **Économique** : pas besoin de vérifier constamment
-- 🔋 **Efficace** : moins de ressources serveur
+### Exemple d'usage
+- Déclencher un workflow dès qu'un événement externe est reçu via un trigger spécifique
+- Sécuriser la réception des webhooks avec un secret et une signature
 
-**Inconvénients** :
-- 🌐 **URL publique nécessaire** : le serveur doit être accessible depuis Internet
-- 🔒 **Sécurité à gérer** : vérifier que les requêtes viennent bien du bon service
+## Table webhooks_action - Webhooks d'actions
 
-### Exemple concret
-1. L'utilisateur connecte son compte GitHub
-2. On crée un webhook : "https://monapp.com/webhook/github-abc123"
-3. On dit à GitHub : "Quand il y a un nouveau commit, appelle cette URL"
-4. Nouveau commit → GitHub POST vers notre URL → notre zap se déclenche instantanément
+### Rôle
+Stocke les webhooks associés aux actions pour la réception d'événements en temps réel liés à une action.
+
+### Champs détaillés
+
+| Champ | Type | Description détaillée |
+|-------|------|---------------------|
+| `id` | int [pk] | Identifiant unique du webhook action |
+| `action_id` | int [fk] | Action associée à ce webhook |
+| `webhook_url` | varchar [unique, not null] | URL publique appelée par le service externe |
+| `webhook_secret` | varchar [not null] | Secret partagé pour vérifier l'origine de la requête |
+| `expected_headers` | json | Headers attendus dans la requête |
+| `signature_header` | varchar [default: 'X-Signature'] | Nom du header contenant la signature |
+| `active` | boolean [default: true, not null] | Webhook opérationnel |
+| `total_received` | int [default: 0] | Nombre de webhooks reçus |
+| `last_received_at` | timestamp | Dernier webhook reçu |
+| `created_at` | timestamp [default: `now()`] | Date de création |
+
+### Exemple d'usage
+- Déclencher une action spécifique dès qu'un événement externe est reçu
+- Sécuriser la réception des webhooks d'action avec un secret et une signature
 
 ---
 

@@ -1,3 +1,38 @@
+model Webhooks_triggers {
+  id               Int       @id @default(autoincrement())
+  trigger_id       Int
+  webhook_url      String    @unique
+  webhook_secret   String
+  expected_headers Json?
+  signature_header String    @default("X-Signature")
+  active           Boolean   @default(true)
+  total_received   Int       @default(0)
+  last_received_at DateTime?
+  created_at       DateTime  @default(now())
+
+  trigger Triggers @relation(fields: [trigger_id], references: [id])
+
+  @@index([trigger_id])
+  @@index([active])
+}
+
+model Webhooks_action {
+  id               Int       @id @default(autoincrement())
+  action_id        Int
+  webhook_url      String    @unique
+  webhook_secret   String
+  expected_headers Json?
+  signature_header String    @default("X-Signature")
+  active           Boolean   @default(true)
+  total_received   Int       @default(0)
+  last_received_at DateTime?
+  created_at       DateTime  @default(now())
+
+  action Actions @relation(fields: [action_id], references: [id])
+
+  @@index([action_id])
+  @@index([active])
+}
 generator client {
   provider = "prisma-client-js"
   output   = "../node_modules/.prisma/client"
@@ -32,7 +67,7 @@ model POC_trigger {
   user_id Int @unique
   count        Int    @default(0)
 
-  user User @relation(fields: [user_id], references: [id])
+  users User @relation(fields: [user_id], references: [id])
   tracks        POC_spotify_track[] @relation("TriggerTracks")
 }
 
@@ -41,7 +76,7 @@ model POC_action {
   access_token String
   user_id Int @unique
 
-  user User @relation(fields: [user_id], references: [id])
+  users User @relation(fields: [user_id], references: [id])
 }
 
 model POC_spotify_track {
@@ -85,7 +120,7 @@ model Connections {
   created_at           DateTime  @default(now())
   last_used_at         DateTime
 
-  user    User     @relation(fields: [user_id], references: [id])
+  users    User     @relation(fields: [user_id], references: [id])
   service Services @relation(fields: [service_id], references: [id])
 
   // Index sur user_id pour accélérer les requêtes par utilisateur
@@ -110,7 +145,7 @@ model Zaps {
   updatedAt       DateTime  @default(now()) @updatedAt
   deleted_at      DateTime?
 
-  user User @relation(fields: [user_id], references: [id])
+  users User @relation(fields: [user_id], references: [id])
 
   zapSteps      ZapSteps[]
   zapExecutions ZapExecutions[]
@@ -138,6 +173,7 @@ model Triggers {
 
   zapSteps      ZapSteps[]
   webhooks      Webhooks[]
+  webhooks_triggers Webhooks_triggers[]
   serviceFields ServiceFields[]
 
   // Index sur service_id pour retrouver les triggers d'un service
@@ -162,6 +198,7 @@ model Actions {
 
   zapSteps      ZapSteps[]
   serviceFields ServiceFields[]
+  webhooks_action Webhooks_action[]
 
   // Index sur service_id pour retrouver les actions d'un service
   @@index([service_id])
@@ -200,7 +237,7 @@ model ZapExecutions {
   status        String
   trigger_data  Json?
   started_at    DateTime  @default(now())
-  completed_at  DateTime?
+  ended_at  DateTime?
   duration_ms   Int?
   error_message String?
   error_code    String?
@@ -226,7 +263,7 @@ model StepExecutions {
   output_data      Json?
   transformed_data Json?
   started_at       DateTime  @default(now())
-  completed_at     DateTime?
+  ended_at     DateTime?
   duration_ms      Int?
   error_message    String?
   error_code       String?
