@@ -264,7 +264,7 @@ Chaque fois qu'un zap se déclenche, on enregistre son exécution complète. Ess
 | `status` | varchar | **Statut de l'exécution** :<br>- `"pending"` : en attente de traitement<br>- `"running"` : en cours d'exécution<br>- `"success"` : terminé avec succès<br>- `"failed"` : échec<br>- `"cancelled"` : annulé |
 | `trigger_data` | json | **Données qui ont déclenché** l'exécution (nouveau email reçu, mention Twitter, etc.) |
 | `started_at` | timestamp | **Heure de début** d'exécution |
-| `completed_at` | timestamp | **Heure de fin** (null si encore en cours) |
+| `ended_at` | timestamp | **Heure de fin** (null si encore en cours) |
 | `duration_ms` | int | **Durée totale** en millisecondes - aide à détecter les lenteurs |
 | `error_message` | text | **Message d'erreur** détaillé si échec |
 | `error_code` | varchar | **Code d'erreur standardisé** (AUTH_FAILED, RATE_LIMITED, etc.) |
@@ -297,7 +297,7 @@ Pour chaque exécution de zap, on détaille l'exécution de chaque étape (trigg
 | `output_data` | json | **Données produites** par cette étape |
 | `transformed_data` | json | **Données après transformation** et mapping |
 | `started_at` | timestamp | **Début de cette étape** |
-| `completed_at` | timestamp | **Fin de cette étape** |
+| `ended_at` | timestamp | **Fin de cette étape** |
 | `duration_ms` | int | **Durée de cette étape** |
 | `error_message` | text | **Erreur spécifique** à cette étape |
 | `error_code` | varchar | **Code d'erreur** |
@@ -494,7 +494,7 @@ Quand un zap échoue, les utilisateurs et le support ont besoin de logs détaill
 | Champ | Type | Description détaillée |
 |-------|------|---------------------|
 | `id` | int [pk] | **Identifiant unique** |
-| `execution_id` | int [fk] | **Exécution concernée** |
+| `zap_execution_id` | int [fk] | **Exécution concernée** |
 | `step_execution_id` | int [fk] | **Étape spécifique** (optionnel pour les logs généraux) |
 | `log_level` | varchar | **Niveau de log** :<br>- `"debug"` : informations techniques détaillées<br>- `"info"` : étapes normales du processus<br>- `"warning"` : problèmes non bloquants<br>- `"error"` : erreurs qui font échouer |
 | `message` | text | **Message descriptif** de ce qui s'est passé |
