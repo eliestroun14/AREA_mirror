@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SearchBar from "@/components/molecules/search-bar/search-bar";
@@ -12,7 +12,7 @@ export default function HomeScreen() {
   const [search, setSearch] = useState("");
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
       <View style={styles.container}>
 
         <View style={styles.header}>

@@ -1,4 +1,3 @@
-import React from "react";
 import { View, TextInput, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // expo install @expo/vector-icons
 
@@ -27,13 +26,14 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f3f4f6",
+    backgroundColor: "#e8ecf4",
     borderRadius: 12,
     paddingHorizontal: 12,
     height: 44,
   },
   icon: {
     marginRight: 8,
+    backgroundColor: "#e8ecf4"
   },
   input: {
     flex: 1,

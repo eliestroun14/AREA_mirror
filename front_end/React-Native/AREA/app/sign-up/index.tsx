@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { useState } from 'react';
+import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import areaLogo from '../../assets/images/AreaLogo.png';
 
