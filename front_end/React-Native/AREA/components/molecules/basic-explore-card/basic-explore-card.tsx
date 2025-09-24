@@ -6,14 +6,15 @@ type BasicExploreCardProps = {
   category: string;
   backgroundColor: string;
   imageBackground?: string | number;
+  onPress?: () => void;
 };
 
-export default function BasicExploreCard({ description, category, backgroundColor, imageBackground }: BasicExploreCardProps) {
+export default function BasicExploreCard({ description, category, backgroundColor, imageBackground, onPress }: BasicExploreCardProps) {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={{ height: 280}}
-        onPress={() => {
-        }}>
+        onPress={onPress}
+        >
         <View style={[styles.button, {backgroundColor, flex: 1}]}>
           <Image style={styles.backgroundImage}
             source={imageBackground}

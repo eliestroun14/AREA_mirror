@@ -10,14 +10,15 @@ type ComplexExploreCardProps = {
   firstIconPath: string | number;
   secondIconPath?: string | number;
   littleIconPath?: string | number;
+  onPress?: () => void;
 };
 
-export default function ComplexExploreCard({ description, appName, backgroundColor, firstIconPath, secondIconPath, littleIconPath }: ComplexExploreCardProps) { //TODO: modifier la complex explore card
+export default function ComplexExploreCard({ description, appName, backgroundColor, firstIconPath, secondIconPath, littleIconPath, onPress }: ComplexExploreCardProps) { //TODO: modifier la complex explore card
   return (
     <View style={styles.container}>
       <TouchableOpacity style={{ height: 300 }}
-        onPress={() => {
-        }}>
+        onPress={onPress}
+        >
         <View style={[styles.button, {backgroundColor}]}>
           <View style={styles.icons}>
             <Image style={styles.icon}

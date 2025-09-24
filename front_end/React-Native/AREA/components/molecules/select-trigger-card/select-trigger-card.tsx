@@ -5,14 +5,15 @@ type SelectTriggerCardProps = {
   appName: string;
   backgroundColor: string;
   appLogoPath: string | number;
+  onPress?: () => void;
 };
 
-export default function SelectTriggerCard({ appName, backgroundColor, appLogoPath }: SelectTriggerCardProps) { //TODO: modifier la simple explore card
+export default function SelectTriggerCard({ appName, backgroundColor, appLogoPath, onPress }: SelectTriggerCardProps) { //TODO: modifier la simple explore card
   return (
     <View style={styles.container}>
       <TouchableOpacity style={{ height: 160, width: 160 }}
-        onPress={() => {
-        }}>
+        onPress={onPress}
+        >
         <View style={[styles.button, {backgroundColor}]}>
           <Image style={styles.appLogo}
             source={appLogoPath}

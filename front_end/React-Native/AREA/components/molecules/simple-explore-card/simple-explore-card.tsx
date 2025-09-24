@@ -6,14 +6,15 @@ type SimpleExploreCardProps = {
   appName: string;
   backgroundColor: string;
   appLogoPath: string | number;
+  onPress?: () => void;
 };
 
-export default function SimpleExploreCard({ appName, backgroundColor, appLogoPath }: SimpleExploreCardProps) { //TODO: modifier la simple explore card
+export default function SimpleExploreCard({ appName, backgroundColor, appLogoPath, onPress }: SimpleExploreCardProps) { //TODO: modifier la simple explore card
   return (
     <View style={styles.container}>
       <TouchableOpacity style={{ height: 200}}
-        onPress={() => {
-        }}>
+        onPress={onPress}
+        >
         <View style={[styles.button, {backgroundColor}]}>
           <Image style={styles.appLogo}
             source={appLogoPath}

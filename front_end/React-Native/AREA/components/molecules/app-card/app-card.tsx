@@ -6,14 +6,15 @@ type AppCardProps = {
   appName: string;
   backgroundColor: string;
   appLogoPath: string | number;
+  onPress?: () => void;
 };
 
-export default function AppCard({ appName, backgroundColor, appLogoPath }: AppCardProps) {
+export default function AppCard({ appName, backgroundColor, appLogoPath, onPress }: AppCardProps) {
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        onPress={() => {
-        }}>
+        onPress={onPress}
+        >
         <View style={[styles.button, {backgroundColor}]}>
           <Image style={styles.appLogo}
             source={appLogoPath}
