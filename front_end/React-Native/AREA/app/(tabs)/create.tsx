@@ -1,30 +1,41 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet} from 'react-native';
+import CreateCard from '@/components/molecules/create-card/create-card';
+import add from '../../assets/images/add-round-white-icon.webp'
+import { router } from 'expo-router';
 
 
 export default function CreateScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
-      <Text>
-        Create
-      </Text>
+      <View style={styles.container}>
+
+        <Text style={styles.title}>
+          Create
+        </Text>
+
+        <Text style={styles.text}>
+          You've created x of x Applets
+        </Text>
+
+        <View style={styles.Cards}>
+          <CreateCard appName='Add one'
+          text='If This -'
+          appLogoPath={add}
+          backgroundColor='rgba(0, 0, 0, 1)'
+          onPress={() => router.push("/select-trigger-service")}
+          />
+        </View>
+
+
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
-
-  },
-
-  header: {
-    padding: 20,
-    marginVertical: 10,
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
   },
 
   profileImage: {
@@ -35,10 +46,17 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 60,
+    fontSize: 40,
     fontWeight: 'bold',
     color: '#1e1e1e',
-    marginBottom: 6,
+    padding: 20,
+    marginVertical: 10,
+  },
+
+  text: {
+    fontSize: 20,
+    fontWeight: "bold",
+    alignSelf: "center"
   },
 
   homeConfig: {
@@ -49,7 +67,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
 
-  appCards: {
+  Cards: {
     marginTop: 5
   }
 
