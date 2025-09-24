@@ -14,6 +14,26 @@ Nous avons préféré tester des ORMs pour les bases de données.
 | API     | Fastify      | NestJS       | SpringBoot   | NestJS       |
 | ORM     | Prisma       | Drizzle      | MikroORM     | Prisma       |
 
+## Test Front-End Mobile
+
+### Flutter
+
+- Application heavy ❌
+- Hot-Reload ✅
+
+### Kotlin
+
+- Kotlin best performance than the others ✅
+- No cross-platform (even if we only use Android)❌
+
+### React-Native
+
+- Good community support ✅
+- More experience with JavaScript and Typescript (Do the Survivor pool on NextJs) ✅
+- Good to switch web application to mobile application (gain a lot of time) ✅
+- Not the best performance ❌
+- Hot-Reload ✅
+
 ### Choix final
 
 **Mobile:**
