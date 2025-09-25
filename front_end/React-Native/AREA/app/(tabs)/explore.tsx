@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, ScrollView, StyleSheet, Text, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SearchBar from "@/components/molecules/search-bar/search-bar";
 import NewsCard from '@/components/molecules/news-card/news-card'
@@ -7,32 +7,42 @@ import news_bro from '../../assets/images/News-bro.png';
 import news_rafiki from '../../assets/images/News-rafiki.png';
 import linkedin from '../../assets/images/linkedinLogo.webp';
 import youtube from '../../assets/images/youtubeLogo.webp';
-import ServiceCard from '@/components/molecules/service-card/service-card'
 import AppletCard from '@/components/molecules/applets-card/applets-card'
-
+import { Service } from '@/types/type';
+import axios from 'axios'
+import db from "../../data/db.json"
+import ServiceCard from '@/components/molecules/service-card/service-card'
 
 export default function ExploreScreen() {
 
+  const [services, setServices] = useState<Service[]>([]);
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    setServices(db.services);
+  }, []);
+
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const getServices = async() => {
+    const URL = 'http://localhost:3000/services';
+      const response = await axios.get(URL);
+
+      console.log(response.data);
+      setServices(response.data);
+      setIsLoading(false);
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
-      <ScrollView>
-        <View style={styles.container}>
-
+      <FlatList
+        data={services}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => <ServiceCard item={item} />}
+        ListHeaderComponent={() => (
           <View style={styles.header}>
-
             <View style={styles.searchBar}>
-              <SearchBar value={search}
-                onChangeText={setSearch}
-                placeholder='Search...' />
-            </View>
-
-            <View style={styles.Cards}>
-              <ServiceCard appName='Youtube'
-              appLogoPath={youtube}
-              backgroundColor='rgba(255, 17, 0, 1)'
-              />
+              <SearchBar value={search} onChangeText={setSearch} placeholder="Search..." />
             </View>
 
             <View style={styles.Cards}>
@@ -54,13 +64,6 @@ export default function ExploreScreen() {
             </View>
 
             <View style={styles.Cards}>
-              <ServiceCard appName='Linkedin'
-              appLogoPath={linkedin}
-              backgroundColor='rgba(0, 4, 255, 1)'
-              />
-            </View>
-
-            <View style={styles.Cards}>
               <NewsCard category='Linkedin'
               description='New on AREA in August 2025'
               imageBackground={news_bro}
@@ -77,10 +80,10 @@ export default function ExploreScreen() {
               />
             </View>
 
+            {/* Autres composants fixes ici */}
           </View>
-
-        </View>
-      </ScrollView>
+        )}
+      />
     </SafeAreaView>
   );
 }
