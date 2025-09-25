@@ -1,0 +1,107 @@
+{
+  "services": [
+    {
+      "id": "spotify",
+      "serviceName": "Spotify",
+      "description": "AREA allows you to enhance your Spotify experience by automating music management tasks. Connect Spotify with other services to automate playlists, save your favorite tracks and never miss a new release, making your music listening effortless and convenient.",
+      "backgroundColor": "#1DB954",
+      "applets": [
+        "Add songs from videos you like to a Spotify playlist",
+        "Save new liked TikTok sounds to a Spotify playlist",
+        "Receive a daily playlist based on your mood"
+      ]
+    },
+    {
+      "id": "youtube",
+      "serviceName": "YouTube",
+      "description": "Automate your YouTube activity with AREA. Save liked videos, track channel uploads, and share automatically with your favorite platforms.",
+      "backgroundColor": "#FF0000",
+      "applets": [
+        "Save liked videos to a Google Sheet",
+        "Post new uploads to Discord automatically",
+        "Add video titles to a Notion database"
+      ]
+    },
+    {
+      "id": "gmail",
+      "serviceName": "Gmail",
+      "description": "AREA connects Gmail with other services to help you automate your email workflow. Save attachments, forward emails, and organize your inbox effortlessly.",
+      "backgroundColor": "#D93025",
+      "applets": [
+        "Save Gmail attachments to Google Drive",
+        "Send an automatic reply when receiving emails with keywords",
+        "Forward starred emails to Slack"
+      ]
+    },
+    {
+      "id": "discord",
+      "serviceName": "Discord",
+      "description": "Integrate Discord with AREA to keep your community updated. Post new content automatically, notify team members, and sync with other platforms.",
+      "backgroundColor": "#5865F2",
+      "applets": [
+        "Post new GitHub issues to a Discord channel",
+        "Notify when a new Spotify playlist is created",
+        "Send a welcome message to new members automatically"
+      ]
+    },
+    {
+      "id": "github",
+      "serviceName": "GitHub",
+      "description": "Connect GitHub with AREA to streamline your developer workflow. Get updates, track issues, and manage repositories more efficiently.",
+      "backgroundColor": "#181717",
+      "applets": [
+        "Create a Trello card when a new GitHub issue is opened",
+        "Send a Discord notification for new pull requests",
+        "Save commits into a Notion database"
+      ]
+    }
+  ],
+
+  "appletsCard": [
+    {
+      "id": 1,
+      "description": "Add songs from videos you like to a Spotify playlist",
+      "appName": "youtube",
+      "backgroundColor": "#ff0000ff",
+      "firstIconId": "youtube",
+      "secondeIconId": "spotify",
+      "littleIconId": "youtube"
+    },
+    {
+      "id": 2,
+      "description": "Save Gmail attachments to Google Drive",
+      "appName": "gmail",
+      "backgroundColor": "#d93025ff",
+      "firstIconId": "gmail",
+      "secondeIconId": "googledrive",
+      "littleIconId": "gmail"
+    },
+    {
+      "id": 3,
+      "description": "Post new GitHub issues to a Discord channel",
+      "appName": "github",
+      "backgroundColor": "#24292eff",
+      "firstIconId": "github",
+      "secondeIconId": "discord",
+      "littleIconId": "github"
+    },
+    {
+      "id": 4,
+      "description": "Save liked YouTube videos to a Google Sheet",
+      "appName": "youtube",
+      "backgroundColor": "#ff0000ff",
+      "firstIconId": "youtube",
+      "secondeIconId": "googlesheets",
+      "littleIconId": "youtube"
+    },
+    {
+      "id": 5,
+      "description": "Notify Discord when a new Spotify playlist is created",
+      "appName": "spotify",
+      "backgroundColor": "#1db954ff",
+      "firstIconId": "spotify",
+      "secondeIconId": "discord",
+      "littleIconId": "spotify"
+    }
+  ]
+}
