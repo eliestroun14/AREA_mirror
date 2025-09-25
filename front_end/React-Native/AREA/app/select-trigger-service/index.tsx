@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
 import SearchBar from '@/components/molecules/search-bar/search-bar';
 import { useState } from 'react';
-import SelectTriggerCard from '@/components/molecules/select-trigger-card/select-trigger-card';
+import LittleServiceCard from '@/components/molecules/little-service-card/little-service-card';
 import linkedin from '../../assets/images/linkedinLogo.webp'
 import youtube from '../../assets/images/youtubeLogo.webp'
 import spotify from '../../assets/images/spotifyLogo.webp'
@@ -38,17 +38,17 @@ export default function SelectTriggerService() {
 
               <View style={styles.Cards}>
 
-                <SelectTriggerCard appName='Linkedin'
+                <LittleServiceCard appName='Linkedin'
                 appLogoPath={linkedin}
                 backgroundColor='rgba(0, 4, 255, 1)'
                 />
 
-                <SelectTriggerCard appName='Youtube'
+                <LittleServiceCard appName='Youtube'
                 appLogoPath={youtube}
                 backgroundColor='rgba(255, 0, 0, 1)'
                 />
 
-                <SelectTriggerCard appName='Spotify'
+                <LittleServiceCard appName='Spotify'
                 appLogoPath={spotify}
                 backgroundColor='rgba(49, 180, 23, 1)'
                 />

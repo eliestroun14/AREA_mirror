@@ -2,14 +2,14 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 
-type SimpleExploreCardProps = {
+type ServiceCardCardProps = {
   appName: string;
   backgroundColor: string;
   appLogoPath: string | number;
   onPress?: () => void;
 };
 
-export default function SimpleExploreCard({ appName, backgroundColor, appLogoPath, onPress }: SimpleExploreCardProps) { //TODO: modifier la simple explore card
+export default function ServiceCardCard({ appName, backgroundColor, appLogoPath, onPress }: ServiceCardCardProps) { //TODO: modifier la simple explore card
   return (
     <View style={styles.container}>
       <TouchableOpacity style={{ height: 200}}
