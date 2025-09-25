@@ -6,5 +6,7 @@ export const imageMap: Record<string, ImageSourcePropType> = {
   gmail: require("../assets/images/gmailLogo.webp"),
   discord: require("../assets/images/discordLogo.webp"),
   github: require("../assets/images/githubLogo.webp"),
+  googledrive: require("../assets/images/googleDriveLogo.webp"),
+  googlesheets: require("../assets/images/googleSheetsLogo.webp"),
   default: require("../assets/images/AreaLogo.png"),
 };

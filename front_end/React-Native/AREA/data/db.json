@@ -103,5 +103,22 @@
       "secondeIconId": "discord",
       "littleIconId": "spotify"
     }
+  ],
+
+  "newsCards": [
+    {
+      "id": 1,
+      "category": "Popular",
+      "description": "New on AREA in September 2025",
+      "imageBackground": "news_rafiki",
+      "backgroundColor": "rgba(0, 163, 95, 1)"
+    },
+    {
+      "id": 2,
+      "category": "Linkedin",
+      "description": "New on AREA in August 2025",
+      "imageBackground": "news_bro",
+      "backgroundColor": "rgba(202, 115, 0, 1)"
+    }
   ]
 }

@@ -1,48 +1,46 @@
-import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
+import { AppletsCard } from "@/types/type";
+import { imageMap } from "@/types/image";
 
-type AppletCardProps = {
-  description: string;
-  appName: string;
-  backgroundColor: string;
-  firstIconPath: string | number;
-  secondIconPath?: string | number;
-  littleIconPath?: string | number;
-  onPress?: () => void;
+type Props = {
+  item: AppletsCard,
 };
 
-export default function AppletCard({ description, appName, backgroundColor, firstIconPath, secondIconPath, littleIconPath, onPress }: AppletCardProps) { //TODO: modifier la complex explore card
+const AppletCard = ({ item }: Props) => {
+
   return (
     <View style={styles.container}>
       <TouchableOpacity style={{ height: 300 }}
-        onPress={onPress}
+        // onPress={onPress}
         >
-        <View style={[styles.button, {backgroundColor}]}>
+        <View style={[styles.button, {backgroundColor: item.backgroundColor}]}>
           <View style={styles.icons}>
             <Image style={styles.icon}
-              source={firstIconPath}
+              source={imageMap[item.firstIconId] ?? imageMap["default"]}
             />
             <Image style={styles.icon}
-              source={secondIconPath}
+              source={imageMap[item.secondeIconId] ?? imageMap["default"]}
             />
           </View>
           <View style={styles.texts}>
             <Text style={styles.description}>
-              {description}
+              {item.description}
             </Text>
             <View style={styles.appIconWithText}>
-              <Image source={littleIconPath} style={styles.littleIcon} />
+              <Image source={imageMap[item.littleIconId] ?? imageMap["default"]} style={styles.littleIcon} />
               <Text style={styles.appName}>
-                {appName}
+                {item.appName}
               </Text>
             </View>
           </View>
         </View>
       </TouchableOpacity>
     </View>
-  );
+  )
 }
+
+export default AppletCard;
 
 const styles = StyleSheet.create({
   container: {
