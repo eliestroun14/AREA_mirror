@@ -1,32 +1,33 @@
-import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
+import { Service } from "@/types/type";
+import { imageMap } from "@/types/image";
 
-type ServiceCardProps = {
-  appName: string;
-  backgroundColor: string;
-  appLogoPath: string | number;
-  onPress?: () => void;
+type Props = {
+  item: Service
 };
 
-export default function ServiceCard({ appName, backgroundColor, appLogoPath, onPress }: ServiceCardProps) {
+const ServiceCard = ({ item }: Props) => {
+
   return (
     <View style={styles.container}>
       <TouchableOpacity style={{ height: 200}}
-        onPress={onPress}
+        // onPress={onPress}
         >
-        <View style={[styles.button, {backgroundColor}]}>
+        <View style={[styles.button, {backgroundColor: item.backgroundColor}]}>
           <Image style={styles.appLogo}
-            source={appLogoPath}
+            source={imageMap[item.id] ?? imageMap["default"]}
           />
           <Text style={styles.buttonText}>
-            {appName}
+            {item.serviceName}
           </Text>
         </View>
       </TouchableOpacity>
     </View>
-  );
+  )
 }
+
+export default ServiceCard;
 
 const styles = StyleSheet.create({
   container: {
