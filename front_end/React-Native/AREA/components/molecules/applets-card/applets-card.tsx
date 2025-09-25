@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 
-type AppletCardCardProps = {
+type AppletCardProps = {
   description: string;
   appName: string;
   backgroundColor: string;
@@ -12,7 +12,7 @@ type AppletCardCardProps = {
   onPress?: () => void;
 };
 
-export default function AppletCardCard({ description, appName, backgroundColor, firstIconPath, secondIconPath, littleIconPath, onPress }: AppletCardCardProps) { //TODO: modifier la complex explore card
+export default function AppletCard({ description, appName, backgroundColor, firstIconPath, secondIconPath, littleIconPath, onPress }: AppletCardProps) { //TODO: modifier la complex explore card
   return (
     <View style={styles.container}>
       <TouchableOpacity style={{ height: 300 }}

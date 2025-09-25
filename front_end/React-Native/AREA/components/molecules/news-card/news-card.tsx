@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 
-type NewsCardCardProps = {
+type NewsCardProps = {
   description: string;
   category: string;
   backgroundColor: string;
@@ -9,7 +9,7 @@ type NewsCardCardProps = {
   onPress?: () => void;
 };
 
-export default function NewsCardCard({ description, category, backgroundColor, imageBackground, onPress }: NewsCardCardProps) {
+export default function NewsCard({ description, category, backgroundColor, imageBackground, onPress }: NewsCardProps) {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={{ height: 280}}
