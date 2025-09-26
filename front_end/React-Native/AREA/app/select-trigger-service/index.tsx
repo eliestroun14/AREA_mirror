@@ -1,16 +1,21 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, FlatList } from 'react-native';
 import { Stack } from 'expo-router';
 import SearchBar from '@/components/molecules/search-bar/search-bar';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import LittleServiceCard from '@/components/molecules/little-service-card/little-service-card';
-import linkedin from '../../assets/images/linkedinLogo.webp'
-import youtube from '../../assets/images/youtubeLogo.webp'
-import spotify from '../../assets/images/spotifyLogo.webp'
+import { Service } from '@/types/type';
+import db from '@/data/db.json'
 
 export default function SelectTriggerService() {
 
   const [search, setSearch] = useState("");
+
+  const [services, setServices] = useState<Service[]>([]);
+
+  useEffect(() => {
+    setServices(db.services);
+  }, []);
 
   return (
     <>
@@ -28,34 +33,21 @@ export default function SelectTriggerService() {
         />
         {
         <SafeAreaView style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
-          <View style={styles.container}>
-
-              <View style={styles.searchBar}>
-                <SearchBar value={search}
-                  onChangeText={setSearch}
-                  placeholder='Search...' />
-              </View>
-
-              <View style={styles.Cards}>
-
-                <LittleServiceCard appName='Linkedin'
-                appLogoPath={linkedin}
-                backgroundColor='rgba(0, 4, 255, 1)'
-                />
-
-                <LittleServiceCard appName='Youtube'
-                appLogoPath={youtube}
-                backgroundColor='rgba(255, 0, 0, 1)'
-                />
-
-                <LittleServiceCard appName='Spotify'
-                appLogoPath={spotify}
-                backgroundColor='rgba(49, 180, 23, 1)'
-                />
-
-              </View>
-
-          </View>
+          <FlatList
+            style={styles.Cards}
+            numColumns={2}
+            data={services}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({item}) => <LittleServiceCard item={item}/>}
+            ListHeaderComponent={() =>
+                <View style={styles.searchBar}>
+                  <SearchBar value={search}
+                    onChangeText={setSearch}
+                    placeholder='Search...' />
+                </View>
+            }
+          >
+          </FlatList>
         </SafeAreaView>
         }
     </>
@@ -97,9 +89,7 @@ const styles = StyleSheet.create({
   },
 
   Cards: {
-    flex: 1,
-    flexWrap: 'wrap',
-    flexDirection: 'row'
+    alignSelf: "center"
   }
 
 });
