@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
   },
 
   Cards: {
+    padding: 10,
     alignSelf: "center"
   }
 

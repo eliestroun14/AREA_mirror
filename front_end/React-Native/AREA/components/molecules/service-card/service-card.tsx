@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 import { Service } from "@/types/type";
 import { imageMap } from "@/types/image";
+import { Link } from "expo-router";
 
 type Props = {
   item: Service
@@ -10,12 +11,11 @@ type Props = {
 const ServiceCard = ({ item }: Props) => {
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={{ height: 200}}
-        // onPress={onPress}
-        >
-        <View style={[styles.button, {backgroundColor: item.backgroundColor}]}>
-          <Image style={styles.appLogo}
+    <Link href={`/service-details/${item.id}`} asChild>
+      <TouchableOpacity style={styles.container}>
+        <View style={[styles.button, { backgroundColor: item.backgroundColor, height: 200 }]}>
+          <Image
+            style={styles.appLogo}
             source={imageMap[item.id] ?? imageMap["default"]}
           />
           <Text style={styles.buttonText}>
@@ -23,7 +23,7 @@ const ServiceCard = ({ item }: Props) => {
           </Text>
         </View>
       </TouchableOpacity>
-    </View>
+    </Link>
   )
 }
 
