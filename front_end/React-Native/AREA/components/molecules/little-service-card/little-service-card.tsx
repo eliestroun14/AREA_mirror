@@ -1,31 +1,33 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
+import { Service } from "@/types/type";
+import { imageMap } from "@/types/image";
 
-type LittleServiceCardProps = {
-  appName: string;
-  backgroundColor: string;
-  appLogoPath: string | number;
-  onPress?: () => void;
+type Props = {
+  item: Service
 };
 
-export default function LittleServiceCard({ appName, backgroundColor, appLogoPath, onPress }: LittleServiceCardProps) { //TODO: modifier la simple explore card
+const LittleServiceCard = ({ item }: Props) => {
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={{ height: 160, width: 160 }}
-        onPress={onPress}
+      <TouchableOpacity style={{ height: 160, width: 160}}
+        // onPress={onPress}
         >
-        <View style={[styles.button, {backgroundColor}]}>
+        <View style={[styles.button, {backgroundColor: item.backgroundColor}]}>
           <Image style={styles.appLogo}
-            source={appLogoPath}
+            source={imageMap[item.id] ?? imageMap["default"]}
           />
           <Text style={styles.buttonText}>
-            {appName}
+            {item.serviceName}
           </Text>
         </View>
       </TouchableOpacity>
     </View>
-  );
+  )
 }
+
+export default LittleServiceCard;
 
 const styles = StyleSheet.create({
   container: {
