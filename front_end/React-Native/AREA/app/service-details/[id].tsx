@@ -84,45 +84,40 @@ const ServiceDetails = (props: Props) => {
           }}
         />
         {
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
-          <View style={[styles.header, {backgroundColor: service.backgroundColor}]}>
-            <Image
-              style={styles.appLogo}
-              source={imageMap[service.id] ?? imageMap["default"]}
-            />
-
-            <Text style={styles.serviceName}>
-              {service.serviceName}
-            </Text>
-
-            <Text style={styles.serviceDescription}>
-              {service.description}
-            </Text>
-
-            <TouchableOpacity style={styles.connectButton}
-              // onPress={() => {
-
-              // }}
-              >
-              <Text style={styles.connectButtonText}>
-                Connect
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.content}>
-
-            {/* <FlatList 
+        <View style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
+          <FlatList 
               data={applets}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({item}) => <AppletCard item={item}/>}
+              ListHeaderComponent={() => (
+                <View style={[styles.header, {backgroundColor: service.backgroundColor}]}>
+                  <Image
+                    style={styles.appLogo}
+                    source={imageMap[service.id] ?? imageMap["default"]}
+                  />
+
+                  <Text style={styles.serviceName}>
+                    {service.serviceName}
+                  </Text>
+
+                  <Text style={styles.serviceDescription}>
+                    {service.description}
+                  </Text>
+
+                  <TouchableOpacity style={styles.connectButton}
+                    // onPress={() => {
+
+                    // }}
+                    >
+                    <Text style={styles.connectButtonText}>
+                      Connect
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             >
-
-
-            </FlatList> */}
-
-          </View>
-        </SafeAreaView>
+          </FlatList>
+        </View>
         }
     </>
   )
@@ -137,7 +132,7 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    marginTop: -40,
+    marginTop: -10,
     borderRadius: 15,
     paddingBottom: 30,
   },
