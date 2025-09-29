@@ -86,8 +86,9 @@ const ServiceExploreDetails = (props: Props) => {
         {
         <View style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
           <FlatList 
-              data={applets}
-              keyExtractor={(item) => item.id.toString()}
+              data={applets.filter(app => app.firstIconId.toLowerCase() === service.id.toLowerCase()
+                    || app.secondeIconId.toLowerCase() === service.id.toLowerCase())}
+              keyExtractor={(item, index) => index.toString()}
               renderItem={({item}) => <AppletCard item={item}/>}
               ListHeaderComponent={() => (
                 <View style={[styles.header, {backgroundColor: service.backgroundColor}]}>
