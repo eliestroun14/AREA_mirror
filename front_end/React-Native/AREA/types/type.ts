@@ -5,6 +5,7 @@ export interface Service {
   applets: string[];
   appDescription: string;
   serviceDescription: string;
+  triggers: Trigger[];
 }
 
 export interface AppletsCard {
@@ -16,4 +17,11 @@ export interface AppletsCard {
   secondeIconId: string;
   littleIconId: string;
   howItWorks: string;
+}
+
+export interface Trigger {
+  id: string;
+  name: string;
+  description: string;
+  service: string;
 }

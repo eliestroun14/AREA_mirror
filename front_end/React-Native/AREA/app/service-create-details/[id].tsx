@@ -1,29 +1,30 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from "react-native";
-import React from "react";
+import { StyleSheet, Text, View, Image, FlatList } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import axios from 'axios'
 import { useEffect, useState } from 'react';
-import { Service, AppletsCard } from "@/types/type";
+import { Service, Trigger } from "@/types/type";
 import db from "../../data/db.json"
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
-import AppletCard from "@/components/molecules/applets-card/applets-card";
+import TriggerCard from "@/components/molecules/trigger-card/trigger-card";
 
 
-type Props = {}
+type Props = {
+  allTriggers: Trigger[];
+}
 
-const ServiceCreateDetails = (props: Props) => {
+const ServiceCreateDetails = ({allTriggers}: Props) => {
 
   const {id} = useLocalSearchParams();
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const [applets, setApplets] = useState<AppletsCard[]>([]);
+  const [triggers, setTriggers] = useState<Trigger[]>([]);
 
   useEffect(() => {
-    setApplets(db.appletsCard);
-  }, []);
+    if (service) {
+      setTriggers(service.triggers);
+    }
+  }, [service, allTriggers]);
 
   useEffect(() => {
     getServiceDetails();
@@ -85,10 +86,10 @@ const ServiceCreateDetails = (props: Props) => {
         />
         {
         <View style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
-          <FlatList 
-              data={applets}
+          <FlatList
+              data={triggers}
               keyExtractor={(item) => item.id.toString()}
-              renderItem={({item}) => <AppletCard item={item}/>}
+              renderItem={({item}) => <TriggerCard backgroundColor={service.backgroundColor} item={item}/>}
               ListHeaderComponent={() => (
                 <View style={[styles.header, {backgroundColor: service.backgroundColor}]}>
                   <Image
@@ -104,15 +105,6 @@ const ServiceCreateDetails = (props: Props) => {
                     {service.appDescription}
                   </Text>
 
-                  <TouchableOpacity style={styles.connectButton}
-                    // onPress={() => {
-
-                    // }}
-                    >
-                    <Text style={styles.connectButtonText}>
-                      Connect
-                    </Text>
-                  </TouchableOpacity>
                 </View>
               )}
             >
@@ -133,19 +125,19 @@ const styles = StyleSheet.create({
 
   header: {
     marginTop: -10,
-    borderRadius: 15,
     paddingBottom: 30,
+    marginBottom: 10
   },
 
   appLogo: {
-    width: 125,
-    height: 125,
+    width: 80,
+    height: 80,
     alignSelf: "center",
     marginTop: 30
   },
 
   serviceName: {
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: 'bold',
     alignSelf: "center",
     marginTop: 10,

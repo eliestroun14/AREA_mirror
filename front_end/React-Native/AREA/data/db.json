@@ -218,11 +218,5 @@
       "littleIconId": "spotify",
       "howItWorks": "Whenever you create a new playlist on Spotify, this applet will send a notification message to your Discord server. Share your music taste with friends as soon as you make a playlist."
     }
-  ],
-
-  "triggers": [
-    {
-      
-    }
   ]
 }
