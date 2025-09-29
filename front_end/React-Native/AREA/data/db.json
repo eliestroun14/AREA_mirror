@@ -9,6 +9,26 @@
         "Add songs from videos you like to a Spotify playlist",
         "Save new liked TikTok sounds to a Spotify playlist",
         "Receive a daily playlist based on your mood"
+      ],
+      "triggers": [
+        {
+          "id": "sp_new_playlist",
+          "name": "New playlist created",
+          "description": "Triggers when you create a new playlist on Spotify.",
+          "service": "Spotify"
+        },
+        {
+          "id": "sp_new_saved_track",
+          "name": "New saved track",
+          "description": "Triggers when you save a song to your library.",
+          "service": "Spotify"
+        },
+        {
+          "id": "sp_new_album_follow",
+          "name": "New album followed",
+          "description": "Triggers when you follow a new album.",
+          "service": "Spotify"
+        }
       ]
     },
     {
@@ -20,6 +40,26 @@
         "Save liked videos to a Google Sheet",
         "Post new uploads to Discord automatically",
         "Add video titles to a Notion database"
+      ],
+      "triggers": [
+        {
+          "id": "yt_like_video",
+          "name": "New liked video",
+          "description": "Triggers when you like a new YouTube video.",
+          "service": "YouTube"
+        },
+        {
+          "id": "yt_new_video_from_channel",
+          "name": "New video from channel",
+          "description": "Triggers when a specific channel uploads a new video.",
+          "service": "YouTube"
+        },
+        {
+          "id": "yt_playlist_add",
+          "name": "Added to playlist",
+          "description": "Triggers when a video is added to a selected playlist.",
+          "service": "YouTube"
+        }
       ]
     },
     {
@@ -31,6 +71,26 @@
         "Save Gmail attachments to Google Drive",
         "Send an automatic reply when receiving emails with keywords",
         "Forward starred emails to Slack"
+      ],
+      "triggers": [
+        {
+          "id": "gmail_new_attachment",
+          "name": "New email with attachment",
+          "description": "Triggers when you receive an email containing an attachment.",
+          "service": "Gmail"
+        },
+        {
+          "id": "gmail_new_label",
+          "name": "Email labeled",
+          "description": "Triggers when a new email is labeled in your inbox.",
+          "service": "Gmail"
+        },
+        {
+          "id": "gmail_new_star",
+          "name": "Starred email",
+          "description": "Triggers when you star an email in your inbox.",
+          "service": "Gmail"
+        }
       ]
     },
     {
@@ -42,6 +102,26 @@
         "Post new GitHub issues to a Discord channel",
         "Notify when a new Spotify playlist is created",
         "Send a welcome message to new members automatically"
+      ],
+      "triggers": [
+        {
+          "id": "discord_new_member",
+          "name": "New server member",
+          "description": "Triggers when a new user joins your server.",
+          "service": "Discord"
+        },
+        {
+          "id": "discord_new_message",
+          "name": "New message posted",
+          "description": "Triggers when a message is posted in a specific channel.",
+          "service": "Discord"
+        },
+        {
+          "id": "discord_new_reaction",
+          "name": "New reaction",
+          "description": "Triggers when someone reacts to a message.",
+          "service": "Discord"
+        }
       ]
     },
     {
@@ -53,6 +133,26 @@
         "Create a Trello card when a new GitHub issue is opened",
         "Send a Discord notification for new pull requests",
         "Save commits into a Notion database"
+      ],
+      "triggers": [
+        {
+          "id": "gh_new_issue",
+          "name": "New issue",
+          "description": "Triggers when a new issue is opened in a repository.",
+          "service": "GitHub"
+        },
+        {
+          "id": "gh_new_pr",
+          "name": "New pull request",
+          "description": "Triggers when a pull request is opened in a repository.",
+          "service": "GitHub"
+        },
+        {
+          "id": "gh_new_star",
+          "name": "New star",
+          "description": "Triggers when someone stars your repository.",
+          "service": "GitHub"
+        }
       ]
     }
   ],
