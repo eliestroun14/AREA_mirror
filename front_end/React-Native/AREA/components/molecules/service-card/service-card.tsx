@@ -11,7 +11,7 @@ type Props = {
 const ServiceCard = ({ item }: Props) => {
 
   return (
-    <Link href={`/service-details/${item.id}`} asChild>
+    <Link href={`/service-explore-details/${item.id}`} asChild>
       <TouchableOpacity style={styles.container}>
         <View style={[styles.button, { backgroundColor: item.backgroundColor, height: 200 }]}>
           <Image
