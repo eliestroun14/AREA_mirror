@@ -13,7 +13,7 @@ import AppletCard from "@/components/molecules/applets-card/applets-card";
 
 type Props = {}
 
-const ServiceDetails = (props: Props) => {
+const ServiceExploreDetails = (props: Props) => {
 
   const {id} = useLocalSearchParams();
   const [service, setService] = useState<Service | null>(null);
@@ -123,7 +123,7 @@ const ServiceDetails = (props: Props) => {
   )
 }
 
-export default ServiceDetails
+export default ServiceExploreDetails
 
 const styles = StyleSheet.create({
   container: {
