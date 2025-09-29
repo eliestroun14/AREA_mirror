@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 import { AppletsCard } from "@/types/type";
 import { imageMap } from "@/types/image";
+import { Link } from "expo-router";
 
 type Props = {
   item: AppletsCard,
@@ -10,10 +11,8 @@ type Props = {
 const AppletCard = ({ item }: Props) => {
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={{ height: 300 }}
-        // onPress={onPress}
-        >
+    <Link href={`/applet-details/${item.id}`} asChild>
+      <TouchableOpacity style={styles.container}>
         <View style={[styles.button, {backgroundColor: item.backgroundColor}]}>
           <View style={styles.icons}>
             <Image style={styles.icon}
@@ -36,7 +35,7 @@ const AppletCard = ({ item }: Props) => {
           </View>
         </View>
       </TouchableOpacity>
-    </View>
+    </Link>
   )
 }
 
