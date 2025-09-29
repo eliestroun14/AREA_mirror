@@ -12,7 +12,7 @@ type Props = {
 const TriggerCard = ({ item, backgroundColor }: Props) => {
 
   return (
-    // <Link href={`/service-explore-details/${item.id}`} asChild>
+    <Link href={`/connect-service/${item.service.toLocaleLowerCase()}`} asChild>
       <TouchableOpacity style={styles.container}>
         <View style={[styles.button, { backgroundColor: backgroundColor, height: 60 }]}>
           <Text style={styles.buttonText}>
@@ -20,7 +20,7 @@ const TriggerCard = ({ item, backgroundColor }: Props) => {
           </Text>
         </View>
       </TouchableOpacity>
-    // </Link>
+    </Link>
   )
 }
 
