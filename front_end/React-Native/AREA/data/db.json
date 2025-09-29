@@ -61,17 +61,17 @@
     {
       "id": 1,
       "description": "Add songs from videos you like to a Spotify playlist",
-      "appName": "youtube",
+      "appName": "Youtube",
       "backgroundColor": "#ff0000ff",
       "firstIconId": "youtube",
       "secondeIconId": "spotify",
       "littleIconId": "youtube",
-      "howItWorks": "This applet will search the title of the video on Spotify - if it finds the track, it'll add it to a 'Youtube' playlist. Not all songs on YouTube are available on Spotify. Happy tune hunting."
+      "howItWorks": "This applet will search the title of the video on Spotify - if it finds the track, it'll add it to a 'Youtube' playlist. Not all songs on YouTube are available on Spotify. Happy tune hunting!"
     },
     {
       "id": 2,
       "description": "Save Gmail attachments to Google Drive",
-      "appName": "gmail",
+      "appName": "Gmail",
       "backgroundColor": "#d93025ff",
       "firstIconId": "gmail",
       "secondeIconId": "googledrive",
@@ -81,7 +81,7 @@
     {
       "id": 3,
       "description": "Post new GitHub issues to a Discord channel",
-      "appName": "github",
+      "appName": "Github",
       "backgroundColor": "#24292eff",
       "firstIconId": "github",
       "secondeIconId": "discord",
@@ -91,7 +91,7 @@
     {
       "id": 4,
       "description": "Save liked YouTube videos to a Google Sheet",
-      "appName": "youtube",
+      "appName": "Youtube",
       "backgroundColor": "#ff0000ff",
       "firstIconId": "youtube",
       "secondeIconId": "googlesheets",
@@ -101,7 +101,7 @@
     {
       "id": 5,
       "description": "Notify Discord when a new Spotify playlist is created",
-      "appName": "spotify",
+      "appName": "Spotify",
       "backgroundColor": "#1db954ff",
       "firstIconId": "spotify",
       "secondeIconId": "discord",

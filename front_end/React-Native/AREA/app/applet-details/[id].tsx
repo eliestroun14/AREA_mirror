@@ -80,28 +80,53 @@ const AppletDetails = (props: Props) => {
         {
         <View style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
           <View style={[styles.header, {backgroundColor: applet.backgroundColor}]}>
-            <Image
-            style={styles.appLogo}
-            source={imageMap[applet.firstIconId] ?? imageMap["default"]}
-            />
+            <View style={styles.serviceLogos}>
+              <Image
+              style={styles.serviceLogo}
+              source={imageMap[applet.firstIconId] ?? imageMap["default"]}
+              />
 
-            <Text style={styles.appletName}>
-            {applet.description}
-            </Text>
+              <Image
+              style={styles.serviceLogo}
+              source={imageMap[applet.secondeIconId] ?? imageMap["default"]}
+              />
+            </View>
 
             <Text style={styles.appletDescription}>
-            {applet.description}
+              {applet.description}
             </Text>
 
-            <TouchableOpacity style={styles.connectButton}
-            // onPress={() => {
+            <View style={styles.appIconWithText}>
+              <Image source={imageMap[applet.littleIconId] ?? imageMap["default"]} style={styles.littleIcon} />
+              <Text style={styles.serviceName}>
+                {applet.appName}
+              </Text>
+            </View>
 
-            // }}
-            >
-            <Text style={styles.connectButtonText}>
-                Connect
-            </Text>
+              <TouchableOpacity style={styles.connectButton}
+              // onPress={() => {
+
+              // }}
+              >
+              <Text style={styles.connectButtonText}>
+                  Connect
+              </Text>
             </TouchableOpacity>
+          </View>
+
+          <View style={styles.content}>
+            <View style={styles.texts}>
+
+              <Text style={styles.howItWorkTitle}>
+                How this automation works
+              </Text>
+
+              <Text style={styles.howItWorkDescription}>
+                {applet.howItWorks}
+              </Text>
+
+            </View>
+
           </View>
         </View>
         }
@@ -123,37 +148,34 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
 
-  appLogo: {
-    width: 125,
-    height: 125,
-    alignSelf: "center",
-    marginTop: 30
+  serviceLogos: {
+    flexDirection: "row",
+    paddingLeft: 20,
   },
 
-  appletName: {
-    fontSize: 30,
-    fontWeight: 'bold',
+  serviceLogo: {
+    width: 60,
+    height: 60,
     alignSelf: "center",
-    marginTop: 10,
-    color: '#fff'
+    marginTop: 30,
+    marginRight: 15,
   },
 
   appletDescription: {
-    fontSize: 16,
-    lineHeight: 20,
-    color: '#fff',
+    fontSize: 25,
+    fontWeight: 'bold',
     alignSelf: "center",
-    maxWidth: 300,
-    marginTop: 10,
-    textAlign: "center"
+    marginTop: 20,
+    color: '#fff',
+    marginLeft: 20
   },
 
   connectButton: {
-    width: 180,
+    marginHorizontal: 20,
+    width: "90%",
     height: 80,
     backgroundColor: "#fff",
     borderRadius: 100,
-    alignSelf: "center",
     marginTop: 20,
     alignItems: "center",
     justifyContent: "center",
@@ -165,7 +187,45 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    alignSelf: "center"
+    padding: 20
+  },
+
+  appIconWithText: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 20,
+    marginLeft: 20,
+  },
+
+  littleIcon: {
+    width: 20,
+    height: 20,
+  },
+
+  serviceName: {
+    flex: 1,
+    fontSize: 16,
+    color: "#eee",
+    fontWeight: "bold",
+    alignSelf: "flex-start",
+    marginLeft: 10
+  },
+
+  texts: {
+    alignSelf: "flex-start"
+  },
+
+  howItWorkTitle: {
+    fontSize: 23,
+    fontWeight: "bold",
+    marginBottom: 10
+  },
+
+  howItWorkDescription: {
+    fontSize: 16,
+    fontWeight: "500",
+    lineHeight: 22,
+    letterSpacing: 0.5
   },
 
 })
