@@ -102,7 +102,7 @@ const ServiceExploreDetails = (props: Props) => {
                   </Text>
 
                   <Text style={styles.serviceDescription}>
-                    {service.description}
+                    {service.serviceDescription}
                   </Text>
 
                   <TouchableOpacity style={styles.connectButton}

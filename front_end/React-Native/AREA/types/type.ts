@@ -1,9 +1,10 @@
 export interface Service {
   id: string;
   serviceName: string;
-  description: string;
   backgroundColor: string;
   applets: string[];
+  appDescription: string;
+  serviceDescription: string;
 }
 
 export interface AppletsCard {

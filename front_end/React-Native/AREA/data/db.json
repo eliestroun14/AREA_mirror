@@ -4,6 +4,8 @@
       "id": "spotify",
       "serviceName": "Spotify",
       "description": "AREA allows you to enhance your Spotify experience by automating music management tasks. Connect Spotify with other services to automate playlists, save your favorite tracks and never miss a new release, making your music listening effortless and convenient.",
+      "serviceDescription": "AREA allows you to enhance your Spotify experience by automating music management tasks. Connect Spotify with other services to automate playlists, save your favorite tracks and never miss a new release, making your music listening effortless and convenient.",
+      "appDescription": "Spotify is a music streaming platform that gives you instant access to millions of songs, albums, and podcasts. Discover new music, create playlists, and enjoy personalized recommendations wherever you are.",
       "backgroundColor": "#1DB954",
       "applets": [
         "Add songs from videos you like to a Spotify playlist",
@@ -35,6 +37,8 @@
       "id": "youtube",
       "serviceName": "YouTube",
       "description": "Automate your YouTube activity with AREA. Save liked videos, track channel uploads, and share automatically with your favorite platforms.",
+      "serviceDescription": "Automate your YouTube activity with AREA. Save liked videos, track channel uploads, and share automatically with your favorite platforms.",
+      "appDescription": "YouTube is the world’s largest video-sharing platform, where you can watch, upload, and share videos. From music and tutorials to entertainment and vlogs, explore an endless variety of content.",
       "backgroundColor": "#FF0000",
       "applets": [
         "Save liked videos to a Google Sheet",
@@ -66,6 +70,8 @@
       "id": "gmail",
       "serviceName": "Gmail",
       "description": "AREA connects Gmail with other services to help you automate your email workflow. Save attachments, forward emails, and organize your inbox effortlessly.",
+      "serviceDescription": "AREA connects Gmail with other services to help you automate your email workflow. Save attachments, forward emails, and organize your inbox effortlessly.",
+      "appDescription": "Gmail is a secure, smart, and easy-to-use email service from Google. With advanced spam protection, integrations, and powerful search, it helps you stay productive and organized.",
       "backgroundColor": "#D93025",
       "applets": [
         "Save Gmail attachments to Google Drive",
@@ -97,6 +103,8 @@
       "id": "discord",
       "serviceName": "Discord",
       "description": "Integrate Discord with AREA to keep your community updated. Post new content automatically, notify team members, and sync with other platforms.",
+      "serviceDescription": "Integrate Discord with AREA to keep your community updated. Post new content automatically, notify team members, and sync with other platforms.",
+      "appDescription": "Discord is a communication platform designed for creating communities. It offers voice, video, and text chat, making it perfect for gamers, teams, and anyone who wants to stay connected.",
       "backgroundColor": "#5865F2",
       "applets": [
         "Post new GitHub issues to a Discord channel",
@@ -128,6 +136,8 @@
       "id": "github",
       "serviceName": "GitHub",
       "description": "Connect GitHub with AREA to streamline your developer workflow. Get updates, track issues, and manage repositories more efficiently.",
+      "serviceDescription": "Connect GitHub with AREA to streamline your developer workflow. Get updates, track issues, and manage repositories more efficiently.",
+      "appDescription": "GitHub is a development platform where you can host and review code, manage projects, and collaborate with millions of developers worldwide.",
       "backgroundColor": "#181717",
       "applets": [
         "Create a Trello card when a new GitHub issue is opened",
