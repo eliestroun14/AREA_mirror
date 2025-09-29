@@ -14,4 +14,5 @@ export interface AppletsCard {
   firstIconId: string;
   secondeIconId: string;
   littleIconId: string;
+  howItWorks: string;
 }

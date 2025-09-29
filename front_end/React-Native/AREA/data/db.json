@@ -65,7 +65,8 @@
       "backgroundColor": "#ff0000ff",
       "firstIconId": "youtube",
       "secondeIconId": "spotify",
-      "littleIconId": "youtube"
+      "littleIconId": "youtube",
+      "howItWorks": "This applet will search the title of the video on Spotify - if it finds the track, it'll add it to a 'Youtube' playlist. Not all songs on YouTube are available on Spotify. Happy tune hunting."
     },
     {
       "id": 2,
@@ -74,7 +75,8 @@
       "backgroundColor": "#d93025ff",
       "firstIconId": "gmail",
       "secondeIconId": "googledrive",
-      "littleIconId": "gmail"
+      "littleIconId": "gmail",
+      "howItWorks": "Whenever you receive an email with an attachment in Gmail, this applet will automatically save the file to your Google Drive. Keep your important files safe and accessible in the cloud."
     },
     {
       "id": 3,
@@ -83,7 +85,8 @@
       "backgroundColor": "#24292eff",
       "firstIconId": "github",
       "secondeIconId": "discord",
-      "littleIconId": "github"
+      "littleIconId": "github",
+      "howItWorks": "When a new issue is created on your GitHub repository, this applet will instantly send a message to your chosen Discord channel. Stay in sync with your team without leaving Discord."
     },
     {
       "id": 4,
@@ -92,7 +95,8 @@
       "backgroundColor": "#ff0000ff",
       "firstIconId": "youtube",
       "secondeIconId": "googlesheets",
-      "littleIconId": "youtube"
+      "littleIconId": "youtube",
+      "howItWorks": "Each time you like a video on YouTube, this applet will log the video’s title, link, and other details into a Google Sheet. Build your own organized list of favorites effortlessly."
     },
     {
       "id": 5,
@@ -101,7 +105,8 @@
       "backgroundColor": "#1db954ff",
       "firstIconId": "spotify",
       "secondeIconId": "discord",
-      "littleIconId": "spotify"
+      "littleIconId": "spotify",
+      "howItWorks": "Whenever you create a new playlist on Spotify, this applet will send a notification message to your Discord server. Share your music taste with friends as soon as you make a playlist."
     }
   ]
 }
