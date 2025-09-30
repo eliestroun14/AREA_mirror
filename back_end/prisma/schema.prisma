@@ -38,6 +38,8 @@ model connections {
   id                   Int       @id @default(autoincrement())
   user_id              Int
   service_id           Int
+  @@index([user_id])
+  @@index([service_id])
   access_token         String
   refresh_token        String?
   expires_at           DateTime?
@@ -80,6 +82,9 @@ model triggers {
   service_id       Int
   http_request_id  Int?
   webhook_id       Int?
+  @@index([service_id])
+  @@index([http_request_id])
+  @@index([webhook_id])
   trigger_type     String
   name             String
   description      String
@@ -99,6 +104,8 @@ model actions {
   id              Int          @id @default(autoincrement())
   service_id      Int
   http_request_id Int
+  @@index([service_id])
+  @@index([http_request_id])
   name            String
   description     String
   fields          Json
@@ -114,6 +121,7 @@ model actions {
 model zaps {
   id              Int              @id @default(autoincrement())
   user_id         Int
+  @@index([user_id])
   name            String
   description     String
   is_active       Boolean          @default(true)
@@ -136,6 +144,10 @@ model zap_steps {
   step_type      String
   trigger_id     Int?
   action_id      Int?
+  @@index([zap_id])
+  @@index([source_step_id])
+  @@index([trigger_id])
+  @@index([action_id])
   step_order     Int
   payload        Json
   created_at     DateTime @default(now())
@@ -152,6 +164,7 @@ model zap_steps {
 model zap_executions {
   id                  Int                   @id @default(autoincrement())
   zap_id              Int
+  @@index([zap_id])
   status              String
   duration_ms         Int
   started_at          DateTime
@@ -164,6 +177,8 @@ model zap_step_executions {
   id               Int            @id @default(autoincrement())
   zap_step_id      Int
   zap_execution_id Int
+  @@index([zap_step_id])
+  @@index([zap_execution_id])
   data             Json
   status           String
   duration_ms      Int
