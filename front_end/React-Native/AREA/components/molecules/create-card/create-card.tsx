@@ -1,22 +1,28 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 import { useState } from "react";
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { Service, Trigger } from "@/types/type";
+import { imageMap } from "@/types/image";
 
 type Props = {
+  service?: Service;
+  trigger?: Trigger;
+  onPress?: () => void;
 };
 
-const CreateCard = (props: Props) => {
+const CreateCard = ({service, trigger, onPress}: Props) => {
 
-  const [needAction, setNeedAction] = useState(false);
+  const isEmpty = !service || !trigger;
 
-  if (needAction === true) {
+  if (isEmpty === true) {
     return (
       <View style={styles.container}>
         <TouchableOpacity
           onPress={() => {
                 router.push("/select-trigger-service")
-        }}>
+        }}
+        >
           <View style={[styles.buttonTriggerDefault, {backgroundColor: "#000"}]}>
             <Text style={styles.text}>
               If This -
@@ -28,49 +34,53 @@ const CreateCard = (props: Props) => {
             </View>
           </View>
         </TouchableOpacity>
-  
+
         <View style={styles.middleLine} />
-        <TouchableOpacity>
-          <View style={[styles.buttonActionDefault, {backgroundColor: "#999999ff"}]}>
-            <Text style={styles.actionButtonTextDefault}>
-              Then That
-            </Text>
-          </View>
-        </TouchableOpacity>
-  
+
+        <View style={[styles.buttonActionDefault, {backgroundColor: "#999999ff"}]}>
+          <Text style={styles.actionButtonTextDefault}>
+            Then That
+          </Text>
+        </View>
+
       </View>
     );
   }
   else {
     return (
       <View style={styles.container}>
-        <TouchableOpacity
+        <TouchableOpacity onPress={onPress}
         >
-          <View style={[styles.button]}>
+          <View style={[styles.buttonTriggered, {backgroundColor: service.backgroundColor}]}>
             <Text style={styles.text}>
-
-            </Text>
-            <Text style={styles.appName}>
-
+              If
             </Text>
             <Image style={styles.appLogo}
+              source={imageMap[service.id] ?? imageMap["default"]}
             />
+            <Text style={styles.triggerName}>
+              {trigger.name}
+            </Text>
           </View>
         </TouchableOpacity>
-  
+
         <View style={styles.middleLine} />
         <TouchableOpacity>
-          <View style={[styles.button]}>
+          <View style={[styles.buttonTriggerDefault, {backgroundColor: "#000"}]}>
             <Text style={styles.text}>
-              
+              Then That
             </Text>
-            <Text style={styles.appName}>
-              
-            </Text>
-            <Image style={styles.appLogo}
-            />
+            <View style={styles.backgroundAddButton}>
+              <Text style={styles.addButtonText}>
+                Add
+              </Text>
+            </View>
           </View>
         </TouchableOpacity>
+
+        <View> 
+          
+        </View>
   
       </View>
     );
@@ -104,7 +114,7 @@ const styles = StyleSheet.create({
 
   addButtonText : {
     alignSelf: "center",
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: "bold"
   },
 
@@ -117,29 +127,38 @@ const styles = StyleSheet.create({
   },
 
   actionButtonTextDefault : {
-    fontSize: 25,
+    fontSize: 30,
     fontWeight: "bold",
     color: "#eee"
   },
 
+  buttonTriggered: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    borderRadius: 10,
+    padding: 12,
+    height: 80,
+  },
+
   appLogo: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
+  },
+
+  triggerName: {
+    fontSize: 20,
+    color: "#eee",
+    fontWeight: "bold",
+    marginLeft: 10
   },
 
   text: {
-    fontSize: 24,
+    fontSize: 30,
     color: "#eee",
     fontWeight: "bold",
     marginRight: 10,
-    marginLeft: 30
-  },
-
-  appName: {
-    fontSize: 24,
-    color: "#eee",
-    fontWeight: "bold",
-    marginRight: 30,
+    marginLeft: 20
   },
 
   middleLine: {
