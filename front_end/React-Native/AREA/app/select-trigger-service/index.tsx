@@ -55,35 +55,6 @@ export default function SelectTriggerService() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 10
-  },
-
-  profileImage: {
-    width: 80,
-    height: 80,
-    alignSelf: 'flex-end',
-    borderRadius: 100
-  },
-
-  title: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    color: '#1e1e1e',
-    padding: 20,
-    marginVertical: 10,
-  },
-
-  text: {
-    fontSize: 20,
-    fontWeight: "bold",
-    alignSelf: "center"
-  },
-
-  homeConfig: {
-    padding: 10,
-  },
-
   searchBar: {
     marginBottom: 15,
   },
@@ -92,5 +63,4 @@ const styles = StyleSheet.create({
     padding: 10,
     alignSelf: "center"
   }
-
 });

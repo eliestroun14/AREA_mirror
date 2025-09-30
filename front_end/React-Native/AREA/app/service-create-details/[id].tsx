@@ -74,7 +74,7 @@ const ServiceCreateDetails = ({allTriggers}: Props) => {
     <>
       <Stack.Screen
           options={{
-            title: "",
+            title: "Select Trigger",
             headerStyle: {
               backgroundColor: service.backgroundColor,
             },
@@ -153,25 +153,4 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textAlign: "center"
   },
-
-  connectButton: {
-    width: 180,
-    height: 80,
-    backgroundColor: "#fff",
-    borderRadius: 100,
-    alignSelf: "center",
-    marginTop: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  connectButtonText: {
-    fontSize: 25,
-    fontWeight: "bold",
-  },
-
-  content: {
-    alignSelf: "center"
-  },
-
 })
