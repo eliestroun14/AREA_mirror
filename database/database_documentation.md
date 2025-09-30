@@ -86,6 +86,7 @@ Répertorie tous les services externes (APIs) disponibles pour créer des automa
 |---------|------|-------------|-------------|
 | `id` | INT | PK, AUTO_INCREMENT | Identifiant unique du service |
 | `name` | VARCHAR | UNIQUE, NOT NULL | Nom du service (Gmail, Slack, Trello, etc.) |
+| `services_color` | VARCHAR | NULL | Couleur de l'entreprise
 | `icon_url` | VARCHAR | NULL | URL de l'icône du service pour l'interface |
 | `api_base_url` | VARCHAR | NULL | URL de base de l'API du service |
 | `auth_type` | VARCHAR | NOT NULL | Type d'authentification (OAuth2, API_KEY, BASIC, etc.) |
@@ -110,6 +111,7 @@ Répertorie tous les services externes (APIs) disponibles pour créer des automa
   "name": "Gmail",
   "icon_url": "https://cdn.zapier.com/icons/gmail.png",
   "api_base_url": "https://gmail.googleapis.com",
+  "services_color": "#0000FF",
   "auth_type": "OAuth2",
   "documentation_url": "https://developers.google.com/gmail/api",
   "active": true,

@@ -25,6 +25,7 @@ model services {
   name              String        @unique
   icon_url          String?
   api_base_url      String?
+  services_color    String        @default("#FFFFFF")
   auth_type         String
   documentation_url String?
   active            Boolean       @default(true)

@@ -175,6 +175,7 @@
   - `name` : nom du service
   - `icon_url` : URL de l'icône
   - `api_base_url` : URL de base de l'API
+  - `services_color`: Color of the original service (exemple: Youtube is red)
   - `auth_type` : type d'authentification
   - `documentation_url` : URL de la documentation
   - `active` : service actif ou non
@@ -189,6 +190,7 @@
     "name": "Google",
     "icon_url": "https://example.com/google.png",
     "api_base_url": "https://api.google.com",
+    "services_color": "#0000FF",
     "auth_type": "oauth2",
     "documentation_url": "https://docs.google.com",
     "active": true,
@@ -199,6 +201,7 @@
     "name": "Spotify",
     "icon_url": "https://example.com/spotify.png",
     "api_base_url": "https://api.spotify.com",
+    "services_color": "#1DB954",
     "auth_type": "oauth2",
     "documentation_url": "https://docs.spotify.com",
     "active": true,
