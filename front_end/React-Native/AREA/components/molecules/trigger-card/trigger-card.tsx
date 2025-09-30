@@ -2,7 +2,8 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 import { Trigger } from "@/types/type";
 import { imageMap } from "@/types/image";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
+import { useState } from "react";
 
 type Props = {
   item: Trigger;
@@ -11,17 +12,36 @@ type Props = {
 
 const TriggerCard = ({ item, backgroundColor }: Props) => {
 
-  return (
-    <Link href={`/connect-service/${item.service.toLocaleLowerCase()}`} asChild>
-      <TouchableOpacity style={styles.container}>
+  const [isConnected, setIsConnected] = useState<Boolean>(true);
+
+  if (isConnected === false) {
+    return (
+      <Link href={`/connect-service/${item.service.toLocaleLowerCase()}`} asChild>
+        <TouchableOpacity style={styles.container}>
+          <View style={[styles.button, { backgroundColor: backgroundColor, height: 60 }]}>
+            <Text style={styles.buttonText}>
+              {item.name}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </Link>
+    )
+  } else {
+    return (
+      <TouchableOpacity style={styles.container}
+        onPress={() => (
+          router.push({pathname: "/(tabs)/create",
+            params: {triggerId: item.id, serviceId: item.service.toLocaleLowerCase()}}
+          )
+        )}>
         <View style={[styles.button, { backgroundColor: backgroundColor, height: 60 }]}>
           <Text style={styles.buttonText}>
             {item.name}
           </Text>
         </View>
       </TouchableOpacity>
-    </Link>
-  )
+    )
+  }
 }
 
 export default TriggerCard;
