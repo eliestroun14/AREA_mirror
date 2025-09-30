@@ -3,10 +3,10 @@ import { useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Card from '@/components/Card'
 import InputField from '@/components/InputField'
 import MyButton from '@/components/Button'
 import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -39,27 +39,62 @@ export default function LoginPage() {
   }
 
   return (
-    <Card>
-      <Typography variant="h4" gutterBottom align="center">
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 3,
+        width: '100%',
+        maxWidth: 400,
+      }}
+    >
+      {/* Logo */}
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+        <Box
+          component="img"
+          src="/assets/AreaLogo-Photoroom.png"
+          alt="AREA Logo"
+          sx={{ height: 48, width: 48, mr: 2 }}
+        />
+        <Typography
+          variant="h3"
+          sx={{
+            fontFamily: 'monospace',
+            fontWeight: 700,
+            letterSpacing: '.3rem',
+            color: '#005acd',
+          }}
+        >
+          AREA
+        </Typography>
+      </Box>
+
+      <Typography variant="h4" gutterBottom align="center" sx={{ color: '#005acd', fontWeight: 600 }}>
         Connexion
       </Typography>
-      <InputField
-        label="Email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-      />
-      <InputField
-        label="Mot de passe"
-        type="password"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
-      />
-      <MyButton fullWidth onClick={handleLogin}>
-        Se connecter
-      </MyButton>
-      <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-        Pas encore de compte ? <Link href="/signup">Inscrivez-vous</Link>
+      <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <InputField
+          label="Email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+        />
+        <InputField
+          label="Mot de passe"
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+        />
+        <MyButton fullWidth onClick={handleLogin}>
+          Se connecter
+        </MyButton>
+      </Box>
+      <Typography variant="body2" align="center" sx={{ mt: 2, color: '#666' }}>
+        Pas encore de compte ?{' '}
+        <Link href="/signup" style={{ color: '#005acd', textDecoration: 'underline' }}>
+          Inscrivez-vous
+        </Link>
       </Typography>
-    </Card>
+    </Box>
   )
 }
