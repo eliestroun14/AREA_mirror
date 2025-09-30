@@ -8,68 +8,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model users {
   id          Int           @id @default(autoincrement())
-  email       String        @unique @db.VarChar(255)
-  name        String        @db.VarChar(32)
-  password    String        @db.VarChar(255)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  email       String        @unique
+  name        String
+  password    String
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @default(now())
   deleted_at  DateTime?
-  connections Connections[]
-  zaps        Zaps[]
-
-  // Index sur email pour accélérer les recherches et garantir l'unicité
-  @@index([email])
-
-  poc_triggers POC_trigger[]
-  poc_actions POC_action[]
+  connections connections[]
+  zaps        zaps[]
 }
 
-model POC_trigger {
-  id           Int    @id @default(autoincrement())
-  access_token String
-  user_id Int @unique
-  count        Int    @default(0)
-
-  user User @relation(fields: [user_id], references: [id])
-  tracks        POC_spotify_track[] @relation("TriggerTracks")
-}
-
-model POC_action {
-  id           Int    @id @default(autoincrement())
-  access_token String
-  user_id Int @unique
-
-  user User @relation(fields: [user_id], references: [id])
-}
-
-model POC_spotify_track {
-  id         String @id
-  trigger_id Int
-
-  trigger POC_trigger @relation("TriggerTracks", fields: [trigger_id], references: [id])
-}
-
-model Services {
-  id                Int             @id @default(autoincrement())
-  name              String          @unique @db.VarChar(32)
+model services {
+  id                Int           @id @default(autoincrement())
+  name              String        @unique
   icon_url          String?
   api_base_url      String?
   auth_type         String
   documentation_url String?
-  active            Boolean         @default(true)
-  createdAt         DateTime        @default(now())
-  connections       Connections[]
-  triggers          Triggers[]
-  actions           Actions[]
-  serviceFields     ServiceFields[]
-
-  // Index sur le champ 'active' pour faciliter la recherche des services actifs/inactifs
-  @@index([active])
+  active            Boolean       @default(true)
+  created_at        DateTime      @default(now())
+  connections       connections[]
+  triggers          triggers[]
+  actions           actions[]
 }
 
-model Connections {
+model connections {
   id                   Int       @id @default(autoincrement())
   user_id              Int
   service_id           Int
@@ -83,246 +48,128 @@ model Connections {
   scopes               String?
   is_active            Boolean   @default(true)
   created_at           DateTime  @default(now())
-  last_used_at         DateTime
-
-  user    User     @relation(fields: [user_id], references: [id])
-  service Services @relation(fields: [service_id], references: [id])
-
-  // Index sur user_id pour accélérer les requêtes par utilisateur
-  @@index([user_id])
-  // Index sur service_id pour accélérer les requêtes par service
-  @@index([service_id])
-  // Index composite sur user_id et service_id pour optimiser les recherches multi-critères
-  @@index([user_id, service_id])
+  last_used_at         DateTime?
+  user                 users     @relation(fields: [user_id], references: [id])
+  service              services  @relation(fields: [service_id], references: [id])
 }
 
-model Zaps {
-  id              Int       @id @default(autoincrement())
-  name            String
-  description     String?
-  user_id         Int
-  enabled         Boolean   @default(true)
-  total_runs      Int       @default(0)
-  successful_runs Int       @default(0)
-  failed_runs     Int       @default(0)
-  last_run_at     DateTime
-  created_at      DateTime  @default(now())
-  updatedAt       DateTime  @default(now()) @updatedAt
-  deleted_at      DateTime?
-
-  user User @relation(fields: [user_id], references: [id])
-
-  zapSteps      ZapSteps[]
-  zapExecutions ZapExecutions[]
-
-  // Index sur enabled pour filtrer rapidement les zaps actifs/inactifs
-  @@index([enabled])
-  // Index sur user_id pour retrouver rapidement les zaps d'un utilisateur
-  @@index([user_id])
+model http_request {
+  id            Int        @id @default(autoincrement())
+  description   String
+  method        String     @default("GET")
+  endpoint      String
+  body_schema   Json
+  header_schema Json
+  triggers      triggers[]
+  actions       actions[]
 }
 
-model Triggers {
-  id               Int      @id @default(autoincrement())
-  service_id       Int
-  name             String
-  description      String?
-  trigger_type     String
-  polling_interval Int?
-  webhook_method   String   @default("POST")
-  input_schema     Json?
-  output_schema    Json?
-  active           Boolean  @default(true)
-  created_at       DateTime @default(now())
-
-  service Services @relation(fields: [service_id], references: [id])
-
-  zapSteps      ZapSteps[]
-  webhooks      Webhooks[]
-  serviceFields ServiceFields[]
-
-  // Index sur service_id pour retrouver les triggers d'un service
-  @@index([service_id])
-  // Index sur active pour filtrer les triggers actifs/inactifs
-  @@index([active])
-}
-
-model Actions {
-  id            Int      @id @default(autoincrement())
-  service_id    Int
-  name          String
-  description   String?
-  http_method   String   @default("POST")
-  endpoint_path String?
-  input_schema  Json?
-  output_schema Json?
-  active        Boolean  @default(true)
-  created_at    DateTime @default(now())
-
-  service Services @relation(fields: [service_id], references: [id])
-
-  zapSteps      ZapSteps[]
-  serviceFields ServiceFields[]
-
-  // Index sur service_id pour retrouver les actions d'un service
-  @@index([service_id])
-  // Index sur active pour filtrer les actions actives/inactives
-  @@index([active])
-}
-
-model ZapSteps {
-  id            Int      @id @default(autoincrement())
-  zap_id        Int
-  step_order    Int
-  step_type     String
-  trigger_id    Int?
-  action_id     Int?
-  configuration Json?
-  created_at    DateTime @default(now())
-
-  zap     Zaps      @relation(fields: [zap_id], references: [id])
-  trigger Triggers? @relation(fields: [trigger_id], references: [id])
-  action  Actions?  @relation(fields: [action_id], references: [id])
-
-  stepExecutions      StepExecutions[]
-  dataTransformations DataTransformations[]
-
-  // Index sur zap_id pour retrouver les étapes d'un zap
-  @@index([zap_id])
-  // Index sur trigger_id pour retrouver les étapes liées à un trigger
-  @@index([trigger_id])
-  // Index sur action_id pour retrouver les étapes liées à une action
-  @@index([action_id])
-}
-
-model ZapExecutions {
-  id            Int       @id @default(autoincrement())
-  zap_id        Int
-  status        String
-  trigger_data  Json?
-  started_at    DateTime  @default(now())
-  completed_at  DateTime?
-  duration_ms   Int?
-  error_message String?
-  error_code    String?
-  retry_count   Int       @default(0)
-  max_retries   Int       @default(3)
-  next_retry_at DateTime?
-
-  zap Zaps @relation(fields: [zap_id], references: [id])
-
-  stepExecutions StepExecutions[]
-  executionLogs  ExecutionLogs[]
-
-  // Index sur zap_id pour retrouver les exécutions d'un zap
-  @@index([zap_id])
-}
-
-model StepExecutions {
-  id               Int       @id @default(autoincrement())
-  execution_id     Int
-  step_id          Int
-  status           String
-  input_data       Json?
-  output_data      Json?
-  transformed_data Json?
-  started_at       DateTime  @default(now())
-  completed_at     DateTime?
-  duration_ms      Int?
-  error_message    String?
-  error_code       String?
-  retry_count      Int       @default(0)
-
-  execution ZapExecutions @relation(fields: [execution_id], references: [id])
-  step      ZapSteps      @relation(fields: [step_id], references: [id])
-
-  executionLogs ExecutionLogs[]
-
-  // Index sur execution_id pour retrouver les étapes d'une exécution
-  @@index([execution_id])
-  // Index sur step_id pour retrouver les exécutions d'une étape
-  @@index([step_id])
-}
-
-model Webhooks {
-  id               Int       @id @default(autoincrement())
-  trigger_id       Int
-  webhook_url      String    @unique
-  webhook_secret   String
-  expected_headers Json?
-  signature_header String    @default("X-Signature")
-  active           Boolean   @default(true)
-  total_received   Int       @default(0)
+model webhooks {
+  id               Int        @id @default(autoincrement())
+  header_schema    Json
+  body_schema      Json
+  from_url         String
+  secret           String?
+  total_received   Int?
   last_received_at DateTime?
-  created_at       DateTime  @default(now())
-
-  trigger Triggers @relation(fields: [trigger_id], references: [id])
-
-  // Index sur trigger_id pour retrouver les webhooks d'un trigger
-  @@index([trigger_id])
-  // Index sur active pour filtrer les webhooks actifs/inactifs
-  @@index([active])
+  triggers         triggers[]
 }
 
-model ServiceFields {
-  id               Int     @id @default(autoincrement())
+model triggers {
+  id               Int           @id @default(autoincrement())
   service_id       Int
-  trigger_id       Int?
-  action_id        Int?
-  field_key        String
-  field_name       String
-  field_type       String
-  required         Boolean @default(false)
-  default_value    String?
-  validation_rules Json?
-  field_options    Json?
-  help_text        String?
-  placeholder      String?
-  field_order      Int     @default(0)
-  active           Boolean @default(true)
-
-  service Services  @relation(fields: [service_id], references: [id])
-  trigger Triggers? @relation(fields: [trigger_id], references: [id])
-  action  Actions?  @relation(fields: [action_id], references: [id])
-
-  // Index sur service_id pour retrouver les champs d'un service
-  @@index([service_id])
-  // Index sur trigger_id pour retrouver les champs liés à un trigger
-  @@index([trigger_id])
-  // Index sur action_id pour retrouver les champs liés à une action
-  @@index([action_id])
-  // Index sur active pour filtrer les champs actifs/inactifs
-  @@index([active])
+  http_request_id  Int?
+  webhook_id       Int?
+  trigger_type     String
+  name             String
+  description      String
+  polling_interval Int?
+  fields           Json
+  variables        Json
+  is_active        Boolean       @default(true)
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @default(now())
+  service          services      @relation(fields: [service_id], references: [id])
+  http_request     http_request? @relation(fields: [http_request_id], references: [id])
+  webhook          webhooks?     @relation(fields: [webhook_id], references: [id])
+  zap_steps        zap_steps[]
 }
 
-model DataTransformations {
-  id                    Int      @id @default(autoincrement())
-  zap_step_id           Int
-  source_field          String
-  target_field          String
-  transformation_type   String   @default("direct")
-  transformation_config Json?
-  created_at            DateTime @default(now())
-
-  zap_step ZapSteps @relation(fields: [zap_step_id], references: [id])
-
-  // Index sur zap_step_id pour retrouver les transformations d'une étape
-  @@index([zap_step_id])
+model actions {
+  id              Int          @id @default(autoincrement())
+  service_id      Int
+  http_request_id Int
+  name            String
+  description     String
+  fields          Json
+  variables       Json
+  is_active       Boolean      @default(true)
+  created_at      DateTime     @default(now())
+  updated_at      DateTime     @default(now())
+  service         services     @relation(fields: [service_id], references: [id])
+  http_request    http_request @relation(fields: [http_request_id], references: [id])
+  zap_steps       zap_steps[]
 }
 
-model ExecutionLogs {
-  id                Int      @id @default(autoincrement())
-  execution_id      Int
-  step_execution_id Int?
-  log_level         String
-  message           String
-  context           Json?
-  created_at        DateTime @default(now())
+model zaps {
+  id              Int              @id @default(autoincrement())
+  user_id         Int
+  name            String
+  description     String
+  is_active       Boolean          @default(true)
+  total_runs      Int
+  successful_runs Int
+  failed_runs     Int
+  last_run_at     DateTime?
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @default(now())
+  deleted_at      DateTime?
+  user            users            @relation(fields: [user_id], references: [id])
+  zap_steps       zap_steps[]
+  zap_executions  zap_executions[]
+}
 
-  execution      ZapExecutions   @relation(fields: [execution_id], references: [id])
-  step_execution StepExecutions? @relation(fields: [step_execution_id], references: [id])
+model zap_steps {
+  id             Int      @id @default(autoincrement())
+  zap_id         Int
+  source_step_id Int?
+  step_type      String
+  trigger_id     Int?
+  action_id      Int?
+  step_order     Int
+  payload        Json
+  created_at     DateTime @default(now())
+  updated_at     DateTime @default(now())
 
-  // Index sur execution_id pour retrouver les logs d'une exécution
-  @@index([execution_id])
-  // Index sur step_execution_id pour retrouver les logs d'une étape
-  @@index([step_execution_id])
+  zap                 zaps                  @relation(fields: [zap_id], references: [id])
+  source_step         zap_steps?            @relation("zap_steps_source", fields: [source_step_id], references: [id])
+  dependent_steps     zap_steps[]           @relation("zap_steps_source")
+  trigger             triggers?             @relation(fields: [trigger_id], references: [id])
+  action              actions?              @relation(fields: [action_id], references: [id])
+  zap_step_executions zap_step_executions[]
+}
+
+model zap_executions {
+  id                  Int                   @id @default(autoincrement())
+  zap_id              Int
+  status              String
+  duration_ms         Int
+  started_at          DateTime
+  ended_at            DateTime
+  zap                 zaps                  @relation(fields: [zap_id], references: [id])
+  zap_step_executions zap_step_executions[]
+}
+
+model zap_step_executions {
+  id               Int            @id @default(autoincrement())
+  zap_step_id      Int
+  zap_execution_id Int
+  data             Json
+  status           String
+  duration_ms      Int
+  error            Json?
+  started_at       DateTime
+  ended_at         DateTime
+  zap_step         zap_steps      @relation(fields: [zap_step_id], references: [id])
+  zap_execution    zap_executions @relation(fields: [zap_execution_id], references: [id])
 }

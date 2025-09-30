@@ -10,7 +10,6 @@ import {
 import { AuthService } from '@app/auth/auth.service';
 import {
   SignInRequestDto,
-  SignInResponseDto,
   SignUpRequestDto,
   SignUpResponseDto,
 } from '@app/auth/auth.dto';
@@ -60,13 +59,14 @@ export class AuthController {
     );
 
     res
-      .cookie('access_token', token, { httpOnly: true, sameSite: 'none', secure: true })
+      .cookie('access_token', token, {
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true,
+      })
       .status(HttpStatus.OK)
       .json({
         access_token: token,
       });
-    // return {
-    //   access_token: token,
-    // };
   }
 }

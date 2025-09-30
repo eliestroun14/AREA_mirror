@@ -6,7 +6,6 @@ import {
   InternalServerErrorException,
   NotFoundException, BadRequestException,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 
 @Catch(Prisma.PrismaClientKnownRequestError)

@@ -7,16 +7,6 @@ import { envConstants } from '@app/auth/constants';
 export class GoogleService {
   constructor(private prismaService: PrismaService) {}
 
-  async getAccessTokenOf(userId: number) {
-    const action = await this.prismaService.pOC_action.findFirst({
-      where: { user_id: userId },
-    });
-
-    if (!action) return null;
-
-    return action.access_token;
-  }
-
   async sendEmail(
     subject: string,
     to: string,
