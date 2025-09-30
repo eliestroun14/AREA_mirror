@@ -92,6 +92,7 @@
     "moduleNameMapper": {
       "@root/(.*)": "<rootDir>/src/$1",
       "@app/(.*)": "<rootDir>/src/app/$1",
+      "@pipes/(.*)": "<rootDir>/src/pipes/$1",
       "@config/(.*)": "<rootDir>/src/config/$1",
       "@filters/(.*)": "<rootDir>/src/filters/$1",
       "@test/(.*)": "<rootDir>/test/$1"
@@ -100,6 +101,7 @@
   "_moduleAliases": {
     "@root": ".",
     "@app": "src/app",
+    "@pipes": "src/pipes",
     "@config": "src/config",
     "@filters": "src/filters",
     "@test": "test"

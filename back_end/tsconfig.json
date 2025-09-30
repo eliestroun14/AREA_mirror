@@ -23,11 +23,11 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@root/*": ["src/*"],
+      "@pipes/*": ["src/pipes/*"],
       "@app/*": ["src/app/*"],
       "@config/*": ["src/config/*"],
       "@filters/*": ["src/filters/*"],
       "@test/*": ["test/*"]
-//      "@prisma/*": ["src/.generated/prisma/*"]
     }
   }
 }
