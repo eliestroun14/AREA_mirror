@@ -7,6 +7,7 @@ import { ServiceController } from './services/services.controller';
 import { AboutJsonController } from './aboutJson/aboutJson.controller';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { ZapsController } from './zaps/zaps.controller';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { join } from 'path';
       serveRoot: '/assets',
     }),
   ],
-  controllers: [ServiceController, AboutJsonController],
+  controllers: [ServiceController, AboutJsonController, ZapsController],
   providers: [PrismaService, SpotifyService, GoogleService],
 })
 export class AppModule {}
