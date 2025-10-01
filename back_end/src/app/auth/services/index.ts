@@ -2,7 +2,7 @@ interface Service {
   name: string;
   iconUrl: string;
   apiBaseUrl: string;
-  authType: "oauth2" | "api_key" | "basic";
+  authType: 'oauth2' | 'api_key' | 'basic';
   documentationUrl: string;
   isActive: boolean;
 }
@@ -25,7 +25,7 @@ export const services: Service[] = [
     apiBaseUrl: 'https://api.spotify.com/',
     authType: 'oauth2',
     documentationUrl: 'https://developer.spotify.com/documentation/',
-    isActive: true
+    isActive: true,
   },
   {
     name: 'Deezer',
@@ -33,7 +33,7 @@ export const services: Service[] = [
     apiBaseUrl: 'https://api.deezer.com/',
     authType: 'oauth2',
     documentationUrl: 'https://developers.deezer.com/api/',
-    isActive: true
+    isActive: true,
   },
   {
     name: 'Google',
@@ -41,6 +41,6 @@ export const services: Service[] = [
     apiBaseUrl: 'https://www.googleapis.com/',
     authType: 'oauth2',
     documentationUrl: 'https://developers.google.com/',
-    isActive: true
-  }
-]
+    isActive: true,
+  },
+];
