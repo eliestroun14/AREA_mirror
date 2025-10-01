@@ -91,7 +91,7 @@ export default function ExplorePage() {
         {filteredServices.length === 0 && (
           <Box sx={{ textAlign: 'center', mt: 4 }}>
             <Typography variant="h6" color="text.secondary">
-              Aucun service trouvé pour "{searchTerm}"
+              Aucun service trouvé pour &quot;{searchTerm}&quot;
             </Typography>
           </Box>
         )}

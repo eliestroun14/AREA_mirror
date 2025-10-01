@@ -51,7 +51,7 @@ export default function ServicePage() {
             Service non trouvé
           </Typography>
           <Typography variant="body1" align="center" color="black">
-            Le service "{serviceName}" n'existe pas dans notre base de données.
+            Le service &quot;{serviceName}&quot; n&apos;existe pas dans notre base de données.
           </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
             <Button 
@@ -115,7 +115,7 @@ export default function ServicePage() {
                 sx={{ bgcolor: '#005acd' }}
                 size="large"
               >
-                Configurer l'applet
+                Configurer l&apos;applet
               </Button>
               <Button
                 variant="outlined"
@@ -137,7 +137,7 @@ export default function ServicePage() {
               Action disponible : {service.actionType}
             </Typography>
             <Typography variant="body1" paragraph>
-              Ce service vous permet d'automatiser l'action "{service.actionType}"
+              Ce service vous permet d&apos;automatiser l&apos;action &quot;{service.actionType}&quot;
               via votre compte {service.name}.
             </Typography>
             <Typography variant="body2" color="text.secondary">
