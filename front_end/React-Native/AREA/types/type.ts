@@ -34,6 +34,6 @@ export interface Trigger {
   name: string;
   description: string;
   service: string;
-  fields: Record<string, TriggerField>; // optionnel car certains n’ont pas de fields
+  fields: Partial<Record<string, TriggerField>>;
 }
 
