@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Gmail",
+    "image": "logo_gmail.png",
+    "actionType": "Send a mail"
+  },
+  {
+    "name": "LinkedIn",
+    "image": "logo_linkedin.png",
+    "actionType": "Post an update"
+  },
+  {
+    "name": "YouTube",
+    "image": "logo_youtube.png",
+    "actionType": "Upload a video"
+  },
+  {
+    "name": "Twitter",
+    "image": "logo_twitter.png",
+    "actionType": "Tweet a message"
+  },
+  {
+    "name": "Facebook",
+    "image": "logo_facebook.png",
+    "actionType": "Create a post"
+  },
+  {
+    "name": "Slack",
+    "image": "logo_slack.png",
+    "actionType": "Send a message"
+  },
+  {
+    "name": "Dropbox",
+    "image": "logo_dropbox.png",
+    "actionType": "Upload a file"
+  },
+  {
+    "name": "Spotify",
+    "image": "logo_spotify.png",
+    "actionType": "Play a song"
+  },
+  {
+    "name": "Instagram",
+    "image": "logo_instagram.png",
+    "actionType": "Post a photo"
+  },
+  {
+    "name": "Google Drive",
+    "image": "logo_google_drive.png",
+    "actionType": "Create a document"
+  }
+]
