@@ -36,7 +36,6 @@ export default function CreatePage() {
         Choose a service
       </Typography>
 
-      {/* Barre de recherche */}
       <Box sx={{ mb: 4, display: "flex", justifyContent: "center" }}>
         <TextField
           label="Rechercher un service"
@@ -47,9 +46,8 @@ export default function CreatePage() {
         />
       </Box>
 
-      {/* Grille des services */}
-      <Box 
-        sx={{ 
+      <Box
+        sx={{
           display: 'flex',
           flexWrap: 'wrap',
           gap: 3,
@@ -58,7 +56,7 @@ export default function CreatePage() {
         }}
       >
         {filteredServices.map((service, index) => (
-          <Box 
+          <Box
             key={index}
             sx={{
               width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' },

@@ -36,7 +36,6 @@ export default function ExplorePage() {
         <Typography variant="h3" align="center" color="#005acd" gutterBottom>
           Explorer tous les services
         </Typography>
-        
         <Typography variant="body1" align="center" color="black" sx={{ mb: 4 }}>
           Découvrez tous nos services disponibles pour créer vos applets personnalisés
         </Typography>
@@ -52,9 +51,8 @@ export default function ExplorePage() {
           />
         </Box>
 
-        {/* Grille des services */}
-        <Box 
-          sx={{ 
+        <Box
+          sx={{
             display: 'flex',
             flexWrap: 'wrap',
             gap: 3,
@@ -63,7 +61,7 @@ export default function ExplorePage() {
           }}
         >
           {filteredServices.map((service, index) => (
-            <Box 
+            <Box
               key={index}
               sx={{
                 width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' },

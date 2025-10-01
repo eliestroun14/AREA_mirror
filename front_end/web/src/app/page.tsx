@@ -13,8 +13,6 @@ import database from "@/data/database.json";
 export default function HomePage() {
   const router = useRouter();
   const [isMounted, setIsMounted] = React.useState(false);
-  
-  // Prendre seulement les 4 premiers services
   const featuredServices = database.slice(0, 4);
 
   React.useEffect(() => setIsMounted(true), []);
@@ -33,7 +31,6 @@ export default function HomePage() {
       <Typography variant="h3" align="center" color="#005acd" gutterBottom>
         AREA
       </Typography>
-      
       <Typography variant="h6" align="center" color="black" sx={{ mb: 4 }}>
         Découvrez nos services populaires
       </Typography>
@@ -79,7 +76,6 @@ export default function HomePage() {
         ))}
       </Box>
 
-      {/* Bouton See More */}
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
         <Button
           variant="contained"
