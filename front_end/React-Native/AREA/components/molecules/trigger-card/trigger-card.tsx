@@ -46,15 +46,21 @@ const TriggerCard = ({ item, backgroundColor }: Props) => {
     )
   } else {
     return (
-      <Link href={`/trigger-fields-page/${item.service.toLocaleLowerCase()}`} asChild>
-        <TouchableOpacity style={styles.container}>
+        <TouchableOpacity style={styles.container}
+          onPress={() => (
+            router.push({pathname: "/trigger-fields-page/[id]",
+              params: { id: item.id,
+                triggerId: item.id,
+                serviceId: item.service.toLocaleLowerCase()}
+            })
+          )}
+        >
           <View style={[styles.button, { backgroundColor: backgroundColor, height: 60 }]}>
             <Text style={styles.buttonText}>
               {item.name}
             </Text>
           </View>
         </TouchableOpacity>
-      </Link>
     )
   }
 }
