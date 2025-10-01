@@ -13,6 +13,9 @@ type Props = {
 const TriggerCard = ({ item, backgroundColor }: Props) => {
 
   const [isConnected, setIsConnected] = useState<Boolean>(true);
+  const hasFields = Object.keys(item.fields).length > 0;
+
+  console.log(item.name, "fields:", hasFields);
 
   if (isConnected === false) {
     return (
@@ -26,7 +29,7 @@ const TriggerCard = ({ item, backgroundColor }: Props) => {
         </TouchableOpacity>
       </Link>
     )
-  } else {
+  } else if (isConnected === true && hasFields === false) {
     return (
       <TouchableOpacity style={styles.container}
         onPress={() => (
@@ -40,6 +43,18 @@ const TriggerCard = ({ item, backgroundColor }: Props) => {
           </Text>
         </View>
       </TouchableOpacity>
+    )
+  } else {
+    return (
+      <Link href={`/trigger-fields-page/${item.service.toLocaleLowerCase()}`} asChild>
+        <TouchableOpacity style={styles.container}>
+          <View style={[styles.button, { backgroundColor: backgroundColor, height: 60 }]}>
+            <Text style={styles.buttonText}>
+              {item.name}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </Link>
     )
   }
 }
