@@ -19,9 +19,21 @@ export interface AppletsCard {
   howItWorks: string;
 }
 
+export interface TriggerField {
+  required: boolean;
+  type: string;
+  field_name: string;
+  placeholder?: string;
+  field_order: number;
+  validation_rules?: Record<string, any>;
+  active: boolean;
+}
+
 export interface Trigger {
   id: string;
   name: string;
   description: string;
   service: string;
+  fields: Record<string, TriggerField>; // optionnel car certains n’ont pas de fields
 }
+
