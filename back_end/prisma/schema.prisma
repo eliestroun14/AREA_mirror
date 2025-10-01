@@ -28,7 +28,7 @@ model services {
   services_color    String        @default("#FFFFFF")
   auth_type         String
   documentation_url String?
-  active            Boolean       @default(true)
+  is_active         Boolean       @default(true)
   created_at        DateTime      @default(now())
   connections       connections[]
   triggers          triggers[]
@@ -125,10 +125,10 @@ model zaps {
   @@index([user_id])
   name            String
   description     String
-  is_active       Boolean          @default(true)
-  total_runs      Int
-  successful_runs Int
-  failed_runs     Int
+  is_active       Boolean          @default(false)
+  total_runs      Int              @default(0)
+  successful_runs Int              @default(0)
+  failed_runs     Int              @default(0)
   last_run_at     DateTime?
   created_at      DateTime         @default(now())
   updated_at      DateTime         @default(now())
