@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { services } from "@app/auth/services";
+import { services } from '@app/auth/services';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
@@ -10,23 +10,22 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     for (const service of services) {
       const serviceData = await this.services.findFirst({
         where: {
-          name: service.name
-        }
+          name: service.name,
+        },
       });
 
-      if (serviceData)
-        continue;
+      if (serviceData) continue;
 
-      this.services.create({
+      await this.services.create({
         data: {
           name: service.name,
           icon_url: service.iconUrl,
           api_base_url: service.apiBaseUrl,
           auth_type: service.authType,
           documentation_url: service.documentationUrl,
-          active: service.isActive
-        }
-      })
+          active: service.isActive,
+        },
+      });
     }
   }
 }

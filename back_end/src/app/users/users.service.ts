@@ -6,7 +6,15 @@ import { Prisma, users } from '@prisma/client';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async getUsersByEmail(email: string): Promise<users | null> {
+  async getUserById(id: number): Promise<users | null> {
+    return await this.prisma.users.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
+
+  async getUserByEmail(email: string): Promise<users | null> {
     return this.prisma.users.findUnique({
       where: {
         email,
@@ -14,25 +22,23 @@ export class UsersService {
     });
   }
 
-  async createUsers(data: Prisma.usersCreateInput): Promise<users> {
+  async createUser(data: Prisma.usersCreateInput): Promise<users> {
     return this.prisma.users.create({
       data,
     });
   }
 
-  async updateUsers(params: {
-    where: Prisma.usersWhereUniqueInput;
-    data: Prisma.usersUpdateInput;
-  }): Promise<users> {
-    const { where, data } = params;
-
+  async updateUser(
+    where: Prisma.usersWhereUniqueInput,
+    data: Prisma.usersUpdateInput,
+  ): Promise<users> {
     return this.prisma.users.update({
       data,
       where,
     });
   }
 
-  async deleteUsers(where: Prisma.usersWhereUniqueInput): Promise<users> {
+  async deleteUser(where: Prisma.usersWhereUniqueInput): Promise<users> {
     return this.prisma.users.delete({
       where,
     });
