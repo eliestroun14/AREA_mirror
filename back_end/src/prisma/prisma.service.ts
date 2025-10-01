@@ -23,7 +23,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
           api_base_url: service.apiBaseUrl,
           auth_type: service.authType,
           documentation_url: service.documentationUrl,
-          active: service.isActive,
+          is_active: service.isActive,
         },
       });
     }
