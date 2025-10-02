@@ -7,6 +7,7 @@ import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
 import TriggerFieldCard from "@/components/molecules/trigger-field-card/trigger-field-card";
 import { TriggerField } from "@/types/type";
+import { router } from "expo-router";
 
 type Props = {}
 
@@ -109,12 +110,13 @@ const TriggerFieldsPage = (props: Props) => {
             />
 
             <TouchableOpacity style={styles.connectButton}
-              // onPress={() => {
-
-              // }}
-              >
+              onPress={() => (
+                router.push({pathname: "/(tabs)/create",
+                  params: {triggerId: trigger.id, serviceId: service.id}}
+                )
+              )}>
               <Text style={styles.connectButtonText}>
-                  Connect
+                  Continue
               </Text>
             </TouchableOpacity>
           </View>
