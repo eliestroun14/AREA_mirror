@@ -9,27 +9,53 @@ type Props = {
 
 const TriggerFieldCard = ({ item }: Props) => {
 
-  const [dataTrigger, setdataTrigger] = useState('');
+  const [dataTrigger, setDataTrigger] = useState(
+    item.default_value ?? item.options?.[0]?.value ?? ""
+  );
 
-  return (
-    <View style={styles.container}>
-      <View>
-        <Text style={styles.fieldTitle}>
-          {item.field_name}
-        </Text>
-      </View>
+  if (item.type == "string") {
+    return (
+      <View style={styles.container}>
+        <View>
+          <Text style={styles.fieldTitle}>
+            {item.field_name}
+          </Text>
+        </View>
 
-      <View style={[styles.input, {height: 60 }]}>
-        <TextInput
-          style={[styles.inputControl, { flex: 1, width: "100%", height: "100%" }]}
-          placeholder={item.placeholder}
-          placeholderTextColor='#6b7280'
-          value={dataTrigger}
-          onChangeText={(dataTrigger: string) => setdataTrigger(dataTrigger)}
-        />
+        <View style={[styles.input, {height: 60 }]}>
+          <TextInput
+            style={[styles.inputControl, { flex: 1, width: "100%", height: "100%" }]}
+            placeholder={item.placeholder}
+            placeholderTextColor='#6b7280'
+            value={dataTrigger}
+            onChangeText={(dataTrigger: string) => setDataTrigger(dataTrigger)}
+          />
+        </View>
       </View>
-    </View>
-  )
+    )
+  } else if (item.type == "select" && item.options) {
+    return (
+      <View style={styles.container}>
+        <View>
+          <Text style={styles.fieldTitle}>
+            {item.field_name}
+          </Text>
+        </View>
+
+        <View style={[styles.input]}>
+          <Picker
+            style={[styles.inputControl, { flex: 1, width: "100%", height: "100%" }]}
+            selectedValue={dataTrigger}
+            onValueChange={(val: string) => setDataTrigger(val)}
+          >
+            {item.options.map((opt) => (
+              <Picker.Item key={opt.value} label={opt.label} value={opt.value} />
+            ))}
+          </Picker>
+        </View>
+      </View>
+    )
+  }
 }
 
 export default TriggerFieldCard;
