@@ -68,7 +68,7 @@ export default function CreateScreen() {
         </Text>
 
         <View>
-          <CreateCard service={service}
+          <CreateCard serviceTrigger={service}
             trigger={trigger}
           />
         </View>

@@ -6,16 +6,19 @@ import { Service, Trigger } from "@/types/type";
 import { imageMap } from "@/types/image";
 
 type Props = {
-  service?: Service;
+  serviceTrigger?: Service;
   trigger?: Trigger;
+  serviceAction?: Service;
+  action?: Trigger; //FIXME: set action interface when finished
   onPress?: () => void;
 };
 
-const CreateCard = ({service, trigger, onPress}: Props) => {
+const CreateCard = ({serviceTrigger, trigger, serviceAction, action, onPress}: Props) => {
 
-  const isEmpty = !service || !trigger;
+  const noTrigger = !serviceTrigger || !trigger;
+  const noAction = !serviceAction || !action
 
-  if (isEmpty === true) {
+  if (noTrigger === true) {
     return (
       <View style={styles.container}>
         <TouchableOpacity
@@ -46,17 +49,53 @@ const CreateCard = ({service, trigger, onPress}: Props) => {
       </View>
     );
   }
+  else if (noTrigger === false && noAction === true) {
+    return (
+      <View style={styles.container}>
+        <TouchableOpacity>
+          <View style={[styles.buttonTriggered, {backgroundColor: serviceTrigger.backgroundColor}]}>
+            <Text style={styles.text}>
+              If
+            </Text>
+            <Image style={styles.appLogo}
+              source={imageMap[serviceTrigger.id] ?? imageMap["default"]}
+            />
+            <Text style={styles.triggerName}>
+              {trigger.name}
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        <View style={styles.middleLine} />
+        <TouchableOpacity onPress={() => {
+          router.push("/select-action-service")
+        }}
+        >
+          <View style={[styles.buttonTriggerDefault, {backgroundColor: "#000"}]}>
+            <Text style={styles.text}>
+              Then That
+            </Text>
+            <View style={styles.backgroundAddButton}>
+              <Text style={styles.addButtonText}>
+                Add
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  }
   else {
     return (
       <View style={styles.container}>
         <TouchableOpacity onPress={onPress}
         >
-          <View style={[styles.buttonTriggered, {backgroundColor: service.backgroundColor}]}>
+          <View style={[styles.buttonTriggered, {backgroundColor: serviceTrigger.backgroundColor}]}>
             <Text style={styles.text}>
               If
             </Text>
             <Image style={styles.appLogo}
-              source={imageMap[service.id] ?? imageMap["default"]}
+              source={imageMap[serviceTrigger.id] ?? imageMap["default"]}
             />
             <Text style={styles.triggerName}>
               {trigger.name}
@@ -77,11 +116,6 @@ const CreateCard = ({service, trigger, onPress}: Props) => {
             </View>
           </View>
         </TouchableOpacity>
-
-        <View> 
-          
-        </View>
-  
       </View>
     );
   }
