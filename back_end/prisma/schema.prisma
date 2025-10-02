@@ -36,17 +36,20 @@ model services {
 }
 
 model connections {
+  id                   Int       @default(autoincrement())
   user_id              Int
-  service_id           Int
   @@index([user_id])
+  service_id           Int
   @@index([service_id])
+  account_identifier   String
+  @@index([account_identifier])
+
   access_token         String
   refresh_token        String?
   expires_at           DateTime?
   rate_limit_remaining Int       @default(1000)
   rate_limit_reset     DateTime?
   connection_name      String?
-  account_identifier   String?
   scopes               String?
   is_active            Boolean   @default(true)
   created_at           DateTime  @default(now())
@@ -54,7 +57,7 @@ model connections {
   user                 users     @relation(fields: [user_id], references: [id])
   service              services  @relation(fields: [service_id], references: [id])
 
-  @@id([user_id, service_id])
+  @@id([id, user_id, service_id, account_identifier])
 }
 
 model http_request {

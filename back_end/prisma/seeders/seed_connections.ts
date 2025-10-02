@@ -10,11 +10,13 @@ async function main() {
         user_id: 1, // adapte l'id selon tes users
         service_id: 1, // adapte l'id selon tes services
         access_token: 'token1',
+        account_identifier: 'identifier1',
       },
       {
         user_id: 2,
         service_id: 2,
         access_token: 'token2',
+        account_identifier: 'identifier2',
       },
     ],
     skipDuplicates: true,
