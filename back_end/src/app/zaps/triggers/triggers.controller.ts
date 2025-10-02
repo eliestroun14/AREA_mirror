@@ -7,7 +7,7 @@ import {
   Req,
   ForbiddenException,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
+import { JwtAuthGuard } from '@app/auth/jwt/jwt-auth.guard';
 import type { Request } from 'express';
 import { TriggersService } from './triggers.service';
 import { AddZapTriggerStepDTO } from './triggers.dto';
