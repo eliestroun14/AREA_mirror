@@ -1,56 +1,44 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
-
+import { View, Text, StyleSheet, Image } from 'react-native';
+import build from '../../assets/images/Construction crane-pana.png';
 
 export default function ActivityScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
-      <Text>
-        Activity
-      </Text>
+      <View style={styles.container}>
+        <Image source={build}
+          style={styles.image}
+        />
+
+        <Text style={styles.text}>
+          Sorry, this page is not finished.
+        </Text>
+
+        <Text style={styles.text}>
+          Come back later
+        </Text>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
-
-  },
-
-  header: {
     padding: 20,
-    marginVertical: 10,
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
+    alignSelf: "center",
   },
 
-  profileImage: {
-    width: 80,
-    height: 80,
-    alignSelf: 'flex-end',
-    borderRadius: 100
+  image: {
+    width: 300,
+    height: 300,
+    marginTop: 100
   },
 
-  title: {
-    fontSize: 60,
-    fontWeight: 'bold',
-    color: '#1e1e1e',
-    marginBottom: 6,
+  text: {
+    fontSize: 20,
+    fontWeight: "bold",
+    alignSelf: "center"
   },
-
-  homeConfig: {
-    padding: 10,
-  },
-
-  searchBar: {
-    marginBottom: 15,
-  },
-
-  appCards: {
-    marginTop: 5
-  }
 
 });
