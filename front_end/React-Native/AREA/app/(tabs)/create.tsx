@@ -42,20 +42,19 @@ export default function CreateScreen() {
     useCallback(() => {
       const backAction = () => {
         if (serviceTrigger && trigger) {
-          Alert.alert('Are you sure?', 'You have unsaved changes that will be lost if you leave the page', [
+          Alert.alert('Are you sure?', 'This action will reset your configuration', [
             {
-              text: 'Stay here',
+              text: 'Cancel',
               onPress: () => null,
               style: 'cancel'
             },
             {
-              text: 'Leave',
+              text: 'Reset configuration',
               onPress: () => {
                 setServiceTrigger(undefined);
                 setTrigger(undefined);
                 setServiceAction(undefined);
                 setAction(undefined);
-                router.push("/(tabs)/home")
               }
             }
           ]);

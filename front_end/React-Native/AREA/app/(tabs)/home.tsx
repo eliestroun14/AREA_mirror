@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SearchBar from "@/components/molecules/search-bar/search-bar";
-import AppCard from '@/components/molecules/app-card/app-card';
 import defaultPfp from '../../assets/images/Default_pfp.svg.png';
-import youtubeLogo from '../../assets/images/youtubeLogo.webp';
-import linkedinLogo from '../../assets/images/linkedinLogo.webp';
+import { router } from 'expo-router';
+import build from '../../assets/images/Construction crane-pana.png';
 
 export default function HomeScreen() {
 
@@ -21,11 +20,17 @@ export default function HomeScreen() {
             AREA
           </Text>
 
-          <Image
-            source={defaultPfp}
-            style={styles.profileImage}
-            alt="Profile picture"
-          />
+          <TouchableOpacity
+            onPress={() => (
+              router.push("/profile")
+            )}
+          >
+            <Image
+              source={defaultPfp}
+              style={styles.profileImage}
+              alt="Profile picture"
+            />
+          </TouchableOpacity>
 
         </View>
 
@@ -37,19 +42,17 @@ export default function HomeScreen() {
               placeholder='Search...' />
           </View>
 
-          <View style={styles.appCards}>
-            <AppCard appName='Youtube'
-            appLogoPath={youtubeLogo}
-            backgroundColor='rgba(255, 17, 0, 1)'
-            />
-          </View>
+          <Text style={styles.text}>
+            My Applets
+          </Text>
 
-          <View style={styles.appCards}>
-            <AppCard appName='Linkedin'
-            appLogoPath={linkedinLogo}
-            backgroundColor='rgba(0, 4, 255, 1)'
-            />
-          </View>
+          <Image style={styles.image}
+            source={build}
+          />
+
+          <Text style={styles.text}>
+            No Applets for Moment
+          </Text>
 
         </View>
 
@@ -60,8 +63,6 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
-
   },
 
   header: {
@@ -96,6 +97,19 @@ const styles = StyleSheet.create({
 
   appCards: {
     marginTop: 5
-  }
+  },
+
+  text: {
+    fontSize: 22,
+    fontWeight: "bold",
+    alignSelf: "center",
+  },
+
+  image: {
+    width: 300,
+    height: 300,
+    marginTop: 50,
+    alignSelf: "center"
+  },
 
 });
