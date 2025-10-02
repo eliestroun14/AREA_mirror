@@ -1,7 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Image } from "expo-image";
 import { Trigger } from "@/types/type";
-import { imageMap } from "@/types/image";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 

@@ -1,11 +1,8 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from "react-native";
-import React from "react";
 import { useLocalSearchParams } from "expo-router";
-import axios from 'axios'
 import { useEffect, useState } from 'react';
 import { Service, AppletsCard } from "@/types/type";
 import db from "../../data/db.json"
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
 import AppletCard from "@/components/molecules/applets-card/applets-card";

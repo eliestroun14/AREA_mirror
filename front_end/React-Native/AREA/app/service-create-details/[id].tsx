@@ -6,8 +6,6 @@ import db from "../../data/db.json"
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
 import TriggerCard from "@/components/molecules/trigger-card/trigger-card";
-import ActionCard from "@/components/molecules/action-card/action-card";
-
 
 type Props = {
   allTriggers: Trigger[];

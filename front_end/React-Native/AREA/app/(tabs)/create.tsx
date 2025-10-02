@@ -2,7 +2,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, StyleSheet, BackHandler, Alert, TouchableOpacity} from 'react-native';
 import CreateCard from '@/components/molecules/create-card/create-card';
 import { Service, Trigger } from '@/types/type';
-import { router, useLocalSearchParams } from "expo-router";
+import {useLocalSearchParams } from "expo-router";
 import db from "@/data/db.json";
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState, useEffect } from 'react';
