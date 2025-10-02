@@ -20,7 +20,10 @@ import { GithubOAuthGuard } from '@app/oauth2/services/github/github.guard';
 
 @Controller('oauth2')
 export class Oauth2Controller {
-  constructor(private service: Oauth2Service) {}
+  constructor(
+    private service: Oauth2Service,
+    private connectionService: ConnectionsService,
+  ) {}
 
   @Get(services.gmail.slug)
   @UseGuards(JwtAuthGuard, GmailOAuthGuard)
@@ -31,7 +34,7 @@ export class Oauth2Controller {
   async gmailAuthRedirect(@Req() req: StrategyCallbackRequest) {
     if (!req.user) throw new UnauthenticatedException();
 
-    await this.service.createConnection(
+    await this.connectionService.createConnection(
       services.gmail.name,
       req.user.userId,
       req.provider,
@@ -58,7 +61,7 @@ export class Oauth2Controller {
       throw new InternalServerErrorException();
     }
 
-    await this.service.createConnection(
+    await this.connectionService.createConnection(
       services.discord.name,
       req.user.userId,
       req.provider,
@@ -85,7 +88,7 @@ export class Oauth2Controller {
       throw new InternalServerErrorException();
     }
 
-    await this.service.createConnection(
+    await this.connectionService.createConnection(
       services.github.name,
       req.user.userId,
       req.provider,

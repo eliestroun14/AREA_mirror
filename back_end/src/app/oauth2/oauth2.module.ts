@@ -6,6 +6,7 @@ import { ServicesService } from '@app/services/services.service';
 import { GmailStrategy } from '@app/oauth2/services/gmail/gmail.strategy';
 import { DiscordStrategy } from '@app/oauth2/services/discord/discord.strategy';
 import { GithubStrategy } from '@app/oauth2/services/github/github.strategy';
+import { ConnectionsService } from '@app/users/connections/connections.service';
 
 @Module({
   controllers: [Oauth2Controller],
@@ -13,6 +14,7 @@ import { GithubStrategy } from '@app/oauth2/services/github/github.strategy';
     Oauth2Service,
     PrismaService,
     ServicesService,
+    ConnectionsService,
     GmailStrategy,
     GithubStrategy,
     DiscordStrategy,
