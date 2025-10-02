@@ -8,16 +8,16 @@ type Props = {
   serviceTrigger?: Service;
   trigger?: Trigger;
   serviceAction?: Service;
-  action?: Trigger; //FIXME: set action interface when finished
+  action?: Trigger; //TODO: set action interface when finished
   onPress?: () => void;
 };
 
 const CreateCard = ({serviceTrigger, trigger, serviceAction, action, onPress}: Props) => {
 
-  const noTrigger = !serviceTrigger || !trigger;
-  const noAction = !serviceAction || !action
+  const hasTrigger = serviceTrigger && trigger;
+  const hasAction = serviceAction && action;
 
-  if (noTrigger === true) {
+  if (!hasTrigger) {
     return (
       <View style={styles.container}>
         <TouchableOpacity
@@ -48,7 +48,7 @@ const CreateCard = ({serviceTrigger, trigger, serviceAction, action, onPress}: P
       </View>
     );
   }
-  else if (noTrigger === false && noAction === true) {
+  else if (hasTrigger && !hasAction) {
     return (
       <View style={styles.container}>
         <TouchableOpacity>
@@ -67,7 +67,11 @@ const CreateCard = ({serviceTrigger, trigger, serviceAction, action, onPress}: P
 
         <View style={styles.middleLine} />
         <TouchableOpacity onPress={() => {
-          router.push("/select-action-service")
+          router.push({pathname: "/select-action-service",
+            params: {triggerId: trigger.id,
+              serviceTriggerId: serviceTrigger.id
+            }
+          })
         }}
         >
           <View style={[styles.buttonTriggerDefault, {backgroundColor: "#000"}]}>
@@ -84,7 +88,7 @@ const CreateCard = ({serviceTrigger, trigger, serviceAction, action, onPress}: P
       </View>
     );
   }
-  else {
+  else if (hasTrigger && hasAction) {
     return (
       <View style={styles.container}>
         <TouchableOpacity onPress={onPress}
@@ -119,6 +123,7 @@ const CreateCard = ({serviceTrigger, trigger, serviceAction, action, onPress}: P
       </View>
     );
   }
+  return null
 }
 
 export default CreateCard

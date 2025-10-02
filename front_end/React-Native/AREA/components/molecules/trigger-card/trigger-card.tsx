@@ -15,8 +15,6 @@ const TriggerCard = ({ item, backgroundColor }: Props) => {
   const [isConnected, setIsConnected] = useState<Boolean>(true);
   const hasFields = Object.keys(item.fields).length > 0;
 
-  console.log(item.name, "fields:", hasFields);
-
   if (isConnected === false) {
     return (
       <Link href={`/connect-service/${item.service.toLocaleLowerCase()}`} asChild>
@@ -34,7 +32,7 @@ const TriggerCard = ({ item, backgroundColor }: Props) => {
       <TouchableOpacity style={styles.container}
         onPress={() => (
           router.push({pathname: "/(tabs)/create",
-            params: {triggerId: item.id, serviceId: item.service.toLocaleLowerCase()}}
+            params: {triggerId: item.id, serviceTriggerId: item.service.toLocaleLowerCase()}}
           )
         )}>
         <View style={[styles.button, { backgroundColor: backgroundColor, height: 60 }]}>
@@ -51,7 +49,7 @@ const TriggerCard = ({ item, backgroundColor }: Props) => {
             router.push({pathname: "/trigger-fields-page/[id]",
               params: { id: item.id,
                 triggerId: item.id,
-                serviceId: item.service.toLocaleLowerCase()}
+                serviceTriggerId: item.service.toLocaleLowerCase()}
             })
           )}
         >

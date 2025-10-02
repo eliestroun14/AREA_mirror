@@ -13,32 +13,37 @@ type Props = {}
 
 const TriggerFieldsPage = (props: Props) => {
 
-  const { serviceId, triggerId } = useLocalSearchParams();
+  const { id, triggerId, serviceTriggerId } = useLocalSearchParams<{
+    id?: string;
+    triggerId?: string;
+    serviceTriggerId?: string;
+  }>();
+  
   const [service, setService] = useState<Service | null>(null);
   const [trigger, setTrigger] = useState<Trigger | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getServiceDetails();
-  }, [serviceId, triggerId]);
+  }, [serviceTriggerId, triggerId]);
 
   const getServiceDetails = () => {
     setLoading(true);
 
-  const foundService = db.services.find(s => s.id === serviceId);
-  if (foundService) {
-    const foundTrigger = foundService.triggers.find(t => t.id === triggerId);
-    if (foundTrigger) {
-      setService(foundService);
-      setTrigger(foundTrigger);
-      console.log("Trigger fields:", foundTrigger.fields);
-    } else
+    const foundService = db.services.find(s => s.id === serviceTriggerId);
+    if (foundService) {
+      const foundTrigger = foundService.triggers.find(t => t.id === triggerId);
+      if (foundTrigger) {
+        setService(foundService);
+        setTrigger(foundTrigger);
+        console.log("Trigger fields:", foundTrigger.fields);
+      } else
         console.log("Trigger not found:", triggerId);
-  } else
-      console.log("Service not found:", serviceId);
+    } else
+      console.log("Service not found:", serviceTriggerId);
 
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
   //TODO: quand j'aurai le back faudra changer ici !!!!
 
@@ -112,7 +117,7 @@ const TriggerFieldsPage = (props: Props) => {
             <TouchableOpacity style={styles.connectButton}
               onPress={() => (
                 router.push({pathname: "/(tabs)/create",
-                  params: {triggerId: trigger.id, serviceId: service.id}}
+                  params: {triggerId: trigger.id, serviceTriggerId: service.id}}
                 )
               )}>
               <Text style={styles.connectButtonText}>

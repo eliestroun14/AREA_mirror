@@ -9,27 +9,39 @@ import { useCallback, useState, useEffect } from 'react';
 
 export default function CreateScreen() {
 
-  const { triggerId, serviceId } = useLocalSearchParams<{ triggerId?: string; serviceId?: string }>();
+  const { triggerId, serviceTriggerId } = useLocalSearchParams<{ triggerId?: string; serviceTriggerId?: string }>();
 
-  // const service: Service | undefined = db.services.find(s => s.id === serviceId);
-  // const trigger: Trigger | undefined = service?.triggers.find(t => t.id === triggerId);
-
-  const [service, setService] = useState<Service | undefined>();
+  const [serviceTrigger, setServiceTrigger] = useState<Service | undefined>();
   const [trigger, setTrigger] = useState<Trigger | undefined>();
 
   useEffect(() => {
-    const foundService = db.services.find(s => s.id === serviceId);
-    const foundTrigger = foundService?.triggers.find(t => t.id === triggerId);
-    
-    setService(foundService);
-    setTrigger(foundTrigger);
-  }, [serviceId, triggerId]);
+    const foundServiceTrigger = db.services.find(s => s.id === serviceTriggerId);
+    const foundTrigger = foundServiceTrigger?.triggers.find(t => t.id === triggerId);
 
+    setServiceTrigger(foundServiceTrigger);
+    setTrigger(foundTrigger);
+  }, [serviceTriggerId, triggerId]);
+
+  const { actionId, serviceActionId } = useLocalSearchParams<{ actionId?: string; serviceActionId?: string }>();
+
+  const [serviceAction, setServiceAction] = useState<Service | undefined>();
+  const [action, setAction] = useState<Trigger | undefined>();
+
+  useEffect(() => {
+    const foundServiceAction = db.services.find(s => s.id === serviceActionId);
+    const foundAction = foundServiceAction?.triggers.find(a => a.id === actionId);
+
+    setServiceAction(foundServiceAction);
+    setAction(foundAction);
+  }, [serviceActionId, actionId]);
+
+  console.log("serviceTrigger = ", serviceTrigger?.id);
+  console.log("serviceAction = ", serviceAction?.id);
 
   useFocusEffect(
     useCallback(() => {
       const backAction = () => {
-        if (service && trigger) {
+        if (serviceTrigger && trigger) {
           Alert.alert('Are you sure?', 'You have unsaved changes that will be lost if you leave the page', [
             {
               text: 'Stay here',
@@ -39,8 +51,10 @@ export default function CreateScreen() {
             {
               text: 'Leave',
               onPress: () => {
-                setService(undefined);
+                setServiceTrigger(undefined);
                 setTrigger(undefined);
+                setServiceAction(undefined);
+                setAction(undefined);
                 router.push("/(tabs)/home")
               }
             }
@@ -56,7 +70,7 @@ export default function CreateScreen() {
       );
 
       return () => backHandler.remove();
-    }, [service, trigger])
+    }, [serviceTrigger, trigger, serviceAction, action])
   );
 
   return (
@@ -68,8 +82,10 @@ export default function CreateScreen() {
         </Text>
 
         <View>
-          <CreateCard serviceTrigger={service}
+          <CreateCard serviceTrigger={serviceTrigger}
             trigger={trigger}
+            serviceAction={serviceAction}
+            action={action}
           />
         </View>
 

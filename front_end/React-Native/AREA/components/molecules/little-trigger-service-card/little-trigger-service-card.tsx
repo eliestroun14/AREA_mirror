@@ -8,10 +8,10 @@ type Props = {
   item: Service
 };
 
-const LittleServiceCard = ({ item }: Props) => {
+const LittleTriggerServiceCard = ({ item }: Props) => {
 
   return (
-    <Link href={`/service-create-details/${item.id}`} asChild>
+    <Link href={`/create-trigger-service/${item.id}`} asChild>
       <TouchableOpacity style={styles.container}>
         <View style={[styles.button, { backgroundColor: item.backgroundColor, height: 160, width: 160 }]}>
           <Image
@@ -27,7 +27,7 @@ const LittleServiceCard = ({ item }: Props) => {
   )
 }
 
-export default LittleServiceCard;
+export default LittleTriggerServiceCard;
 
 const styles = StyleSheet.create({
   container: {

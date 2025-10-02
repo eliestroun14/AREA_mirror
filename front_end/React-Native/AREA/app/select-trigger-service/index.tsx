@@ -3,7 +3,7 @@ import { View, StyleSheet, FlatList } from 'react-native';
 import { Stack } from 'expo-router';
 import SearchBar from '@/components/molecules/search-bar/search-bar';
 import { useState, useEffect } from 'react';
-import LittleServiceCard from '@/components/molecules/little-service-card/little-service-card';
+import LittleTriggerServiceCard from '@/components/molecules/little-trigger-service-card/little-trigger-service-card';
 import { Service } from '@/types/type';
 import db from '@/data/db.json'
 
@@ -38,7 +38,7 @@ export default function SelectTriggerService() {
             numColumns={2}
             data={services}
             keyExtractor={(item) => item.id.toString()}
-            renderItem={({item}) => <LittleServiceCard item={item}/>}
+            renderItem={({item}) => <LittleTriggerServiceCard item={item}/>}
             ListHeaderComponent={() =>
                 <View style={styles.searchBar}>
                   <SearchBar value={search}

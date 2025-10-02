@@ -13,32 +13,39 @@ type Props = {}
 
 const ActionFieldsPage = (props: Props) => {
 
-  const { serviceId, actionId } = useLocalSearchParams();
+  const { id, actionId, serviceActionId, triggerId, serviceTriggerId } = useLocalSearchParams<{
+    id?: string;
+    actionId?: string;
+    serviceActionId?: string;
+    triggerId?: string;
+    serviceTriggerId?: string;
+  }>();
+
   const [service, setService] = useState<Service | null>(null);
   const [action, setAction] = useState<Trigger | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getServiceDetails();
-  }, [serviceId, actionId]);
+  }, [serviceActionId, actionId]);
 
   const getServiceDetails = () => {
     setLoading(true);
 
-  const foundService = db.services.find(s => s.id === serviceId);
-  if (foundService) {
-    const foundAction = foundService.triggers.find(t => t.id === actionId);
-    if (foundAction) {
-      setService(foundService);
-      setAction(foundAction);
-      console.log("Action fields:", foundAction.fields);
-    } else
+    const foundService = db.services.find(s => s.id === serviceActionId);
+    if (foundService) {
+      const foundAction = foundService.triggers.find(t => t.id === actionId);
+      if (foundAction) {
+        setService(foundService);
+        setAction(foundAction);
+        console.log("Action fields:", foundAction.fields);
+      } else
         console.log("Action not found:", actionId);
-  } else
-      console.log("Service not found:", serviceId);
+    } else
+      console.log("Service not found:", serviceActionId);
 
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
   //TODO: quand j'aurai le back faudra changer ici !!!!
 
@@ -111,10 +118,16 @@ const ActionFieldsPage = (props: Props) => {
 
             <TouchableOpacity style={styles.connectButton}
               onPress={() => (
-                router.push({pathname: "/(tabs)/create",
-                  params: {actionId: action.id, serviceId: service.id}}
-                )
-              )}>
+              router.push({
+                pathname: "/(tabs)/create",
+                params: {
+                  actionId: action.id,
+                  serviceActionId: service.id,
+                  triggerId: triggerId,
+                  serviceTriggerId: serviceTriggerId
+                }
+              })
+            )}>
               <Text style={styles.connectButtonText}>
                   Continue
               </Text>
