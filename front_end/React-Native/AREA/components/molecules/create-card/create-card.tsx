@@ -1,7 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
-import { useState } from "react";
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { Service, Trigger } from "@/types/type";
 import { imageMap } from "@/types/image";
 
@@ -105,15 +104,16 @@ const CreateCard = ({serviceTrigger, trigger, serviceAction, action, onPress}: P
 
         <View style={styles.middleLine} />
         <TouchableOpacity>
-          <View style={[styles.buttonTriggerDefault, {backgroundColor: "#000"}]}>
+          <View style={[styles.buttonTriggered, {backgroundColor: serviceAction?.backgroundColor}]}>
             <Text style={styles.text}>
-              Then That
+              Then
             </Text>
-            <View style={styles.backgroundAddButton}>
-              <Text style={styles.addButtonText}>
-                Add
-              </Text>
-            </View>
+            <Image style={styles.appLogo}
+              source={imageMap[serviceAction.id] ?? imageMap["default"]}
+            />
+            <Text style={styles.triggerName}>
+              {action.name}
+            </Text>
           </View>
         </TouchableOpacity>
       </View>
