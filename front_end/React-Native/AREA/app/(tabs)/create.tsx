@@ -1,5 +1,5 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, StyleSheet, BackHandler, Alert} from 'react-native';
+import { View, Text, StyleSheet, BackHandler, Alert, TouchableOpacity} from 'react-native';
 import CreateCard from '@/components/molecules/create-card/create-card';
 import { Service, Trigger } from '@/types/type';
 import { router, useLocalSearchParams } from "expo-router";
@@ -73,26 +73,56 @@ export default function CreateScreen() {
     }, [serviceTrigger, trigger, serviceAction, action])
   );
 
-  return (
+  if (serviceAction || action) {
+    return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
-      <View style={styles.container}>
+        <View style={styles.container}>
 
-        <Text style={styles.title}>
-          Create
-        </Text>
+          <Text style={styles.title}>
+            Create
+          </Text>
+          <View>
+            <CreateCard serviceTrigger={serviceTrigger}
+              trigger={trigger}
+              serviceAction={serviceAction}
+              action={action}
+            />
+          </View>
 
-        <View>
-          <CreateCard serviceTrigger={serviceTrigger}
-            trigger={trigger}
-            serviceAction={serviceAction}
-            action={action}
-          />
+          <View>
+            <TouchableOpacity style={styles.connectButton}
+              // onPress={() => { TODO: link avec le back et créer le truc du coup
+
+              // }}
+              >
+              <Text style={styles.connectButtonText}>
+                  Finish
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
+      </SafeAreaView>
+    );
+  } else {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
+        <View style={styles.container}>
 
+          <Text style={styles.title}>
+            Create
+          </Text>
 
-      </View>
-    </SafeAreaView>
-  );
+          <View>
+            <CreateCard serviceTrigger={serviceTrigger}
+              trigger={trigger}
+              serviceAction={serviceAction}
+              action={action}
+            />
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -105,6 +135,23 @@ const styles = StyleSheet.create({
     color: '#1e1e1e',
     padding: 20,
     marginVertical: 10,
+  },
+
+  connectButton: {
+  height: 80,
+  backgroundColor: "#1e1e1e",
+  borderRadius: 100,
+  alignItems: "center",
+  justifyContent: "center",
+  alignSelf: "center",
+  width: "90%",
+  marginTop: 30
+},
+
+  connectButtonText: {
+    fontSize: 25,
+    fontWeight: "bold",
+    color: "#fff"
   },
 
 });
