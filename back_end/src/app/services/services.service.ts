@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@root/prisma/prisma.service';
 import {
-  ServiceDTO,
-  ActionDTO,
-  TriggerDTO,
   GetAllServicesResponse,
   GetServiceResponse,
   GetTriggersByServiceResponse,
@@ -11,6 +8,7 @@ import {
   GetActionByServiceResponse,
   GetTriggerByServiceResponse,
 } from './services.dto';
+import { formateDate } from '@config/utils';
 
 @Injectable()
 export class ServicesService {
@@ -27,15 +25,19 @@ export class ServicesService {
       auth_type: String(service.auth_type),
       documentation_url: service.documentation_url ?? null,
       is_active: Boolean(service.is_active),
-      created_at: service.created_at ? service.created_at.toISOString() : '',
+      created_at: service.created_at ? formateDate(service.created_at) : '',
     }));
   }
 
-  async getService(serviceId: string): Promise<GetServiceResponse> {
+  async getServiceByName(
+    serviceName: string,
+  ): Promise<GetServiceResponse> {
     const service = await this.prisma.services.findUnique({
-      where: { id: Number(serviceId) },
+      where: { name: serviceName },
     });
+
     if (!service) return null;
+
     return {
       id: Number(service.id),
       name: String(service.name),
@@ -45,7 +47,27 @@ export class ServicesService {
       auth_type: String(service.auth_type),
       documentation_url: service.documentation_url ?? null,
       is_active: Boolean(service.is_active),
-      created_at: service.created_at ? service.created_at.toISOString() : '',
+      created_at: service.created_at ? formateDate(service.created_at) : '',
+    };
+  }
+
+  async getService(serviceId: string): Promise<GetServiceResponse> {
+    const service = await this.prisma.services.findUnique({
+      where: { id: Number(serviceId) },
+    });
+
+    if (!service) return null;
+
+    return {
+      id: Number(service.id),
+      name: String(service.name),
+      icon_url: service.icon_url ?? null,
+      api_base_url: service.api_base_url ?? null,
+      services_color: String(service.service_color),
+      auth_type: String(service.auth_type),
+      documentation_url: service.documentation_url ?? null,
+      is_active: Boolean(service.is_active),
+      created_at: service.created_at ? formateDate(service.created_at) : '',
     };
   }
 
@@ -71,8 +93,8 @@ export class ServicesService {
       fields: trigger.fields as Record<string, unknown>,
       variables: trigger.variables as Record<string, unknown>,
       is_active: Boolean(trigger.is_active),
-      created_at: trigger.created_at ? trigger.created_at.toISOString() : '',
-      updated_at: trigger.updated_at ? trigger.updated_at.toISOString() : '',
+      created_at: trigger.created_at ? formateDate(trigger.created_at) : '',
+      updated_at: trigger.updated_at ? formateDate(trigger.updated_at) : '',
     }));
   }
 
@@ -91,8 +113,8 @@ export class ServicesService {
       fields: action.fields as Record<string, unknown>,
       variables: action.variables as Record<string, unknown>,
       is_active: Boolean(action.is_active),
-      created_at: action.created_at ? action.created_at.toISOString() : '',
-      updated_at: action.updated_at ? action.updated_at.toISOString() : '',
+      created_at: action.created_at ? formateDate(action.created_at) : '',
+      updated_at: action.updated_at ? formateDate(action.updated_at) : '',
     }));
   }
 
@@ -113,8 +135,8 @@ export class ServicesService {
       fields: action.fields as Record<string, unknown>,
       variables: action.variables as Record<string, unknown>,
       is_active: Boolean(action.is_active),
-      created_at: action.created_at ? action.created_at.toISOString() : '',
-      updated_at: action.updated_at ? action.updated_at.toISOString() : '',
+      created_at: action.created_at ? formateDate(action.created_at) : '',
+      updated_at: action.updated_at ? formateDate(action.updated_at) : '',
     };
   }
 
@@ -142,8 +164,8 @@ export class ServicesService {
       fields: trigger.fields as Record<string, unknown>,
       variables: trigger.variables as Record<string, unknown>,
       is_active: Boolean(trigger.is_active),
-      created_at: trigger.created_at ? trigger.created_at.toISOString() : '',
-      updated_at: trigger.updated_at ? trigger.updated_at.toISOString() : '',
+      created_at: trigger.created_at ? formateDate(trigger.created_at) : '',
+      updated_at: trigger.updated_at ? formateDate(trigger.updated_at) : '',
     };
   }
 }

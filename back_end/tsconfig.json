@@ -26,6 +26,7 @@
       "@pipes/*": ["src/pipes/*"],
       "@app/*": ["src/app/*"],
       "@config/*": ["src/config/*"],
+      "@errors/*": ["src/errors/*"],
       "@filters/*": ["src/filters/*"],
       "@test/*": ["test/*"]
     }

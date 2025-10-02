@@ -37,6 +37,7 @@
     "module-alias": "^2.2.3",
     "passport": "^0.7.0",
     "passport-deezer": "^0.2.0",
+    "passport-discord-auth": "^1.2.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "passport-spotify": "^2.0.0",
@@ -95,6 +96,7 @@
       "@app/(.*)": "<rootDir>/src/app/$1",
       "@pipes/(.*)": "<rootDir>/src/pipes/$1",
       "@config/(.*)": "<rootDir>/src/config/$1",
+      "@errors/(.*)": "<rootDir>/src/errors/$1",
       "@filters/(.*)": "<rootDir>/src/filters/$1",
       "@test/(.*)": "<rootDir>/test/$1"
     }
