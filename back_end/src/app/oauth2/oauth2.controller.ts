@@ -1,29 +1,69 @@
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  InternalServerErrorException,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { Oauth2Service } from '@app/oauth2/oauth2.service';
 import { GmailOAuthGuard } from '@app/oauth2/services/gmail/gmail.guard';
 import { JwtAuthGuard } from '@app/auth/jwt/jwt-auth.guard';
 import type { StrategyCallbackRequest } from '@app/oauth2/oauth2.dto';
 import UnauthenticatedException from '@errors/unauthenticated';
-import type { Response } from 'express';
-import { envConstants } from '@config/env';
+import type { JwtRequest } from '@app/auth/jwt/jwt.dto';
+import { ServicesService } from '@app/services/services.service';
+import { services } from '@root/prisma/services-data/services.data';
+import { ConnectionsService } from '@app/users/connections/connections.service';
+import { DiscordOAuthGuard } from '@app/oauth2/services/discord/discord.guard';
 
 @Controller('oauth2')
 export class Oauth2Controller {
-  constructor(private service: Oauth2Service) {}
+  constructor(
+    private service: Oauth2Service,
+  ) {}
 
-  @Get('gmail')
-  @UseGuards(GmailOAuthGuard)
-  gmailAuth() {}
-
-  @Get('gmail/callback')
+  @Get(services.gmail.slug)
   @UseGuards(JwtAuthGuard, GmailOAuthGuard)
-  async gmailAuthRedirect(
-    @Req() req: StrategyCallbackRequest,
-    // @Res() res: Response,
-  ) {
+  async gmailAuth() {}
+
+  @Get(`${services.gmail.slug}/callback`)
+  @UseGuards(JwtAuthGuard, GmailOAuthGuard)
+  async gmailAuthRedirect(@Req() req: StrategyCallbackRequest) {
     if (!req.user) throw new UnauthenticatedException();
 
-    await this.service.createConnection('Gmail', req.user.userId, req.provider);
+    await this.service.createConnection(
+      services.gmail.name,
+      req.user.userId,
+      req.provider,
+    );
+
+    return {
+      message: 'Authentification réussie',
+      user: req.user,
+      provider: req.provider,
+    };
+  }
+
+  @Get(services.discord.slug)
+  @UseGuards(JwtAuthGuard, DiscordOAuthGuard)
+  async discordAuth() {}
+
+  @Get(`${services.discord.slug}/callback`)
+  @UseGuards(JwtAuthGuard, DiscordOAuthGuard)
+  async discordAuthRedirect(@Req() req: StrategyCallbackRequest) {
+    if (!req.user) throw new UnauthenticatedException();
+
+    if (!req.provider) {
+      console.error(`Discord provider not found for user ${req.user.userId}.`);
+      throw new InternalServerErrorException();
+    }
+
+    await this.service.createConnection(
+      services.discord.name,
+      req.user.userId,
+      req.provider,
+    );
 
     return {
       message: 'Authentification réussie',

@@ -4,9 +4,10 @@ import { Oauth2Service } from './oauth2.service';
 import { PrismaService } from '@root/prisma/prisma.service';
 import { ServicesService } from '@app/services/services.service';
 import { GmailStrategy } from '@app/oauth2/services/gmail/gmail.strategy';
+import { DiscordStrategy } from '@app/oauth2/services/discord/discord.strategy';
 
 @Module({
   controllers: [Oauth2Controller],
-  providers: [Oauth2Service, PrismaService, ServicesService, GmailStrategy],
+  providers: [Oauth2Service, PrismaService, ServicesService, GmailStrategy, DiscordStrategy],
 })
 export class Oauth2Module {}

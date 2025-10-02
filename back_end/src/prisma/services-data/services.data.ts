@@ -1,8 +1,14 @@
 import { Service } from '@root/prisma/services-data/services.dto';
 
+export const services = {
+  gmail: { name: 'Gmail', slug: 'gmail' },
+  github: { name: 'Github', slug: 'github' },
+  discord: { name: 'Discord', slug: 'discord' },
+}
+
 export const servicesData: Service[] = [
   {
-    name: 'Discord',
+    name: services.discord.name,
     serviceColor: '#7289da',
     iconUrl: '/assets/discord.png',
     apiBaseUrl: 'https://discord.com/api',
@@ -11,7 +17,7 @@ export const servicesData: Service[] = [
     isActive: true,
   },
   {
-    name: 'Github',
+    name: services.github.name,
     serviceColor: '#21262d',
     iconUrl: '/assets/github.png',
     apiBaseUrl: 'https://api.github.com',
@@ -20,7 +26,7 @@ export const servicesData: Service[] = [
     isActive: true,
   },
   {
-    name: 'Gmail',
+    name: services.gmail.name,
     serviceColor: '#4285F4',
     iconUrl: '/assets/gmail.png',
     apiBaseUrl: 'https://gmail.googleapis.com',

@@ -1,21 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Profile, Strategy, StrategyOptions } from 'passport-google-oauth20';
-import { GmailProvider } from '@app/oauth2/services/gmail/gmail.dto';
+import {
+  Profile,
+  ScopeType,
+  Strategy,
+  StrategyOptions,
+} from 'passport-discord-auth';
+import { DiscordProvider } from '@app/oauth2/services/discord/discord.dto';
 import { envConstants } from '@config/env';
 import { callbackOf } from '@config/utils';
 import { services } from '@root/prisma/services-data/services.data';
 
 @Injectable()
-export class GmailStrategy extends PassportStrategy(Strategy, 'google') {
-  private static SCOPES: string[] = ['email'];
+export class DiscordStrategy extends PassportStrategy(Strategy, 'discord') {
+  private static SCOPES: ScopeType = ['email', 'identify'];
 
   constructor() {
     const options: StrategyOptions = {
-      clientID: envConstants.google_client_id,
-      clientSecret: envConstants.google_client_secret,
-      callbackURL: callbackOf(services.gmail.slug),
-      scope: GmailStrategy.SCOPES,
+      clientId: envConstants.discord_client_id,
+      clientSecret: envConstants.discord_client_secret,
+      callbackUrl: callbackOf(services.discord.slug),
+      scope: DiscordStrategy.SCOPES,
     };
 
     super(options);
@@ -25,9 +30,9 @@ export class GmailStrategy extends PassportStrategy(Strategy, 'google') {
     accessToken: string,
     refreshToken: string,
     profile: Profile,
-  ): GmailProvider {
+  ): DiscordProvider {
     return {
-      connection_name: services.gmail.name,
+      connection_name: services.discord.name,
       account_identifier: profile.id,
       email: profile.emails?.[0]?.value ?? 'none',
       username: profile.username ?? '',
@@ -37,7 +42,7 @@ export class GmailStrategy extends PassportStrategy(Strategy, 'google') {
       access_token: accessToken,
       refresh_token: refreshToken,
       expires_at: null,
-      scopes: GmailStrategy.SCOPES,
+      scopes: DiscordStrategy.SCOPES,
     };
   }
 }

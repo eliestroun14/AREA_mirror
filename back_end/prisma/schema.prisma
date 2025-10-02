@@ -36,7 +36,6 @@ model services {
 }
 
 model connections {
-  id                   Int       @id @default(autoincrement())
   user_id              Int
   service_id           Int
   @@index([user_id])
@@ -54,6 +53,8 @@ model connections {
   last_used_at         DateTime?
   user                 users     @relation(fields: [user_id], references: [id])
   service              services  @relation(fields: [service_id], references: [id])
+
+  @@id([user_id, service_id])
 }
 
 model http_request {
