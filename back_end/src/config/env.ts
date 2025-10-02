@@ -14,6 +14,9 @@ export const envConstants = {
   discord_client_id: process.env.DISCORD_CLIENT_ID ?? 'DISCORD_CLIENT_ID',
   discord_client_secret: process.env.DISCORD_CLIENT_SECRET ?? 'DISCORD_SECRET',
 
+  github_client_id: process.env.GITHUB_CLIENT_ID ?? 'GITHUB_CLIENT_ID',
+  github_client_secret: process.env.GITHUB_CLIENT_SECRET ?? 'GITHUB_SECRET',
+
   google_client_id: process.env.GOOGLE_CLIENT_ID ?? 'GOOGLE_CLIENT_ID',
   google_client_secret: process.env.GOOGLE_CLIENT_SECRET ?? 'GOOGLE_SECRET',
 
