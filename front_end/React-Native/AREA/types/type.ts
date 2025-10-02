@@ -27,6 +27,8 @@ export interface TriggerField {
   field_order: number;
   validation_rules?: Record<string, any>;
   active: boolean;
+  options?: { label: string; value: string }[];
+  default_value?: string;
 }
 
 export interface Trigger {

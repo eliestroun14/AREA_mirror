@@ -243,6 +243,50 @@
           "fields": {}
         }
       ]
+    },
+    {
+      "id": "gpt",
+      "serviceName": "OpenAI GPT",
+      "description": "Automate your AI workflow using GPT models. Choose a model and customize parameters before running your prompt.",
+      "serviceDescription": "AREA lets you run AI prompts using different GPT models and set custom options for each trigger.",
+      "appDescription": "OpenAI GPT provides state-of-the-art language models to generate text, answer questions, and more.",
+      "backgroundColor": "#10A37F",
+      "applets": [
+        "Send prompts to GPT automatically",
+        "Generate text based on a schedule",
+        "Run GPT queries when new events happen"
+      ],
+      "triggers": [
+        {
+          "id": "gpt_generate_text",
+          "name": "Generate text",
+          "description": "Triggers when you want GPT to generate text based on your input.",
+          "service": "gpt",
+          "fields": {
+            "model": {
+              "required": true,
+              "type": "select",
+              "field_name": "Modèle",
+              "default_value": "gpt-4",
+              "field_order": 1,
+              "options": [
+                { "label": "GPT-4", "value": "gpt-4" },
+                { "label": "GPT-3.5 Turbo", "value": "gpt-3.5-turbo" }
+              ],
+              "active": true
+            },
+            "prompt": {
+              "required": true,
+              "type": "string",
+              "field_name": "Prompt",
+              "placeholder": "Écris quelque chose...",
+              "field_order": 2,
+              "validation_rules": {},
+              "active": true
+            }
+          }
+        }
+      ]
     }
   ],
 
