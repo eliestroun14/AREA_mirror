@@ -39,8 +39,10 @@ export default function LoginScreen() {
   const handleSignIn = async () => {
     setError("");
 
+  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+
     try {
-      const res = await fetch("http://10.28.255.64:8080/auth/sign-in", { //FIXME: belek à l'ip, c'est celle d'Epitech
+      const res = await fetch(`${apiUrl}/auth/sign-in`, { //FIXME: belek à l'ip, c'est celle d'Epitech
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -51,7 +53,7 @@ export default function LoginScreen() {
       const result = await res.json();
 
       if (res.status === 200) {
-        const resUser = await fetch("http://10.28.255.64:8080/users/me", { //FIXME: belek à l'ip, c'est celle d'Epitech
+        const resUser = await fetch(`${apiUrl}/users/me`, { //FIXME: belek à l'ip, c'est celle d'Epitech
           method: "GET",
           headers: {
             "Content-Type": "application/json",
