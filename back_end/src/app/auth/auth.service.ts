@@ -20,7 +20,7 @@ export class AuthService {
       Number(envConstants.bcryptSaltRounds ?? 10),
     );
     try {
-      return this.usersService.createUsers(data);
+      return this.usersService.createUser(data);
     } catch (error) {
       console.log('error:', error);
       throw error;
@@ -28,7 +28,7 @@ export class AuthService {
   }
 
   async signIn(email: string, password: string): Promise<string> {
-    const users = await this.usersService.getUsersByEmail(email);
+    const users = await this.usersService.getUserByEmail(email);
     const isValidCredentials =
       users && (await bcrypt.compare(password, users.password));
 

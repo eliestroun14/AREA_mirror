@@ -5,9 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { PassportModule } from '@nestjs/passport';
 import { envConstants } from '@app/auth/constants';
-import { DeezerStrategy } from '@app/auth/services/deezer/deezer.strategy';
-import { SpotifyStrategy } from '@app/auth/services/spotify/spotify.strategy';
-import { GoogleStrategy } from '@app/auth/services/google/google.strategy';
+import { JwtStrategy } from '@app/auth/jwt/jwt.strategy';
 
 @Module({
   imports: [
@@ -19,7 +17,7 @@ import { GoogleStrategy } from '@app/auth/services/google/google.strategy';
       signOptions: { expiresIn: '7d' },
     }),
   ],
-  providers: [AuthService, DeezerStrategy, SpotifyStrategy, GoogleStrategy],
+  providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}
