@@ -1,13 +1,18 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, StyleSheet, FlatList } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import SearchBar from '@/components/molecules/search-bar/search-bar';
 import { useState, useEffect } from 'react';
-import LittleTriggerServiceCard from '@/components/molecules/little-trigger-service-card/little-trigger-service-card';
 import { Service } from '@/types/type';
 import db from '@/data/db.json'
+import LittleActionServiceCard from '@/components/molecules/little-action-service-card/little-action-service-card';
 
-export default function SelectTriggerService() {
+export default function SelectActionService() {
+
+  const { triggerId, serviceTriggerId } = useLocalSearchParams<{
+    triggerId?: string;
+    serviceTriggerId?: string
+  }>();
 
   const [search, setSearch] = useState("");
 
@@ -21,7 +26,7 @@ export default function SelectTriggerService() {
     <>
       <Stack.Screen
           options={{
-            title: 'Select Trigger Service',
+            title: 'Select Action Service',
             headerStyle: {
               backgroundColor: '#000',
             },
@@ -38,7 +43,11 @@ export default function SelectTriggerService() {
             numColumns={2}
             data={services}
             keyExtractor={(item) => item.id.toString()}
-            renderItem={({item}) => <LittleTriggerServiceCard item={item}/>}
+            renderItem={({item}) => <LittleActionServiceCard
+              item={item}
+              triggerId={triggerId}
+              serviceTriggerId={serviceTriggerId}
+              />}
             ListHeaderComponent={() =>
                 <View style={styles.searchBar}>
                   <SearchBar value={search}

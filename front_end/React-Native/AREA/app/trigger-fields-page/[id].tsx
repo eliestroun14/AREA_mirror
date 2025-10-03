@@ -1,36 +1,47 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';
-import { Service } from "@/types/type";
+import { Service, Trigger } from "@/types/type";
 import db from "../../data/db.json"
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
-
+import TriggerFieldCard from "@/components/molecules/trigger-field-card/trigger-field-card";
+import { TriggerField } from "@/types/type";
+import { router } from "expo-router";
 
 type Props = {}
 
-const ConnectService = (props: Props) => {
+const TriggerFieldsPage = (props: Props) => {
 
-  const {id} = useLocalSearchParams();
+  const { id, triggerId, serviceTriggerId } = useLocalSearchParams<{
+    id?: string;
+    triggerId?: string;
+    serviceTriggerId?: string;
+  }>();
+  
   const [service, setService] = useState<Service | null>(null);
+  const [trigger, setTrigger] = useState<Trigger | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getServiceDetails();
-  }, [id]);
+  }, [serviceTriggerId, triggerId]);
 
   const getServiceDetails = () => {
     setLoading(true);
 
-    const foundService = db.services.find(service => service.id === id || service.id === String(id));
-
+    const foundService = db.services.find(s => s.id === serviceTriggerId);
     if (foundService) {
-      setService(foundService);
-      console.log('Service found :', foundService);
-    } else {
-      console.log('Service not found for ID :', id);
-      setService(null);
-    }
+      const foundTrigger = foundService.triggers.find(t => t.id === triggerId);
+      if (foundTrigger) {
+        setService(foundService);
+        setTrigger(foundTrigger);
+        console.log("Trigger fields:", foundTrigger.fields);
+      } else
+        console.log("Trigger not found:", triggerId);
+    } else
+      console.log("Service not found:", serviceTriggerId);
+
     setLoading(false);
   };
 
@@ -51,19 +62,24 @@ const ConnectService = (props: Props) => {
     );
   }
 
-  if (!service) {
+  if (!service || !trigger) {
     return (
       <View style={styles.container}>
-        <Text>Service non trouvé pour l'ID: {id}</Text>
+        <Text>Service ou Trigger non trouvé</Text>
       </View>
     );
   }
+
+  const fieldsArray = Object.entries(trigger.fields).map(([key, field]) => ({
+    id: key,
+    ...(field as TriggerField)
+  }));
 
   return (
     <>
       <Stack.Screen
           options={{
-            title: "Connect Service",
+            title: "Complete trigger fields",
             headerStyle: {
               backgroundColor: service.backgroundColor,
             },
@@ -81,21 +97,31 @@ const ConnectService = (props: Props) => {
               source={imageMap[service.id] ?? imageMap["default"]}
             />
 
-            <Text style={styles.serviceName}>
-              {service.serviceName}
+            <Text style={styles.triggerName}>
+              {trigger.name}
             </Text>
 
-            <Text style={styles.serviceDescription}>
-              {service.appDescription}
+            <Text style={styles.triggerDescription}>
+              {trigger.description}
             </Text>
+
+            <FlatList
+              data={fieldsArray}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <TriggerFieldCard item={item} />
+              )}
+              contentContainerStyle={{ padding: 16 }}
+            />
 
             <TouchableOpacity style={styles.connectButton}
-              // onPress={() => {
-
-              // }}
-              >
+              onPress={() => (
+                router.push({pathname: "/(tabs)/create",
+                  params: {triggerId: trigger.id, serviceTriggerId: service.id}}
+                )
+              )}>
               <Text style={styles.connectButtonText}>
-                  Connect
+                  Continue
               </Text>
             </TouchableOpacity>
           </View>
@@ -105,7 +131,7 @@ const ConnectService = (props: Props) => {
   )
 }
 
-export default ConnectService
+export default TriggerFieldsPage
 
 const styles = StyleSheet.create({
   container: {
@@ -126,15 +152,15 @@ const styles = StyleSheet.create({
     marginTop: 70
   },
 
-  serviceName: {
+  triggerName: {
     fontSize: 25,
     fontWeight: 'bold',
     alignSelf: "center",
-    marginTop: 70,
+    marginTop: 20,
     color: '#fff'
   },
 
-  serviceDescription: {
+  triggerDescription: {
     fontSize: 16,
     lineHeight: 20,
     color: '#fff',

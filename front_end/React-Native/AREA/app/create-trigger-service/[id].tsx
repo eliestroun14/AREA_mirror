@@ -11,7 +11,7 @@ type Props = {
   allTriggers: Trigger[];
 }
 
-const ServiceCreateDetails = ({allTriggers}: Props) => {
+const CreateTriggerService = ({allTriggers}: Props) => {
 
   const {id} = useLocalSearchParams();
   const [service, setService] = useState<Service | null>(null);
@@ -116,7 +116,7 @@ const ServiceCreateDetails = ({allTriggers}: Props) => {
   )
 }
 
-export default ServiceCreateDetails
+export default CreateTriggerService
 
 const styles = StyleSheet.create({
   container: {

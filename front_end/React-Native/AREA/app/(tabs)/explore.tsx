@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { View, StyleSheet, FlatList, ListRenderItem } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SearchBar from "@/components/molecules/search-bar/search-bar";
-import NewsCard from '@/components/molecules/news-card/news-card'
 import { AppletsCard, Service } from '@/types/type';
 import db from "../../data/db.json"
 import ServiceCard from '@/components/molecules/service-card/service-card'

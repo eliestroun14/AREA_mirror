@@ -1,21 +1,23 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
-import { useState } from "react";
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { Service, Trigger } from "@/types/type";
 import { imageMap } from "@/types/image";
 
 type Props = {
-  service?: Service;
+  serviceTrigger?: Service;
   trigger?: Trigger;
+  serviceAction?: Service;
+  action?: Trigger; //TODO: set action interface when finished
   onPress?: () => void;
 };
 
-const CreateCard = ({service, trigger, onPress}: Props) => {
+const CreateCard = ({serviceTrigger, trigger, serviceAction, action, onPress}: Props) => {
 
-  const isEmpty = !service || !trigger;
+  const hasTrigger = serviceTrigger && trigger;
+  const hasAction = serviceAction && action;
 
-  if (isEmpty === true) {
+  if (!hasTrigger) {
     return (
       <View style={styles.container}>
         <TouchableOpacity
@@ -46,17 +48,16 @@ const CreateCard = ({service, trigger, onPress}: Props) => {
       </View>
     );
   }
-  else {
+  else if (hasTrigger && !hasAction) {
     return (
       <View style={styles.container}>
-        <TouchableOpacity onPress={onPress}
-        >
-          <View style={[styles.buttonTriggered, {backgroundColor: service.backgroundColor}]}>
+        <TouchableOpacity>
+          <View style={[styles.buttonTriggered, {backgroundColor: serviceTrigger.backgroundColor}]}>
             <Text style={styles.text}>
               If
             </Text>
             <Image style={styles.appLogo}
-              source={imageMap[service.id] ?? imageMap["default"]}
+              source={imageMap[serviceTrigger.id] ?? imageMap["default"]}
             />
             <Text style={styles.triggerName}>
               {trigger.name}
@@ -65,7 +66,14 @@ const CreateCard = ({service, trigger, onPress}: Props) => {
         </TouchableOpacity>
 
         <View style={styles.middleLine} />
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => {
+          router.push({pathname: "/select-action-service",
+            params: {triggerId: trigger.id,
+              serviceTriggerId: serviceTrigger.id
+            }
+          })
+        }}
+        >
           <View style={[styles.buttonTriggerDefault, {backgroundColor: "#000"}]}>
             <Text style={styles.text}>
               Then That
@@ -77,14 +85,45 @@ const CreateCard = ({service, trigger, onPress}: Props) => {
             </View>
           </View>
         </TouchableOpacity>
-
-        <View> 
-          
-        </View>
-  
       </View>
     );
   }
+  else if (hasTrigger && hasAction) {
+    return (
+      <View style={styles.container}>
+        <TouchableOpacity onPress={onPress}
+        >
+          <View style={[styles.buttonTriggered, {backgroundColor: serviceTrigger.backgroundColor}]}>
+            <Text style={styles.text}>
+              If
+            </Text>
+            <Image style={styles.appLogo}
+              source={imageMap[serviceTrigger.id] ?? imageMap["default"]}
+            />
+            <Text style={styles.triggerName}>
+              {trigger.name}
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        <View style={styles.middleLine} />
+        <TouchableOpacity>
+          <View style={[styles.buttonTriggered, {backgroundColor: serviceAction?.backgroundColor}]}>
+            <Text style={styles.text}>
+              Then
+            </Text>
+            <Image style={styles.appLogo}
+              source={imageMap[serviceAction.id] ?? imageMap["default"]}
+            />
+            <Text style={styles.triggerName}>
+              {action.name}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+  return null
 }
 
 export default CreateCard

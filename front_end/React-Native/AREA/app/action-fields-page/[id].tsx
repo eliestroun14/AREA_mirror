@@ -1,36 +1,49 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';
-import { Service } from "@/types/type";
+import { Service, Trigger } from "@/types/type";
 import db from "../../data/db.json"
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
-
+import ActionFieldCard from "@/components/molecules/action-field-card/action-field-card";
+import { TriggerField } from "@/types/type";
+import { router } from "expo-router";
 
 type Props = {}
 
-const ConnectService = (props: Props) => {
+const ActionFieldsPage = (props: Props) => {
 
-  const {id} = useLocalSearchParams();
+  const { id, actionId, serviceActionId, triggerId, serviceTriggerId } = useLocalSearchParams<{
+    id?: string;
+    actionId?: string;
+    serviceActionId?: string;
+    triggerId?: string;
+    serviceTriggerId?: string;
+  }>();
+
   const [service, setService] = useState<Service | null>(null);
+  const [action, setAction] = useState<Trigger | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getServiceDetails();
-  }, [id]);
+  }, [serviceActionId, actionId]);
 
   const getServiceDetails = () => {
     setLoading(true);
 
-    const foundService = db.services.find(service => service.id === id || service.id === String(id));
-
+    const foundService = db.services.find(s => s.id === serviceActionId);
     if (foundService) {
-      setService(foundService);
-      console.log('Service found :', foundService);
-    } else {
-      console.log('Service not found for ID :', id);
-      setService(null);
-    }
+      const foundAction = foundService.triggers.find(t => t.id === actionId);
+      if (foundAction) {
+        setService(foundService);
+        setAction(foundAction);
+        console.log("Action fields:", foundAction.fields);
+      } else
+        console.log("Action not found:", actionId);
+    } else
+      console.log("Service not found:", serviceActionId);
+
     setLoading(false);
   };
 
@@ -51,19 +64,24 @@ const ConnectService = (props: Props) => {
     );
   }
 
-  if (!service) {
+  if (!service || !action) {
     return (
       <View style={styles.container}>
-        <Text>Service non trouvé pour l'ID: {id}</Text>
+        <Text>Service ou Action non trouvé</Text>
       </View>
     );
   }
+
+  const fieldsArray = Object.entries(action.fields).map(([key, field]) => ({
+    id: key,
+    ...(field as TriggerField)
+  }));
 
   return (
     <>
       <Stack.Screen
           options={{
-            title: "Connect Service",
+            title: "Complete action fields",
             headerStyle: {
               backgroundColor: service.backgroundColor,
             },
@@ -81,21 +99,37 @@ const ConnectService = (props: Props) => {
               source={imageMap[service.id] ?? imageMap["default"]}
             />
 
-            <Text style={styles.serviceName}>
-              {service.serviceName}
+            <Text style={styles.actionName}>
+              {action.name}
             </Text>
 
-            <Text style={styles.serviceDescription}>
-              {service.appDescription}
+            <Text style={styles.actionDescription}>
+              {action.description}
             </Text>
+
+            <FlatList
+              data={fieldsArray}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <ActionFieldCard item={item} />
+              )}
+              contentContainerStyle={{ padding: 16 }}
+            />
 
             <TouchableOpacity style={styles.connectButton}
-              // onPress={() => {
-
-              // }}
-              >
+              onPress={() => (
+              router.push({
+                pathname: "/(tabs)/create",
+                params: {
+                  actionId: action.id,
+                  serviceActionId: service.id,
+                  triggerId: triggerId,
+                  serviceTriggerId: serviceTriggerId
+                }
+              })
+            )}>
               <Text style={styles.connectButtonText}>
-                  Connect
+                  Continue
               </Text>
             </TouchableOpacity>
           </View>
@@ -105,7 +139,7 @@ const ConnectService = (props: Props) => {
   )
 }
 
-export default ConnectService
+export default ActionFieldsPage
 
 const styles = StyleSheet.create({
   container: {
@@ -126,15 +160,15 @@ const styles = StyleSheet.create({
     marginTop: 70
   },
 
-  serviceName: {
+  actionName: {
     fontSize: 25,
     fontWeight: 'bold',
     alignSelf: "center",
-    marginTop: 70,
+    marginTop: 20,
     color: '#fff'
   },
 
-  serviceDescription: {
+  actionDescription: {
     fontSize: 16,
     lineHeight: 20,
     color: '#fff',

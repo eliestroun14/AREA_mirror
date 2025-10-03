@@ -17,19 +17,32 @@
           "id": "sp_new_playlist",
           "name": "New playlist created",
           "description": "Triggers when you create a new playlist on Spotify.",
-          "service": "Spotify"
+          "service": "Spotify",
+          "fields": {
+            "playlist_name": {
+              "required": false,
+              "type": "string",
+              "field_name": "Nom de la playlist (filtre optionnel)",
+              "placeholder": "Ma Playlist Chill",
+              "field_order": 1,
+              "validation_rules": {},
+              "active": true
+            }
+          }
         },
         {
           "id": "sp_new_saved_track",
           "name": "New saved track",
           "description": "Triggers when you save a song to your library.",
-          "service": "Spotify"
+          "service": "Spotify",
+          "fields": {}
         },
         {
           "id": "sp_new_album_follow",
           "name": "New album followed",
           "description": "Triggers when you follow a new album.",
-          "service": "Spotify"
+          "service": "Spotify",
+          "fields": {}
         }
       ]
     },
@@ -50,19 +63,42 @@
           "id": "yt_like_video",
           "name": "New liked video",
           "description": "Triggers when you like a new YouTube video.",
-          "service": "YouTube"
+          "service": "YouTube",
+          "fields": {}
         },
         {
           "id": "yt_new_video_from_channel",
           "name": "New video from channel",
           "description": "Triggers when a specific channel uploads a new video.",
-          "service": "YouTube"
+          "service": "YouTube",
+          "fields": {
+            "channel_id": {
+              "required": true,
+              "type": "string",
+              "field_name": "ID de la chaîne",
+              "placeholder": "UC_x5XG1OV2P6uZZ5FSM9Ttw",
+              "field_order": 1,
+              "validation_rules": {},
+              "active": true
+            }
+          }
         },
         {
           "id": "yt_playlist_add",
           "name": "Added to playlist",
           "description": "Triggers when a video is added to a selected playlist.",
-          "service": "YouTube"
+          "service": "YouTube",
+          "fields": {
+            "playlist_id": {
+              "required": true,
+              "type": "string",
+              "field_name": "ID de la playlist",
+              "placeholder": "PLFgquLnL59alCl_2TQvOiD5Vgm1hCaGSI",
+              "field_order": 1,
+              "validation_rules": {},
+              "active": true
+            }
+          }
         }
       ]
     },
@@ -83,19 +119,34 @@
           "id": "gmail_new_attachment",
           "name": "New email with attachment",
           "description": "Triggers when you receive an email containing an attachment.",
-          "service": "Gmail"
+          "service": "Gmail",
+          "fields": {
+            "from": {
+              "required": false,
+              "type": "string",
+              "field_name": "Expéditeur (filtre optionnel)",
+              "placeholder": "exemple@gmail.com",
+              "field_order": 1,
+              "validation_rules": {
+                "contains": "@"
+              },
+              "active": true
+            }
+          }
         },
         {
           "id": "gmail_new_label",
           "name": "Email labeled",
           "description": "Triggers when a new email is labeled in your inbox.",
-          "service": "Gmail"
+          "service": "Gmail",
+          "fields": {}
         },
         {
           "id": "gmail_new_star",
           "name": "Starred email",
           "description": "Triggers when you star an email in your inbox.",
-          "service": "Gmail"
+          "service": "Gmail",
+          "fields": {}
         }
       ]
     },
@@ -116,19 +167,32 @@
           "id": "discord_new_member",
           "name": "New server member",
           "description": "Triggers when a new user joins your server.",
-          "service": "Discord"
+          "service": "Discord",
+          "fields": {}
         },
         {
           "id": "discord_new_message",
           "name": "New message posted",
           "description": "Triggers when a message is posted in a specific channel.",
-          "service": "Discord"
+          "service": "Discord",
+          "fields": {
+            "channel_id": {
+              "required": true,
+              "type": "string",
+              "field_name": "ID du salon",
+              "placeholder": "123456789012345678",
+              "field_order": 1,
+              "validation_rules": {},
+              "active": true
+            }
+          }
         },
         {
           "id": "discord_new_reaction",
           "name": "New reaction",
           "description": "Triggers when someone reacts to a message.",
-          "service": "Discord"
+          "service": "Discord",
+          "fields": {}
         }
       ]
     },
@@ -149,19 +213,78 @@
           "id": "gh_new_issue",
           "name": "New issue",
           "description": "Triggers when a new issue is opened in a repository.",
-          "service": "GitHub"
+          "service": "GitHub",
+          "fields": {
+            "repository": {
+              "required": true,
+              "type": "string",
+              "field_name": "Nom du dépôt",
+              "placeholder": "user/repo",
+              "field_order": 1,
+              "validation_rules": {
+                "contains": "/"
+              },
+              "active": true
+            }
+          }
         },
         {
           "id": "gh_new_pr",
           "name": "New pull request",
           "description": "Triggers when a pull request is opened in a repository.",
-          "service": "GitHub"
+          "service": "GitHub",
+          "fields": {}
         },
         {
           "id": "gh_new_star",
           "name": "New star",
           "description": "Triggers when someone stars your repository.",
-          "service": "GitHub"
+          "service": "GitHub",
+          "fields": {}
+        }
+      ]
+    },
+    {
+      "id": "gpt",
+      "serviceName": "OpenAI GPT",
+      "description": "Automate your AI workflow using GPT models. Choose a model and customize parameters before running your prompt.",
+      "serviceDescription": "AREA lets you run AI prompts using different GPT models and set custom options for each trigger.",
+      "appDescription": "OpenAI GPT provides state-of-the-art language models to generate text, answer questions, and more.",
+      "backgroundColor": "#10A37F",
+      "applets": [
+        "Send prompts to GPT automatically",
+        "Generate text based on a schedule",
+        "Run GPT queries when new events happen"
+      ],
+      "triggers": [
+        {
+          "id": "gpt_generate_text",
+          "name": "Generate text",
+          "description": "Triggers when you want GPT to generate text based on your input.",
+          "service": "gpt",
+          "fields": {
+            "model": {
+              "required": true,
+              "type": "select",
+              "field_name": "Modèle",
+              "default_value": "gpt-4",
+              "field_order": 1,
+              "options": [
+                { "label": "GPT-4", "value": "gpt-4" },
+                { "label": "GPT-3.5 Turbo", "value": "gpt-3.5-turbo" }
+              ],
+              "active": true
+            },
+            "prompt": {
+              "required": true,
+              "type": "string",
+              "field_name": "Prompt",
+              "placeholder": "Écris quelque chose...",
+              "field_order": 2,
+              "validation_rules": {},
+              "active": true
+            }
+          }
         }
       ]
     }

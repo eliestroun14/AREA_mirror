@@ -6,9 +6,12 @@ import { useState } from "react";
 type Props = {
   item: Trigger;
   backgroundColor: string;
+  serviceActionId?: string;
+  triggerId?: string;
+  serviceTriggerId?: string;
 };
 
-const TriggerCard = ({ item, backgroundColor }: Props) => {
+const ActionCard = ({ item, backgroundColor, serviceActionId, triggerId, serviceTriggerId }: Props) => {
 
   const [isConnected, setIsConnected] = useState<Boolean>(true);
   const hasFields = Object.keys(item.fields).length > 0;
@@ -29,9 +32,15 @@ const TriggerCard = ({ item, backgroundColor }: Props) => {
     return (
       <TouchableOpacity style={styles.container}
         onPress={() => (
-          router.push({pathname: "/(tabs)/create",
-            params: {triggerId: item.id, serviceTriggerId: item.service.toLocaleLowerCase()}}
-          )
+          router.push({
+            pathname: "/(tabs)/create",
+            params: {
+              actionId: item.id,
+              serviceActionId: serviceActionId,
+              triggerId: triggerId,
+              serviceTriggerId: serviceTriggerId
+            }
+          })
         )}>
         <View style={[styles.button, { backgroundColor: backgroundColor, height: 60 }]}>
           <Text style={styles.buttonText}>
@@ -44,12 +53,17 @@ const TriggerCard = ({ item, backgroundColor }: Props) => {
     return (
         <TouchableOpacity style={styles.container}
           onPress={() => (
-            router.push({pathname: "/trigger-fields-page/[id]",
-              params: { id: item.id,
-                triggerId: item.id,
-                serviceTriggerId: item.service.toLocaleLowerCase()}
-            })
-          )}
+          router.push({
+            pathname: "/action-fields-page/[id]",
+            params: {
+              id: item.id,
+              actionId: item.id,
+              serviceActionId: serviceActionId,
+              triggerId: triggerId,
+              serviceTriggerId: serviceTriggerId
+            }
+          })
+        )}
         >
           <View style={[styles.button, { backgroundColor: backgroundColor, height: 60 }]}>
             <Text style={styles.buttonText}>
@@ -61,7 +75,7 @@ const TriggerCard = ({ item, backgroundColor }: Props) => {
   }
 }
 
-export default TriggerCard;
+export default ActionCard;
 
 const styles = StyleSheet.create({
   container: {
