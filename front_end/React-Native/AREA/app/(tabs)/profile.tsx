@@ -7,7 +7,7 @@ import areaLogo from '../../assets/images/AreaLogo.png';
 
 export default function LoginScreen() {
 
-  const { isAuthenticated, login, logout } = useAuth();
+  const { isAuthenticated, user, login, logout } = useAuth();
   const [error, setError] = useState("");
 
   const [form, setForm] = useState({
@@ -51,7 +51,10 @@ export default function LoginScreen() {
       const result = await res.json();
 
       if (res.status === 200) {
-        login();
+        login({
+          name: result.name || result.user?.name || "User",
+          email: result.email || result.user?.email || form.email,
+        });
         Alert.alert("Succefully signed in !")
       } else if (res.status === 401) {
         Alert.alert("Invalid email or password.")
@@ -156,13 +159,13 @@ export default function LoginScreen() {
             />
 
             <Text style={styles.title}>
-              Profile name
+              {user?.name || "Profile name"}
             </Text>
 
             {/* FIXME: change profile name */}
 
             <Text style={styles.subtitle}>
-              Welcome profile name :)
+              Welcome {user?.name || "user"} :)
             </Text>
           </View>
 
@@ -170,7 +173,6 @@ export default function LoginScreen() {
               <TouchableOpacity
                 onPress={() => {
                   logout();
-                  form.email = '';
                   form.password = '';
                 }}>
                 <View style={styles.disconnectButton}>
