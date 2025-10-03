@@ -1,0 +1,288 @@
+{
+  "services": [
+    {
+      "id": 1,
+      "name": "Gmail",
+      "image": "logo_gmail.png",
+      "service_color": "#D44638",
+      "actionType": "Send a mail",
+      "triggers": [
+        {
+          "id": 1,
+          "name": "New email received",
+          "description": "Triggers when you receive a new email",
+          "trigger_type": "Webhook",
+          "fields": ["from", "subject", "body_preview"],
+          "variables": ["sender_email", "email_subject", "email_body", "received_at"]
+        },
+        {
+          "id": 2,
+          "name": "Email starred",
+          "description": "Triggers when you star an email",
+          "trigger_type": "Polling",
+          "polling_interval": 300,
+          "fields": ["from", "subject"],
+          "variables": ["sender_email", "email_subject", "starred_at"]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "LinkedIn",
+      "image": "logo_linkedin.png",
+      "service_color": "#0077B5",
+      "actionType": "Post an update",
+      "triggers": [
+        {
+          "id": 3,
+          "name": "New connection",
+          "description": "Triggers when someone connects with you",
+          "trigger_type": "Webhook",
+          "fields": ["connection_name", "connection_title"],
+          "variables": ["contact_name", "contact_title", "connected_at"]
+        },
+        {
+          "id": 4,
+          "name": "Post liked",
+          "description": "Triggers when someone likes your post",
+          "trigger_type": "Polling",
+          "polling_interval": 600,
+          "fields": ["post_id"],
+          "variables": ["liker_name", "post_content", "liked_at"]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "YouTube",
+      "image": "logo_youtube.png",
+      "service_color": "#FF0000",
+      "actionType": "Upload a video",
+      "triggers": [
+        {
+          "id": 5,
+          "name": "New subscriber",
+          "description": "Triggers when you get a new subscriber",
+          "trigger_type": "Webhook",
+          "fields": [],
+          "variables": ["subscriber_name", "subscriber_count", "subscribed_at"]
+        },
+        {
+          "id": 6,
+          "name": "Video comment",
+          "description": "Triggers when someone comments on your video",
+          "trigger_type": "Polling",
+          "polling_interval": 300,
+          "fields": ["video_id"],
+          "variables": ["commenter_name", "comment_text", "video_title", "commented_at"]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Twitter",
+      "image": "logo_twitter.png",
+      "service_color": "#1DA1F2",
+      "actionType": "Tweet a message",
+      "triggers": [
+        {
+          "id": 7,
+          "name": "New mention",
+          "description": "Triggers when someone mentions you",
+          "trigger_type": "Webhook",
+          "fields": [],
+          "variables": ["mention_author", "tweet_text", "mentioned_at"]
+        },
+        {
+          "id": 8,
+          "name": "New follower",
+          "description": "Triggers when you get a new follower",
+          "trigger_type": "Polling",
+          "polling_interval": 600,
+          "fields": [],
+          "variables": ["follower_name", "follower_count", "followed_at"]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Facebook",
+      "image": "logo_facebook.png",
+      "service_color": "#1877F2",
+      "actionType": "Create a post",
+      "triggers": [
+        {
+          "id": 9,
+          "name": "Tagged in post",
+          "description": "Triggers when you are tagged in a post",
+          "trigger_type": "Webhook",
+          "fields": [],
+          "variables": ["post_author", "post_content", "tagged_at"]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Slack",
+      "image": "logo_slack.png",
+      "service_color": "#4A154B",
+      "actionType": "Send a message",
+      "triggers": [
+        {
+          "id": 10,
+          "name": "Direct message received",
+          "description": "Triggers when you receive a direct message",
+          "trigger_type": "Webhook",
+          "fields": ["channel"],
+          "variables": ["sender_name", "message_text", "channel_name", "received_at"]
+        },
+        {
+          "id": 11,
+          "name": "Mentioned in channel",
+          "description": "Triggers when you are mentioned in a channel",
+          "trigger_type": "Webhook",
+          "fields": ["channel"],
+          "variables": ["mention_author", "message_text", "channel_name", "mentioned_at"]
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Dropbox",
+      "image": "logo_dropbox.png",
+      "service_color": "#0061FF",
+      "actionType": "Upload a file",
+      "triggers": [
+        {
+          "id": 12,
+          "name": "File added",
+          "description": "Triggers when a file is added to a folder",
+          "trigger_type": "Webhook",
+          "fields": ["folder_path"],
+          "variables": ["file_name", "file_size", "folder_path", "uploaded_at"]
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Spotify",
+      "image": "logo_spotify.png",
+      "service_color": "#1DB954",
+      "actionType": "Play a song",
+      "triggers": [
+        {
+          "id": 13,
+          "name": "Song liked",
+          "description": "Triggers when you like a song",
+          "trigger_type": "Polling",
+          "polling_interval": 300,
+          "fields": [],
+          "variables": ["song_name", "artist_name", "album_name", "liked_at"]
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Instagram",
+      "image": "logo_instagram.png",
+      "service_color": "#E4405F",
+      "actionType": "Post a photo",
+      "triggers": [
+        {
+          "id": 14,
+          "name": "New follower",
+          "description": "Triggers when you get a new follower",
+          "trigger_type": "Polling",
+          "polling_interval": 600,
+          "fields": [],
+          "variables": ["follower_username", "follower_count", "followed_at"]
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Google Drive",
+      "image": "logo_google_drive.png",
+      "service_color": "#4285F4",
+      "actionType": "Create a document",
+      "triggers": [
+        {
+          "id": 15,
+          "name": "File shared with me",
+          "description": "Triggers when a file is shared with you",
+          "trigger_type": "Webhook",
+          "fields": [],
+          "variables": ["file_name", "owner_email", "shared_at"]
+        }
+      ]
+    }
+  ],
+  "applets": [
+    {
+      "id": 1,
+      "title": "Send email notifications for new form submissions",
+      "description": "Get notified instantly when someone fills out your form",
+      "trigger_service": "Gmail",
+      "action_service": "Slack",
+      "users": "131K",
+      "is_popular": true,
+      "trigger_id": 1,
+      "action_type": "Send a message"
+    },
+    {
+      "id": 2,
+      "title": "Post Instagram photos to Twitter automatically",
+      "description": "Share your Instagram content across social platforms",
+      "trigger_service": "Instagram",
+      "action_service": "Twitter",
+      "users": "603K",
+      "is_popular": true,
+      "trigger_id": 14,
+      "action_type": "Tweet a message"
+    },
+    {
+      "id": 3,
+      "title": "Backup your photos to Google Drive",
+      "description": "Automatically save your phone photos to cloud storage",
+      "trigger_service": "Dropbox",
+      "action_service": "Google Drive",
+      "users": "796K",
+      "is_popular": true,
+      "trigger_id": 12,
+      "action_type": "Create a document"
+    },
+    {
+      "id": 4,
+      "title": "Send Slack notifications for calendar events",
+      "description": "Never miss an important meeting again",
+      "trigger_service": "Gmail",
+      "action_service": "Slack",
+      "users": "357K",
+      "is_popular": true,
+      "trigger_id": 2,
+      "action_type": "Send a message"
+    },
+    {
+      "id": 5,
+      "title": "Tweet your new YouTube videos",
+      "description": "Automatically promote your YouTube content on Twitter",
+      "trigger_service": "YouTube",
+      "action_service": "Twitter",
+      "users": "234K",
+      "is_popular": false,
+      "trigger_id": 5,
+      "action_type": "Tweet a message"
+    },
+    {
+      "id": 6,
+      "title": "LinkedIn post when you star an email",
+      "description": "Share important emails as LinkedIn updates",
+      "trigger_service": "Gmail",
+      "action_service": "LinkedIn",
+      "users": "89K",
+      "is_popular": false,
+      "trigger_id": 2,
+      "action_type": "Post an update"
+    }
+  ]
+}
