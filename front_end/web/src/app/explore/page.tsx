@@ -15,7 +15,7 @@ export default function ExplorePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
-  const filteredServices = database.filter((service) =>
+  const filteredServices = database.services.filter((service) =>
     service.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -34,16 +34,16 @@ export default function ExplorePage() {
         }}
       >
         <Typography variant="h3" align="center" color="#005acd" gutterBottom>
-          Explorer tous les services
+          Explore all services
         </Typography>
         <Typography variant="body1" align="center" color="black" sx={{ mb: 4 }}>
-          Découvrez tous nos services disponibles pour créer vos applets personnalisés
+          Discover all our available services to create your personalized applets
         </Typography>
 
-        {/* Barre de recherche */}
+        {/* Search bar */}
         <Box sx={{ mb: 4, display: "flex", justifyContent: "center" }}>
           <TextField
-            label="Rechercher un service"
+            label="Search for a service"
             variant="outlined"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -91,7 +91,7 @@ export default function ExplorePage() {
         {filteredServices.length === 0 && (
           <Box sx={{ textAlign: 'center', mt: 4 }}>
             <Typography variant="h6" color="text.secondary">
-              Aucun service trouvé pour &quot;{searchTerm}&quot;
+              No service found for &quot;{searchTerm}&quot;
             </Typography>
           </Box>
         )}

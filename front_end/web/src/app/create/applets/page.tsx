@@ -14,7 +14,7 @@ export default function CreatePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
-  const filteredServices = database.filter((service) =>
+  const filteredServices = database.services.filter((service) =>
     service.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -37,7 +37,7 @@ export default function CreatePage() {
 
       <Box sx={{ mb: 4, display: "flex", justifyContent: "center" }}>
         <TextField
-          label="Rechercher un service"
+          label="Search for a service"
           variant="outlined"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}

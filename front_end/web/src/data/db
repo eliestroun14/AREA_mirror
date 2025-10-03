@@ -1,0 +1,166 @@
+Table users {
+  id int [pk, increment]
+  email varchar [unique, not null]
+  name varchar [not null]
+  password varchar [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  deleted_at timestamp
+}
+
+Table services {
+  id int [pk, increment]
+  name varchar [unique, not null]
+  service_color varchar [not null, default: '#ffffff']
+  icon_url varchar
+  api_base_url varchar
+  auth_type varchar [not null]
+  documentation_url varchar
+  active boolean [default: true, not null]
+  created_at timestamp [default: `now()`]
+}
+
+Table connections {
+  // id int [pk, increment]
+  user_id int [pk, not null]
+  service_id int [pk, not null]
+  access_token varchar [not null]
+  refresh_token varchar
+  expires_at timestamp
+  rate_limit_remaining int [default: 1000]
+  rate_limit_reset timestamp
+  connection_name varchar [not null, unique]
+  account_identifier varchar
+  scopes text
+  is_active boolean [default: true, not null]
+  created_at timestamp [default: `now()`]
+  last_used_at timestamp
+}
+
+Ref: connections.user_id > users.id
+Ref: connections.service_id > services.id
+
+// Décris comment un trigger fait ses requêtes en cas de polling ou de scheduling
+Table http_request { // Table utilisable pour les webhooks ou pour les requêtes APIs
+  id int [pk, increment]
+  // service_id int [not null]
+  description varchar [not null] // Uniquement pour le développeur pour identifier chaque http_request à l'oeil nu
+  method varchar [not null, default: `GET`]
+  endpoint varchar [not null]
+  body_schema json [not null]
+  header_schema json [not null] // Pour une vraie API si on a besoin d'un access_token par exemple
+}
+
+// Ref: http_request.service_id > services.id
+
+Table webhooks {
+  id int [pk, increment]
+  header_schema json [not null] // Les headers qui seront envoyé dans un certain format, peut être vide
+  body_schema json [not null] // Ce que l'on reçoit
+  from_url varchar [not null] // Depuis quel site on reçoit la donnée
+  secret varchar // Pour confirmer que ça vient bien du service et que c'est pas n'importe qui
+  total_received int
+  last_received_at timestamp // Pour du debogage
+}
+
+Table triggers {
+  id int [pk, increment]
+  service_id int [not null]
+  http_request_id int // Uniquement en cas de polling ou scheduling
+  webhook_id int // Uniquement en cas de webhook
+  trigger_type varchar [not null] // Webhook / Polling / Schedule
+  name varchar [not null]
+  description varchar [not null]
+  polling_interval int
+  fields json [not null] // Champs à affiché dans le front
+  variables json [not null] // Variables disponibles dans les actions qui partent de ce trigger
+  is_active boolean [not null, default: true]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Ref: triggers.webhook_id > webhooks.id
+Ref: triggers.http_request_id > http_request.id
+Ref: triggers.service_id > services.id
+
+Table actions {
+  id int [pk, increment]
+  service_id int [not null]
+  http_request_id int [not null]
+  name varchar [not null]
+  description varchar [not null]
+  fields json [not null] // Champs à afficher dans le front
+  variables json [not null] // Variables disponibles dans les actions qui partent de cette action (exemple: action = Requête ChatGPT (résume le mail) -> action qui part de cette action = Envoie le résumé par mail)
+  is_active boolean [not null, default: true]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Ref: actions.http_request_id > http_request.id
+Ref: actions.service_id > services.id
+
+// Logs
+Table zaps {
+  id int [pk, increment]
+  user_id int [not null]
+  name varchar [not null]
+  description varchar [not null]
+  is_active boolean [default: true]
+  total_runs int [not null]
+  successful_runs int [not null]
+  failed_runs int [not null]
+  last_run_at timestamp [default: null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  deleted_at timestamp [default: null]
+}
+
+Ref: zaps.user_id > users.id
+
+// Utilisé par le back-end lorsqu'un zap est trigger
+// Permet de savoir l'ordre des steps ainsi que les données que l'utilisateur
+// a configuré sur le front
+Table zap_steps {
+  id int [pk, increment]
+  zap_id int [not null]
+  source_step_id int // null si c'est le trigger, sinon bah voilà quoi
+  step_type varchar [not null] // TRIGGER ou ACTION
+  trigger_id int
+  action_id int
+  step_order int [not null]
+  payload json [not null] // Voir discord/doc
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Ref: zap_steps.zap_id > zaps.id
+Ref: zap_steps.trigger_id > triggers.id
+Ref: zap_steps.action_id > actions.id
+
+// Logs
+Table zap_executions {
+  id int [pk, increment]
+  zap_id int [not null]
+  status varchar [not null] // In progress, Done, Failed
+  duration_ms int [not null]
+  started_at timestamp [not null]
+  ended_at timestamp [not null]
+}
+
+Ref: zap_executions.zap_id > zaps.id
+
+// Logs + Utilisé par le back-end lorsqu'un zap est trigger
+Table zap_step_executions {
+  id int [pk, increment]
+  zap_step_id int [not null]
+  zap_execution_id int [not null]
+  data json [not null] // Output clé - valeur de la step (voir discord/doc)
+  status varchar [not null] // In progress, Done, Failed
+  duration_ms int [not null]
+  error json // { "message": "Pourquoi ça a fail", "code": "ERR_CHEPAKOA" }
+  started_at timestamp [not null]
+  ended_at timestamp [not null]
+}
+
+Ref: zap_step_executions.zap_step_id > zap_steps.id
+Ref: zap_step_executions.zap_execution_id > zap_executions.id

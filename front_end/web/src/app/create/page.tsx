@@ -78,10 +78,10 @@ export default function CreatePage() {
         Create
       </Typography>
       <Typography variant="body1" align="center" color="black" sx={{ mb: 4 }}>
-        Créez vos applets personnalisés ici.
+        Create your personalized applets here.
       </Typography>
 
-      {/* Bouton pour créer un applet */}
+      {/* Button to create an applet */}
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
         <Button
           variant="contained"
@@ -100,7 +100,7 @@ export default function CreatePage() {
             }
           }}
         >
-          Créer un nouvel applet
+          Create a new applet
         </Button>
       </Box>
     </Box>
