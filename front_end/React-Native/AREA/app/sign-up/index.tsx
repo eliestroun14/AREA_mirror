@@ -41,7 +41,7 @@ export default function SignUpScreen() {
     }
 
     try {
-      const response = await fetch("http://10.28.255.73:3000/auth/sign-up", { // FIXME: belek à l'ip, c'est celle d'Epitech
+      const response = await fetch("http://10.28.255.64:8080/auth/sign-up", { // FIXME: belek à l'ip, c'est celle d'Epitech
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

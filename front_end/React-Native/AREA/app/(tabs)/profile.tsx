@@ -40,7 +40,7 @@ export default function LoginScreen() {
     setError("");
 
     try {
-      const res = await fetch("http://10.28.255.73:3000/auth/sign-in", { //FIXME: belek à l'ip, c'est celle d'Epitech
+      const res = await fetch("http://10.28.255.64:8080/auth/sign-in", { //FIXME: belek à l'ip, c'est celle d'Epitech
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -170,6 +170,8 @@ export default function LoginScreen() {
               <TouchableOpacity
                 onPress={() => {
                   logout();
+                  form.email = '';
+                  form.password = '';
                 }}>
                 <View style={styles.disconnectButton}>
                   <Text style={styles.buttonText}> Sign out </Text>
