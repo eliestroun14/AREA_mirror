@@ -51,10 +51,20 @@ export default function LoginScreen() {
       const result = await res.json();
 
       if (res.status === 200) {
-        login({
-          name: result.name || result.user?.name || "User",
-          email: result.email || result.user?.email || form.email,
+        const resUser = await fetch("http://10.28.255.64:8080/users/me", { //FIXME: belek à l'ip, c'est celle d'Epitech
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": result.session_token
+          },
+          credentials: "include",
         });
+        const resultUser = await resUser.json();
+
+        login({
+          name: resultUser.name || resultUser.user?.name || "User",
+          email: resultUser.email || resultUser.user?.email || form.email,
+        }, result.session_token);
         Alert.alert("Succefully signed in !")
       } else if (res.status === 401) {
         Alert.alert("Invalid email or password.")
@@ -161,8 +171,6 @@ export default function LoginScreen() {
             <Text style={styles.title}>
               {user?.name || "Profile name"}
             </Text>
-
-            {/* FIXME: change profile name */}
 
             <Text style={styles.subtitle}>
               Welcome {user?.name || "user"} :)

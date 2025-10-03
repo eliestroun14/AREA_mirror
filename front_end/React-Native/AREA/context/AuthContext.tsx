@@ -18,7 +18,8 @@ interface User {
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  login: (userData: User) => void;
+  sessionToken: string | null;
+  login: (userData: User, sessionToken: string) => void;
   logout: () => void;
 }
 
@@ -31,6 +32,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const [user, setUser] = useState<User | null>(null);
 
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
+
   useEffect(() => {
     const loadAuth = async () => {
       const saved = await SecureStore.getItemAsync('auth');
@@ -40,23 +43,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loadAuth();
   }, []);
 
-  const login = async (userData: User) => {
+  const login = async (userData: User, sessionToken: string) => {
     await SecureStore.setItemAsync('auth', 'true');
     setIsAuthenticated(true);
     setUser(userData);
+    setSessionToken(sessionToken);
   };
 
   const logout = async () => {
     await SecureStore.deleteItemAsync('auth');
     setIsAuthenticated(false);
     setUser(null);
+    setSessionToken(null);
   };
 
   // if (loading == true)
   //   return null; //TODO: mettre un splashScreen !!
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, sessionToken, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
