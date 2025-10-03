@@ -26,12 +26,12 @@ export default function CreatePage() {
     <Box
       sx={{
         p: 4,
-        bgcolor: "#f5ffff",
+        bgcolor: "#FFFFFF",
         minHeight: "calc(100vh - 64px)",
         overflow: "auto"
       }}
     >
-      <Typography variant="h3" align="center" color="#005acd" gutterBottom>
+      <Typography variant="h3" align="center" color="primary.main" gutterBottom>
         Choose a service
       </Typography>
 

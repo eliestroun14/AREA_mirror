@@ -13,8 +13,8 @@ export default function ActionsPage() {
 
   return (
     <Container maxWidth="lg">
-      <Box sx={{ p: 4, bgcolor: "#f5ffff", minHeight: "calc(100vh - 64px)" }}>
-        <Typography variant="h3" align="center" color="#005acd" gutterBottom>
+      <Box sx={{ p: 4, bgcolor: "#FFFFFF", minHeight: "calc(100vh - 64px)" }}>
+        <Typography variant="h3" align="center" color="primary.main" gutterBottom>
           Choose an action
         </Typography>
         
@@ -25,7 +25,7 @@ export default function ActionsPage() {
         <Box sx={{ textAlign: 'center' }}>
           <Button
             variant="outlined"
-            sx={{ color: '#005acd', borderColor: '#005acd' }}
+            sx={{ color: 'primary.main', borderColor: 'primary.main' }}
             onClick={() => router.back()}
           >
             Back

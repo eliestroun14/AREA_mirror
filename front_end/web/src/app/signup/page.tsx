@@ -69,7 +69,7 @@ export default function SignupPage() {
               height: 60, 
               width: 60, 
               mb: 2,
-              filter: 'drop-shadow(0 2px 8px rgba(0, 90, 205, 0.15))'
+              filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15))'
             }}
           />
           <Typography
@@ -78,7 +78,7 @@ export default function SignupPage() {
               fontFamily: 'monospace',
               fontWeight: 700,
               letterSpacing: '.2rem',
-              color: '#005acd',
+              color: 'black',
             }}
           >
             AREA
@@ -93,9 +93,9 @@ export default function SignupPage() {
             maxWidth: 400,
             p: 4,
             borderRadius: 3,
-            border: '1px solid',
-            borderColor: 'rgba(0, 90, 205, 0.1)',
+            border: '1px solid #e0e0e0',
             backgroundColor: 'white',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
           }}
         >
           <Typography
@@ -103,7 +103,7 @@ export default function SignupPage() {
             align="center"
             gutterBottom
             sx={{
-              color: '#005acd',
+              color: 'black',
               fontWeight: 600,
               mb: 4
             }}
@@ -126,8 +126,8 @@ export default function SignupPage() {
                   textTransform: 'none',
                   fontWeight: 500,
                   '&:hover': {
-                    borderColor: '#005acd',
-                    backgroundColor: 'rgba(0, 90, 205, 0.04)',
+                    borderColor: 'black',
+                    backgroundColor: 'rgba(255, 105, 0, 0.04)',
                   },
                 }}
               >
@@ -154,14 +154,14 @@ export default function SignupPage() {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
                   '&:hover fieldset': {
-                    borderColor: '#005acd',
+                    borderColor: 'black',
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#005acd',
+                    borderColor: 'black',
                   },
                 },
                 '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#005acd',
+                  color: 'black',
                 },
               }}
             />
@@ -178,14 +178,14 @@ export default function SignupPage() {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
                   '&:hover fieldset': {
-                    borderColor: '#005acd',
+                    borderColor: 'black',
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#005acd',
+                    borderColor: 'black',
                   },
                 },
                 '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#005acd',
+                  color: 'black',
                 },
               }}
             />
@@ -202,14 +202,14 @@ export default function SignupPage() {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
                   '&:hover fieldset': {
-                    borderColor: '#005acd',
+                    borderColor: 'black',
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#005acd',
+                    borderColor: 'black',
                   },
                 },
                 '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#005acd',
+                  color: 'black',
                 },
               }}
             />
@@ -226,14 +226,14 @@ export default function SignupPage() {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
                   '&:hover fieldset': {
-                    borderColor: '#005acd',
+                    borderColor: 'black',
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#005acd',
+                    borderColor: 'black',
                   },
                 },
                 '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#005acd',
+                  color: 'black',
                 },
               }}
             />
@@ -246,13 +246,13 @@ export default function SignupPage() {
               sx={{
                 py: 1.5,
                 borderRadius: 2,
-                backgroundColor: '#005acd',
+                backgroundColor: 'black',
                 fontWeight: 600,
                 fontSize: '1rem',
                 textTransform: 'none',
                 mt: 2,
                 '&:hover': {
-                  backgroundColor: '#004494',
+                  backgroundColor: '#333333',
                 },
               }}
             >
@@ -269,7 +269,7 @@ export default function SignupPage() {
               <Link 
                 href="/login" 
                 style={{ 
-                  color: '#005acd', 
+                  color: 'black', 
                   textDecoration: 'none',
                   fontWeight: 500
                 }}

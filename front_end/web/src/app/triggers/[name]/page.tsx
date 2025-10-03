@@ -53,8 +53,8 @@ export default function TriggersPage() {
   if (loading) {
     return (
       <Container maxWidth="lg">
-        <Box sx={{ p: 4, bgcolor: "#f5ffff", minHeight: "calc(100vh - 64px)" }}>
-          <Typography variant="h4" align="center" color="#005acd">
+        <Box sx={{ p: 4, bgcolor: "#FFFFFF", minHeight: "calc(100vh - 64px)" }}>
+          <Typography variant="h4" align="center" color="primary.main">
             Loading...
           </Typography>
         </Box>
@@ -65,8 +65,8 @@ export default function TriggersPage() {
   if (!service) {
     return (
       <Container maxWidth="lg">
-        <Box sx={{ p: 4, bgcolor: "#f5ffff", minHeight: "calc(100vh - 64px)" }}>
-          <Typography variant="h4" align="center" color="#005acd" gutterBottom>
+        <Box sx={{ p: 4, bgcolor: "#FFFFFF", minHeight: "calc(100vh - 64px)" }}>
+          <Typography variant="h4" align="center" color="primary.main" gutterBottom>
             Service not found
           </Typography>
           <Typography variant="body1" align="center" color="black">
@@ -75,7 +75,7 @@ export default function TriggersPage() {
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
             <Button 
               variant="contained" 
-              sx={{ bgcolor: '#005acd' }}
+              sx={{ bgcolor: 'primary.main' }}
               href="/create/applets"
             >
               Back to services
@@ -88,9 +88,9 @@ export default function TriggersPage() {
 
   return (
     <Container maxWidth="lg">
-      <Box sx={{ p: 4, bgcolor: "#f5ffff", minHeight: "calc(100vh - 64px)" }}>
+      <Box sx={{ p: 4, bgcolor: "#FFFFFF", minHeight: "calc(100vh - 64px)" }}>
         {/* Header avec titre principal */}
-        <Typography variant="h3" align="center" color="#005acd" gutterBottom sx={{ mb: 4 }}>
+        <Typography variant="h3" align="center" color="primary.main" gutterBottom sx={{ mb: 4 }}>
           Choose a trigger
         </Typography>
 
@@ -103,7 +103,7 @@ export default function TriggersPage() {
           p: 3,
           bgcolor: 'white',
           borderRadius: 3,
-          boxShadow: '0 4px 16px rgba(0, 90, 205, 0.1)'
+          boxShadow: '0 4px 16px rgba(255, 105, 0, 0.1)'
         }}>
           <Avatar
             src={`/assets/${service.image}`}
@@ -119,7 +119,7 @@ export default function TriggersPage() {
             }}
           />
           <Box>
-            <Typography variant="h4" color="#005acd" sx={{ mb: 1 }}>
+            <Typography variant="h4" color="primary.main" sx={{ mb: 1 }}>
               {service.name}
             </Typography>
             <Typography variant="body1" color="text.secondary">
@@ -147,10 +147,10 @@ export default function TriggersPage() {
                   transition: 'all 0.3s ease',
                   '&:hover': {
                     transform: 'translateY(-4px)',
-                    boxShadow: '0 8px 32px rgba(0, 90, 205, 0.2)'
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)'
                   },
                   border: '1px solid',
-                  borderColor: 'rgba(0, 90, 205, 0.1)',
+                  borderColor: 'rgba(255, 105, 0, 0.1)',
                   borderRadius: 3
                 }}
               >
@@ -186,7 +186,7 @@ export default function TriggersPage() {
                     {/* Trigger Name */}
                     <Typography 
                       variant="h6" 
-                      color="#005acd" 
+                      color="primary.main" 
                       gutterBottom 
                       sx={{ 
                         fontWeight: 600,
@@ -226,8 +226,8 @@ export default function TriggersPage() {
                               sx={{ 
                                 fontSize: '0.7rem',
                                 height: '20px',
-                                borderColor: 'rgba(0, 90, 205, 0.3)',
-                                color: '#005acd'
+                                borderColor: 'rgba(0, 0, 0, 0.2)',
+                                color: 'primary.main'
                               }}
                             />
                           ))}
@@ -239,8 +239,8 @@ export default function TriggersPage() {
                               sx={{ 
                                 fontSize: '0.7rem',
                                 height: '20px',
-                                borderColor: 'rgba(0, 90, 205, 0.3)',
-                                color: '#005acd'
+                                borderColor: 'rgba(0, 0, 0, 0.2)',
+                                color: 'primary.main'
                               }}
                             />
                           )}
@@ -262,7 +262,7 @@ export default function TriggersPage() {
             </Typography>
             <Button
               variant="contained"
-              sx={{ bgcolor: '#005acd' }}
+              sx={{ bgcolor: 'primary.main' }}
               href="/create/applets"
             >
               Back to services
@@ -275,11 +275,11 @@ export default function TriggersPage() {
           <Button
             variant="outlined"
             sx={{ 
-              color: '#005acd', 
-              borderColor: '#005acd',
+              color: 'primary.main', 
+              borderColor: 'primary.main',
               '&:hover': {
-                borderColor: '#004494',
-                bgcolor: 'rgba(0, 90, 205, 0.04)'
+                borderColor: '#333333',
+                bgcolor: 'rgba(255, 105, 0, 0.04)'
               }
             }}
             href="/create/applets"

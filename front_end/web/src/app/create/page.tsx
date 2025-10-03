@@ -24,7 +24,7 @@ export default function CreatePage() {
     <Box
       sx={{
         p: 4,
-        bgcolor: "#f5ffff",
+        bgcolor: "white",
         minHeight: "calc(100vh - 64px)",
         overflow: "auto",
         position: "relative"
@@ -38,11 +38,11 @@ export default function CreatePage() {
           position: "absolute",
           top: 16,
           left: 16,
-          color: '#005acd',
-          borderColor: '#005acd',
+          color: 'black',
+          borderColor: 'black',
           '&:hover': {
-            backgroundColor: 'rgba(0, 90, 205, 0.1)',
-            borderColor: '#005acd'
+            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+            borderColor: 'black'
           }
         }}
       >
@@ -58,7 +58,7 @@ export default function CreatePage() {
           right: 16,
           p: 1,
           '&:hover': {
-            backgroundColor: 'rgba(0, 90, 205, 0.1)'
+            backgroundColor: 'rgba(0, 0, 0, 0.1)'
           }
         }}
       >
@@ -74,7 +74,7 @@ export default function CreatePage() {
         />
       </IconButton>
 
-      <Typography variant="h3" align="center" color="#005acd" gutterBottom>
+      <Typography variant="h3" align="center" color="black" gutterBottom>
         Create
       </Typography>
       <Typography variant="body1" align="center" color="black" sx={{ mb: 4 }}>
@@ -88,7 +88,7 @@ export default function CreatePage() {
           size="large"
           onClick={handleCreateAppletClick}
           sx={{
-            bgcolor: '#005acd',
+            bgcolor: 'black',
             color: 'white',
             px: 6,
             py: 2,
@@ -96,7 +96,7 @@ export default function CreatePage() {
             fontWeight: 600,
             borderRadius: 2,
             '&:hover': {
-              bgcolor: '#003d9a'
+              bgcolor: '#333333'
             }
           }}
         >
