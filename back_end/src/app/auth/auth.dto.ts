@@ -1,9 +1,8 @@
 import { IsEmail, IsString } from 'class-validator';
+import { UserDTO } from '@app/users/users.dto';
 
-// =========
 //  Sign In
-// =========
-export class SignInRequestDto {
+export class SignInBody {
   @IsEmail()
   email: string;
 
@@ -11,14 +10,8 @@ export class SignInRequestDto {
   password: string;
 }
 
-export type SignInResponseDto = {
-  access_token: string;
-};
-
-// =========
 //  Sign Up
-// =========
-export class SignUpRequestDto {
+export class SignUpBody {
   @IsEmail()
   email: string;
 
@@ -29,8 +22,4 @@ export class SignUpRequestDto {
   password: string;
 }
 
-export type SignUpResponseDto = {
-  id: number;
-  email: string;
-  name: string;
-};
+export type SignUpResponse = UserDTO;

@@ -28,7 +28,7 @@ export class PrismaClientKnownRequestErrorFilter implements ExceptionFilter {
       }
       default: {
         console.error(exception);
-        throw new InternalServerErrorException('An internal error occurred.');
+        throw new InternalServerErrorException();
       }
     }
   }

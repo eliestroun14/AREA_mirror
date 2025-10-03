@@ -1,46 +1,66 @@
-import { Controller, Get, Param } from '@nestjs/common';
-import { PrismaService } from '@root/prisma/prisma.service';
+import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
+import {
+  ServiceDTO,
+  ActionDTO,
+  TriggerDTO,
+  GetAllServicesResponse,
+  GetServiceResponse,
+  GetTriggersByServiceResponse,
+  GetActionsByServiceResponse,
+  GetActionByServiceResponse,
+  GetTriggerByServiceResponse,
+} from './services.dto';
+import { ServicesService } from './services.service';
 
 @Controller('services')
 export class ServiceController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly servicesService: ServicesService) {}
 
   @Get()
-  async getAllServices() {
-    return this.prisma.services.findMany();
+  async getAllServices(): Promise<GetAllServicesResponse> {
+    return this.servicesService.getAllServices();
+  }
+
+  @Get(':serviceId')
+  async getService(
+    @Param('serviceId') serviceId: string,
+  ): Promise<GetServiceResponse> {
+    const id = Number(serviceId);
+
+    if (isNaN(id))
+      throw new NotFoundException(
+        `Service with id ${serviceId} do not exists.`,
+      );
+    return this.servicesService.getServiceById(id);
   }
 
   @Get(':serviceId/triggers')
-  async getTriggersByService(@Param('serviceId') serviceId: string) {
-    return this.prisma.triggers.findMany({
-      where: { service_id: Number(serviceId) },
-    });
+  async getTriggersByService(
+    @Param('serviceId') serviceId: string,
+  ): Promise<GetTriggersByServiceResponse> {
+    return this.servicesService.getTriggersByService(serviceId);
   }
 
   @Get(':serviceId/actions')
-  async getActionsByService(@Param('serviceId') serviceId: string) {
-    return this.prisma.actions.findMany({
-      where: { service_id: Number(serviceId) },
-    });
+  async getActionsByService(
+    @Param('serviceId') serviceId: string,
+  ): Promise<GetActionsByServiceResponse> {
+    return this.servicesService.getActionsByService(serviceId);
   }
 
   @Get(':serviceId/actions/:actionId')
   async getActionByService(
     @Param('serviceId') serviceId: string,
     @Param('actionId') actionId: string,
-  ) {
-    return this.prisma.actions.findFirst({
-      where: { id: Number(actionId), service_id: Number(serviceId) },
-    });
+  ): Promise<GetActionByServiceResponse> {
+    return this.servicesService.getActionByService(serviceId, actionId);
   }
 
   @Get(':serviceId/triggers/:triggerId')
   async getTriggerByService(
     @Param('serviceId') serviceId: string,
     @Param('triggerId') triggerId: string,
-  ) {
-    return this.prisma.triggers.findFirst({
-      where: { id: Number(triggerId), service_id: Number(serviceId) },
-    });
+  ): Promise<GetTriggerByServiceResponse> {
+    return this.servicesService.getTriggerByService(serviceId, triggerId);
   }
 }
