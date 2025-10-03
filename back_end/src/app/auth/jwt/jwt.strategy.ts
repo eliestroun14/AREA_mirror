@@ -26,7 +26,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       req.cookies.session_token.length > 0
     ) {
       return req.cookies.session_token;
-    }
+    } else if (
+      req.headers &&
+      'authorization' in req.headers &&
+      typeof req.headers.authorization === 'string' &&
+      req.headers.authorization.length > 0
+    )
+      return req.headers.authorization;
     return null;
   }
 
