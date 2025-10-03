@@ -1,193 +1,189 @@
 import {
-  Controller,
-  Get,
-  Param,
-  Post,
-  Body,
-  HttpException,
-  HttpStatus,
-  Delete,
-  Put,
-  Patch,
-  Req,
   UseGuards,
+  Controller,
+  Param,
+  Body,
+  Req,
+  Post,
+  Get,
+  Patch,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  UnauthorizedException,
+  NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import {
-  CreateZapBody,
-  UpdateZapBody,
+  PostZapBody,
+  PutZapBody,
   GetAllZapsResponse,
   GetZapResponse,
-  CreateZapResponse,
+  PostZapResponse,
   DeleteZapResponse,
-  UpdateZapResponse,
-  ActivateZapResponse,
+  PutZapResponse,
+  PatchZapResponse,
+  type GetZapByIdParams,
+  type DeleteZapByIdParams,
+  type PutZapByIdParams,
+  PatchZapToggleBody,
+  type PatchZapByIdParams,
+  type PostZapTriggerParams,
+  PostZapTriggerBody,
+  PostZapTriggerResponse,
+  type PostZapActionParams,
+  PostZapActionBody,
+  PostZapActionResponse,
 } from './zaps.dto';
 import { ZapsService } from './zaps.service';
 import { JwtAuthGuard } from '@app/auth/jwt/jwt-auth.guard';
 import type { JwtRequest } from '@app/auth/jwt/jwt.dto';
-
-function getUserIdFromRequest(req: unknown): number | undefined {
-  if (
-    typeof req === 'object' &&
-    req !== null &&
-    'user' in req &&
-    typeof (req as { user?: unknown }).user === 'object' &&
-    (req as { user?: { userId?: unknown } }).user !== null &&
-    typeof (req as { user: { userId?: unknown } }).user.userId === 'number'
-  ) {
-    return (req as { user: { userId: number } }).user.userId;
-  }
-  return undefined;
-}
+import { StepsService } from '@app/zaps/steps/steps.service';
 
 @Controller('zaps')
 export class ZapsController {
-  constructor(private readonly zapsService: ZapsService) {}
+  constructor(
+    private service: ZapsService,
+    private stepsService: StepsService,
+  ) {}
 
+  // ========================
+  //          CRUD
+  // ========================
   @Get()
   @UseGuards(JwtAuthGuard)
   async getAllZaps(@Req() req: JwtRequest): Promise<GetAllZapsResponse> {
-    const userId = getUserIdFromRequest(req);
-    if (!userId) {
-      throw new HttpException(
-        { status: HttpStatus.UNAUTHORIZED, error: 'User not authenticated' },
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-    return await this.zapsService.getAllZaps(userId);
+    const userId = req.user.userId;
+
+    return await this.service.getAllUserZaps(userId);
   }
 
   @Get(':zapId')
   @UseGuards(JwtAuthGuard)
   async getZap(
-    @Param('zapId') zapId: string,
     @Req() req: JwtRequest,
+    @Param() params: GetZapByIdParams,
   ): Promise<GetZapResponse> {
-    const userId = getUserIdFromRequest(req);
-    if (!userId) {
-      throw new HttpException(
-        { status: HttpStatus.UNAUTHORIZED, error: 'User not authenticated' },
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-    return await this.zapsService.getZap(Number(zapId), userId);
+    const userId = req.user.userId;
+    const zapId = Number(params.zapId);
+
+    if (!userId) throw new UnauthorizedException('User not authenticated');
+    if (isNaN(zapId)) throw new NotFoundException(`Zap ${zapId} not found.`);
+
+    return await this.service.getZap(zapId, userId);
   }
 
-  @Post('create')
+  @Post()
   @UseGuards(JwtAuthGuard)
   async createZap(
     @Req() req: JwtRequest,
-    @Body() createZapDto: CreateZapBody,
-  ): Promise<CreateZapResponse> {
-    try {
-      const userId = getUserIdFromRequest(req);
-      if (!userId) {
-        throw new HttpException(
-          { status: HttpStatus.UNAUTHORIZED, error: 'User not authenticated' },
-          HttpStatus.UNAUTHORIZED,
-        );
-      }
-      return await this.zapsService.createZap(userId, createZapDto);
-    } catch (error: unknown) {
-      let message = 'Erreur lors de la création du zap';
-      if (typeof error === 'object' && error !== null && 'message' in error) {
-        message = String((error as { message?: string }).message) || message;
-      }
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: message,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    @Body() body: PostZapBody,
+  ): Promise<PostZapResponse> {
+    const userId = req.user.userId;
+    return await this.service.createZap(userId, body);
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':zapId')
   @UseGuards(JwtAuthGuard)
   async deleteZap(
-    @Param('zapId') zapId: string,
+    @Param() params: DeleteZapByIdParams,
     @Req() req: JwtRequest,
   ): Promise<DeleteZapResponse> {
-    const zapIdNum = Number(zapId);
-    if (isNaN(zapIdNum)) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'zapId must be a number',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const userId = getUserIdFromRequest(req);
-    if (!userId) {
-      throw new HttpException(
-        { status: HttpStatus.UNAUTHORIZED, error: 'User not authenticated' },
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-    return await this.zapsService.deleteZap(zapIdNum, userId);
-  }
+    const userId = req.user.userId;
+    const zapId = Number(params.zapId);
 
-  @Put(':zapId')
-  @UseGuards(JwtAuthGuard)
-  async updateZap(
-    @Param('zapId') zapId: string,
-    @Body() updateZapDto: UpdateZapBody,
-    @Req() req: JwtRequest,
-  ): Promise<UpdateZapResponse> {
-    const zapIdNum = Number(zapId);
-    if (isNaN(zapIdNum)) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'zapId must be a number',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (!updateZapDto.name && !updateZapDto.description) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'At least one field (name or description) must be provided',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const userId = getUserIdFromRequest(req);
-    if (!userId) {
-      throw new HttpException(
-        { status: HttpStatus.UNAUTHORIZED, error: 'User not authenticated' },
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-    return await this.zapsService.updateZap(zapIdNum, updateZapDto, userId);
+    if (isNaN(zapId))
+      throw new NotFoundException(`Zap with id ${zapId} not found.`);
+
+    await this.service.deleteZap(zapId, userId);
+    return {
+      message: `Zap ${zapId} deleted.`,
+      statusCode: HttpStatus.NO_CONTENT,
+    };
   }
 
   @Patch(':zapId')
   @UseGuards(JwtAuthGuard)
-  async activateZap(
-    @Param('zapId') zapId: string,
+  async updateZap(
+    @Param() params: PutZapByIdParams,
+    @Body() body: PutZapBody,
     @Req() req: JwtRequest,
-  ): Promise<ActivateZapResponse> {
-    const zapIdNum = Number(zapId);
-    if (isNaN(zapIdNum)) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'zapId must be a number',
-        },
-        HttpStatus.BAD_REQUEST,
+  ): Promise<PutZapResponse> {
+    const userId = req.user.userId;
+    const zapId = Number(params.zapId);
+
+    if (isNaN(zapId))
+      throw new NotFoundException(`Zap with id ${zapId} not found.`);
+
+    if (!body.name && !body.description)
+      throw new BadRequestException(
+        'At least one field (name or description) must be provided.',
       );
-    }
-    const userId = getUserIdFromRequest(req);
-    if (!userId) {
-      throw new HttpException(
-        { status: HttpStatus.UNAUTHORIZED, error: 'User not authenticated' },
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-    return await this.zapsService.activateZap(zapIdNum, userId);
+
+    return await this.service.updateZap(zapId, userId, body);
+  }
+
+  @Patch(':zapId/toggle')
+  @UseGuards(JwtAuthGuard)
+  async toggleZap(
+    @Param() params: PatchZapByIdParams,
+    @Body() body: PatchZapToggleBody,
+    @Req() req: JwtRequest,
+  ): Promise<PatchZapResponse> {
+    const userId = req.user.userId;
+    const zapId = Number(params.zapId);
+    const is_active = body.is_active;
+
+    if (isNaN(zapId))
+      throw new NotFoundException(`Zap with id ${params.zapId} not found.`);
+
+    return await this.service.toggleZap(zapId, userId, is_active);
+  }
+
+  // ========================
+  //        TRIGGERS
+  // ========================
+  @UseGuards(JwtAuthGuard)
+  @Post(':zapId/trigger')
+  async createZapTrigger(
+    @Param() params: PostZapTriggerParams,
+    @Body() body: PostZapTriggerBody,
+    @Req() req: JwtRequest,
+  ): Promise<PostZapTriggerResponse> {
+    const userId = req.user.userId;
+    const zapId = Number(params.zapId);
+
+    if (isNaN(zapId))
+      throw new NotFoundException(`Zap with id ${params.zapId} not found.`);
+
+    await this.stepsService.createTriggerStep(zapId, userId, body);
+
+    return {
+      zap_id: zapId,
+    };
+  }
+
+  // ========================
+  //         ACTIONS
+  // ========================
+  @UseGuards(JwtAuthGuard)
+  @Post(':zapId/action')
+  async createZapAction(
+    @Param() params: PostZapActionParams,
+    @Body() body: PostZapActionBody,
+    @Req() req: JwtRequest,
+  ): Promise<PostZapActionResponse> {
+    const userId = req.user.userId;
+    const zapId = Number(params.zapId);
+
+    if (isNaN(zapId))
+      throw new NotFoundException(`Zap with id ${params.zapId} not found.`);
+
+    await this.stepsService.createActionStep(zapId, userId, body);
+
+    return {
+      zap_id: zapId,
+    };
   }
 }

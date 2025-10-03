@@ -46,7 +46,7 @@ export interface TriggerDTO {
 export type GetAllServicesResponse = ServiceDTO[];
 
 // GET /services/:serviceId
-export type GetServiceResponse = ServiceDTO | null;
+export type GetServiceResponse = ServiceDTO;
 
 // GET /services/:serviceId/triggers
 export type GetTriggersByServiceResponse = TriggerDTO[];

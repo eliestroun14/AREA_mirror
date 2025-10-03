@@ -4,7 +4,7 @@ export const services = {
   gmail: { name: 'Gmail', slug: 'gmail' },
   github: { name: 'Github', slug: 'github' },
   discord: { name: 'Discord', slug: 'discord' },
-}
+};
 
 export const servicesData: Service[] = [
   {

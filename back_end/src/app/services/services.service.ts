@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@root/prisma/prisma.service';
 import {
   GetAllServicesResponse,
@@ -29,14 +29,15 @@ export class ServicesService {
     }));
   }
 
-  async getServiceByName(
-    serviceName: string,
-  ): Promise<GetServiceResponse> {
+  async getServiceByName(serviceName: string): Promise<GetServiceResponse> {
     const service = await this.prisma.services.findUnique({
       where: { name: serviceName },
     });
 
-    if (!service) return null;
+    if (!service)
+      throw new NotFoundException(
+        `Service with name ${serviceName} do not exists.`,
+      );
 
     return {
       id: Number(service.id),
@@ -51,22 +52,25 @@ export class ServicesService {
     };
   }
 
-  async getService(serviceId: string): Promise<GetServiceResponse> {
+  async getServiceById(serviceId: number): Promise<GetServiceResponse> {
     const service = await this.prisma.services.findUnique({
-      where: { id: Number(serviceId) },
+      where: { id: serviceId },
     });
 
-    if (!service) return null;
+    if (!service)
+      throw new NotFoundException(
+        `Service with id ${serviceId} do not exists.`,
+      );
 
     return {
-      id: Number(service.id),
-      name: String(service.name),
+      id: service.id,
+      name: service.name,
       icon_url: service.icon_url ?? null,
       api_base_url: service.api_base_url ?? null,
-      services_color: String(service.service_color),
-      auth_type: String(service.auth_type),
+      services_color: service.service_color,
+      auth_type: service.auth_type,
       documentation_url: service.documentation_url ?? null,
-      is_active: Boolean(service.is_active),
+      is_active: service.is_active,
       created_at: service.created_at ? formateDate(service.created_at) : '',
     };
   }

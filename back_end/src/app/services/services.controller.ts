@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
 import {
   ServiceDTO,
   ActionDTO,
@@ -25,7 +25,13 @@ export class ServiceController {
   async getService(
     @Param('serviceId') serviceId: string,
   ): Promise<GetServiceResponse> {
-    return this.servicesService.getService(serviceId);
+    const id = Number(serviceId);
+
+    if (isNaN(id))
+      throw new NotFoundException(
+        `Service with id ${serviceId} do not exists.`,
+      );
+    return this.servicesService.getServiceById(id);
   }
 
   @Get(':serviceId/triggers')

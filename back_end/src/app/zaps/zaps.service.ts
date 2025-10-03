@@ -1,21 +1,47 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from '@root/prisma/prisma.service';
 import {
-  CreateZapBody,
-  UpdateZapBody,
+  PostZapBody,
+  PutZapBody,
   GetAllZapsResponse,
   GetZapResponse,
-  CreateZapResponse,
-  DeleteZapResponse,
-  UpdateZapResponse,
-  ActivateZapResponse,
+  PostZapResponse,
+  PutZapResponse,
+  PatchZapResponse,
+  PostZapTriggerBody,
+  PostZapActionBody,
 } from './zaps.dto';
+import { constants, formateDate } from '@config/utils';
+import { ConnectionsService } from '@app/users/connections/connections.service';
+import { ServicesService } from '@app/services/services.service';
 
 @Injectable()
 export class ZapsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private connectionsService: ConnectionsService,
+    private servicesService: ServicesService,
+  ) {}
 
-  async getAllZaps(userId: number): Promise<GetAllZapsResponse> {
+  async getAllZaps(): Promise<GetAllZapsResponse> {
+    const zaps = await this.prisma.zaps.findMany();
+    return zaps.map((zap) => ({
+      id: zap.id,
+      user_id: zap.user_id,
+      name: zap.name,
+      description: zap.description,
+      is_active: zap.is_active,
+      created_at: zap.created_at?.toISOString() ?? '',
+      updated_at: zap.updated_at?.toISOString() ?? '',
+    }));
+  }
+
+  async getAllUserZaps(userId: number): Promise<GetAllZapsResponse> {
     const zaps = await this.prisma.zaps.findMany({
       where: { user_id: userId },
     });
@@ -34,7 +60,9 @@ export class ZapsService {
     const zap = await this.prisma.zaps.findFirst({
       where: { id: zapId, user_id: userId },
     });
-    if (!zap) return null;
+
+    if (!zap) throw new NotFoundException(`Zap with id ${zapId} not found.`);
+
     return {
       id: zap.id,
       user_id: zap.user_id,
@@ -46,129 +74,93 @@ export class ZapsService {
     };
   }
 
-  async createZap(
-    userId: number,
-    createZapDto: CreateZapBody,
-  ): Promise<CreateZapResponse> {
+  async createZap(userId: number, data: PostZapBody): Promise<PostZapResponse> {
     const zap = await this.prisma.zaps.create({
       data: {
         user_id: userId,
-        name: createZapDto.name,
-        description: createZapDto.description,
+        name: data.name,
+        description: data.description,
       },
     });
+
     return {
       id: zap.id,
       user_id: zap.user_id,
       name: zap.name,
       description: zap.description,
       is_active: zap.is_active,
-      created_at: zap.created_at?.toISOString() ?? '',
-      updated_at: zap.updated_at?.toISOString() ?? '',
+      created_at: formateDate(zap.created_at) ?? '',
+      updated_at: formateDate(zap.updated_at) ?? '',
     };
   }
 
-  async deleteZap(zapId: number, userId: number): Promise<DeleteZapResponse> {
+  async deleteZap(zapId: number, userId: number): Promise<void> {
     const zap = await this.prisma.zaps.findFirst({
       where: { id: zapId, user_id: userId },
     });
-    if (!zap) {
-      throw new HttpException(
-        { status: HttpStatus.NOT_FOUND, error: 'Zap not found or not yours' },
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    // Delete zap_step_executions linked to zap_steps of this zap
-    const zapSteps = await this.prisma.zap_steps.findMany({
-      where: { zap_id: zapId },
-      select: { id: true },
-    });
-    const zapStepIds = zapSteps.map((step) => step.id);
-    if (zapStepIds.length > 0) {
-      await this.prisma.zap_step_executions.deleteMany({
-        where: { zap_step_id: { in: zapStepIds } },
-      });
-    }
-    // Delete zap_step_executions linked to zap_executions of this zap
-    const zapExecutions = await this.prisma.zap_executions.findMany({
-      where: { zap_id: zapId },
-      select: { id: true },
-    });
-    const zapExecutionIds = zapExecutions.map((exec) => exec.id);
-    if (zapExecutionIds.length > 0) {
-      await this.prisma.zap_step_executions.deleteMany({
-        where: { zap_execution_id: { in: zapExecutionIds } },
-      });
-    }
-    // Delete zap_steps
-    await this.prisma.zap_steps.deleteMany({ where: { zap_id: zapId } });
-    // Delete zap_executions
-    await this.prisma.zap_executions.deleteMany({ where: { zap_id: zapId } });
-    // Delete the zap itself
+
+    if (!zap) throw new NotFoundException(`Zap with id ${zapId} not found.`);
+
     await this.prisma.zaps.delete({ where: { id: zapId } });
-    return { message: `Zap ${zapId} and all related entities deleted.` };
   }
 
   async updateZap(
     zapId: number,
-    updateZapDto: UpdateZapBody,
     userId: number,
-  ): Promise<UpdateZapResponse> {
+    data: PutZapBody,
+  ): Promise<PutZapResponse> {
     const zap = await this.prisma.zaps.findFirst({
       where: { id: zapId, user_id: userId },
     });
-    if (!zap) {
-      throw new HttpException(
-        { status: HttpStatus.NOT_FOUND, error: 'Zap not found or not yours' },
-        HttpStatus.NOT_FOUND,
-      );
-    }
+
+    if (!zap) throw new NotFoundException(`Zap with id ${zapId} not found.`);
+
+    const updatedData = {
+      ...(data.name && { name: data.name }),
+      ...(data.description && { description: data.description }),
+    };
+
     const updatedZap = await this.prisma.zaps.update({
       where: { id: zapId },
-      data: {
-        ...(updateZapDto.name && { name: updateZapDto.name }),
-        ...(updateZapDto.description && {
-          description: updateZapDto.description,
-        }),
-      },
+      data: updatedData,
     });
+
     return {
       id: updatedZap.id,
       user_id: updatedZap.user_id,
       name: updatedZap.name,
       description: updatedZap.description,
       is_active: updatedZap.is_active,
-      created_at: updatedZap.created_at?.toISOString() ?? '',
-      updated_at: updatedZap.updated_at?.toISOString() ?? '',
+      created_at: formateDate(updatedZap.created_at) ?? '',
+      updated_at: formateDate(updatedZap.updated_at) ?? '',
     };
   }
 
-  async activateZap(
+  async toggleZap(
     zapId: number,
     userId: number,
-  ): Promise<ActivateZapResponse> {
+    is_active: boolean,
+  ): Promise<PatchZapResponse> {
     const zap = await this.prisma.zaps.findFirst({
       where: { id: zapId, user_id: userId },
       select: { is_active: true },
     });
-    if (!zap) {
-      throw new HttpException(
-        { status: HttpStatus.NOT_FOUND, error: 'Zap not found or not yours' },
-        HttpStatus.NOT_FOUND,
-      );
-    }
+
+    if (!zap) throw new NotFoundException(`Zap with id ${zapId} not found.`);
+
     const updatedZap = await this.prisma.zaps.update({
       where: { id: zapId },
-      data: { is_active: !zap.is_active },
+      data: { is_active },
     });
+
     return {
       id: updatedZap.id,
       user_id: updatedZap.user_id,
       name: updatedZap.name,
       description: updatedZap.description,
       is_active: updatedZap.is_active,
-      created_at: updatedZap.created_at?.toISOString() ?? '',
-      updated_at: updatedZap.updated_at?.toISOString() ?? '',
+      created_at: formateDate(updatedZap.created_at) ?? '',
+      updated_at: formateDate(updatedZap.updated_at) ?? '',
     };
   }
 }
