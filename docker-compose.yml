@@ -16,24 +16,24 @@ services:
     image: adminer
     restart: always
     ports:
-      - "8080:8080"
+      - "8081:8080"
     networks:
       - area_network
     depends_on:
       - database
 
   wait-for-db:
-    image: busybox
+    image: postgres:latest
     depends_on:
       - database
-    entrypoint: ["sh", "-c", "until nc -z database 5432; do echo 'Waiting for database...'; sleep 2; done; echo 'Database is up.'"]
+    entrypoint: ["sh", "-c", "until pg_isready -h database -p 5432; do echo 'Waiting for database...'; sleep 2; done; echo 'Database is up.'"]
     networks:
       - area_network
 
   api:
     build: ./back_end
     ports:
-      - "3000:3000"
+      - "8080:3000"
     networks:
       - area_network
     env_file:

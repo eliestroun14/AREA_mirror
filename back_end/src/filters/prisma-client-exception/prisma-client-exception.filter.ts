@@ -4,9 +4,8 @@ import {
   ArgumentsHost,
   ConflictException,
   InternalServerErrorException,
-  NotFoundException,
+  NotFoundException, BadRequestException,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 
 @Catch(Prisma.PrismaClientKnownRequestError)
@@ -22,6 +21,10 @@ export class PrismaClientKnownRequestErrorFilter implements ExceptionFilter {
       case 'P3001': {
         console.error(exception);
         throw new NotFoundException('Data not found.');
+      }
+      case 'P2003': {
+        console.error(exception);
+        throw new BadRequestException('Invalid request.');
       }
       default: {
         console.error(exception);

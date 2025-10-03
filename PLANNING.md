@@ -10,27 +10,51 @@ Nous avons préféré tester des ORMs pour les bases de données.
 | Domaine | Solution n°1 | Solution n°2 | Solution n°3 | Final choice |
 |---------|--------------|--------------|--------------|--------------|
 | Mobile  | Kotlin       | Flutter      | React Native | React Native |
-| Web     | Svelte       | Angular      | React + Vite | React + Vite |
+| Web     | Svelte       | Angular      | NextJS       | NextJS       |
 | API     | Fastify      | NestJS       | SpringBoot   | NestJS       |
 | ORM     | Prisma       | Drizzle      | MikroORM     | Prisma       |
 
+## Test Front-End Mobile
+
+### Flutter
+
+- Application heavy ❌
+- Hot-Reload ✅
+
+### Kotlin
+
+- Kotlin best performance than the others ✅
+- No cross-platform (even if we only use Android)❌
+
+### React-Native
+
+- Good community support ✅
+- More experience with JavaScript and Typescript (Do the Survivor pool on NextJs) ✅
+- Good to switch web application to mobile application (gain a lot of time) ✅
+- Not the best performance ❌
+- Hot-Reload ✅
+
 ### Choix final
 
-**Mobile**
+**Mobile:**
 Nous avons choisit React Native car nous avons eu beaucoup de problème lors de l'installation et de la préparation de l'environnement de développement avec Flutter et Kotlin.
+Ce qui pourra poser problème si un développeur travaillant sur l'API doit implémenter une fonctionnalité sur le mobile, car il devra lui aussi prendre du temps à préparer l'environnement. 
 Nous utilisons également Expo afin de tester l'application. De plus, React Native est très proche de React au niveau de la syntaxe, ce qui renforce notre choix.
 
-**Web**
-Nous avons exclus Angular du choix final car tout le groupe sait utiliser React.
+**Web:**
+Nous avons décidé d'utiliser NextJS car il offre une grande
+Nous avons exclus Angular du choix final car tout le groupe sait utiliser React Router + Vite.
 Bien que Svelte soit plus rapide que React, nous préférons rester sur React afin de gagner en productivité.
 De plus, l'application n'a pas de grosse contrainte technique niveau performances, ce qui renforce notre choix de React + Vite, qui permet de lancer rapidement une application
 en plus d'avoir beaucoup de librairies disponibles.
 
 **API:**
-Nous avons décidé d'utiliser NestJS pour deux raisons.
-Tout d'abord, nous avions utilisé Fastify lors d'un projet précédent et nous avons rapidement vu ses limitations : Il faut quasiement tout faire sois-même, contrairement à NestJS qui a énormément d'outils intégrés.
-Nous avons également choisi NestJS plutôt que SpringBoot à cause du langage : le groupe sait programmer en TypeScript, mais pas forcément en Java.
-C'est pourquoi nous préférons apprendre un nouveau framework au lieu d'avoir à apprendre en plus de cela un nouveau langage.
+Nous avons décidé d'utiliser NestJS pour plusieurs raisons.
+- Nous avions déjà utilisé Fastify lors d'un projet précédent et nous nous sommes rapidement rendu compte que pour un gros projet il faut tout faire à la main.
+- NestJS a énormément d'outils intégrés, et également une documentation claire.
+- NestJS nous force à faire une architecture d'API correcte.
+- NestJS a un outil "passport" qui facilite l'implémentation de la librairie passport pour la connexion d'un compte google / spotify / ...
+- SprintBoot nécessite l'apprentissage d'un nouveau langage ainsi que l'apprentissage d'un nouveau framework pour certain membre du groupe.
 
 **ORM:**
 Nous avons écarté Drizzle et MikroORM de notre choix final. Bien que ces deux solutions puissent être intéressantes dans certains cas spécifiques, elles sont soit moins accessibles, soit plus adaptées à des projets nécessitant des configurations avancées.

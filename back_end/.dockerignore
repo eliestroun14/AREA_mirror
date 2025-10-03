@@ -22,8 +22,10 @@
 !jest.config.js
 !entrypoint.sh
 
-!prisma
-!prisma/**
-!prisma/**/*.*
+prisma/migrations
+prisma/migrations/**
+!prisma/schema.prisma
+!prisma/seeders
+!prisma/seeders/*
 
 node_modules

@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (token) {
+      document.cookie = 'access_token=' + token + ';';
       localStorage.setItem('access_token', token);
     } else {
       localStorage.removeItem('access_token');
