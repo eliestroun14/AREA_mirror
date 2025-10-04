@@ -19,7 +19,7 @@ export default function HomePage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const [isMounted, setIsMounted] = React.useState(false);
-  
+
   React.useEffect(() => setIsMounted(true), []);
   if (!isMounted) return null;
 
@@ -39,13 +39,11 @@ export default function HomePage() {
     router.push('/explore');
   };
 
-  // Get popular applets from database
   const popularApplets = database.applets.filter(applet => applet.is_popular);
-  
-  // Get service color for an applet based on trigger service
+
   const getServiceColor = (serviceName: string) => {
     const service = database.services.find(s => s.name === serviceName);
-    return service ? service.service_color : "#005acd";
+    return service ? service.service_color : "black";
   };
 
   const featuredServices = database.services.slice(0, 11);
@@ -54,17 +52,17 @@ export default function HomePage() {
     <Box sx={{ bgcolor: "white", minHeight: "100vh" }}>
       {/* Hero Section */}
       <Container maxWidth="lg">
-        <Box sx={{ 
-          textAlign: 'center', 
+        <Box sx={{
+          textAlign: 'center',
           py: { xs: 8, md: 12 },
           px: { xs: 2, md: 0 }
         }}>
-          <Typography 
-            variant="h1" 
-            sx={{ 
+          <Typography
+            variant="h1"
+            sx={{
               fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4.5rem' },
               fontWeight: 700,
-              color: '#005acd',
+              color: 'black',
               mb: 3,
               lineHeight: 1.1,
               letterSpacing: '-0.02em'
@@ -74,12 +72,12 @@ export default function HomePage() {
             <br />
             business and home
           </Typography>
-          
-          <Typography 
-            variant="h5" 
-            sx={{ 
+
+          <Typography
+            variant="h5"
+            sx={{
               fontSize: { xs: '1.1rem', md: '1.3rem' },
-              color: 'text.secondary',
+              color: '#666666',
               mb: 5,
               maxWidth: '600px',
               mx: 'auto',
@@ -95,7 +93,7 @@ export default function HomePage() {
             onClick={handleStartToday}
             endIcon={<ArrowForwardIcon />}
             sx={{
-              bgcolor: '#005acd',
+              bgcolor: 'black',
               color: 'white',
               px: 6,
               py: 2,
@@ -103,10 +101,10 @@ export default function HomePage() {
               fontWeight: 600,
               borderRadius: 3,
               textTransform: 'none',
-              boxShadow: '0 8px 32px rgba(0, 90, 205, 0.3)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
               '&:hover': {
-                bgcolor: '#004494',
-                boxShadow: '0 12px 40px rgba(0, 90, 205, 0.4)',
+                bgcolor: '#333333',
+                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.25)',
                 transform: 'translateY(-2px)'
               },
               transition: 'all 0.3s ease'
@@ -120,24 +118,24 @@ export default function HomePage() {
       {/* Popular Applets Section */}
       <Box sx={{ bgcolor: '#f8f9fa', py: 8 }}>
         <Container maxWidth="lg">
-          <Typography 
-            variant="h4" 
-            align="center" 
-            sx={{ 
-              color: '#005acd', 
-              fontWeight: 600, 
-              mb: 1 
+          <Typography
+            variant="h4"
+            align="center"
+            sx={{
+              color: 'black',
+              fontWeight: 600,
+              mb: 1
             }}
           >
             Get started with any Applet
           </Typography>
-          
-          <Box sx={{ 
+
+          <Box sx={{
             display: 'grid',
-            gridTemplateColumns: { 
-              xs: '1fr', 
-              sm: 'repeat(2, 1fr)', 
-              lg: 'repeat(2, 1fr)' 
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+              lg: 'repeat(2, 1fr)'
             },
             gap: 3,
             mt: 5,
@@ -150,12 +148,12 @@ export default function HomePage() {
                 sx={{
                   height: '100%',
                   border: '1px solid',
-                  borderColor: 'rgba(0, 90, 205, 0.1)',
+                  borderColor: '#e0e0e0',
                   borderRadius: 3,
                   transition: 'all 0.3s ease',
                   '&:hover': {
-                    borderColor: '#005acd',
-                    boxShadow: '0 8px 32px rgba(0, 90, 205, 0.15)',
+                    borderColor: 'black',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
                     transform: 'translateY(-4px)'
                   }
                 }}
@@ -164,37 +162,37 @@ export default function HomePage() {
                   <CardContent sx={{ p: 0 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                       <AutoFixHighIcon sx={{ color: getServiceColor(applet.trigger_service), mr: 1 }} />
-                      <Typography variant="h6" sx={{ fontWeight: 600, color: '#005acd' }}>
+                      <Typography variant="h6" sx={{ fontWeight: 600, color: 'black' }}>
                         {applet.title}
                       </Typography>
                     </Box>
-                    
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+
+                    <Typography variant="body2" color="#666666" sx={{ mb: 3 }}>
                       {applet.description}
                     </Typography>
-                    
+
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Chip 
-                          label={applet.trigger_service} 
-                          size="small" 
-                          sx={{ 
-                            bgcolor: 'rgba(0, 90, 205, 0.1)',
-                            color: '#005acd',
+                        <Chip
+                          label={applet.trigger_service}
+                          size="small"
+                          sx={{
+                            bgcolor: '#f5f5f5',
+                            color: 'black',
                             fontWeight: 500
-                          }} 
+                          }}
                         />
-                        <Chip 
-                          label={applet.action_service} 
-                          size="small" 
-                          sx={{ 
-                            bgcolor: 'rgba(0, 90, 205, 0.1)',
-                            color: '#005acd',
+                        <Chip
+                          label={applet.action_service}
+                          size="small"
+                          sx={{
+                            bgcolor: '#f5f5f5',
+                            color: 'black',
                             fontWeight: 500
-                          }} 
+                          }}
                         />
                       </Box>
-                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                      <Typography variant="caption" color="#666666" sx={{ fontWeight: 600 }}>
                         {applet.users} users
                       </Typography>
                     </Box>
@@ -209,24 +207,24 @@ export default function HomePage() {
       {/* Services Section */}
       <Box sx={{ py: 8 }}>
         <Container maxWidth="lg">
-          <Typography 
-            variant="h4" 
-            align="center" 
-            sx={{ 
-              color: '#005acd', 
-              fontWeight: 600, 
-              mb: 5 
+          <Typography
+            variant="h4"
+            align="center"
+            sx={{
+              color: 'black',
+              fontWeight: 600,
+              mb: 5
             }}
           >
             ... or choose from {database.services.length}+ services
           </Typography>
-          
-          <Box sx={{ 
+
+          <Box sx={{
             display: 'grid',
-            gridTemplateColumns: { 
-              xs: 'repeat(3, 1fr)', 
-              sm: 'repeat(4, 1fr)', 
-              md: 'repeat(6, 1fr)' 
+            gridTemplateColumns: {
+              xs: 'repeat(3, 1fr)',
+              sm: 'repeat(4, 1fr)',
+              md: 'repeat(6, 1fr)'
             },
             gap: 3,
             mb: 5
@@ -237,12 +235,12 @@ export default function HomePage() {
                 sx={{
                   cursor: 'pointer',
                   border: '1px solid',
-                  borderColor: 'rgba(0, 90, 205, 0.1)',
+                  borderColor: '#e0e0e0',
                   borderRadius: 2,
                   transition: 'all 0.3s ease',
                   '&:hover': {
-                    borderColor: '#005acd',
-                    boxShadow: '0 4px 16px rgba(0, 90, 205, 0.15)',
+                    borderColor: 'black',
+                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
                     transform: 'translateY(-2px)'
                   }
                 }}
@@ -255,17 +253,17 @@ export default function HomePage() {
                       height="40"
                       image={`/assets/${service.image}`}
                       alt={service.name}
-                      sx={{ 
+                      sx={{
                         objectFit: 'contain',
                         mb: 1,
                         maxWidth: '40px',
                         mx: 'auto'
                       }}
                     />
-                    <Typography 
-                      variant="caption" 
-                      sx={{ 
-                        color: '#005acd',
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: 'black',
                         fontWeight: 500,
                         fontSize: '0.75rem'
                       }}
@@ -284,8 +282,8 @@ export default function HomePage() {
               onClick={handleExploreAll}
               endIcon={<ArrowForwardIcon />}
               sx={{
-                color: '#005acd',
-                borderColor: '#005acd',
+                color: 'black',
+                borderColor: 'black',
                 px: 4,
                 py: 1.5,
                 fontSize: '1rem',
@@ -293,8 +291,8 @@ export default function HomePage() {
                 borderRadius: 2,
                 textTransform: 'none',
                 '&:hover': {
-                  borderColor: '#004494',
-                  bgcolor: 'rgba(0, 90, 205, 0.04)'
+                  borderColor: '#333333',
+                  bgcolor: 'rgba(0, 0, 0, 0.04)'
                 }
               }}
             >
@@ -307,29 +305,29 @@ export default function HomePage() {
       {/* Features Section */}
       <Box sx={{ bgcolor: '#f8f9fa', py: 8 }}>
         <Container maxWidth="lg">
-          <Typography 
-            variant="h4" 
-            align="center" 
-            sx={{ 
-              color: '#005acd', 
-              fontWeight: 600, 
-              mb: 3 
+          <Typography
+            variant="h4"
+            align="center"
+            sx={{
+              color: 'black',
+              fontWeight: 600,
+              mb: 3
             }}
           >
             Make your automations more powerful
           </Typography>
-          
-          <Typography 
-            variant="body1" 
-            align="center" 
-            sx={{ 
-              color: 'text.secondary',
+
+          <Typography
+            variant="body1"
+            align="center"
+            sx={{
+              color: '#666666',
               mb: 6,
               maxWidth: '600px',
               mx: 'auto'
             }}
           >
-            Customize and control your integrations with advanced features, 
+            Customize and control your integrations with advanced features,
             multiple actions, and the ability to connect multiple accounts per service.
           </Typography>
 
@@ -338,7 +336,7 @@ export default function HomePage() {
               variant="contained"
               onClick={handleStartToday}
               sx={{
-                bgcolor: '#005acd',
+                bgcolor: 'black',
                 color: 'white',
                 px: 5,
                 py: 2,
@@ -347,7 +345,7 @@ export default function HomePage() {
                 borderRadius: 3,
                 textTransform: 'none',
                 '&:hover': {
-                  bgcolor: '#004494'
+                  bgcolor: '#333333'
                 }
               }}
             >

@@ -28,15 +28,15 @@ export default function ExplorePage() {
       <Box
         sx={{
           p: 4,
-          bgcolor: "#f5ffff",
+          bgcolor: "white",
           minHeight: "calc(100vh - 64px)",
           overflow: "auto"
         }}
       >
-        <Typography variant="h3" align="center" color="#005acd" gutterBottom>
+        <Typography variant="h3" align="center" color="black" gutterBottom>
           Explore all services
         </Typography>
-        <Typography variant="body1" align="center" color="black" sx={{ mb: 4 }}>
+        <Typography variant="body1" align="center" color="#666666" sx={{ mb: 4 }}>
           Discover all our available services to create your personalized applets
         </Typography>
 
@@ -68,7 +68,19 @@ export default function ExplorePage() {
                 maxWidth: 345
               }}
             >
-              <Card sx={{ maxWidth: 345, mx: "auto", height: '100%' }}>
+              <Card sx={{ 
+                maxWidth: 345, 
+                mx: "auto", 
+                height: '100%',
+                border: '1px solid #e0e0e0',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                '&:hover': {
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
+                  transform: 'translateY(-2px)',
+                  borderColor: 'black'
+                },
+                transition: 'all 0.3s ease'
+              }}>
                 <CardActionArea onClick={() => handleServiceClick(service.name)}>
                   <CardMedia
                     component="img"
@@ -78,7 +90,7 @@ export default function ExplorePage() {
                     sx={{ objectFit: 'contain', p: 2 }}
                   />
                   <CardContent>
-                    <Typography variant="h6" align="center">
+                    <Typography variant="h6" align="center" color="black">
                       {service.name}
                     </Typography>
                   </CardContent>
@@ -90,7 +102,7 @@ export default function ExplorePage() {
 
         {filteredServices.length === 0 && (
           <Box sx={{ textAlign: 'center', mt: 4 }}>
-            <Typography variant="h6" color="text.secondary">
+            <Typography variant="h6" color="#666666">
               No service found for &quot;{searchTerm}&quot;
             </Typography>
           </Box>

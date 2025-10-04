@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -13,21 +13,50 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import SearchIcon from '@mui/icons-material/Search'
 import InputAdornment from '@mui/material/InputAdornment'
 import { useRouter } from 'next/navigation'
-import database from '@/data/database.json'
+import CircularProgress from '@mui/material/CircularProgress'
 
-export default function CreateAppletsPage() {
+interface Service {
+  id: number
+  name: string
+  image: string
+  service_color: string
+  actionType: string
+  actions?: Action[]
+}
+
+interface Action {
+  id: number
+  name: string
+  description: string
+  fields: ActionField[]
+}
+
+interface ActionField {
+  name: string
+  label: string
+  type: string
+  required: boolean
+  placeholder?: string
+  options?: string[]
+  default?: string
+}
+
+export default function ActionsPage() {
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
+  const [services, setServices] = useState<Service[]>([])
+  const [loading, setLoading] = useState(true)
 
   const handleBackClick = () => {
     router.push('/create')
   }
 
   const handleServiceClick = (serviceName: string) => {
-    router.push(`/create/triggers/${encodeURIComponent(serviceName)}`)
+    // Naviguer vers la page de sélection d'actions pour ce service
+    router.push(`/create/actions/${serviceName.toLowerCase()}`)
   }
 
-  const filteredServices = database.services.filter((service) =>
+  const filteredServices = services.filter((service) =>
     service.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
@@ -35,6 +64,41 @@ export default function CreateAppletsPage() {
     '#FF8A00', '#4A4A4A', '#1877F2', '#4285F4', '#FF6600',
     '#1DB954', '#333333', '#1DA1F2', '#000000', '#FF0000'
   ]
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setLoading(true)
+
+        // Fallback vers les données locales pour l'instant
+        const { default: database } = await import('@/data/database.json')
+        setServices(database.services)
+        
+      } catch (err) {
+        console.error('Error fetching services:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchServices()
+  }, [])
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          bgcolor: 'white',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        <CircularProgress size={60} />
+      </Box>
+    )
+  }
 
   return (
     <Container maxWidth="lg">
@@ -79,7 +143,7 @@ export default function CreateAppletsPage() {
               textAlign: 'center'
             }}
           >
-            Choose a service
+            Choose an action service
           </Typography>
         </Box>
 
@@ -197,6 +261,17 @@ export default function CreateAppletsPage() {
             </Card>
           ))}
         </Box>
+
+        {filteredServices.length === 0 && (
+          <Box sx={{ textAlign: 'center', mt: 8 }}>
+            <Typography variant="h6" color="text.secondary">
+              No services found
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Try adjusting your search or category filter
+            </Typography>
+          </Box>
+        )}
       </Box>
     </Container>
   )

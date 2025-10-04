@@ -34,8 +34,8 @@ export default function ServicePage() {
   if (loading) {
     return (
       <Container maxWidth="lg">
-        <Box sx={{ p: 4, bgcolor: "#f5ffff", minHeight: "calc(100vh - 64px)" }}>
-          <Typography variant="h4" align="center" color="#005acd">
+        <Box sx={{ p: 4, bgcolor: "#FFFFFF", minHeight: "calc(100vh - 64px)" }}>
+          <Typography variant="h4" align="center" color="primary.main">
             Loading...
           </Typography>
         </Box>
@@ -46,8 +46,8 @@ export default function ServicePage() {
   if (!service) {
     return (
       <Container maxWidth="lg">
-        <Box sx={{ p: 4, bgcolor: "#f5ffff", minHeight: "calc(100vh - 64px)" }}>
-          <Typography variant="h4" align="center" color="#005acd" gutterBottom>
+        <Box sx={{ p: 4, bgcolor: "#FFFFFF", minHeight: "calc(100vh - 64px)" }}>
+          <Typography variant="h4" align="center" color="primary.main" gutterBottom>
             Service not found
           </Typography>
           <Typography variant="body1" align="center" color="black">
@@ -56,7 +56,7 @@ export default function ServicePage() {
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
             <Button 
               variant="contained" 
-              sx={{ bgcolor: '#005acd' }}
+              sx={{ bgcolor: 'primary.main' }}
               href="/create/applets"
             >
               Back to services
@@ -69,8 +69,8 @@ export default function ServicePage() {
 
   return (
     <Container maxWidth="lg">
-      <Box sx={{ p: 4, bgcolor: "#f5ffff", minHeight: "calc(100vh - 64px)" }}>
-        <Typography variant="h3" align="center" color="#005acd" gutterBottom>
+      <Box sx={{ p: 4, bgcolor: "#FFFFFF", minHeight: "calc(100vh - 64px)" }}>
+        <Typography variant="h3" align="center" color="primary.main" gutterBottom>
           {service.name}
         </Typography>
 
@@ -79,7 +79,7 @@ export default function ServicePage() {
             maxWidth: 600,
             mx: 'auto',
             mt: 4,
-            boxShadow: '0 8px 32px rgba(0, 90, 205, 0.15)',
+            boxShadow: '0 8px 32px rgba(255, 105, 0, 0.15)',
             borderRadius: 3
           }}
         >
@@ -91,14 +91,14 @@ export default function ServicePage() {
             sx={{ objectFit: 'contain', p: 2 }}
           />
           <CardContent sx={{ textAlign: 'center', pb: 4 }}>
-            <Typography variant="h4" color="#005acd" gutterBottom>
+            <Typography variant="h4" color="primary.main" gutterBottom>
               {service.name}
             </Typography>
             <Chip
               label={service.actionType}
               sx={{
-                bgcolor: 'rgba(0, 90, 205, 0.1)',
-                color: '#005acd',
+                bgcolor: 'rgba(255, 105, 0, 0.1)',
+                color: 'primary.main',
                 fontWeight: 600,
                 mb: 3
               }}
@@ -112,7 +112,7 @@ export default function ServicePage() {
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mt: 3 }}>
               <Button
                 variant="contained"
-                sx={{ bgcolor: '#005acd' }}
+                sx={{ bgcolor: 'primary.main' }}
                 size="large"
                 href={`/triggers/${encodeURIComponent(service.name)}`}
               >
@@ -120,14 +120,14 @@ export default function ServicePage() {
               </Button>
               <Button
                 variant="outlined"
-                sx={{ color: '#005acd', borderColor: '#005acd' }}
+                sx={{ color: 'primary.main', borderColor: 'primary.main' }}
                 size="large"
               >
                 Configure applet
               </Button>
               <Button
                 variant="outlined"
-                sx={{ color: '#005acd', borderColor: '#005acd' }}
+                sx={{ color: 'primary.main', borderColor: 'primary.main' }}
                 href="/create/applets"
               >
                 Back to services
@@ -137,11 +137,11 @@ export default function ServicePage() {
         </Card>
 
         <Box sx={{ mt: 6 }}>
-          <Typography variant="h5" color="#005acd" gutterBottom align="center">
+          <Typography variant="h5" color="primary.main" gutterBottom align="center">
             How to use this service
           </Typography>
           <Card sx={{ mt: 3, p: 3 }}>
-            <Typography variant="h6" color="#005acd" gutterBottom>
+            <Typography variant="h6" color="primary.main" gutterBottom>
               Available action: {service.actionType}
             </Typography>
             <Typography variant="body1" paragraph>
