@@ -3,9 +3,11 @@ import {
   IsOptional,
   IsBoolean,
   IsDefined,
-  IsNumber, IsObject,
+  IsNumber,
+  IsObject,
 } from 'class-validator';
 import { DeleteResponse } from '@config/dto';
+import { users } from '@prisma/client';
 
 // ===============
 //      DTOs

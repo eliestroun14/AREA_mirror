@@ -180,7 +180,7 @@ model zap_executions {
   status              String
   duration_ms         Int
   started_at          DateTime
-  ended_at            DateTime
+  ended_at            DateTime?
   zap                 zaps                  @relation(fields: [zap_id], references: [id], onDelete: Cascade)
   zap_step_executions zap_step_executions[]
 }
@@ -196,7 +196,7 @@ model zap_step_executions {
   duration_ms      Int
   error            Json?
   started_at       DateTime
-  ended_at         DateTime
+  ended_at         DateTime?
   zap_step         zap_steps      @relation(fields: [zap_step_id], references: [id], onDelete: Cascade)
   zap_execution    zap_executions @relation(fields: [zap_execution_id], references: [id], onDelete: Cascade)
 }

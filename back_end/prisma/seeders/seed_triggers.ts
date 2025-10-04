@@ -13,6 +13,7 @@ async function main() {
         description: 'Triggered when a user signs up',
         fields: {},
         variables: {},
+        class_name: 'no',
       },
       {
         service_id: 2,
@@ -21,6 +22,7 @@ async function main() {
         description: 'Triggered when a payment is made',
         fields: {},
         variables: {},
+        class_name: 'no',
       },
     ],
     skipDuplicates: true,

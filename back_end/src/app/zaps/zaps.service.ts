@@ -1,8 +1,6 @@
 import {
   Injectable,
   NotFoundException,
-  ConflictException,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from '@root/prisma/prisma.service';
 import {
@@ -13,19 +11,13 @@ import {
   PostZapResponse,
   PutZapResponse,
   PatchZapResponse,
-  PostZapTriggerBody,
-  PostZapActionBody,
 } from './zaps.dto';
-import { constants, formateDate } from '@config/utils';
-import { ConnectionsService } from '@app/users/connections/connections.service';
-import { ServicesService } from '@app/services/services.service';
+import { formateDate } from '@config/utils';
 
 @Injectable()
 export class ZapsService {
   constructor(
     private prisma: PrismaService,
-    private connectionsService: ConnectionsService,
-    private servicesService: ServicesService,
   ) {}
 
   async getAllZaps(): Promise<GetAllZapsResponse> {

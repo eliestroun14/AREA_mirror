@@ -64,6 +64,7 @@ export class StepsService {
     await this.prisma.zap_steps.create({
       data: {
         zap_id: zapId,
+        trigger_id: data.triggerId,
         step_type: constants.step_types.trigger,
         step_order: 0,
         connection_id: connection.id,
@@ -106,6 +107,8 @@ export class StepsService {
     await this.prisma.zap_steps.create({
       data: {
         zap_id: zapId,
+        source_step_id: data.fromStepId,
+        action_id: data.actionId,
         step_type: constants.step_types.action,
         step_order: data.stepOrder,
         connection_id: connection.id,

@@ -13,6 +13,7 @@ async function main() {
         description: 'Send an email to a user',
         fields: {},
         variables: {},
+        class_name: 'no',
       },
       {
         service_id: 2,
@@ -21,6 +22,7 @@ async function main() {
         description: 'Create a new playlist',
         fields: {},
         variables: {},
+        class_name: 'no',
       },
     ],
     skipDuplicates: true,
