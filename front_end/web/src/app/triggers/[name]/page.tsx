@@ -73,8 +73,8 @@ export default function TriggersPage() {
             The service &quot;{serviceName}&quot; does not exist in our database.
           </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               sx={{ bgcolor: 'primary.main' }}
               href="/create/applets"
             >
@@ -95,10 +95,10 @@ export default function TriggersPage() {
         </Typography>
 
         {/* Service Info Section */}
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           mb: 4,
           p: 3,
           bgcolor: 'white',
@@ -108,9 +108,9 @@ export default function TriggersPage() {
           <Avatar
             src={`/assets/${service.image}`}
             alt={service.name}
-            sx={{ 
-              width: 64, 
-              height: 64, 
+            sx={{
+              width: 64,
+              height: 64,
               mr: 3,
               bgcolor: service.service_color,
               '& img': {
@@ -130,12 +130,12 @@ export default function TriggersPage() {
 
         {/* Triggers Grid */}
         {service.triggers && service.triggers.length > 0 ? (
-          <Box sx={{ 
+          <Box sx={{
             display: 'grid',
-            gridTemplateColumns: { 
-              xs: '1fr', 
-              sm: 'repeat(2, 1fr)', 
-              md: 'repeat(3, 1fr)' 
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(3, 1fr)'
             },
             gap: 3
           }}>
@@ -175,20 +175,20 @@ export default function TriggersPage() {
                           label={`${trigger.polling_interval}s`}
                           size="small"
                           variant="outlined"
-                          sx={{ 
+                          sx={{
                             borderColor: service.service_color,
-                            color: service.service_color 
+                            color: service.service_color
                           }}
                         />
                       )}
                     </Box>
 
                     {/* Trigger Name */}
-                    <Typography 
-                      variant="h6" 
-                      color="primary.main" 
-                      gutterBottom 
-                      sx={{ 
+                    <Typography
+                      variant="h6"
+                      color="primary.main"
+                      gutterBottom
+                      sx={{
                         fontWeight: 600,
                         mb: 1.5,
                         minHeight: '1.5em'
@@ -198,10 +198,10 @@ export default function TriggersPage() {
                     </Typography>
 
                     {/* Trigger Description */}
-                    <Typography 
-                      variant="body2" 
-                      color="text.secondary" 
-                      sx={{ 
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{
                         flexGrow: 1,
                         mb: 2,
                         lineHeight: 1.5
@@ -223,7 +223,7 @@ export default function TriggersPage() {
                               label={variable}
                               size="small"
                               variant="outlined"
-                              sx={{ 
+                              sx={{
                                 fontSize: '0.7rem',
                                 height: '20px',
                                 borderColor: 'rgba(0, 0, 0, 0.2)',
@@ -236,7 +236,7 @@ export default function TriggersPage() {
                               label={`+${trigger.variables.length - 3}`}
                               size="small"
                               variant="outlined"
-                              sx={{ 
+                              sx={{
                                 fontSize: '0.7rem',
                                 height: '20px',
                                 borderColor: 'rgba(0, 0, 0, 0.2)',
@@ -274,8 +274,8 @@ export default function TriggersPage() {
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
           <Button
             variant="outlined"
-            sx={{ 
-              color: 'primary.main', 
+            sx={{
+              color: 'primary.main',
               borderColor: 'primary.main',
               '&:hover': {
                 borderColor: '#333333',

@@ -4,26 +4,26 @@ const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#000000', // Noir principal comme IFTTT
+      main: '#000000',
       light: '#333333',
       dark: '#000000',
     },
     secondary: {
-      main: '#FF6B35', // Orange accent comme IFTTT
+      main: '#FF6B35',
       light: '#FF8A65',
       dark: '#E64A19',
     },
     text: {
-      primary: '#000000', // Texte noir
-      secondary: '#666666', // Texte gris
+      primary: '#000000',
+      secondary: '#666666',
     },
     background: {
-      default: '#ffffff', // Fond blanc
-      paper: '#ffffff', // Cartes blanches
+      default: '#ffffff',
+      paper: '#ffffff',
     },
     grey: {
       50: '#fafafa',
-      100: '#f5f5f5', // Gris très clair pour les sections
+      100: '#f5f5f5',
       200: '#eeeeee',
       300: '#e0e0e0',
       400: '#bdbdbd',
@@ -35,7 +35,7 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Inter", "Helvetica", "Arial", sans-serif', // Police moderne comme IFTTT
+    fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
     h1: {
       fontWeight: 700,
       color: '#000000',
@@ -71,8 +71,8 @@ const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          textTransform: 'none', // Pas de majuscules automatiques
-          borderRadius: 8, // Coins arrondis modernes
+          textTransform: 'none',
+          borderRadius: 8,
           fontWeight: 500,
         },
         contained: {
@@ -95,7 +95,7 @@ const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', // Ombre subtile
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
           borderRadius: 12,
           border: '1px solid #f0f0f0',
         },
