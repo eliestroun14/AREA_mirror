@@ -14,6 +14,9 @@ import SearchIcon from '@mui/icons-material/Search'
 import InputAdornment from '@mui/material/InputAdornment'
 import { useRouter } from 'next/navigation'
 import CircularProgress from '@mui/material/CircularProgress'
+import { apiService } from '@/services/api';
+import { ServiceDTO } from '@/types/api';
+import database from '@/data/database.json';
 
 interface Service {
   id: number

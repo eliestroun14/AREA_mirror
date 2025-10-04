@@ -57,9 +57,9 @@ export default function ServicePage() {
             <Button 
               variant="contained" 
               sx={{ bgcolor: 'primary.main' }}
-              href="/create/applets"
+              href="/explore"
             >
-              Back to services
+              Back to explore
             </Button>
           </Box>
         </Box>
