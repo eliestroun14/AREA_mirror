@@ -6,155 +6,275 @@ import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import CardMedia from '@mui/material/CardMedia'
 import Button from '@mui/material/Button'
-import Chip from '@mui/material/Chip'
-import database from '@/data/database.json'
-
-interface Service {
-  name: string
-  image: string
-  actionType: string
-}
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemText from '@mui/material/ListItemText'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import Divider from '@mui/material/Divider'
+import CircularProgress from '@mui/material/CircularProgress'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import FlashOnIcon from '@mui/icons-material/FlashOn'
+import { apiService } from '@/services/api'
+import { ServiceDTO, ActionDTO, TriggerDTO } from '@/types/api'
+import { ServiceImage } from '@/components/ServiceImage'
 
 export default function ServicePage() {
   const params = useParams()
   const serviceName = decodeURIComponent(params.name as string)
-  const [service, setService] = useState<Service | null>(null)
+  const [service, setService] = useState<ServiceDTO | null>(null)
+  const [actions, setActions] = useState<ActionDTO[]>([])
+  const [triggers, setTriggers] = useState<TriggerDTO[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const getActionColor = (baseColor: string): string => {
+    if (baseColor.startsWith('#')) {
+      const r = parseInt(baseColor.slice(1, 3), 16)
+      const g = parseInt(baseColor.slice(3, 5), 16)
+      const b = parseInt(baseColor.slice(5, 7), 16)
+      const factor = 0.7
+      return `rgb(${Math.round(r * factor)}, ${Math.round(g * factor)}, ${Math.round(b * factor)})`
+    }
+    return '#ff6900'
+  }
 
   useEffect(() => {
-    const foundService = database.services.find(
-      (item) => item.name.toLowerCase() === serviceName.toLowerCase()
-    )
-    setService(foundService || null)
-    setLoading(false)
+    const fetchServiceData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        // Récupérer le service par nom
+        const serviceData = await apiService.getServiceByName(serviceName)
+        if (!serviceData) {
+          setError('Service not found')
+          return
+        }
+        
+        setService(serviceData)
+        
+        // Récupérer les actions et triggers pour ce service
+        const [actionsData, triggersData] = await Promise.all([
+          apiService.getActionsByService(serviceData.id.toString()),
+          apiService.getTriggersByService(serviceData.id.toString())
+        ])
+        
+        setActions(actionsData)
+        setTriggers(triggersData)
+      } catch (err) {
+        console.error('Error fetching service data:', err)
+        setError('Failed to load service data')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchServiceData()
   }, [serviceName])
 
   if (loading) {
     return (
-      <Container maxWidth="lg">
-        <Box sx={{ p: 4, bgcolor: "#FFFFFF", minHeight: "calc(100vh - 64px)" }}>
-          <Typography variant="h4" align="center" color="primary.main">
-            Loading...
-          </Typography>
-        </Box>
-      </Container>
+      <Box sx={{ 
+        bgcolor: "#4285f4",
+        minHeight: "100vh",
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <CircularProgress sx={{ color: 'white' }} size={60} />
+      </Box>
     )
   }
 
-  if (!service) {
+  if (error || !service) {
     return (
-      <Container maxWidth="lg">
-        <Box sx={{ p: 4, bgcolor: "#FFFFFF", minHeight: "calc(100vh - 64px)" }}>
-          <Typography variant="h4" align="center" color="primary.main" gutterBottom>
-            Service not found
-          </Typography>
-          <Typography variant="body1" align="center" color="black">
-            The service &quot;{serviceName}&quot; does not exist in our database.
-          </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-            <Button 
-              variant="contained" 
-              sx={{ bgcolor: 'primary.main' }}
-              href="/explore"
-            >
-              Back to explore
-            </Button>
-          </Box>
-        </Box>
-      </Container>
+      <Box sx={{ 
+        bgcolor: "#4285f4",
+        minHeight: "100vh",
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        p: 4
+      }}>
+        <Typography variant="h4" align="center" color="white" gutterBottom>
+          {error || 'Service not found'}
+        </Typography>
+        <Typography variant="body1" align="center" color="white" sx={{ mb: 4 }}>
+          The service &quot;{serviceName}&quot; could not be loaded.
+        </Typography>
+        <Button 
+          variant="contained" 
+          sx={{ 
+            bgcolor: 'white', 
+            color: '#4285f4',
+            '&:hover': { bgcolor: '#f0f0f0' }
+          }}
+          href="/explore"
+        >
+          Back to Explore
+        </Button>
+      </Box>
     )
   }
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ p: 4, bgcolor: "#FFFFFF", minHeight: "calc(100vh - 64px)" }}>
-        <Typography variant="h3" align="center" color="primary.main" gutterBottom>
-          {service.name}
+    <Box sx={{ minHeight: "100vh" }}>
+      {/* Header Section - Couleur du service */}
+      <Box sx={{ 
+        bgcolor: service.services_color || "#4285f4",
+        color: "white",
+        py: 6,
+        px: 3,
+        textAlign: 'center'
+      }}>
+        <Button
+          sx={{ 
+            position: 'absolute',
+            top: 20,
+            left: 20,
+            color: 'white',
+            border: '1px solid white',
+            borderRadius: '25px',
+            px: 3
+          }}
+          href="/explore"
+        >
+          ← Back
+        </Button>
+
+        {/* Service Icon */}
+        <Box sx={{ 
+          width: 120, 
+          height: 120, 
+          mx: 'auto', 
+          mb: 3,
+          borderRadius: '50%',
+          overflow: 'hidden',
+          bgcolor: 'white',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <ServiceImage
+            service={{
+              name: service.name,
+              icon_url: service.icon_url,
+              services_color: service.services_color
+            }}
+            height={120}
+          />
+        </Box>
+
+        <Typography variant="h3" gutterBottom sx={{ fontWeight: 'bold', color: 'white' }}>
+          Automate your {service.name} integrations
+        </Typography>
+        
+        <Typography variant="h6" sx={{ maxWidth: 600, mx: 'auto', mb: 4, opacity: 0.9, color: 'white' }}>
+          IFTTT allows you to automate your {service.name} workflow, enabling you to track issues,
+          pull requests, and repositories automatically. Connect {service.name} with other services to
+          streamline your development process and enhance productivity.
         </Typography>
 
-        <Card
-          sx={{
-            maxWidth: 600,
-            mx: 'auto',
-            mt: 4,
-            boxShadow: '0 8px 32px rgba(255, 105, 0, 0.15)',
-            borderRadius: 3
-          }}
-        >
-          <CardMedia
-            component="img"
-            height="200"
-            image={`/assets/${service.image}`}
-            alt={service.name}
-            sx={{ objectFit: 'contain', p: 2 }}
-          />
-          <CardContent sx={{ textAlign: 'center', pb: 4 }}>
-            <Typography variant="h4" color="primary.main" gutterBottom>
-              {service.name}
-            </Typography>
-            <Chip
-              label={service.actionType}
-              sx={{
-                bgcolor: 'rgba(255, 105, 0, 0.1)',
-                color: 'primary.main',
-                fontWeight: 600,
-                mb: 3
-              }}
-            />
-
-            <Typography variant="body1" color="text.secondary" paragraph>
-              Use {service.name} to automate your tasks.
-              Available action: {service.actionType.toLowerCase()}.
-            </Typography>
-
-            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mt: 3 }}>
-              <Button
-                variant="contained"
-                sx={{ bgcolor: 'primary.main' }}
-                size="large"
-                href={`/triggers/${encodeURIComponent(service.name)}`}
-              >
-                View triggers
-              </Button>
-              <Button
-                variant="outlined"
-                sx={{ color: 'primary.main', borderColor: 'primary.main' }}
-                size="large"
-              >
-                Configure applet
-              </Button>
-              <Button
-                variant="outlined"
-                sx={{ color: 'primary.main', borderColor: 'primary.main' }}
-                href="/create/applets"
-              >
-                Back to services
-              </Button>
-            </Box>
-          </CardContent>
-        </Card>
-
-        <Box sx={{ mt: 6 }}>
-          <Typography variant="h5" color="primary.main" gutterBottom align="center">
-            How to use this service
-          </Typography>
-          <Card sx={{ mt: 3, p: 3 }}>
-            <Typography variant="h6" color="primary.main" gutterBottom>
-              Available action: {service.actionType}
-            </Typography>
-            <Typography variant="body1" paragraph>
-              This service allows you to automate the &quot;{service.actionType}&quot; action
-              via your {service.name} account.
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Connect your {service.name} account to start creating automated applets
-              and save time in your daily tasks.
-            </Typography>
-          </Card>
-        </Box>
       </Box>
-    </Container>
+
+      {/* Content Section */}
+      <Box sx={{ bgcolor: "#f8f9fa" }}>
+        <Container maxWidth="lg">
+          <Box sx={{ pt: 4, pb: 4 }}>
+            <Typography variant="h4" gutterBottom sx={{ textAlign: 'center', mb: 4 }}>
+              Popular {service.name} workflows & automations
+            </Typography>
+            
+            <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' } }}>
+              {/* Triggers Section */}
+              <Box sx={{ flex: 1 }}>
+                <Card sx={{ 
+                  height: '100%',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                  borderRadius: 3
+                }}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                      <FlashOnIcon sx={{ color: service.services_color || '#4285f4', mr: 1, fontSize: '2rem' }} />
+                      <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                        Available Triggers
+                      </Typography>
+                    </Box>
+                    
+                    {triggers.length > 0 ? (
+                      <List>
+                        {triggers.map((trigger, index) => (
+                          <div key={trigger.id}>
+                            <ListItem sx={{ py: 2 }}>
+                              <ListItemIcon>
+                                <FlashOnIcon sx={{ color: service.services_color || '#4285f4' }} />
+                              </ListItemIcon>
+                              <ListItemText
+                                primary={trigger.name}
+                                secondary={trigger.description}
+                                primaryTypographyProps={{ fontWeight: 'medium' }}
+                              />
+                            </ListItem>
+                            {index < triggers.length - 1 && <Divider />}
+                          </div>
+                        ))}
+                      </List>
+                    ) : (
+                      <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
+                        No triggers available for this service yet.
+                      </Typography>
+                    )}
+                  </CardContent>
+                </Card>
+              </Box>
+
+              {/* Actions Section */}
+              <Box sx={{ flex: 1 }}>
+                <Card sx={{ 
+                  height: '100%',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                  borderRadius: 3
+                }}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                      <PlayArrowIcon sx={{ color: getActionColor(service.services_color), mr: 1, fontSize: '2rem' }} />
+                      <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                        Available Actions
+                      </Typography>
+                    </Box>
+                    
+                    {actions.length > 0 ? (
+                      <List>
+                        {actions.map((action, index) => (
+                          <div key={action.id}>
+                            <ListItem sx={{ py: 2 }}>
+                              <ListItemIcon>
+                                <PlayArrowIcon sx={{ color: getActionColor(service.services_color) }} />
+                              </ListItemIcon>
+                              <ListItemText
+                                primary={action.name}
+                                secondary={action.description}
+                                primaryTypographyProps={{ fontWeight: 'medium' }}
+                              />
+                            </ListItem>
+                            {index < actions.length - 1 && <Divider />}
+                          </div>
+                        ))}
+                      </List>
+                    ) : (
+                      <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
+                        No actions available for this service yet.
+                      </Typography>
+                    )}
+                  </CardContent>
+                </Card>
+              </Box>
+            </Box>
+          </Box>
+        </Container>
+      </Box>
+    </Box>
   )
 }
