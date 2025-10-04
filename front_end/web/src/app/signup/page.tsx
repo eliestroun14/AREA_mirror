@@ -10,8 +10,6 @@ import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import Paper from '@mui/material/Paper'
 import GoogleIcon from '@mui/icons-material/Google'
-import FacebookIcon from '@mui/icons-material/Facebook'
-import AppleIcon from '@mui/icons-material/Apple'
 
 export default function SignupPage() {
   const router = useRouter()

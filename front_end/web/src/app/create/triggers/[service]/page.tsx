@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -10,197 +10,286 @@ import CardContent from '@mui/material/CardContent'
 import CardActionArea from '@mui/material/CardActionArea'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
-import database from '@/data/database.json'
+import CircularProgress from '@mui/material/CircularProgress'
+
+interface Trigger {
+  id: number
+  name: string
+  description: string
+}
+
+interface Service {
+  id: number
+  name: string
+  image: string
+  service_color: string
+  actionType: string
+}
 
 export default function TriggersPage() {
   const params = useParams()
   const router = useRouter()
   const serviceName = decodeURIComponent(params.service as string)
+  const [triggers, setTriggers] = useState<Trigger[]>([])
+  const [service, setService] = useState<Service | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const handleBackClick = () => {
-    router.push('/create')
+    router.push('/create/applets')
   }
 
   const handleTriggerClick = (triggerName: string) => {
-    // Pour l'instant, on redirige vers la page principale
-    // Plus tard, on pourra créer une page de configuration du trigger
-    router.push('/')
+    router.push(`/create/triggers/${encodeURIComponent(serviceName)}/${encodeURIComponent(triggerName)}`)
   }
 
-  // Couleur du service sélectionné
-  const serviceColors = [
-    '#FF8A00', '#4A4A4A', '#1877F2', '#4285F4', '#FF6600',
-    '#1DB954', '#333333', '#1DA1F2', '#000000', '#FF0000'
-  ]
+  useEffect(() => {
+    const fetchServiceAndTriggers = async () => {
+      try {
+        setLoading(true)
+        setError(null)
 
-  const serviceIndex = database.services.findIndex(s => s.name === serviceName)
-  const serviceColor = serviceColors[serviceIndex % serviceColors.length] || '#333333'
+        const servicesResponse = await fetch('http://localhost:8080/services')
+        if (!servicesResponse.ok) {
+          throw new Error('Failed to fetch services')
+        }
+        const services = await servicesResponse.json()
+        
+        const foundService = services.find((s: Service) => s.name === serviceName)
+        if (!foundService) {
+          throw new Error(`Service "${serviceName}" not found`)
+        }
+        
+        setService(foundService)
 
-  // Triggers factices pour le service sélectionné
-  const triggers = [
-    { id: 1, name: "New post by you", description: "This Trigger fires every time you post a new photo on Instagram." },
-    { id: 2, name: "New post by anyone", description: "This Trigger fires every time anyone posts a new photo with a specific hashtag." },
-    { id: 3, name: "New video by you", description: "This Trigger fires every time you post a new video." },
-    { id: 4, name: "New follower", description: "This Trigger fires every time you get a new follower." },
-    { id: 5, name: "New like on your post", description: "This Trigger fires every time someone likes your photo." },
-    { id: 6, name: "New comment", description: "This Trigger fires every time someone comments on your photo." }
-  ]
+        const triggersResponse = await fetch(`http://localhost:8080/services/${foundService.id}/triggers`)
+        if (!triggersResponse.ok) {
+          throw new Error('Failed to fetch triggers')
+        }
+        const triggersData = await triggersResponse.json()
+        
+        setTriggers(triggersData)
+      } catch (err) {
+        console.error('Error fetching data:', err)
+        setError(err instanceof Error ? err.message : 'An error occurred')
+        
+        try {
+          const { default: database } = await import('@/data/database.json')
+          const fallbackService = database.services.find(s => s.name === serviceName)
+          if (fallbackService) {
+            setService(fallbackService)
+            setTriggers(fallbackService.triggers || [])
+          }
+        } catch (fallbackErr) {
+          console.error('Fallback failed:', fallbackErr)
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  return (
-    <Container maxWidth="lg">
+    fetchServiceAndTriggers()
+  }, [serviceName])
+
+  if (loading) {
+    return (
       <Box
         sx={{
-          py: 4,
-          minHeight: "calc(100vh - 64px)",
+          minHeight: "100vh",
+          bgcolor: '#FF8A00',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}
       >
-        {/* Header */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4 }}>
-          <Button
-            startIcon={<ArrowBackIcon />}
-            onClick={handleBackClick}
-            sx={{
-              color: 'black',
-              textTransform: 'none',
-              fontSize: '1rem',
-              fontWeight: 500,
-              borderRadius: 6,
-              px: 3,
-              py: 1,
-              border: '2px solid black',
-              '&:hover': {
-                bgcolor: 'rgba(0, 0, 0, 0.04)'
-              }
-            }}
-          >
-            Back
-          </Button>
-          
-          <Typography 
-            variant="h3" 
-            sx={{ 
-              fontWeight: 700, 
-              color: 'black',
-              fontSize: { xs: '1.5rem', md: '2.5rem' },
-              textAlign: 'center'
-            }}
-          >
-            Choose a trigger
-          </Typography>
-          
-          <Button
-            sx={{
-              minWidth: 44,
-              height: 44,
-              borderRadius: '50%',
-              color: 'black',
-              border: '2px solid black',
-              '&:hover': {
-                bgcolor: 'rgba(0, 0, 0, 0.04)'
-              }
-            }}
-          >
-            <HelpOutlineIcon />
-          </Button>
-        </Box>
+        <CircularProgress sx={{ color: 'white' }} size={60} />
+      </Box>
+    )
+  }
 
-        {/* Service Info */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 4 }}>
+  if (error && !service) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          bgcolor: '#FF8A00',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 4
+        }}
+      >
+        <Typography variant="h4" sx={{ color: 'white', mb: 2, textAlign: 'center' }}>
+          Service not found
+        </Typography>
+        <Typography variant="body1" sx={{ color: 'white', mb: 4, textAlign: 'center' }}>
+          {error}
+        </Typography>
+        <Button
+          onClick={handleBackClick}
+          variant="contained"
+          sx={{ bgcolor: 'white', color: '#FF8A00' }}
+        >
+          Go Back
+        </Button>
+      </Box>
+    )
+  }
+
+  const serviceColor = service?.service_color || '#FF8A00'
+
+  return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: serviceColor,
+        position: 'relative'
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          p: 3,
+          pt: 4
+        }}
+      >
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={handleBackClick}
+          sx={{
+            color: 'white',
+            textTransform: 'none',
+            fontSize: '1rem',
+            fontWeight: 500,
+            borderRadius: 6,
+            px: 3,
+            py: 1,
+            border: '2px solid white',
+            '&:hover': {
+              bgcolor: 'rgba(255, 255, 255, 0.1)'
+            }
+          }}
+        >
+          Back
+        </Button>
+        
+        <Button
+          sx={{
+            minWidth: 44,
+            height: 44,
+            borderRadius: '50%',
+            color: 'white',
+            border: '2px solid white',
+            '&:hover': {
+              bgcolor: 'rgba(255, 255, 255, 0.1)'
+            }
+          }}
+        >
+          <HelpOutlineIcon />
+        </Button>
+      </Box>
+
+      <Typography 
+        variant="h3" 
+        sx={{ 
+          fontWeight: 700, 
+          color: 'white',
+          fontSize: { xs: '2rem', md: '3rem' },
+          textAlign: 'center',
+          mb: 6
+        }}
+      >
+        Choose a trigger
+      </Typography>
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 6 }}>
+        <Box
+          sx={{
+            width: 120,
+            height: 120,
+            bgcolor: 'white',
+            borderRadius: 3,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mb: 3,
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+          }}
+        >
           <Box
+            component="div"
             sx={{
-              width: 60,
-              height: 60,
+              width: 80,
+              height: 80,
               bgcolor: serviceColor,
               borderRadius: 2,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              mr: 3
+              justifyContent: 'center'
             }}
           >
             <Typography 
-              variant="h4" 
+              variant="h3" 
               sx={{ 
                 color: 'white',
                 fontWeight: 700 
               }}
             >
-              {serviceName.charAt(0)}
+              {serviceName.charAt(0).toUpperCase()}
             </Typography>
           </Box>
-          <Typography 
-            variant="h5" 
-            sx={{ 
-              fontWeight: 600, 
-              color: 'black'
-            }}
-          >
-            {serviceName}
-          </Typography>
         </Box>
+        
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 700,
+            color: 'white',
+            mb: 8
+          }}
+        >
+          {serviceName}
+        </Typography>
+      </Box>
 
-        {/* Triggers List */}
+      <Container maxWidth="md">
         <Box
           sx={{
-            maxWidth: 800,
-            mx: 'auto'
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: 'repeat(auto-fit, minmax(300px, 1fr))' },
+            gap: 3,
+            pb: 6
           }}
         >
           {triggers.map((trigger) => (
             <Card
               key={trigger.id}
               sx={{
-                mb: 2,
                 borderRadius: 3,
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                border: '1px solid #e0e0e0',
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+                overflow: 'hidden',
                 '&:hover': {
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
-                  transform: 'translateY(-2px)'
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+                  transform: 'translateY(-4px)'
                 },
                 transition: 'all 0.3s ease'
               }}
             >
               <CardActionArea
                 onClick={() => handleTriggerClick(trigger.name)}
-                sx={{
-                  p: 3,
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  justifyContent: 'flex-start'
-                }}
+                sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}
               >
-                <Box
-                  sx={{
-                    width: 48,
-                    height: 48,
-                    bgcolor: serviceColor,
-                    borderRadius: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    mr: 3,
-                    flexShrink: 0
-                  }}
-                >
-                  <Typography 
-                    variant="h6" 
-                    sx={{ 
-                      color: 'white',
-                      fontWeight: 700 
-                    }}
-                  >
-                    {serviceName.charAt(0)}
-                  </Typography>
-                </Box>
-                
-                <CardContent sx={{ p: 0, flex: 1 }}>
+                <CardContent sx={{ p: 0, width: '100%' }}>
                   <Typography
                     variant="h6"
                     sx={{
                       color: 'black',
                       fontWeight: 600,
-                      mb: 1
+                      mb: 2,
+                      fontSize: '1.2rem'
                     }}
                   >
                     {trigger.name}
@@ -209,7 +298,8 @@ export default function TriggersPage() {
                     variant="body2"
                     sx={{
                       color: '#666666',
-                      lineHeight: 1.5
+                      lineHeight: 1.6,
+                      fontSize: '0.95rem'
                     }}
                   >
                     {trigger.description}
@@ -219,7 +309,7 @@ export default function TriggersPage() {
             </Card>
           ))}
         </Box>
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   )
 }

@@ -24,6 +24,36 @@
           "fields": ["from", "subject"],
           "variables": ["sender_email", "email_subject", "starred_at"]
         }
+      ],
+      "actions": [
+        {
+          "id": 1,
+          "name": "Send me an email",
+          "description": "This Action will send you an HTML based email. Images and links are supported.",
+          "fields": [
+            {
+              "name": "to",
+              "label": "To address",
+              "type": "email",
+              "required": true,
+              "placeholder": "example@email.com"
+            },
+            {
+              "name": "subject",
+              "label": "Subject",
+              "type": "text", 
+              "required": true,
+              "placeholder": "Enter email subject"
+            },
+            {
+              "name": "body",
+              "label": "Body",
+              "type": "textarea",
+              "required": true,
+              "placeholder": "Enter email content"
+            }
+          ]
+        }
       ]
     },
     {
@@ -49,6 +79,30 @@
           "polling_interval": 600,
           "fields": ["post_id"],
           "variables": ["liker_name", "post_content", "liked_at"]
+        }
+      ],
+      "actions": [
+        {
+          "id": 2,
+          "name": "Share an update",
+          "description": "This action will share an update on your LinkedIn profile.",
+          "fields": [
+            {
+              "name": "content",
+              "label": "Update content",
+              "type": "textarea",
+              "required": true,
+              "placeholder": "What's on your mind?"
+            },
+            {
+              "name": "visibility",
+              "label": "Visibility",
+              "type": "select",
+              "required": true,
+              "options": ["Public", "Connections only", "Professional network"],
+              "default": "Public"
+            }
+          ]
         }
       ]
     },
@@ -76,6 +130,37 @@
           "fields": ["video_id"],
           "variables": ["commenter_name", "comment_text", "video_title", "commented_at"]
         }
+      ],
+      "actions": [
+        {
+          "id": 3,
+          "name": "Upload a video",
+          "description": "Upload a video to your YouTube channel.",
+          "fields": [
+            {
+              "name": "title",
+              "label": "Video title",
+              "type": "text",
+              "required": true,
+              "placeholder": "Enter video title"
+            },
+            {
+              "name": "description",
+              "label": "Video description",
+              "type": "textarea",
+              "required": false,
+              "placeholder": "Enter video description"
+            },
+            {
+              "name": "privacy",
+              "label": "Privacy setting",
+              "type": "select",
+              "required": true,
+              "options": ["Public", "Unlisted", "Private"],
+              "default": "Public"
+            }
+          ]
+        }
       ]
     },
     {
@@ -101,6 +186,29 @@
           "polling_interval": 600,
           "fields": [],
           "variables": ["follower_name", "follower_count", "followed_at"]
+        }
+      ],
+      "actions": [
+        {
+          "id": 4,
+          "name": "Post a tweet",
+          "description": "Post a tweet to your Twitter account.",
+          "fields": [
+            {
+              "name": "text",
+              "label": "Tweet text",
+              "type": "textarea",
+              "required": true,
+              "placeholder": "What's happening?"
+            },
+            {
+              "name": "include_link",
+              "label": "Include link",
+              "type": "text",
+              "required": false,
+              "placeholder": "https://example.com"
+            }
+          ]
         }
       ]
     },
@@ -143,6 +251,36 @@
           "trigger_type": "Webhook",
           "fields": ["channel"],
           "variables": ["mention_author", "message_text", "channel_name", "mentioned_at"]
+        }
+      ],
+      "actions": [
+        {
+          "id": 5,
+          "name": "Send a message",
+          "description": "Send a message to a Slack channel or user.",
+          "fields": [
+            {
+              "name": "channel",
+              "label": "Channel or user",
+              "type": "text",
+              "required": true,
+              "placeholder": "#general or @username"
+            },
+            {
+              "name": "message",
+              "label": "Message",
+              "type": "textarea",
+              "required": true,
+              "placeholder": "Enter your message"
+            },
+            {
+              "name": "username",
+              "label": "Bot username",
+              "type": "text",
+              "required": false,
+              "placeholder": "Bot name (optional)"
+            }
+          ]
         }
       ]
     },
