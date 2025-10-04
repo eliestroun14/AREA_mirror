@@ -17,14 +17,14 @@ export class ServicesService {
   async getAllServices(): Promise<GetAllServicesResponse> {
     const services = await this.prisma.services.findMany();
     return services.map((service) => ({
-      id: Number(service.id),
-      name: String(service.name),
+      id: service.id,
+      name: service.name,
       icon_url: service.icon_url ?? null,
       api_base_url: service.api_base_url ?? null,
-      services_color: String(service.service_color),
-      auth_type: String(service.auth_type),
+      services_color: service.service_color,
+      auth_type: service.auth_type,
       documentation_url: service.documentation_url ?? null,
-      is_active: Boolean(service.is_active),
+      is_active: service.is_active,
       created_at: service.created_at ? formateDate(service.created_at) : '',
     }));
   }
@@ -40,14 +40,14 @@ export class ServicesService {
       );
 
     return {
-      id: Number(service.id),
-      name: String(service.name),
+      id: service.id,
+      name: service.name,
       icon_url: service.icon_url ?? null,
       api_base_url: service.api_base_url ?? null,
-      services_color: String(service.service_color),
-      auth_type: String(service.auth_type),
+      services_color: service.service_color,
+      auth_type: service.auth_type,
       documentation_url: service.documentation_url ?? null,
-      is_active: Boolean(service.is_active),
+      is_active: service.is_active,
       created_at: service.created_at ? formateDate(service.created_at) : '',
     };
   }
@@ -76,98 +76,98 @@ export class ServicesService {
   }
 
   async getTriggersByService(
-    serviceId: string,
+    serviceId: number,
   ): Promise<GetTriggersByServiceResponse> {
     const triggers = await this.prisma.triggers.findMany({
-      where: { service_id: Number(serviceId) },
+      where: { service_id: serviceId },
     });
     return triggers.map((trigger) => ({
-      id: Number(trigger.id),
-      service_id: Number(trigger.service_id),
+      id: trigger.id,
+      service_id: trigger.service_id,
       http_request_id: trigger.http_request_id ?? null,
       webhook_id: trigger.webhook_id ?? null,
-      trigger_type: String(trigger.trigger_type),
-      name: String(trigger.name),
-      description: String(trigger.description),
+      trigger_type: trigger.trigger_type,
+      name: trigger.name,
+      description: trigger.description,
       polling_interval:
         trigger.polling_interval !== null &&
         trigger.polling_interval !== undefined
-          ? Number(trigger.polling_interval)
+          ? trigger.polling_interval
           : null,
       fields: trigger.fields as Record<string, unknown>,
       variables: trigger.variables as Record<string, unknown>,
-      is_active: Boolean(trigger.is_active),
+      is_active: trigger.is_active,
       created_at: trigger.created_at ? formateDate(trigger.created_at) : '',
       updated_at: trigger.updated_at ? formateDate(trigger.updated_at) : '',
     }));
   }
 
   async getActionsByService(
-    serviceId: string,
+    serviceId: number,
   ): Promise<GetActionsByServiceResponse> {
     const actions = await this.prisma.actions.findMany({
-      where: { service_id: Number(serviceId) },
+      where: { service_id: serviceId },
     });
     return actions.map((action) => ({
-      id: Number(action.id),
-      service_id: Number(action.service_id),
-      http_request_id: Number(action.http_request_id),
-      name: String(action.name),
-      description: String(action.description),
+      id: action.id,
+      service_id: action.service_id,
+      http_request_id: action.http_request_id,
+      name: action.name,
+      description: action.description,
       fields: action.fields as Record<string, unknown>,
       variables: action.variables as Record<string, unknown>,
-      is_active: Boolean(action.is_active),
+      is_active: action.is_active,
       created_at: action.created_at ? formateDate(action.created_at) : '',
       updated_at: action.updated_at ? formateDate(action.updated_at) : '',
     }));
   }
 
   async getActionByService(
-    serviceId: string,
-    actionId: string,
+    serviceId: number,
+    actionId: number,
   ): Promise<GetActionByServiceResponse> {
     const action = await this.prisma.actions.findFirst({
-      where: { id: Number(actionId), service_id: Number(serviceId) },
+      where: { id: actionId, service_id: serviceId },
     });
     if (!action) return null;
     return {
-      id: Number(action.id),
-      service_id: Number(action.service_id),
-      http_request_id: Number(action.http_request_id),
-      name: String(action.name),
-      description: String(action.description),
+      id: action.id,
+      service_id: action.service_id,
+      http_request_id: action.http_request_id,
+      name: action.name,
+      description: action.description,
       fields: action.fields as Record<string, unknown>,
       variables: action.variables as Record<string, unknown>,
-      is_active: Boolean(action.is_active),
+      is_active: action.is_active,
       created_at: action.created_at ? formateDate(action.created_at) : '',
       updated_at: action.updated_at ? formateDate(action.updated_at) : '',
     };
   }
 
   async getTriggerByService(
-    serviceId: string,
-    triggerId: string,
+    serviceId: number,
+    triggerId: number,
   ): Promise<GetTriggerByServiceResponse> {
     const trigger = await this.prisma.triggers.findFirst({
-      where: { id: Number(triggerId), service_id: Number(serviceId) },
+      where: { id: triggerId, service_id: serviceId },
     });
     if (!trigger) return null;
     return {
-      id: Number(trigger.id),
-      service_id: Number(trigger.service_id),
+      id: trigger.id,
+      service_id: trigger.service_id,
       http_request_id: trigger.http_request_id ?? null,
       webhook_id: trigger.webhook_id ?? null,
-      trigger_type: String(trigger.trigger_type),
-      name: String(trigger.name),
-      description: String(trigger.description),
+      trigger_type: trigger.trigger_type,
+      name: trigger.name,
+      description: trigger.description,
       polling_interval:
         trigger.polling_interval !== null &&
         trigger.polling_interval !== undefined
-          ? Number(trigger.polling_interval)
+          ? trigger.polling_interval
           : null,
       fields: trigger.fields as Record<string, unknown>,
       variables: trigger.variables as Record<string, unknown>,
-      is_active: Boolean(trigger.is_active),
+      is_active: trigger.is_active,
       created_at: trigger.created_at ? formateDate(trigger.created_at) : '',
       updated_at: trigger.updated_at ? formateDate(trigger.updated_at) : '',
     };

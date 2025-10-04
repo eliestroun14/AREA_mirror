@@ -13,7 +13,7 @@
 // Workflow générique :
 // pour chaque zap : zaps
 //     récupérer le trigger
-//     si trigger.run() === false
+//     si trigger.test() === false
 //         continue
 //     executions_data = [{
 //         step_id: trigger.step_id, data: trigger.data
@@ -29,19 +29,21 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@root/prisma/prisma.service';
 import { ZapsService } from '@app/zaps/zaps.service';
 import { ZapDTO } from '@app/zaps/zaps.dto';
+import { StepsService } from '@app/zaps/steps/steps.service';
 
 @Injectable()
 export class WorkflowService {
   constructor(
     private prisma: PrismaService,
     private zapsService: ZapsService,
+    private stepsService: StepsService,
   ) {}
 
   async workflow() {
     const zaps = await this.zapsService.getAllZaps();
 
-    // for (const zap of zaps) {
-    //   await this.zapsService.getTriggerOf(zap.id);
-    // }
+    for (const zap of zaps) {
+      //await this.stepsService.getTriggerOf(zap.id);
+    }
   }
 }

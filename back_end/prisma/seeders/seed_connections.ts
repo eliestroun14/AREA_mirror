@@ -7,10 +7,10 @@ async function main() {
   await prisma.connections.createMany({
     data: [
       {
-        user_id: 1, // adapte l'id selon tes users
+        user_id: 3, // adapte l'id selon tes users
         service_id: 1, // adapte l'id selon tes services
         access_token: 'token1',
-        account_identifier: 'identifier1',
+        account_identifier: 'test@test.com',
       },
       {
         user_id: 2,

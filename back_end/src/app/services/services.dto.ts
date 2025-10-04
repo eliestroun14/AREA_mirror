@@ -42,20 +42,35 @@ export interface TriggerDTO {
   updated_at: string;
 }
 
+interface GetByServiceId {
+  serviceId: string;
+}
+
 // GET /services
 export type GetAllServicesResponse = ServiceDTO[];
 
 // GET /services/:serviceId
+export type GetServiceParams = GetByServiceId;
 export type GetServiceResponse = ServiceDTO;
 
 // GET /services/:serviceId/triggers
+export type GetTriggersByServiceParams = GetByServiceId;
 export type GetTriggersByServiceResponse = TriggerDTO[];
 
 // GET /services/:serviceId/actions
+export type GetActionsByServiceParams = GetByServiceId;
 export type GetActionsByServiceResponse = ActionDTO[];
 
 // GET /services/:serviceId/actions/:actionId
+export interface GetActionByServiceParams {
+  serviceId: string;
+  actionId: string;
+}
 export type GetActionByServiceResponse = ActionDTO | null;
 
 // GET /services/:serviceId/triggers/:triggerId
+export interface GetTriggerByServiceParams {
+  serviceId: string;
+  triggerId: string;
+}
 export type GetTriggerByServiceResponse = TriggerDTO | null;
