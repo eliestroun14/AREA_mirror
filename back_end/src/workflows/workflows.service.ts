@@ -43,7 +43,7 @@ export class WorkflowService {
     const zaps = await this.zapsService.getAllZaps();
 
     for (const zap of zaps) {
-      await this.stepsService.getTriggerOf(zap.id);
+      //await this.stepsService.getTriggerOf(zap.id);
     }
   }
 }
