@@ -14,7 +14,6 @@ async function main() {
         class_name: 'OnUserSignupTrigger',
         fields: {},
         variables: {},
-        class_name: 'no',
       },
       {
         service_id: 2,
@@ -24,7 +23,6 @@ async function main() {
         class_name: 'OnPaymentTrigger',
         fields: {},
         variables: {},
-        class_name: 'no',
       },
     ],
     skipDuplicates: true,
