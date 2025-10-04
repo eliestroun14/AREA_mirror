@@ -13,7 +13,7 @@
 // Workflow générique :
 // pour chaque zap : zaps
 //     récupérer le trigger
-//     si trigger.run() === false
+//     si trigger.test() === false
 //         continue
 //     executions_data = [{
 //         step_id: trigger.step_id, data: trigger.data
@@ -42,8 +42,8 @@ export class WorkflowService {
   async workflow() {
     const zaps = await this.zapsService.getAllZaps();
 
-    // for (const zap of zaps) {
-    //   await this.stepsService.getTriggerOf(zap.id);
-    // }
+    for (const zap of zaps) {
+      await this.stepsService.getTriggerOf(zap.id);
+    }
   }
 }

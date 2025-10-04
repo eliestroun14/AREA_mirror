@@ -86,6 +86,7 @@ model webhooks {
 model triggers {
   id               Int           @id @default(autoincrement())
   service_id       Int
+  class_name       String
   http_request_id  Int?
   webhook_id       Int?
   @@index([service_id])
@@ -109,6 +110,7 @@ model triggers {
 model actions {
   id              Int          @id @default(autoincrement())
   service_id      Int
+  class_name      String
   http_request_id Int
   @@index([service_id])
   @@index([http_request_id])
