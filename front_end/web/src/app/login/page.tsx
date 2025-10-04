@@ -20,7 +20,7 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     try {
-      const res = await fetch('http://localhost:3000/auth/sign-in', {
+      const res = await fetch('http://localhost:8080/auth/sign-in', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ export default function LoginPage() {
       const data = await res.json();
       if (res.status === 401) {
         alert(data.message || 'Invalid credentials.');
-      } else if (res.ok && data.access_token) {
+      } else if (res.ok) {
         login(data.access_token);
         alert('Login successful!');
         router.push('/');
