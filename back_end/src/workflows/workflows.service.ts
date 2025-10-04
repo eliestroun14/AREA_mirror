@@ -15,8 +15,7 @@ import {
 import { constants } from '@config/utils';
 import { triggers, zap_steps } from '@prisma/client';
 import { ActionsService } from '@app/services/actions/actions.service';
-import GithubTrigger_OnNewRepository
-  from '@root/workflows/services/github/github.workflow';
+import GithubTrigger_OnNewRepository from '@root/workflows/services/github/github.workflow';
 
 @Injectable()
 export class WorkflowService {

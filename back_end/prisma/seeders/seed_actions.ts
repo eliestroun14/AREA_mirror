@@ -11,6 +11,7 @@ async function main() {
         http_request_id: 1, // adapte l'id selon tes http_request
         name: 'Send Email',
         description: 'Send an email to a user',
+        class_name: 'SendEmailAction',
         fields: {},
         variables: {},
         class_name: 'no',
@@ -20,6 +21,7 @@ async function main() {
         http_request_id: 2,
         name: 'Create Playlist',
         description: 'Create a new playlist',
+        class_name: 'CreatePlaylistAction',
         fields: {},
         variables: {},
         class_name: 'no',
