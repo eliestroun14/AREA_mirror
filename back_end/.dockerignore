@@ -28,4 +28,6 @@ prisma/migrations/**
 !prisma/seeders
 !prisma/seeders/*
 
+!assets
+!assets/**
 node_modules
