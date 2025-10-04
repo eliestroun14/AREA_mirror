@@ -29,19 +29,21 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@root/prisma/prisma.service';
 import { ZapsService } from '@app/zaps/zaps.service';
 import { ZapDTO } from '@app/zaps/zaps.dto';
+import { StepsService } from '@app/zaps/steps/steps.service';
 
 @Injectable()
 export class WorkflowService {
   constructor(
     private prisma: PrismaService,
     private zapsService: ZapsService,
+    private stepsService: StepsService,
   ) {}
 
   async workflow() {
     const zaps = await this.zapsService.getAllZaps();
 
     // for (const zap of zaps) {
-    //   await this.zapsService.getTriggerOf(zap.id);
+    //   await this.stepsService.getTriggerOf(zap.id);
     // }
   }
 }

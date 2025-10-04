@@ -114,19 +114,30 @@ export class StepsService {
     });
   }
 
-  // async getTriggerStepOf(zapId: number): Promise<StepDTO> {
-  //   const trigger = await this.prisma.zap_steps.findFirst({
-  //     where: {
-  //       zap_id: zapId,
-  //       OR: [{ step_order: 0 }, { step_type: constants.step_types.trigger }],
-  //     },
-  //   });
-  //
-  //   if (!trigger)
-  //     throw new NotFoundException(
-  //       `Zap with id ${zapId} does not have a trigger.`,
-  //     );
-  //
-  //
-  // }
+  async getTriggerStepOf(zapId: number): Promise<StepDTO> {
+    const triggerStep = await this.prisma.zap_steps.findFirst({
+      where: {
+        zap_id: zapId,
+        OR: [{ step_order: 0 }, { step_type: constants.step_types.trigger }],
+      },
+    });
+
+    if (!triggerStep)
+      throw new NotFoundException(
+        `Zap with id ${zapId} does not have a trigger.`,
+      );
+
+    return {
+      id: triggerStep.id,
+      zap_id: zapId,
+      action_id: null,
+      trigger_id: triggerStep.trigger_id,
+      connection_id: triggerStep.connection_id,
+      step_type: 'TRIGGER',
+      step_order: triggerStep.step_order,
+      created_at: triggerStep.created_at,
+      updated_at: triggerStep.updated_at,
+      payload: triggerStep.payload as object,
+    };
+  }
 }

@@ -5,6 +5,11 @@ export const constants = {
     trigger: 'TRIGGER',
     action: 'ACTION',
   },
+  trigger_types: {
+    webhook: 'WEBHOOK',
+    polling: 'POLLING',
+    schedule: 'SCHEDULE',
+  },
 };
 
 export function callbackOf(service: string): string {
