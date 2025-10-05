@@ -1,6 +1,12 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { servicesData } from './services-data/services.data';
+import {
+  Service,
+  ServiceAction, ServiceHttpRequest,
+  ServiceTrigger, ServiceTriggerWebhook,
+} from './services-data/services.dto';
+import { connect } from 'rxjs';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
@@ -11,29 +17,144 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 
     if (PrismaService.isInit) return;
 
+    await this.deleteAllTriggers();
+    await this.deleteAllActions();
+    await this.deleteAllWebhooks();
+    await this.deleteAllHttpRequests();
+
     for (const service of servicesData) {
-      const serviceData = await this.services.findFirst({
-        where: {
-          name: service.name,
-        },
-      });
+      const serviceId = await this.createService(service);
 
-      const data = {
-        name: service.name,
-        service_color: service.serviceColor,
-        icon_url: service.iconUrl,
-        api_base_url: service.apiBaseUrl,
-        auth_type: service.authType,
-        documentation_url: service.documentationUrl,
-        is_active: service.isActive,
-      };
+      for (const trigger of service.triggers) {
+        let webhookId: number | null = null;
+        let httpRequestId: number | null = null;
 
-      if (serviceData) {
-        await this.services.update({ where: { name: service.name }, data });
-      } else {
-        await this.services.create({ data });
+        if (trigger.webhook)
+          webhookId = await this.createTriggerWebhook(trigger.webhook);
+        if (trigger.http_request)
+          httpRequestId = await this.createHttpRequest(trigger.http_request);
+
+        await this.createTrigger(trigger, serviceId, httpRequestId, webhookId);
+      }
+      for (const action of service.actions) {
+        const httpRequestId = await this.createHttpRequest(action.http_request);
+        await this.createAction(action, serviceId, httpRequestId);
       }
     }
     PrismaService.isInit = true;
+  }
+
+  private async createService(service: Service): Promise<number> {
+    let serviceData = await this.services.findFirst({
+      where: {
+        name: service.name,
+      },
+    });
+
+    const data = {
+      name: service.name,
+      service_color: service.serviceColor,
+      icon_url: service.iconUrl,
+      api_base_url: service.apiBaseUrl,
+      auth_type: service.authType,
+      documentation_url: service.documentationUrl,
+      is_active: service.isActive,
+    };
+
+    if (serviceData) {
+      await this.services.update({ where: { name: service.name }, data });
+    } else {
+      serviceData = await this.services.create({ data });
+    }
+
+    return serviceData.id;
+  }
+
+  private async deleteAllTriggers(): Promise<void> {
+    await this.triggers.deleteMany();
+  }
+
+  private async deleteAllActions(): Promise<void> {
+    await this.actions.deleteMany();
+  }
+
+  private async deleteAllHttpRequests(): Promise<void> {
+    await this.http_request.deleteMany();
+  }
+
+  private async deleteAllWebhooks(): Promise<void> {
+    await this.webhooks.deleteMany();
+  }
+
+  private async createTrigger(
+    trigger: ServiceTrigger,
+    serviceId: number,
+    httpRequestId: number | null,
+    webhookId: number | null,
+  ): Promise<void> {
+    const data: Prisma.triggersCreateInput = {
+      class_name: trigger.class_name,
+      trigger_type: trigger.trigger_type,
+      name: trigger.name,
+      description: trigger.description,
+      fields: trigger.fields as object,
+      variables: trigger.variables as object,
+      service: {
+        connect: {
+          id: serviceId,
+        },
+      },
+    };
+
+    if (httpRequestId) data.http_request = { connect: { id: httpRequestId } };
+    if (webhookId) data.webhook = { connect: { id: webhookId } };
+
+    await this.triggers.create({ data });
+  }
+
+  private async createAction(
+    action: ServiceAction,
+    serviceId: number,
+    httpRequestId: number,
+  ): Promise<void> {
+    const data: Prisma.actionsCreateInput = {
+      class_name: action.class_name,
+      name: action.name,
+      description: action.description,
+      http_request: { connect: { id: httpRequestId } },
+      fields: action.fields as object,
+      variables: action.variables as object,
+      service: { connect: { id: serviceId } },
+    };
+
+    await this.actions.create({ data });
+  }
+
+  private async createHttpRequest(
+    httpRequest: ServiceHttpRequest,
+  ): Promise<number> {
+    const data: Prisma.http_requestCreateInput = {
+      description: httpRequest.description,
+      endpoint: httpRequest.endpoint,
+      body_schema: httpRequest.body_schema,
+      header_schema: httpRequest.header_schema,
+    };
+
+    const httpRequestData = await this.http_request.create({ data });
+    return httpRequestData.id;
+  }
+
+  private async createTriggerWebhook(
+    webhook: ServiceTriggerWebhook,
+  ): Promise<number> {
+    const data: Prisma.webhooksCreateInput = {
+      header_schema: webhook.header_schema,
+      body_schema: webhook.body_schema,
+      from_url: webhook.from_url,
+      secret: webhook.secret,
+    };
+
+    const webhookData = await this.webhooks.create({ data });
+    return webhookData.id;
   }
 }
