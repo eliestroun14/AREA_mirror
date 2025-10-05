@@ -1,5 +1,5 @@
 "use client"
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -21,12 +21,17 @@ import { ServiceImage } from '@/components/ServiceImage'
 
 export default function ServicePage() {
   const params = useParams()
-  const serviceName = decodeURIComponent(params.name as string)
+  const router = useRouter()
+  const serviceId = params.id as string
   const [service, setService] = useState<ServiceDTO | null>(null)
   const [actions, setActions] = useState<ActionDTO[]>([])
   const [triggers, setTriggers] = useState<TriggerDTO[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const handleBackClick = () => {
+    router.push('/explore')
+  }
 
   const getActionColor = (baseColor: string): string => {
     if (baseColor.startsWith('#')) {
@@ -45,8 +50,7 @@ export default function ServicePage() {
         setLoading(true)
         setError(null)
         
-        // Récupérer le service par nom
-        const serviceData = await apiService.getServiceByName(serviceName)
+        const serviceData = await apiService.getServiceById(parseInt(serviceId))
         if (!serviceData) {
           setError('Service not found')
           return
@@ -54,7 +58,6 @@ export default function ServicePage() {
         
         setService(serviceData)
         
-        // Récupérer les actions et triggers pour ce service
         const [actionsData, triggersData] = await Promise.all([
           apiService.getActionsByService(serviceData.id.toString()),
           apiService.getTriggersByService(serviceData.id.toString())
@@ -71,7 +74,7 @@ export default function ServicePage() {
     }
 
     fetchServiceData()
-  }, [serviceName])
+  }, [serviceId])
 
   if (loading) {
     return (
@@ -102,7 +105,7 @@ export default function ServicePage() {
           {error || 'Service not found'}
         </Typography>
         <Typography variant="body1" align="center" color="white" sx={{ mb: 4 }}>
-          The service &quot;{serviceName}&quot; could not be loaded.
+          The service with ID &quot;{serviceId}&quot; could not be loaded.
         </Typography>
         <Button 
           variant="contained" 
@@ -111,7 +114,7 @@ export default function ServicePage() {
             color: '#4285f4',
             '&:hover': { bgcolor: '#f0f0f0' }
           }}
-          href="/explore"
+          onClick={handleBackClick}
         >
           Back to Explore
         </Button>
@@ -123,7 +126,7 @@ export default function ServicePage() {
     <Box sx={{ minHeight: "100vh" }}>
       {/* Header Section - Couleur du service */}
       <Box sx={{ 
-        bgcolor: service.services_color || "#4285f4",
+        bgcolor: service.services_color,
         color: "white",
         py: 6,
         px: 3,
@@ -132,16 +135,16 @@ export default function ServicePage() {
         <Button
           sx={{ 
             position: 'absolute',
-            top: 20,
+            top: 80,
             left: 20,
             color: 'white',
             border: '1px solid white',
             borderRadius: '25px',
             px: 3
           }}
-          href="/explore"
+          onClick={handleBackClick}
         >
-          ← Back
+          Back
         </Button>
 
         {/* Service Icon */}
@@ -172,7 +175,7 @@ export default function ServicePage() {
         </Typography>
         
         <Typography variant="h6" sx={{ maxWidth: 600, mx: 'auto', mb: 4, opacity: 0.9, color: 'white' }}>
-          IFTTT allows you to automate your {service.name} workflow, enabling you to track issues,
+          AREA allows you to automate your {service.name} workflow, enabling you to track issues,
           pull requests, and repositories automatically. Connect {service.name} with other services to
           streamline your development process and enhance productivity.
         </Typography>

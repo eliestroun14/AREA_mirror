@@ -48,8 +48,8 @@ export default function ExplorePage() {
     service.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleServiceClick = (serviceName: string) => {
-    router.push(`/services/${encodeURIComponent(serviceName)}`);
+  const handleServiceClick = (serviceId: number) => {
+    router.push(`/services/${serviceId}`);
   };
 
   const handleRetry = () => {
@@ -176,7 +176,7 @@ export default function ExplorePage() {
                   filter: 'brightness(1.1)'
                 }
               }}
-              onClick={() => handleServiceClick(service.name)}
+              onClick={() => handleServiceClick(service.id)}
             >
               <CardContent sx={{ 
                 display: 'flex', 
