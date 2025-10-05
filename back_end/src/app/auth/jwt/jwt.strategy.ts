@@ -1,7 +1,7 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
-import { envConstants } from '@app/auth/constants';
+import { envConstants } from '@config/env';
 import { Request } from 'express';
 import { JwtPayload } from '@app/auth/jwt/jwt.dto';
 
@@ -19,6 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   private static extractJWT(req: Request): string | null {
+    console.log('Request cookies: ', req.cookies);
     if (
       req.cookies &&
       'session_token' in req.cookies &&

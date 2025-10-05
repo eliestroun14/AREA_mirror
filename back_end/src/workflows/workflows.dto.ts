@@ -19,9 +19,17 @@ export interface RunResult {
 
 export abstract class TriggerJob {
   public abstract check: (
-    access_token: string,
+    access_token: string | null,
     payload: object,
   ) => Promise<CheckResult>;
+}
+
+export abstract class WebhookTriggerJob extends TriggerJob {
+  public abstract registerToWebhook: (
+    zapId: number,
+    accessToken: string,
+    payload: object,
+  ) => Promise<void>;
 }
 
 export abstract class ActionJob {

@@ -6,7 +6,6 @@ import DiscordAction_SendMessage from '@root/workflows/services/discord/discord.
 import { ZapDTO } from '@app/zaps/zaps.dto';
 import { Logger } from '@root/workflows/logger/logger';
 import {
-  ActionJob,
   StepData,
   StepsData,
   TriggerJob,
@@ -15,16 +14,10 @@ import {
 import { constants } from '@config/utils';
 import { triggers, zap_steps } from '@prisma/client';
 import { ActionsService } from '@app/services/actions/actions.service';
-import GithubTrigger_OnNewRepository from '@root/workflows/services/github/github.workflow';
+import { TRIGGERS, ACTIONS } from './workflows.registers';
 
 @Injectable()
 export class WorkflowService {
-  private TRIGGERS: Record<string, new () => TriggerJob> = {
-    GithubTrigger_OnNewRepository: GithubTrigger_OnNewRepository,
-  };
-  private ACTIONS: Record<string, new () => ActionJob> = {
-    DiscordAction_SendMessage: DiscordAction_SendMessage,
-  };
   private logger = new Logger('workflow');
 
   constructor(
@@ -70,7 +63,8 @@ export class WorkflowService {
     );
     if (!trigger)
       throw new Error(`Trigger of zap '${zap.name}:${zap.id}' do not exists.`);
-    if (!(trigger.class_name in this.TRIGGERS))
+    if (trigger.trigger_type === constants.trigger_types.webhook) return;
+    if (!(trigger.class_name in TRIGGERS))
       throw new Error(
         `Trigger of zap '${zap.name}:${zap.id}' do not have a valid class_name.`,
       );
@@ -85,7 +79,7 @@ export class WorkflowService {
       );
 
     const stepsVariables: StepsData = {};
-    const job: TriggerJob = new this.TRIGGERS[trigger.class_name]();
+    const job: TriggerJob = new TRIGGERS[trigger.class_name].class();
 
     const zapExecutionId = await this.startZapExecution(zap.id);
     const zapStart = Date.now();
@@ -172,7 +166,7 @@ export class WorkflowService {
       );
       return { has_run: false, data: [] };
     }
-    if (!(action.class_name in this.TRIGGERS)) {
+    if (!(action.class_name in ACTIONS)) {
       this.logger.error(
         `Action of zap '${action.name}:${step.zap_id}' do not have a valid class_name.`,
       );
@@ -192,7 +186,7 @@ export class WorkflowService {
       for (const data of sourceData)
         payload[key] = payload[key].replaceAll(data.key, data.value);
     }
-    const job = new this.ACTIONS[action.class_name]();
+    const job = new ACTIONS[action.class_name]();
     return await job.run(accessToken, payload);
   }
 
