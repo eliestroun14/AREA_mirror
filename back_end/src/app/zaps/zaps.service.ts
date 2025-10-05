@@ -78,8 +78,8 @@ export class ZapsService {
     const zap = await this.prisma.zaps.create({
       data: {
         user_id: userId,
-        name: data.name,
-        description: data.description,
+        name: data.name || 'Nouveau Zap',
+        description: data.description || 'Description du zap',
       },
     });
 

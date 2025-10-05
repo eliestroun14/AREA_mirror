@@ -38,11 +38,13 @@ export type GetZapResponse = ZapDTO | null;
 
 // POST /zaps
 export class PostZapBody {
+  @IsOptional()
   @IsString()
-  name: string;
+  name?: string;
 
+  @IsOptional()
   @IsString()
-  description: string;
+  description?: string;
 }
 export type PostZapResponse = ZapDTO;
 

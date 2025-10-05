@@ -7,7 +7,14 @@
 
    * [POST /auth/sign-up](#post-authsign-up)
    * [POST /auth/sign-in](#post-authsign-in)
-3. [Module Services](#module-services)
+3. [Module Users](#module-users)
+
+   * [GET /users/me](#get-usersme)
+   * [PUT /users/me](#put-usersme)
+   * [DELETE /users/me](#delete-usersme)
+   * [GET /users/me/connections](#get-usersmeconnections)
+   * [GET /users/me/connections/service/:serviceId](#get-usersmeconnectionsserviceserviceid)
+4. [Module Services](#module-services)
 
    * [GET /services](#get-services)
    * [GET /services/:serviceId/triggers](#get-servicesserviceidtriggers)
@@ -159,6 +166,178 @@
     "message": "Invalid credentials.",
     "error": "Unauthorized",
     "statusCode": 401
+}
+```
+
+---
+
+## Module Users
+
+### GET /users/me
+
+* **Description** : Récupère les informations de l'utilisateur authentifié.
+* **Authentification** : Requiert un JWT Bearer token.
+* **Paramètres** : Aucun
+* **Réponse** : Objet JSON contenant les informations de l'utilisateur :
+  - `id` : identifiant de l'utilisateur
+  - `email` : email de l'utilisateur
+  - `name` : nom de l'utilisateur
+  - `created_at` : date de création du compte (format UTC)
+  - `updated_at` : date de dernière mise à jour (format UTC)
+
+#### Exemple de réponse
+
+```json
+{
+  "id": 1,
+  "email": "test@test.test",
+  "name": "John Doe",
+  "created_at": "Mon, 30 Sep 2025 14:39:42 GMT",
+  "updated_at": "Mon, 30 Sep 2025 14:39:42 GMT"
+}
+```
+
+### PUT /users/me
+
+* **Description** : Met à jour les informations de l'utilisateur authentifié.
+* **Authentification** : Requiert un JWT Bearer token.
+* **Paramètres (body)** : `email`, `name` (optionnels).
+* **Réponse** : Objet JSON contenant les informations mises à jour de l'utilisateur.
+
+#### Exemple de requête
+
+```json
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com"
+}
+```
+
+#### Exemple de réponse
+
+```json
+{
+  "id": 1,
+  "email": "jane@example.com",
+  "name": "Jane Doe",
+  "created_at": "Mon, 30 Sep 2025 14:39:42 GMT",
+  "updated_at": "Mon, 05 Oct 2025 10:20:15 GMT"
+}
+```
+
+### DELETE /users/me
+
+* **Description** : Supprime le compte de l'utilisateur authentifié (soft delete).
+* **Authentification** : Requiert un JWT Bearer token.
+* **Paramètres** : Aucun
+* **Réponse** : Message de confirmation.
+
+#### Exemple de réponse
+
+```json
+{
+  "message": "Your account has been deleted.",
+  "statusCode": 204
+}
+```
+
+### GET /users/me/connections
+
+* **Description** : Récupère toutes les connexions actives de l'utilisateur authentifié.
+* **Authentification** : Requiert un JWT Bearer token.
+* **Paramètres** : Aucun
+* **Réponse** : Objet JSON contenant un tableau de connexions :
+  - `connections` : tableau des connexions de l'utilisateur
+    - `id` : identifiant de la connexion
+    - `service_id` : identifiant du service
+    - `service_name` : nom du service (Gmail, Discord, etc.)
+    - `service_color` : couleur associée au service
+    - `icon_url` : URL de l'icône du service
+    - `connection_name` : nom personnalisé de la connexion
+    - `account_identifier` : identifiant du compte (email, username, etc.)
+    - `is_active` : statut de la connexion (actif/inactif)
+    - `created_at` : date de création de la connexion (format UTC)
+    - `last_used_at` : date de dernière utilisation (format UTC, nullable)
+
+#### Exemple de réponse
+
+```json
+{
+  "connections": [
+    {
+      "id": 42,
+      "service_id": 1,
+      "service_name": "Gmail",
+      "service_color": "#EA4335",
+      "icon_url": "https://cdn.example.com/gmail.png",
+      "connection_name": "Mon Gmail Pro",
+      "account_identifier": "john.pro@company.com",
+      "is_active": true,
+      "created_at": "Mon, 15 Jan 2025 11:00:00 GMT",
+      "last_used_at": "Mon, 05 Oct 2025 14:30:00 GMT"
+    },
+    {
+      "id": 43,
+      "service_id": 2,
+      "service_name": "Discord",
+      "service_color": "#5865F2",
+      "icon_url": "https://cdn.example.com/discord.png",
+      "connection_name": "Mon Discord",
+      "account_identifier": "john_doe#1234",
+      "is_active": true,
+      "created_at": "Mon, 20 Jan 2025 09:30:00 GMT",
+      "last_used_at": "Mon, 04 Oct 2025 18:45:00 GMT"
+    }
+  ]
+}
+```
+
+### GET /users/me/connections/service/:serviceId
+
+* **Description** : Récupère toutes les connexions actives de l'utilisateur authentifié pour un service spécifique.
+* **Authentification** : Requiert un JWT Bearer token.
+* **Paramètres** :
+  - `serviceId` (path parameter) : identifiant du service
+* **Réponse** : Objet JSON contenant un tableau de connexions pour le service spécifié :
+  - `connections` : tableau des connexions de l'utilisateur pour ce service
+    - Structure identique à GET /users/me/connections
+
+#### Exemple de requête
+
+```
+GET /users/me/connections/service/1
+```
+
+#### Exemple de réponse
+
+```json
+{
+  "connections": [
+    {
+      "id": 42,
+      "service_id": 1,
+      "service_name": "Gmail",
+      "service_color": "#EA4335",
+      "icon_url": "https://cdn.example.com/gmail.png",
+      "connection_name": "Mon Gmail Pro",
+      "account_identifier": "john.pro@company.com",
+      "is_active": true,
+      "created_at": "Mon, 15 Jan 2025 11:00:00 GMT",
+      "last_used_at": "Mon, 05 Oct 2025 14:30:00 GMT"
+    },
+    {
+      "id": 55,
+      "service_id": 1,
+      "service_name": "Gmail",
+      "service_color": "#EA4335",
+      "icon_url": "https://cdn.example.com/gmail.png",
+      "connection_name": "Mon Gmail Perso",
+      "account_identifier": "john@gmail.com",
+      "is_active": true,
+      "created_at": "Mon, 25 Feb 2025 14:20:00 GMT",
+      "last_used_at": "Mon, 03 Oct 2025 09:15:00 GMT"
+    }
+  ]
 }
 ```
 
