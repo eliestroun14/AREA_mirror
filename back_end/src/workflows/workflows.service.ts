@@ -232,7 +232,7 @@ export class WorkflowService {
       const lastExecutions = await this.prisma.zap_executions.findMany({
         where: { id: zapId },
         orderBy: {
-          ended_at: 'desc',
+          ended_at: 'asc',
         },
         take: 1,
       });
@@ -252,14 +252,16 @@ export class WorkflowService {
         zap.last_run_at === null
       )
         return true;
-      if (lastExecutions.length === 0 || !lastExecutions[0].ended_at)
-        return false;
+
+      if (!zap || !zap.last_run_at) return false;
+      // if (lastExecutions.length === 0 || !lastExecutions[0].ended_at)
+      //   return false;
 
       // console.log(
       //   'Is ready ? ',
       //   lastExecutions[0].ended_at.getTime() - Date.now() > interval,
       // );
-      return lastExecutions[0].ended_at.getTime() - Date.now() > interval;
+      return Date.now() - zap.last_run_at.getTime() > interval;
     }
     return false;
   }
