@@ -42,6 +42,7 @@ interface Service {
 export default function ActionConfigPage() {
   const params = useParams()
   const router = useRouter()
+  const zapId = params.id as string
   const serviceName = params.service as string
   const actionId = params.action as string
   
@@ -52,7 +53,7 @@ export default function ActionConfigPage() {
   const [error, setError] = useState<string | null>(null)
 
   const handleBackClick = () => {
-    router.push(`/create/actions/${serviceName}`)
+    router.push(`/create/${zapId}/actions/${serviceName}`)
   }
 
   const handleFieldChange = (fieldName: string, value: string) => {
@@ -80,7 +81,7 @@ export default function ActionConfigPage() {
     searchParams.set('action_service', service?.name || '')
     searchParams.set('action_name', action?.name || '')
     searchParams.set('action_config', JSON.stringify(formData))
-    router.push(`/create?${searchParams.toString()}`)
+    router.push(`/create/${zapId}?${searchParams.toString()}`)
   }
 
   useEffect(() => {
