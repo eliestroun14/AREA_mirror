@@ -10,6 +10,11 @@ export const constants = {
     polling: 'POLLING',
     schedule: 'SCHEDULE',
   },
+  execution_status: {
+    done: 'DONE',
+    in_progress: 'IN PROGRESS',
+    failed: 'FAILED',
+  },
 };
 
 export function callbackOf(service: string): string {
