@@ -31,8 +31,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       'authorization' in req.headers &&
       typeof req.headers.authorization === 'string' &&
       req.headers.authorization.length > 0
-    )
-      return req.headers.authorization;
+    ) {
+      const authHeader = req.headers.authorization;
+      // Remove "Bearer " prefix if present
+      if (authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        return token;
+      }
+      return authHeader;
+    }
+    console.log('⚠️ No JWT found');
     return null;
   }
 

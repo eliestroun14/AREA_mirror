@@ -25,6 +25,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           return value;
         }
       }
+      // Only check localStorage, as session_token cookie is httpOnly
+      // and cannot be read by JavaScript
+      //const localStorageToken = localStorage.getItem('access_token');
+      //return localStorageToken || null;
     }
     return null;
   });
@@ -41,6 +45,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (token) {
       document.cookie = `session_token=${token}; path=/; SameSite=Lax`;
       localStorage.setItem('session_token', token);
+      // Store in localStorage for client-side access
+      // Note: The backend also sets a httpOnly session_token cookie
+      // which is automatically sent with requests (credentials: 'include')
+      //localStorage.setItem('access_token', token);
     } else {
       document.cookie = 'session_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
       localStorage.removeItem('session_token');
