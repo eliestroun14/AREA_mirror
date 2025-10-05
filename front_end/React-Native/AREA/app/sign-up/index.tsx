@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import areaLogo from '../../assets/images/AreaLogo.png';
 import { Stack } from 'expo-router';
@@ -84,116 +84,113 @@ export default function SignUpScreen() {
           },
         }}
       />
-      {
       <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
-          <View style={styles.container}>
-            <View style={styles.header}>
-              <Image
-                source={areaLogo}
-                style={styles.headerImg}
-                alt="Area Logo"
-              />
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.container}>
+              <View style={styles.header}>
+                <Image
+                  source={areaLogo}
+                  style={styles.headerImg}
+                  alt="Area Logo"
+                />
 
-              <Text style={styles.title}>
-                Welcome to AREA
-              </Text>
-
-              <Text style={styles.subtitle}>
-                Sign up here to access to your profile and more.
-              </Text>
-            </View>
-
-            <View style={styles.form}>
-
-              <View style={styles.input}>
-                <Text style={styles.inputLabel}>
-                  Name :
+                <Text style={styles.title}>
+                  Welcome to AREA
                 </Text>
 
-                <TextInput
-                  autoCapitalize='none'
-                  autoCorrect={false}
-                  style={styles.inputControl}
-                  placeholder='MyNth'
-                  placeholderTextColor='#6b7280'
-                  value={form.name}
-                  onChangeText={(name: string) => setForm({ ...form, name })}
-                />
-              </View>
-
-              <View style={styles.input}>
-                <Text style={styles.inputLabel}>
-                  Email address :
+                <Text style={styles.subtitle}>
+                  Sign up here to access to your profile and more.
                 </Text>
-
-                <TextInput
-                  autoCapitalize='none'
-                  autoCorrect={false}
-                  keyboardType='email-address'
-                  style={styles.inputControl}
-                  placeholder='john@example.com'
-                  placeholderTextColor='#6b7280'
-                  value={form.email}
-                  onChangeText={(email: string) => setForm({ ...form, email })}
-                />
               </View>
 
-              <View style={styles.input}>
-                <Text style={styles.inputLabel}>
-                  Password :
-                </Text>
-
-                <TextInput
-                  secureTextEntry={true}
-                  style={styles.inputControl}
-                  placeholder='*********'
-                  placeholderTextColor='#6b7280'
-                  value={form.password}
-                  onChangeText={(password: string) => setForm({ ...form, password })}
-                />
-              </View>
-
-              <View style={styles.input}>
-                <Text style={styles.inputLabel}>
-                  Confirm Password :
-                </Text>
-
-                <TextInput
-                  secureTextEntry={true}
-                  style={styles.inputControl}
-                  placeholder='*********'
-                  placeholderTextColor='#6b7280'
-                  value={form.confirmPassword}
-                  onChangeText={(confirmPassword: string) => setForm({ ...form, confirmPassword })}
-                />
-              </View>
-
-              <View style={styles.formAction}>
-                <TouchableOpacity
-                  onPress={() => {
-                    checkTextInputs()
-                  }}>
-                  <View style={styles.button}>
-                    <Text style={styles.buttonText}> Sign Up </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-
-              {/* <TouchableOpacity
-                style={{ marginTop: 'auto'}}
-                onPress={() => {
-                  router.push("/sign-up")
-                }}>
-                  <Text style={styles.formFooter}>
-                    Don't have an account ?{' '}
-                    <Text style={{ textDecorationLine: 'underline'}}>Sign up</Text>
+              {/* Extra padding for keyboard */}
+              <View style={[styles.form, { paddingBottom: 60 }]}>
+                <View style={styles.input}>
+                  <Text style={styles.inputLabel}>
+                    Name :
                   </Text>
-              </TouchableOpacity> */}
 
+                  <TextInput
+                    autoCapitalize='none'
+                    autoCorrect={false}
+                    style={styles.inputControl}
+                    placeholder='MyNth'
+                    placeholderTextColor='#6b7280'
+                    value={form.name}
+                    onChangeText={(name: string) => setForm({ ...form, name })}
+                  />
+                </View>
+
+                <View style={styles.input}>
+                  <Text style={styles.inputLabel}>
+                    Email address :
+                  </Text>
+
+                  <TextInput
+                    autoCapitalize='none'
+                    autoCorrect={false}
+                    keyboardType='email-address'
+                    style={styles.inputControl}
+                    placeholder='john@example.com'
+                    placeholderTextColor='#6b7280'
+                    value={form.email}
+                    onChangeText={(email: string) => setForm({ ...form, email })}
+                  />
+                </View>
+
+                <View style={styles.input}>
+                  <Text style={styles.inputLabel}>
+                    Password :
+                  </Text>
+
+                  <TextInput
+                    secureTextEntry={true}
+                    style={styles.inputControl}
+                    placeholder='*********'
+                    placeholderTextColor='#6b7280'
+                    value={form.password}
+                    onChangeText={(password: string) => setForm({ ...form, password })}
+                  />
+                </View>
+
+                <View style={styles.input}>
+                  <Text style={styles.inputLabel}>
+                    Confirm Password :
+                  </Text>
+
+                  <TextInput
+                    secureTextEntry={true}
+                    style={styles.inputControl}
+                    placeholder='*********'
+                    placeholderTextColor='#6b7280'
+                    value={form.confirmPassword}
+                    onChangeText={(confirmPassword: string) => setForm({ ...form, confirmPassword })}
+                  />
+                </View>
+
+                <View style={styles.formAction}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      checkTextInputs()
+                    }}>
+                    <View style={styles.button}>
+                      <Text style={styles.buttonText}> Sign Up </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
-          </View>
-        </SafeAreaView>
-        }
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </>
   );
 }
