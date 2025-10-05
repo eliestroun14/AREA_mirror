@@ -14,68 +14,43 @@ import SearchIcon from '@mui/icons-material/Search'
 import InputAdornment from '@mui/material/InputAdornment'
 import { useRouter, useParams } from 'next/navigation'
 import CircularProgress from '@mui/material/CircularProgress'
-
-interface Service {
-  id: number
-  name: string
-  image: string
-  service_color: string
-  actionType: string
-  actions?: Action[]
-}
-
-interface Action {
-  id: number
-  name: string
-  description: string
-  fields: ActionField[]
-}
-
-interface ActionField {
-  name: string
-  label: string
-  type: string
-  required: boolean
-  placeholder?: string
-  options?: string[]
-  default?: string
-}
+import { apiService } from '@/services/api'
+import { ServiceDTO } from '@/types/api'
 
 export default function ActionsPage() {
   const router = useRouter()
   const params = useParams()
   const zapId = params.id as string
   const [searchTerm, setSearchTerm] = useState("")
-  const [services, setServices] = useState<Service[]>([])
+  const [services, setServices] = useState<ServiceDTO[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const handleBackClick = () => {
     router.push(`/create/${zapId}`)
   }
 
-  const handleServiceClick = (serviceName: string) => {
-    router.push(`/create/${zapId}/actions/${serviceName.toLowerCase()}`)
+  const handleServiceClick = (serviceId: number) => {
+    router.push(`/create/${zapId}/actions/${serviceId}`)
   }
 
   const filteredServices = services.filter((service) =>
     service.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  const serviceColors = [
-    '#FF8A00', '#4A4A4A', '#1877F2', '#4285F4', '#FF6600',
-    '#1DB954', '#333333', '#1DA1F2', '#000000', '#FF0000'
-  ]
-
   useEffect(() => {
     const fetchServices = async () => {
       try {
         setLoading(true)
+        setError(null)
 
-        const { default: database } = await import('@/data/database.json')
-        setServices(database.services)
+        // Fetch all services from API
+        const servicesData = await apiService.getAllServices()
+        setServices(servicesData)
         
       } catch (err) {
         console.error('Error fetching services:', err)
+        setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
         setLoading(false)
       }
@@ -96,6 +71,36 @@ export default function ActionsPage() {
         }}
       >
         <CircularProgress size={60} />
+      </Box>
+    )
+  }
+
+  if (error) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          bgcolor: 'white',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 4
+        }}
+      >
+        <Typography variant="h4" sx={{ color: 'black', mb: 2, textAlign: 'center' }}>
+          Error loading services
+        </Typography>
+        <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4, textAlign: 'center' }}>
+          {error}
+        </Typography>
+        <Button
+          onClick={handleBackClick}
+          variant="contained"
+          sx={{ bgcolor: 'black', color: 'white' }}
+        >
+          Go Back
+        </Button>
       </Box>
     )
   }
@@ -180,36 +185,31 @@ export default function ActionsPage() {
             gridTemplateColumns: { 
               xs: 'repeat(2, 1fr)', 
               sm: 'repeat(3, 1fr)', 
-              md: 'repeat(5, 1fr)' 
+              md: 'repeat(4, 1fr)',
+              lg: 'repeat(5, 1fr)'
             },
-            gap: 0,
-            maxWidth: 1000,
-            mx: 'auto',
-            borderRadius: 2,
-            overflow: 'hidden',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
+            gap: 3,
+            maxWidth: 1200,
+            mx: 'auto'
           }}
         >
-          {filteredServices.slice(0, 10).map((service, index) => (
+          {filteredServices.map((service) => (
             <Card
               key={service.id}
               sx={{
-                borderRadius: 0,
-                boxShadow: 'none',
-                border: 'none',
-                bgcolor: serviceColors[index % serviceColors.length],
+                borderRadius: 3,
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+                bgcolor: service.services_color,
                 aspectRatio: '1',
                 '&:hover': {
-                  transform: 'scale(1.05)',
-                  zIndex: 1,
-                  boxShadow: '0 8px 25px rgba(0, 0, 0, 0.2)',
-                  borderRadius: 2
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)'
                 },
                 transition: 'all 0.3s ease'
               }}
             >
               <CardActionArea
-                onClick={() => handleServiceClick(service.name)}
+                onClick={() => handleServiceClick(service.id)}
                 sx={{
                   height: '100%',
                   display: 'flex',
@@ -223,26 +223,40 @@ export default function ActionsPage() {
                   {/* Service Icon */}
                   <Box
                     sx={{
-                      width: 48,
-                      height: 48,
+                      width: 64,
+                      height: 64,
                       bgcolor: 'white',
                       borderRadius: 2,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       mb: 2,
-                      mx: 'auto'
+                      mx: 'auto',
+                      overflow: 'hidden'
                     }}
                   >
-                    <Typography 
-                      variant="h5" 
-                      sx={{ 
-                        color: serviceColors[index % serviceColors.length],
-                        fontWeight: 700 
-                      }}
-                    >
-                      {service.name.charAt(0)}
-                    </Typography>
+                    {service.icon_url ? (
+                      <Box
+                        component="img"
+                        src={service.icon_url}
+                        alt={service.name}
+                        sx={{
+                          width: 48,
+                          height: 48,
+                          objectFit: 'contain'
+                        }}
+                      />
+                    ) : (
+                      <Typography 
+                        variant="h4" 
+                        sx={{ 
+                          color: service.services_color,
+                          fontWeight: 700 
+                        }}
+                      >
+                        {service.name.charAt(0)}
+                      </Typography>
+                    )}
                   </Box>
                   
                   {/* Service Name */}
@@ -251,7 +265,10 @@ export default function ActionsPage() {
                     sx={{
                       color: 'white',
                       fontWeight: 600,
-                      fontSize: '1rem'
+                      fontSize: '1rem',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
                     }}
                   >
                     {service.name}
@@ -268,7 +285,7 @@ export default function ActionsPage() {
               No services found
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Try adjusting your search or category filter
+              Try adjusting your search
             </Typography>
           </Box>
         )}

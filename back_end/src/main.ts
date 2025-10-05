@@ -6,8 +6,7 @@ import cookieParser from 'cookie-parser';
 import { WorkflowsModule } from '@root/workflows/workflows.module';
 import { WorkflowService } from '@root/workflows/workflows.service';
 
-async function runWorkflow() {
-}
+async function runWorkflow() {}
 
 async function main() {
   const workflowApp = await NestFactory.create(WorkflowsModule);

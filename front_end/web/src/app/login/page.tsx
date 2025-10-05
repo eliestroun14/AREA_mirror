@@ -32,7 +32,7 @@ export default function LoginPage() {
       if (res.status === 401) {
         alert(data.message || 'Invalid credentials.');
       } else if (res.ok) {
-        login(data.access_token);
+        login(data.session_token);
         alert('Login successful!');
         router.push('/');
       } else {

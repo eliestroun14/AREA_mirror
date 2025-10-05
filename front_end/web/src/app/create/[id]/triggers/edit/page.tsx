@@ -29,13 +29,11 @@ interface TriggerField {
   order: number
 }
 
-export default function TriggerFieldsPage() {
+export default function EditTriggerPage() {
   const params = useParams()
   const router = useRouter()
   const { token } = useAuth()
   const zapId = params.id as string
-  const serviceId = params.serviceId as string
-  const triggerId = params.triggerId as string
   
   const [trigger, setTrigger] = useState<TriggerDTO | null>(null)
   const [service, setService] = useState<ServiceDTO | null>(null)
@@ -46,36 +44,11 @@ export default function TriggerFieldsPage() {
   const [submitting, setSubmitting] = useState(false)
   const [formData, setFormData] = useState<Record<string, string>>({})
 
-  const handleOAuth2Connect = () => {
-    if (!service) {
-      console.error('❌ No service found')
-      return
-    }
-    if (!token) {
-      console.error('❌ No token found')
-      alert('No authentication token found. Please login again.')
-      return
-    }
-    
-    console.log('✅ Service:', service.name)
-    console.log('✅ Token (first 20 chars):', token.substring(0, 20) + '...')
-    
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-    // Use service name directly and convert to lowercase for the OAuth2 slug
-    const oauth2Slug = service.name.toLowerCase()
-    const oauthUrl = `${apiBaseUrl}/oauth2/${oauth2Slug}?token=${encodeURIComponent(token)}`
-    
-    console.log('🔗 Opening OAuth URL:', oauthUrl)
-    
-    // Pass the JWT token as a query parameter so it's preserved through the OAuth flow
-    window.open(oauthUrl, '_blank')
-  }
-
   const handleBackClick = () => {
-    router.push(`/create/${zapId}/triggers/${serviceId}`)
+    router.push(`/create/${zapId}`)
   }
 
-  const handleCreateTrigger = async () => {
+  const handleUpdateTrigger = async () => {
     if (!selectedConnection) {
       setError('Please select a connection')
       return
@@ -85,35 +58,58 @@ export default function TriggerFieldsPage() {
       setError('No authentication token found. Please login again.')
       return
     }
+
+    if (!trigger) {
+      setError('Trigger data not loaded')
+      return
+    }
     
     try {
       setSubmitting(true)
       setError(null)
       
-      console.log('Creating trigger with:', {
+      console.log('Updating trigger with:', {
         zapId,
-        triggerId,
+        triggerId: trigger.id,
         connectionId: selectedConnection,
         payload: formData
       })
       
-      // Call API to create the trigger
-      await apiService.createZapTrigger(
-        Number(zapId),
-        Number(triggerId),
-        selectedConnection as number,
-        formData,
-        token
-      )
+      // Get connection to retrieve accountIdentifier
+      const connection = await apiService.getConnectionById(selectedConnection as number, token)
       
-      console.log('✅ Trigger created successfully')
+      if (!connection.account_identifier) {
+        throw new Error('Connection does not have an account identifier')
+      }
       
-      // Redirect to the zap page after successful creation (without URL params)
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+      const response = await fetch(`${apiBaseUrl}/zaps/${zapId}/trigger`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          triggerId: trigger.id,
+          accountIdentifier: connection.account_identifier,
+          payload: formData
+        })
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('Update trigger failed:', response.status, errorText)
+        throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`)
+      }
+      
+      console.log('✅ Trigger updated successfully')
+      
+      // Redirect to the zap page after successful update
       router.push(`/create/${zapId}`)
       
     } catch (err) {
-      console.error('❌ Failed to create trigger:', err)
-      setError(err instanceof Error ? err.message : 'Failed to create trigger. Please try again.')
+      console.error('❌ Failed to update trigger:', err)
+      setError(err instanceof Error ? err.message : 'Failed to update trigger. Please try again.')
     } finally {
       setSubmitting(false)
     }
@@ -129,23 +125,17 @@ export default function TriggerFieldsPage() {
   const generateTriggerFields = (trigger: TriggerDTO): TriggerField[] => {
     const fields: TriggerField[] = []
     
-    // Parse fields from the trigger (it's a JSON object from the API)
     const triggerFieldsObj = trigger.fields as Record<string, unknown>
     
-    // Iterate through each field in the trigger.fields object
     Object.entries(triggerFieldsObj).forEach(([fieldKey, fieldValue]) => {
-      // fieldValue should be an object with properties like type, label, required, options, etc.
       const fieldConfig = fieldValue as Record<string, unknown>
       
-      // Check if the field is active (default to true if not specified)
       const isActive = fieldConfig.active !== false
       
-      // Skip inactive fields
       if (!isActive) {
         return
       }
       
-      // Extract field configuration with all the new properties
       const fieldType = (fieldConfig.type as string)?.toLowerCase() || 'string'
       const fieldName = (fieldConfig.field_name as string) || fieldKey.charAt(0).toUpperCase() + fieldKey.slice(1).replace(/_/g, ' ')
       const fieldRequired = (fieldConfig.required as boolean) || false
@@ -154,7 +144,6 @@ export default function TriggerFieldsPage() {
       const fieldOrder = (fieldConfig.field_order as number) || 999
       const selectOptions = Array.isArray(fieldConfig.select_options) ? fieldConfig.select_options as string[] : undefined
       
-      // Map API type to input type
       let inputType: 'text' | 'select' | 'number' | 'date' | 'time' = 'text'
       if (fieldType === 'select' || selectOptions) {
         inputType = 'select'
@@ -178,7 +167,6 @@ export default function TriggerFieldsPage() {
       })
     })
     
-    // Sort fields by order
     fields.sort((a, b) => a.order - b.order)
 
     return fields
@@ -190,24 +178,27 @@ export default function TriggerFieldsPage() {
         setLoading(true)
         setError(null)
 
-        // Fetch service data FIRST to get the color
-        const serviceData = await apiService.getServiceById(Number(serviceId))
-        setService(serviceData)
-
-        // Check if user is authenticated
         if (!token) {
           throw new Error('You must be logged in to access this page')
         }
         
+        // Fetch existing trigger data for this zap
+        const existingTrigger = await apiService.getZapTrigger(Number(zapId), token)
+        
+        if (!existingTrigger) {
+          throw new Error('No trigger found for this zap')
+        }
+
+        // Set service data
+        setService(existingTrigger.service)
+        
         // Fetch user connections for this service
         try {
-          const connectionsData = await apiService.getConnectionsByService(Number(serviceId), token)
+          const connectionsData = await apiService.getConnectionsByService(existingTrigger.service.id, token)
           setConnections(connectionsData.connections)
           
-          // Auto-select if there's only one connection
-          if (connectionsData.connections.length === 1) {
-            setSelectedConnection(connectionsData.connections[0].id)
-          }
+          // Pre-select the existing connection
+          setSelectedConnection(existingTrigger.connection.id)
         } catch (connError) {
           console.error('Error fetching connections:', connError)
           setError('You need to connect your account to this service first')
@@ -215,28 +206,11 @@ export default function TriggerFieldsPage() {
           return
         }
         
-        // Fetch specific trigger data using apiService
-        const triggerData = await apiService.getTriggerByService(serviceId, triggerId)
+        // Set trigger data
+        setTrigger(existingTrigger.trigger)
         
-        if (!triggerData) {
-          throw new Error('Trigger not found')
-        }
-        
-        setTrigger(triggerData)
-        
-        // Initialize form data with default values
-        const triggerFieldsObj = triggerData.fields as Record<string, unknown>
-        const initialFormData: Record<string, string> = {}
-        
-        Object.entries(triggerFieldsObj).forEach(([fieldKey, fieldValue]) => {
-          const fieldConfig = fieldValue as Record<string, unknown>
-          const defaultValue = fieldConfig.default_value as string
-          if (defaultValue) {
-            initialFormData[fieldKey] = defaultValue
-          }
-        })
-        
-        setFormData(initialFormData)
+        // Initialize form data with existing values
+        setFormData(existingTrigger.step.payload as Record<string, string>)
         
       } catch (err) {
         console.error('Error fetching trigger data:', err)
@@ -246,10 +220,10 @@ export default function TriggerFieldsPage() {
       }
     }
 
-    if (serviceId && triggerId) {
+    if (zapId) {
       fetchTriggerData()
     }
-  }, [serviceId, triggerId, token])
+  }, [zapId, token])
 
   if (loading) {
     return (
@@ -281,59 +255,15 @@ export default function TriggerFieldsPage() {
         }}
       >
         <Typography variant="h4" sx={{ color: 'white', mb: 2, textAlign: 'center' }}>
-          {error?.includes('connect your account') ? 'Connect your account' : 'Trigger not found'}
+          {error || 'Trigger not found'}
         </Typography>
-        <Typography variant="body1" sx={{ color: 'white', mb: 4, textAlign: 'center', maxWidth: 600 }}>
-          {error}
-        </Typography>
-        
-        {error?.includes('connect your account') && service ? (
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button
-              onClick={handleOAuth2Connect}
-              variant="contained"
-              size="large"
-              sx={{ 
-                bgcolor: 'white', 
-                color: service?.services_color || '#1976d2',
-                fontWeight: 600,
-                px: 4,
-                py: 1.5,
-                '&:hover': {
-                  bgcolor: 'rgba(255, 255, 255, 0.9)'
-                }
-              }}
-            >
-              Connect to {service.name}
-            </Button>
-            <Button
-              onClick={handleBackClick}
-              variant="outlined"
-              size="large"
-              sx={{ 
-                borderColor: 'white',
-                color: 'white',
-                fontWeight: 600,
-                px: 4,
-                py: 1.5,
-                '&:hover': {
-                  borderColor: 'white',
-                  bgcolor: 'rgba(255, 255, 255, 0.1)'
-                }
-              }}
-            >
-              Go Back
-            </Button>
-          </Box>
-        ) : (
-          <Button
-            onClick={handleBackClick}
-            variant="contained"
-            sx={{ bgcolor: 'white', color: service?.services_color || '#1976d2' }}
-          >
-            Go Back
-          </Button>
-        )}
+        <Button
+          onClick={handleBackClick}
+          variant="contained"
+          sx={{ bgcolor: 'white', color: service?.services_color || '#1976d2' }}
+        >
+          Go Back
+        </Button>
       </Box>
     )
   }
@@ -406,7 +336,7 @@ export default function TriggerFieldsPage() {
           mb: 6
         }}
       >
-        Complete trigger fields
+        Edit trigger
       </Typography>
 
       {/* Trigger Icon and Description */}
@@ -439,7 +369,7 @@ export default function TriggerFieldsPage() {
 
       {/* Form Fields */}
       <Container maxWidth="sm">
-        {/* Connection Selection - Always shown first */}
+        {/* Connection Selection */}
         <Box
           sx={{
             bgcolor: 'white',
@@ -454,29 +384,9 @@ export default function TriggerFieldsPage() {
           </Typography>
           
           {connections.length === 0 ? (
-            <Box>
-              <Alert severity="info" sx={{ mb: 3 }}>
-                You need to connect your {service.name} account to use this trigger.
-              </Alert>
-              <Button
-                onClick={handleOAuth2Connect}
-                variant="contained"
-                size="large"
-                fullWidth
-                sx={{
-                  bgcolor: serviceColor,
-                  color: 'white',
-                  fontWeight: 600,
-                  py: 2,
-                  '&:hover': {
-                    bgcolor: serviceColor,
-                    opacity: 0.9
-                  }
-                }}
-              >
-                Connect to {service.name}
-              </Button>
-            </Box>
+            <Alert severity="warning" sx={{ mb: 3 }}>
+              No connections available for {service.name}.
+            </Alert>
           ) : (
             <FormControl fullWidth required>
               <InputLabel>Account</InputLabel>
@@ -567,7 +477,7 @@ export default function TriggerFieldsPage() {
           </Box>
         )}
 
-        {/* Create Trigger Button */}
+        {/* Update Trigger Button */}
         {error && (
           <Alert severity="error" sx={{ mb: 3 }}>
             {error}
@@ -575,7 +485,7 @@ export default function TriggerFieldsPage() {
         )}
         
         <Button
-          onClick={handleCreateTrigger}
+          onClick={handleUpdateTrigger}
           variant="contained"
           size="large"
           fullWidth
@@ -600,10 +510,10 @@ export default function TriggerFieldsPage() {
           {submitting ? (
             <>
               <CircularProgress size={24} sx={{ color: serviceColor, mr: 2 }} />
-              Creating trigger...
+              Updating trigger...
             </>
           ) : (
-            'Create trigger'
+            'Update trigger'
           )}
         </Button>
       </Container>
