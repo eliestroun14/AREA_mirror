@@ -92,7 +92,7 @@ const TriggerFieldsPage = (props: Props) => {
         />
         {
         <View style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
-          <View style={[styles.header, {backgroundColor: service.backgroundColor}]}>
+          <View style={[styles.header, {backgroundColor: service.services_color}]}>
             <Image
               style={styles.appLogo}
               source={imageMap[service.id] ?? imageMap["default"]}
