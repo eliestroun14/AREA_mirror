@@ -25,23 +25,21 @@ const ServiceExploreDetails = () => {
   const [request, response, promptAsync] = useAuthRequest(
     {
       responseType: ResponseType.Code,
-      clientId: service?.name?.toLowerCase() || '', // or your client_id if needed
+      clientId: service?.name?.toLowerCase() || '',
       redirectUri,
-      // You can add scopes or extra params if needed
     },
     { authorizationEndpoint: `${apiUrl}/oauth2/${service?.name?.toLowerCase()}` }
   );
 
   useEffect(() => {
     if (response?.type === 'success' && response.params?.code) {
-      // Échange le code contre un token côté backend
       const exchangeCode = async () => {
         try {
           console.log('--- OAUTH DEBUG ---');
           console.log('sessionToken:', sessionToken);
-          console.log('POST URL:', `${apiUrl}/oauth2/${service?.name?.toLowerCase()}/callback`);
+          console.log('POST URL:', `${apiUrl}/oauth2/${service?.name?.toLowerCase()}`);
           console.log('POST body:', { code: response.params.code, redirect_uri: redirectUri });
-          const res = await fetch(`${apiUrl}/oauth2/${service?.name?.toLowerCase()}/callback`, {
+          const res = await fetch(`${apiUrl}/oauth2/${service?.name?.toLowerCase()}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -54,7 +52,6 @@ const ServiceExploreDetails = () => {
           console.log('Parsed response:', result);
           if (res.status === 200) {
             Alert.alert('Service connecté !');
-            // stocker le token / refresh le user state ici
             console.log('OAuth backend result:', result);
           } else {
             Alert.alert('Erreur lors de la connexion au service.');
@@ -98,27 +95,31 @@ const ServiceExploreDetails = () => {
     try {
       const url = `${apiUrl}/oauth2/${service?.name?.toLowerCase()}?redirect_uri=${encodeURIComponent(redirectUri)}`;
       console.log('OAuth GET URL:', url);
+      console.log('sessionToken (avant requête):', sessionToken);
       const res = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Authorization': sessionToken || '',
+          'Authorization': sessionToken || '', // juste le token, sans 'Bearer'
         },
         credentials: 'include',
         redirect: 'manual',
       });
-      // Essaye d'abord le header Location
       let redirect = res.headers.get('Location');
       console.log('Redirection Location:', redirect);
       if (!redirect) {
-        // Si pas de header, tente de lire le body JSON
         try {
           const data = await res.json();
           console.log('Redirection body:', data);
           redirect = data.redirect || data.url || null;
         } catch (e) {
           console.log('No JSON body for redirect:', e);
+          // Fallback : si le body n'est pas du JSON, try res.url
+          if (res.url && res.url.startsWith('http')) {
+            redirect = res.url;
+            console.log('Fallback redirection via res.url:', redirect);
+          }
         }
       }
       if (redirect) {
@@ -184,12 +185,17 @@ const ServiceExploreDetails = () => {
               </Text>
               <TouchableOpacity style={styles.connectButton}
                 onPress={handleOAuth}
-                disabled={!request}
+                disabled={!request || !sessionToken}
               >
                 <Text style={styles.connectButtonText}>
                   Connect
                 </Text>
               </TouchableOpacity>
+              {!sessionToken && (
+                <Text style={{ color: 'red', textAlign: 'center', marginTop: 10 }}>
+                  Veuillez vous connecter pour lier ce service.
+                </Text>
+              )}
             </View>
           )}
         />
