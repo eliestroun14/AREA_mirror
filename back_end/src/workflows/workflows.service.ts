@@ -33,29 +33,28 @@ export class WorkflowService {
 
       for (const zap of zaps) {
         if (!zap.is_active) continue;
-        this.logger.log(`Executing zap '${zap.name}:${zap.id}'.`);
-        this.executeZap(zap)
-          .then(() => {
+        try {
+          const isExecuted = await this.executeZap(zap);
+          if (isExecuted)
             this.logger.success(
               `Zap ${zap.name}:${zap.id}' successfully executed.`,
             );
-          })
-          .catch((err: Error) => {
-            this.logger.error(
-              `Zap '${zap.name}:${zap.id}' ended by an error: ${err.message}`,
-            );
-          });
+        } catch (err) {
+          this.logger.error(
+            `Zap '${zap.name}:${zap.id}' ended by an error: ${(err as Error).message}`,
+          );
+        }
       }
     }
   }
 
-  private async executeZap(zap: ZapDTO) {
+  private async executeZap(zap: ZapDTO): Promise<boolean> {
     const triggerStep = await this.getTriggerStepOf(zap.id);
     if (!triggerStep || !triggerStep.trigger_id) {
       this.logger.warn(
         `Trigger of zap '${zap.name}:${zap.id}' with id is not set. Skipping...`,
       );
-      return;
+      return false;
     }
 
     const trigger = await this.triggersService.getTriggerById(
@@ -63,20 +62,21 @@ export class WorkflowService {
     );
     if (!trigger)
       throw new Error(`Trigger of zap '${zap.name}:${zap.id}' do not exists.`);
-    if (trigger.trigger_type === constants.trigger_types.webhook) return;
+    if (trigger.trigger_type === constants.trigger_types.webhook) return false;
     if (!(trigger.class_name in TRIGGERS))
       throw new Error(
         `Trigger of zap '${zap.name}:${zap.id}' do not have a valid class_name.`,
       );
-    if (!(await this.checkIfReadyToTrigger(zap.id, trigger))) return;
+    if (!(await this.checkIfReadyToTrigger(zap.id, trigger))) return false;
 
+    this.logger.log(`Executing zap '${zap.name}:${zap.id}'.`);
     const triggerAccessToken = await this.getAccessToken(
       triggerStep.connection_id,
     );
-    if (!triggerAccessToken)
-      throw new Error(
-        `Connection account not found for step with id ${triggerStep.id}`,
-      );
+    // if (!triggerAccessToken)
+    //   throw new Error(
+    //     `Connection account not found for step with id ${triggerStep.id}`,
+    //   );
 
     const stepsVariables: StepsData = {};
     const job: TriggerJob = new TRIGGERS[trigger.class_name].class();
@@ -100,11 +100,16 @@ export class WorkflowService {
 
     stepsVariables[triggerStep.id] = result.data;
     if (!result.is_triggered) {
-      await this.finishZapExecution(zapExecutionId, Date.now() - zapStart);
+      await this.deleteZapExecution(zapExecutionId);
     } else {
       await this.executeActions(zap, stepsVariables, zapExecutionId);
-      await this.finishZapExecution(zapExecutionId, Date.now() - zapStart);
+      await this.finishZapExecution(
+        zapExecutionId,
+        zap.id,
+        Date.now() - zapStart,
+      );
     }
+    return true;
   }
 
   private async executeActions(
@@ -217,10 +222,12 @@ export class WorkflowService {
 
   private async checkIfReadyToTrigger(zapId: number, trigger: triggers) {
     if (
-      trigger.trigger_type === constants.trigger_types.polling &&
+      (trigger.trigger_type === constants.trigger_types.polling ||
+        trigger.trigger_type === constants.trigger_types.schedule) &&
       trigger.polling_interval !== null
     ) {
       const interval = trigger.polling_interval;
+      const zap = await this.prisma.zaps.findUnique({ where: { id: zapId } });
       const lastExecutions = await this.prisma.zap_executions.findMany({
         where: { id: zapId },
         orderBy: {
@@ -229,9 +236,28 @@ export class WorkflowService {
         take: 1,
       });
 
+      console.log('Zap: ', zap);
+      console.log('LastExec: ', lastExecutions);
+      console.log(
+        'Condition: ',
+        zap !== null &&
+          trigger.trigger_type === constants.trigger_types.schedule &&
+          zap.last_run_at === null,
+      );
+
+      if (
+        zap !== null &&
+        trigger.trigger_type === constants.trigger_types.schedule &&
+        zap.last_run_at === null
+      )
+        return true;
       if (lastExecutions.length === 0 || !lastExecutions[0].ended_at)
         return false;
 
+      console.log(
+        'Is ready ? ',
+        lastExecutions[0].ended_at.getTime() - Date.now() > interval,
+      );
       return lastExecutions[0].ended_at.getTime() - Date.now() > interval;
     }
     return false;
@@ -276,8 +302,13 @@ export class WorkflowService {
     });
   }
 
+  private async deleteZapExecution(id: number) {
+    await this.prisma.zap_executions.delete({ where: { id } });
+  }
+
   private async finishZapExecution(
     id: number,
+    zapId: number,
     duration_ms: number,
   ): Promise<void> {
     await this.prisma.zap_executions.update({
@@ -286,6 +317,12 @@ export class WorkflowService {
         status: constants.execution_status.done,
         ended_at: new Date(Date.now()),
         duration_ms,
+      },
+    });
+    await this.prisma.zaps.update({
+      where: { id: zapId },
+      data: {
+        last_run_at: new Date(Date.now()),
       },
     });
   }

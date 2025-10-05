@@ -1,4 +1,9 @@
-import { ActionJob, RunResult } from '@root/workflows/workflows.dto';
+import {
+  ActionJob,
+  CheckResult,
+  RunResult,
+  WebhookTriggerJob,
+} from '@root/workflows/workflows.dto';
 import { DiscordAction_SendMessage_Payload } from '@root/workflows/services/discord/discord.dto';
 
 export default class DiscordAction_SendMessage implements ActionJob {
@@ -29,22 +34,42 @@ export default class DiscordAction_SendMessage implements ActionJob {
   }
 }
 
-function main() {
-  const action = new DiscordAction_SendMessage();
+export class DiscordTrigger_OnNewMessage implements WebhookTriggerJob {
+  public async registerToWebhook(
+    zapId: number,
+    accessToken: string,
+    payload: object,
+  ): Promise<void> {
 
-  action
-    .run('', {
-      message: 'Hello test.',
-      webhook_url:
-        'https://discord.com/api/webhooks/1422301381682794698/fgO-nDvMdY4C5CSorqeEZ8yHXXYYYPKqiQyvJn-l-EqbzI1MHL9BvsjOYusFJZKbbPdN',
-    })
-    .then((res) => {
-      if (res.has_run) {
-        console.log('Response has run successfully.');
-        console.log(res.data);
-      } else {
-        console.log('Response failed to run.');
-      }
-    })
-    .catch((err) => {});
+  }
+  public async check(
+    access_token: string | null,
+    payload: object,
+  ): Promise<CheckResult> {
+    console.log('New message. Payload:', payload);
+    return {
+      is_triggered: false,
+      data: [],
+    };
+  }
 }
+//
+// function main() {
+//   const action = new DiscordAction_SendMessage();
+//
+//   action
+//     .run('', {
+//       message: 'Hello test.',
+//       webhook_url:
+//         'https://discord.com/api/webhooks/1422301381682794698/fgO-nDvMdY4C5CSorqeEZ8yHXXYYYPKqiQyvJn-l-EqbzI1MHL9BvsjOYusFJZKbbPdN',
+//     })
+//     .then((res) => {
+//       if (res.has_run) {
+//         console.log('Response has run successfully.');
+//         console.log(res.data);
+//       } else {
+//         console.log('Response failed to run.');
+//       }
+//     })
+//     .catch((err) => {});
+// }

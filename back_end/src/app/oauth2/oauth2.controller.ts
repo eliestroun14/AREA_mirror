@@ -11,12 +11,11 @@ import { GmailOAuthGuard } from '@app/oauth2/services/gmail/gmail.guard';
 import { JwtOAuthGuard } from '@app/auth/jwt/jwt-oauth.guard';
 import type { StrategyCallbackRequest } from '@app/oauth2/oauth2.dto';
 import UnauthenticatedException from '@errors/unauthenticated';
-import type { JwtRequest } from '@app/auth/jwt/jwt.dto';
-import { ServicesService } from '@app/services/services.service';
 import { services } from '@root/prisma/services-data/services.data';
 import { ConnectionsService } from '@app/users/connections/connections.service';
 import { DiscordOAuthGuard } from '@app/oauth2/services/discord/discord.guard';
 import { GithubOAuthGuard } from '@app/oauth2/services/github/github.guard';
+import type { Response } from 'express';
 
 @Controller('oauth2')
 export class Oauth2Controller {
@@ -80,7 +79,10 @@ export class Oauth2Controller {
 
   @Get(`${services.github.slug}/callback`)
   @UseGuards(JwtOAuthGuard, GithubOAuthGuard)
-  async githubAuthRedirect(@Req() req: StrategyCallbackRequest) {
+  async githubAuthRedirect(
+    @Req() req: StrategyCallbackRequest,
+    @Res() res: Response,
+  ) {
     if (!req.user) throw new UnauthenticatedException();
 
     if (!req.provider) {
@@ -94,10 +96,13 @@ export class Oauth2Controller {
       req.provider,
     );
 
-    return {
-      message: 'Authentification réussie',
-      user: req.user,
-      provider: req.provider,
-    };
+    const installUrl = `https://github.com/apps/area-ren/installations/new?state=${req.user.userId}`;
+    return res.redirect(installUrl);
+
+    // return {
+    //   message: 'Authentification réussie',
+    //   user: req.user,
+    //   provider: req.provider,
+    // };
   }
 }

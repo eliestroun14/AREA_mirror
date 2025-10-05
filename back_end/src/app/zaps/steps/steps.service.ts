@@ -59,34 +59,13 @@ export class StepsService {
       service.id,
       data.accountIdentifier,
     );
-    if (!connection)
+    if (
+      !connection &&
+      trigger.trigger_type !== constants.trigger_types.schedule
+    )
       throw new NotFoundException(
         `The connection with account's id ${data.accountIdentifier} of service ${service.name} do not exists.`,
       );
-
-    if (
-      trigger.trigger_type === constants.trigger_types.webhook &&
-      trigger.webhook_id
-    ) {
-      const webhook = await this.prisma.webhooks.findUnique({
-        where: { id: trigger.webhook_id },
-      });
-
-      if (!webhook)
-        throw new NotFoundException(
-          `Webhook with id ${trigger.webhook_id} do not exists.`,
-        );
-
-      const triggerClass = new TRIGGERS[
-        trigger.class_name
-      ].class() as WebhookTriggerJob;
-      await triggerClass.registerToWebhook(
-        zapId,
-        connection.access_token,
-        data.payload,
-      );
-      console.log('Webhook registered !');
-    }
 
     await this.prisma.zap_steps.create({
       data: {

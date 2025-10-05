@@ -99,6 +99,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       description: trigger.description,
       fields: trigger.fields as object,
       variables: trigger.variables as object,
+      polling_interval: trigger.polling_interval,
       service: {
         connect: {
           id: serviceId,
