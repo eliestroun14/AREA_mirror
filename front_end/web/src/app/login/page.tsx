@@ -68,9 +68,6 @@ export default function LoginPage() {
       
       if (data.session_token) {
         console.log('Token received:', data.session_token?.substring(0, 10) + '...');
-      if (res.status === 401) {
-        alert(data.message || 'Invalid credentials.');
-      } else if (res.ok) {
         login(data.session_token);
         alert('Login successful!');
         router.push('/explore');
