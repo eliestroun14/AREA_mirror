@@ -27,3 +27,9 @@ export interface DeleteMeResponse {
   message: string;
   statusCode: number;
 }
+
+// LOGOUT
+export interface LogoutMeResponse {
+  message: string;
+  statusCode: number;
+}
