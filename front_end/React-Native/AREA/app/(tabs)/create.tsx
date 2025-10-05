@@ -6,6 +6,8 @@ import { useLocalSearchParams } from 'expo-router';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import axios from 'axios';
+import { useRouter } from 'expo-router';
 
 const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -19,6 +21,11 @@ export default function CreateScreen() {
   const [trigger, setTrigger] = useState<Trigger | undefined>();
   const [serviceAction, setServiceAction] = useState<Service | undefined>();
   const [action, setAction] = useState<Action | undefined>();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const router = useRouter();
+  const { user } = useAuth();
 
   // Fetch service and trigger from backend
   useEffect(() => {
@@ -94,6 +101,64 @@ export default function CreateScreen() {
     }, [serviceTrigger, trigger, serviceAction, action])
   );
 
+  // Helper: get accountIdentifier (for demo, just use user.email or prompt user)
+  const accountIdentifier = user?.email || 'demo@area.com';
+
+  const handleFinish = async () => {
+    if (!trigger || !action) return;
+    console.log('[Finish] Button pressed');
+    router.replace('/(tabs)/explore');
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+    try {
+      console.log('[Finish] Creating zap...');
+      const zapPayload = {
+        name: `Zap: ${trigger.name} -> ${action.name}`,
+        description: `Auto-created zap from mobile UI`,
+      };
+      console.log('[Finish] Zap payload:', zapPayload);
+      const zapRes = await axios.post(`${apiUrl}/zaps`, zapPayload, { withCredentials: true });
+      const zapId = zapRes.data.id;
+      console.log('[Finish] Zap created with id:', zapId);
+      const triggerPayload = {
+        triggerId: trigger.id,
+        accountIdentifier,
+        payload: {},
+      };
+      console.log('[Finish] Trigger step payload:', triggerPayload);
+      const triggerStepRes = await axios.post(`${apiUrl}/zaps/${zapId}/trigger`, triggerPayload, { withCredentials: true });
+      console.log('[Finish] Trigger step response:', triggerStepRes.data);
+      // For fromStepId, try to get the trigger step id from response if available, else fallback to 1
+      const fromStepId = triggerStepRes.data?.id || 1;
+      const actionPayload = {
+        actionId: action.id,
+        fromStepId,
+        stepOrder: 1,
+        accountIdentifier,
+        payload: {},
+      };
+      console.log('[Finish] Action step payload:', actionPayload);
+      const actionStepRes = await axios.post(`${apiUrl}/zaps/${zapId}/action`, actionPayload, { withCredentials: true });
+      console.log('[Finish] Action step response:', actionStepRes.data);
+      setSuccess(true);
+      setTimeout(() => {
+        router.replace('/(tabs)/profile');
+      }, 1200);
+    } catch (err: any) {
+      if (err.response) {
+        console.log('[Finish] Error response:', err.response.data);
+        setError('Failed to create zap: ' + JSON.stringify(err.response.data));
+      } else {
+        console.log('[Finish] Error:', err);
+        setError('Failed to create zap. Please check your connection and try again.');
+      }
+    } finally {
+      setLoading(false);
+      console.log('[Finish] Done');
+    }
+  };
+
   if (serviceAction || action) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
@@ -109,10 +174,13 @@ export default function CreateScreen() {
           </View>
           <View>
             <TouchableOpacity style={styles.connectButton}
-              // onPress={() => { TODO: link avec le back et créer le truc du coup }}
+              onPress={handleFinish}
+              disabled={loading}
             >
-              <Text style={styles.connectButtonText}>Finish</Text>
+              <Text style={styles.connectButtonText}>{loading ? 'Creating...' : 'Finish'}</Text>
             </TouchableOpacity>
+            {error && <Text style={{ color: 'red', marginTop: 10 }}>{error}</Text>}
+            {success && <Text style={{ color: 'green', marginTop: 10 }}>Zap created!</Text>}
           </View>
         </View>
       </SafeAreaView>
