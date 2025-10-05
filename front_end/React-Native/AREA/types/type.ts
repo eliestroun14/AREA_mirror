@@ -8,9 +8,9 @@ export interface Service {
   documentation_url: string;
   is_active: boolean;
   created_at: string;
-  Triggers: Trigger[];
-  Actions: Action[];
-  Applets: AppletsCard[];
+  triggers: Trigger[];
+  actions: Action[];
+  applets: AppletsCard[];
 }
 
 export interface AppletsCard {

@@ -6,7 +6,7 @@ import { Stack } from 'expo-router';
 
 
 export default function SignUpScreen() {
-
+  console.log('(SIGN UP)');
   const [form, setForm] = useState({
     name: '',
     email: '',

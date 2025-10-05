@@ -4,7 +4,6 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import SearchBar from '@/components/molecules/search-bar/search-bar';
 import { useState, useEffect } from 'react';
 import { Service } from '@/types/type';
-import db from '@/data/db.json'
 import LittleActionServiceCard from '@/components/molecules/little-action-service-card/little-action-service-card';
 
 export default function SelectActionService() {
@@ -17,10 +16,22 @@ export default function SelectActionService() {
   const [search, setSearch] = useState("");
 
   const [services, setServices] = useState<Service[]>([]);
+  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
   useEffect(() => {
-    setServices(db.services);
-  }, []);
+    const fetchServices = async () => {
+      try {
+        const res = await fetch(`${apiUrl}/services`);
+        if (!res.ok) throw new Error('Failed to fetch services');
+        const data = await res.json();
+        setServices(data);
+      } catch (err) {
+        setServices([]);
+        console.log('[SelectActionService] Error fetching services:', err);
+      }
+    };
+    fetchServices();
+  }, [apiUrl]);
 
   return (
     <>

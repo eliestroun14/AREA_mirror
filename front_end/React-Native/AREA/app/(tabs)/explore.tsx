@@ -12,6 +12,7 @@ type AppletWithType = AppletsCard & { itemType: 'applet' };
 type CombinedItem = ServiceWithType | AppletWithType;
 
 export default function ExploreScreen() {
+  console.log('(EXPLORE)');
   const [services, setServices] = useState<Service[]>([]);
   const [applets, setApplets] = useState<AppletsCard[]>([]); // reste vide
   const [search, setSearch] = useState("");

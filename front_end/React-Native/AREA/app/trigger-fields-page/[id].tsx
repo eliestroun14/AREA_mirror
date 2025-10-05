@@ -2,7 +2,6 @@ import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from "react
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';
 import { Service, Trigger } from "@/types/type";
-import db from "../../data/db.json"
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
 import TriggerFieldCard from "@/components/molecules/trigger-field-card/trigger-field-card";
@@ -13,6 +12,7 @@ import axios from "axios";
 type Props = {}
 
 const TriggerFieldsPage = (props: Props) => {
+  console.log('(TRIGGER FIELDS PAGE)');
 
   const { id, triggerId, serviceTriggerId } = useLocalSearchParams<{
     id?: string;
@@ -23,39 +23,37 @@ const TriggerFieldsPage = (props: Props) => {
   const [service, setService] = useState<Service | null>(null);
   const [trigger, setTrigger] = useState<Trigger | null>(null);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getServiceDetails();
-  }, [serviceTriggerId, triggerId]);
-
-  const getServiceDetails = () => {
-    setLoading(true);
-
-    const foundService = db.services.find(s => s.id === serviceTriggerId);
-    if (foundService) {
-      const foundTrigger = foundService.triggers.find(t => t.id === triggerId);
-      if (foundTrigger) {
-        setService(foundService);
-        setTrigger(foundTrigger);
-        console.log("Trigger fields:", foundTrigger.fields);
-      } else
-        console.log("Trigger not found:", triggerId);
-    } else
-      console.log("Service not found:", serviceTriggerId);
-
-    setLoading(false);
-  };
-
-  //TODO: quand j'aurai le back faudra changer ici !!!!
-
   const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
-  const getProductDetails = async () => {
-    const URL = `${apiUrl}/services/${id}`
-    const response = await axios.get(URL);
-
-    console.log('Service details :', response.data);
-  }
+  useEffect(() => {
+    const fetchServiceAndTrigger = async () => {
+      setLoading(true);
+      try {
+        if (!serviceTriggerId || !triggerId) {
+          setService(null);
+          setTrigger(null);
+          setLoading(false);
+          return;
+        }
+        // Fetch service
+        const serviceRes = await fetch(`${apiUrl}/services/${serviceTriggerId}`);
+        if (!serviceRes.ok) throw new Error('Service not found');
+        const serviceData: Service = await serviceRes.json();
+        setService(serviceData);
+        // Fetch trigger
+        const triggerRes = await fetch(`${apiUrl}/services/${serviceTriggerId}/triggers/${triggerId}`);
+        if (!triggerRes.ok) throw new Error('Trigger not found');
+        const triggerData: Trigger = await triggerRes.json();
+        setTrigger(triggerData);
+      } catch (err) {
+        setService(null);
+        setTrigger(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchServiceAndTrigger();
+  }, [serviceTriggerId, triggerId, apiUrl]);
 
   if (loading) {
     return (
@@ -68,7 +66,7 @@ const TriggerFieldsPage = (props: Props) => {
   if (!service || !trigger) {
     return (
       <View style={styles.container}>
-        <Text>Service ou Trigger non trouvé</Text>
+        <Text>Service ou trigger non trouvé.</Text>
       </View>
     );
   }
@@ -84,7 +82,7 @@ const TriggerFieldsPage = (props: Props) => {
           options={{
             title: "Complete trigger fields",
             headerStyle: {
-              backgroundColor: service.backgroundColor,
+              backgroundColor: service.services_color,
             },
             headerTintColor: '#fff',
             headerTitleStyle: {

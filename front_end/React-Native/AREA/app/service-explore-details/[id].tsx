@@ -3,7 +3,6 @@ import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';
 import { Service, AppletsCard } from "@/types/type";
 import axios from 'axios';
-import db from "../../data/db.json"
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
 import AppletCard from "@/components/molecules/applets-card/applets-card";
@@ -11,8 +10,8 @@ import { useAuth } from '@/context/AuthContext';
 import { useAuthRequest, makeRedirectUri, ResponseType } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 
-
 const ServiceExploreDetails = () => {
+  console.log('(SERVICE EXPLORE DETAILS)');
   const {id} = useLocalSearchParams();
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
@@ -70,7 +69,8 @@ const ServiceExploreDetails = () => {
   }, [response]);
 
   useEffect(() => {
-    setApplets(db.appletsCard);
+    // TODO: Replace with backend fetch if/when endpoint exists
+    setApplets([]); // No db.json, so leave empty
   }, []);
 
   useEffect(() => {
@@ -80,7 +80,7 @@ const ServiceExploreDetails = () => {
         const URL = `${apiUrl}/services/${id}`;
         const response = await axios.get(URL);
         setService(response.data);
-        console.log('Service details:', response.data);
+        console.log('Service details EXPLORE:', response.data);
       } catch (err) {
         setService(null);
         console.log('Service not found for ID in service explore details:', id);
@@ -109,13 +109,14 @@ const ServiceExploreDetails = () => {
       let redirect = res.headers.get('Location');
       console.log('Redirection Location:', redirect);
       if (!redirect) {
+        // Si pas de header, tente de lire le body JSON
         try {
           const data = await res.json();
           console.log('Redirection body:', data);
           redirect = data.redirect || data.url || null;
         } catch (e) {
           console.log('No JSON body for redirect:', e);
-          // Fallback : si le body n'est pas du JSON, try res.url
+          // Fallback : si le body n'est pas du JSON, tente d'utiliser res.url
           if (res.url && res.url.startsWith('http')) {
             redirect = res.url;
             console.log('Fallback redirection via res.url:', redirect);
@@ -167,8 +168,8 @@ const ServiceExploreDetails = () => {
       />
       <View style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
         <FlatList
-          data={applets.filter(app => app.firstIconId.toLowerCase() === String(service.id).toLowerCase()
-            || app.secondeIconId.toLowerCase() === String(service.id).toLowerCase())}
+          data={applets.filter(app => app.firstIconId?.toLowerCase() === String(service.id).toLowerCase()
+            || app.secondeIconId?.toLowerCase() === String(service.id).toLowerCase())}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({item}) => <AppletCard item={item}/>} 
           ListHeaderComponent={() => (

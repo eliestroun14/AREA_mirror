@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 import build from '../../assets/images/Construction crane-pana.png';
 
 export default function ActivityScreen() {
-
+  console.log('(ACTIVITY)');
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
       <View style={styles.container}>

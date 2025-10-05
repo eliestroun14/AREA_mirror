@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import areaLogo from '../../assets/images/AreaLogo.png';
 
 export default function LoginScreen() {
+  console.log('(PROFILE)');
 
   const { isAuthenticated, user, login, logout } = useAuth();
   const [error, setError] = useState("");

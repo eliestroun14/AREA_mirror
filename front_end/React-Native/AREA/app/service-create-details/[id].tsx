@@ -2,57 +2,44 @@ import { StyleSheet, Text, View, Image, FlatList } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';
 import { Service, Trigger } from "@/types/type";
-import db from "../../data/db.json"
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
 import TriggerCard from "@/components/molecules/trigger-card/trigger-card";
 import axios from "axios";
 
-type Props = {
-  allTriggers: Trigger[];
-}
-
-const ServiceCreateDetails = ({allTriggers}: Props) => {
-
-  const {id} = useLocalSearchParams();
+const ServiceCreateDetails = () => {
+  console.log('(SERVICE CREATE DETAILS)');
+  const { id } = useLocalSearchParams();
+  console.log('[ServiceCreateDetails] useLocalSearchParams id:', id);
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
-
   const [triggers, setTriggers] = useState<Trigger[]>([]);
-
-  useEffect(() => {
-    if (service) {
-      setTriggers(service.triggers);
-    }
-  }, [service, allTriggers]);
-
-  useEffect(() => {
-    getServiceDetails();
-  }, [id]);
-
-  const getServiceDetails = () => {
-    setLoading(true);
-
-    const foundService = db.services.find(service => service.id === id || service.id === String(id));
-
-    if (foundService) {
-      setService(foundService);
-      console.log('Service found :', foundService);
-    } else {
-      console.log('Service not found for ID in service create details:', id);
-      setService(null);
-    }
-    setLoading(false);
-  };
-
   const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
-  const getProductDetails = async () => {
-    const URL = `${apiUrl}/services/${id}`
-    const response = await axios.get(URL);
+  useEffect(() => {
+    const fetchServiceAndTriggers = async () => {
+      setLoading(true);
+      try {
+        console.log('[ServiceCreateDetails] Fetching service:', `${apiUrl}/services/${id}`);
+        const serviceRes = await axios.get(`${apiUrl}/services/${id}`);
+        console.log('[ServiceCreateDetails] Service API response:', serviceRes.data);
+        setService(serviceRes.data);
+        console.log('[ServiceCreateDetails] Fetching triggers:', `${apiUrl}/services/${id}/triggers`);
+        const triggersRes = await axios.get(`${apiUrl}/services/${id}/triggers`);
+        console.log('[ServiceCreateDetails] Triggers API response:', triggersRes.data);
+        setTriggers(triggersRes.data);
+      } catch (err) {
+        console.log('[ServiceCreateDetails] Error fetching service or triggers:', err);
+        setService(null);
+        setTriggers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (id) fetchServiceAndTriggers();
+  }, [id, apiUrl]);
 
-    console.log('Service details :', response.data);
-  }
+  console.log('[ServiceCreateDetails] Render: loading:', loading, 'service:', service, 'triggers:', triggers);
 
   if (loading) {
     return (
@@ -70,82 +57,70 @@ const ServiceCreateDetails = ({allTriggers}: Props) => {
     );
   }
 
-  // const isAnAction = useLocalSearchParams()
-
   return (
     <>
       <Stack.Screen
-          options={{
-            title: "Select Trigger",
-            headerStyle: {
-              backgroundColor: service.backgroundColor,
-            },
-            headerTintColor: '#fff',
-            headerTitleStyle: {
-              fontWeight: 'bold',
-            },
-          }}
+        options={{
+          title: "Select Trigger",
+          headerStyle: {
+            backgroundColor: service.services_color,
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+      <View style={{ flex: 1, backgroundColor: "#e8ecf4" }}>
+        <FlatList
+          data={triggers}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => <TriggerCard backgroundColor={service.services_color} item={item} />}
+          ListHeaderComponent={() => (
+            <View style={[styles.header, { backgroundColor: service.services_color }]}> 
+              <Image
+                style={styles.appLogo}
+                source={imageMap[service.name] ?? imageMap["default"]}
+              />
+              <Text style={styles.serviceName}>
+                {service.name}
+              </Text>
+              <Text style={styles.serviceDescription}>
+                {service.documentation_url}
+              </Text>
+            </View>
+          )}
         />
-        {
-        <View style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
-          <FlatList
-              data={triggers}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({item}) => <TriggerCard backgroundColor={service.backgroundColor} item={item}/>}
-              ListHeaderComponent={() => (
-                <View style={[styles.header, {backgroundColor: service.backgroundColor}]}>
-                  <Image
-                    style={styles.appLogo}
-                    source={imageMap[service.id] ?? imageMap["default"]}
-                  />
-
-                  <Text style={styles.serviceName}>
-                    {service.serviceName}
-                  </Text>
-
-                  <Text style={styles.serviceDescription}>
-                    {service.appDescription}
-                  </Text>
-
-                </View>
-              )}
-            >
-          </FlatList>
-        </View>
-        }
+      </View>
     </>
-  )
+  );
 }
 
-export default ServiceCreateDetails
+export default ServiceCreateDetails;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
   },
-
   header: {
     marginTop: -10,
     paddingBottom: 30,
-    marginBottom: 10
+    marginBottom: 10,
   },
-
   appLogo: {
     width: 80,
     height: 80,
     alignSelf: "center",
-    marginTop: 30
+    marginTop: 30,
   },
-
   serviceName: {
     fontSize: 25,
     fontWeight: 'bold',
     alignSelf: "center",
     marginTop: 10,
-    color: '#fff'
+    color: '#fff',
   },
-
   serviceDescription: {
     fontSize: 16,
     lineHeight: 20,
@@ -153,6 +128,6 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     maxWidth: 300,
     marginTop: 10,
-    textAlign: "center"
+    textAlign: "center",
   },
-})
+});
