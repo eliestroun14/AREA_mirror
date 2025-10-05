@@ -8,7 +8,7 @@ import { services } from '@root/prisma/services-data/services.data';
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
-  private static SCOPES: string[] = ['user:email'];
+  private static SCOPES: string[] = ['user:email', 'repo'];
 
   constructor() {
     const options: StrategyOptions = {

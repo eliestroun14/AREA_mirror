@@ -8,6 +8,32 @@ export const services = {
 
 export const servicesData: Service[] = [
   {
+    name: 'Scheduling',
+    serviceColor: '#1C1C1C',
+    iconUrl: '/assets/schedule.png',
+    apiBaseUrl: 'none',
+    authType: 'oauth2',
+    documentationUrl: 'none',
+    isActive: true,
+    triggers: [
+      {
+        class_name: 'ScheduleTrigger_EveryMinutes',
+        http_request: null,
+        webhook: null,
+        trigger_type: 'SCHEDULE',
+        name: 'Every minutes',
+        description: 'Execute actions every minutes',
+        polling_interval: 1000 * 60,
+        fields: {},
+        variables: [],
+        is_active: true,
+        created_at: new Date(Date.now()),
+        updated_at: new Date(Date.now()),
+      },
+    ],
+    actions: [],
+  },
+  {
     name: services.discord.name,
     serviceColor: '#7289da',
     iconUrl: '/assets/discord.png',
@@ -76,13 +102,13 @@ export const servicesData: Service[] = [
       // {
       //   class_name: 'GithubTrigger_OnNewRepository',
       //   http_request: null,
-      //   // webhook: {},
+      //   webhook: null,
       //   trigger_type: 'WEBHOOK',
       //   name: 'On new Github Repository',
       //   description: 'Detect when a new repository is created on your profile.',
       //   polling_interval: null,
-      //   fields: [
-      //     {
+      //   fields: {
+      //     owner: {
       //       key: 'owner',
       //       required: true,
       //       type: 'string',
@@ -94,22 +120,17 @@ export const servicesData: Service[] = [
       //       validation_rules: {},
       //       is_active: true,
       //     },
+      //   },
+      //   variables: [
       //     {
-      //       key: '',
-      //       required: false,
+      //       name: 'RepositoryName',
+      //       key: 'repository.name',
       //       type: 'string',
-      //       select_options: [],
-      //       field_name: '',
-      //       default_value: '',
-      //       placeholder: '',
-      //       field_order: 0,
-      //       validation_rules: undefined,
-      //       is_active: false,
-      //     }
-      //   variables: [],
-      //   is_active: false,
-      //   created_at: undefined,
-      //   updated_at: undefined,
+      //     },
+      //   ],
+      //   is_active: true,
+      //   created_at: new Date(Date.now()),
+      //   updated_at: new Date(Date.now()),
       // },
     ],
     actions: [],

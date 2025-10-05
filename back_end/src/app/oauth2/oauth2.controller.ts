@@ -12,12 +12,11 @@ import { GmailOAuthGuard } from '@app/oauth2/services/gmail/gmail.guard';
 import { JwtOAuthGuard } from '@app/auth/jwt/jwt-oauth.guard';
 import type { StrategyCallbackRequest } from '@app/oauth2/oauth2.dto';
 import UnauthenticatedException from '@errors/unauthenticated';
-import type { JwtRequest } from '@app/auth/jwt/jwt.dto';
-import { ServicesService } from '@app/services/services.service';
 import { services } from '@root/prisma/services-data/services.data';
 import { ConnectionsService } from '@app/users/connections/connections.service';
 import { DiscordOAuthGuard } from '@app/oauth2/services/discord/discord.guard';
 import { GithubOAuthGuard } from '@app/oauth2/services/github/github.guard';
+import type { Response } from 'express';
 import { envConstants } from '@config/env';
 
 @Controller('oauth2')
