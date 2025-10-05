@@ -130,8 +130,10 @@ export default function EditTriggerPage() {
     Object.entries(triggerFieldsObj).forEach(([fieldKey, fieldValue]) => {
       const fieldConfig = fieldValue as Record<string, unknown>
       
-      const isActive = fieldConfig.active !== false
+      // Check if the field is active (default to true if not specified)
+      const isActive = fieldConfig.is_active !== false
       
+      // Skip inactive fields
       if (!isActive) {
         return
       }
@@ -142,7 +144,9 @@ export default function EditTriggerPage() {
       const fieldPlaceholder = (fieldConfig.placeholder as string) || ''
       const fieldDefaultValue = (fieldConfig.default_value as string) || ''
       const fieldOrder = (fieldConfig.field_order as number) || 999
-      const selectOptions = Array.isArray(fieldConfig.select_options) ? fieldConfig.select_options as string[] : undefined
+      const selectOptions = Array.isArray(fieldConfig.select_options) && fieldConfig.select_options.length > 0 
+        ? fieldConfig.select_options as string[] 
+        : undefined
       
       let inputType: 'text' | 'select' | 'number' | 'date' | 'time' = 'text'
       if (fieldType === 'select' || selectOptions) {

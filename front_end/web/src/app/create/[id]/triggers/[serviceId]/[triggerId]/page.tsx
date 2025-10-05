@@ -138,7 +138,7 @@ export default function TriggerFieldsPage() {
       const fieldConfig = fieldValue as Record<string, unknown>
       
       // Check if the field is active (default to true if not specified)
-      const isActive = fieldConfig.active !== false
+      const isActive = fieldConfig.is_active !== false
       
       // Skip inactive fields
       if (!isActive) {
@@ -152,7 +152,9 @@ export default function TriggerFieldsPage() {
       const fieldPlaceholder = (fieldConfig.placeholder as string) || ''
       const fieldDefaultValue = (fieldConfig.default_value as string) || ''
       const fieldOrder = (fieldConfig.field_order as number) || 999
-      const selectOptions = Array.isArray(fieldConfig.select_options) ? fieldConfig.select_options as string[] : undefined
+      const selectOptions = Array.isArray(fieldConfig.select_options) && fieldConfig.select_options.length > 0 
+        ? fieldConfig.select_options as string[] 
+        : undefined
       
       // Map API type to input type
       let inputType: 'text' | 'select' | 'number' | 'date' | 'time' = 'text'
