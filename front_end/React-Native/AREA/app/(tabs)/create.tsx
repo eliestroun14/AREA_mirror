@@ -5,11 +5,13 @@ import { Service, Trigger, Action } from '@/types/type';
 import { useLocalSearchParams } from 'expo-router';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState, useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
 
 const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 export default function CreateScreen() {
   console.log('(CREATE)');
+
   const { triggerId, serviceTriggerId } = useLocalSearchParams<{ triggerId?: string; serviceTriggerId?: string }>();
   const { actionId, serviceActionId } = useLocalSearchParams<{ actionId?: string; serviceActionId?: string }>();
 

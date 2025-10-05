@@ -26,8 +26,8 @@ const CreateTriggerService = () => {
         // Fetch triggers for this service
         const triggersRes = await axios.get(`${apiUrl}/services/${id}/triggers`);
         setTriggers(triggersRes.data);
-        console.log('Fetched triggers CREATE:', triggersRes.data);
         console.log('Service details CREATE:', serviceRes.data);
+        console.log('Fetched triggers CREATE:', triggersRes.data);
       } catch (err) {
         setService(null);
         setTriggers([]);
