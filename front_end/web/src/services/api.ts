@@ -28,11 +28,9 @@ class ApiService {
     }
   }
 
-  // Get all services with image URL processing
   async getAllServices(): Promise<GetAllServicesResponse> {
     const services = await this.fetchWithErrorHandling<GetAllServicesResponse>('/services');
     
-    // Process services to handle image URLs with full localhost URL
     return services.map(service => ({
       ...service,
       // Prepend localhost:8080 to icon_url if it exists
@@ -40,7 +38,6 @@ class ApiService {
     }));
   }
 
-  // Get specific service by ID
   async getServiceById(serviceId: number): Promise<GetServiceResponse> {
     const service = await this.fetchWithErrorHandling<GetServiceResponse>(`/services/${serviceId}`);
     
@@ -51,22 +48,29 @@ class ApiService {
     };
   }
 
-  // Get triggers for a service
+  async getServiceByName(serviceName: string): Promise<GetServiceResponse | null> {
+    try {
+      const services = await this.getAllServices();
+      const service = services.find(s => s.name.toLowerCase() === serviceName.toLowerCase());
+      return service || null;
+    } catch (error) {
+      console.error(`Failed to get service by name ${serviceName}:`, error);
+      return null;
+    }
+  }
+
   async getTriggersByService(serviceId: string): Promise<GetTriggersByServiceResponse> {
     return this.fetchWithErrorHandling<GetTriggersByServiceResponse>(`/services/${serviceId}/triggers`);
   }
 
-  // Get actions for a service
   async getActionsByService(serviceId: string): Promise<GetActionsByServiceResponse> {
     return this.fetchWithErrorHandling<GetActionsByServiceResponse>(`/services/${serviceId}/actions`);
   }
 
-  // Get specific action
   async getActionByService(serviceId: string, actionId: string): Promise<GetActionByServiceResponse> {
     return this.fetchWithErrorHandling<GetActionByServiceResponse>(`/services/${serviceId}/actions/${actionId}`);
   }
 
-  // Get specific trigger
   async getTriggerByService(serviceId: string, triggerId: string): Promise<GetTriggerByServiceResponse> {
     return this.fetchWithErrorHandling<GetTriggerByServiceResponse>(`/services/${serviceId}/triggers/${triggerId}`);
   }

@@ -15,12 +15,22 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 export function ServiceImage({ service, height = 140 }: ServiceImageProps) {
   const [imageError, setImageError] = useState(false);
 
+  // Construire l'URL complète de l'image depuis le backend
   const getImageUrl = (iconUrl: string | null): string | null => {
     if (!iconUrl) return null;
     
-
+    // Si l'URL est déjà complète, l'utiliser telle quelle
+    if (iconUrl.startsWith('http://') || iconUrl.startsWith('https://')) {
+      return iconUrl;
+    }
     
-    return `${API_BASE_URL}${iconUrl}`;
+    // Si c'est un chemin relatif, construire l'URL complète avec le backend
+    if (iconUrl.startsWith('/')) {
+      return `${API_BASE_URL}${iconUrl}`;
+    }
+    
+    // Si c'est juste un nom de fichier, supposer qu'il est dans le dossier assets
+    return `${API_BASE_URL}/assets/${iconUrl}`;
   };
 
   const fullImageUrl = getImageUrl(service.icon_url);

@@ -14,9 +14,6 @@ import SearchIcon from '@mui/icons-material/Search'
 import InputAdornment from '@mui/material/InputAdornment'
 import { useRouter, useParams } from 'next/navigation'
 import CircularProgress from '@mui/material/CircularProgress'
-import { apiService } from '@/services/api';
-import { ServiceDTO } from '@/types/api';
-import database from '@/data/database.json';
 
 interface Service {
   id: number
@@ -57,7 +54,6 @@ export default function ActionsPage() {
   }
 
   const handleServiceClick = (serviceName: string) => {
-    // Naviguer vers la page de sélection d'actions pour ce service
     router.push(`/create/${zapId}/actions/${serviceName.toLowerCase()}`)
   }
 
@@ -75,7 +71,6 @@ export default function ActionsPage() {
       try {
         setLoading(true)
 
-        // Fallback vers les données locales pour l'instant
         const { default: database } = await import('@/data/database.json')
         setServices(database.services)
         
