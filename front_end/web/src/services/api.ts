@@ -9,7 +9,7 @@ import {
   GetConnectionsByServiceResponse
 } from '@/types/api';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 class ApiService {
   private async fetchWithErrorHandling<T>(url: string): Promise<T> {

@@ -144,13 +144,18 @@ export default function ExplorePage() {
           sx={{
             display: 'grid',
             gridTemplateColumns: {
-              xs: '1fr',
-              sm: 'repeat(2, 1fr)',
-              md: 'repeat(3, 1fr)',
-              lg: 'repeat(4, 1fr)',
-              xl: 'repeat(5, 1fr)'
+              xs: 'repeat(auto-fit, minmax(200px, 1fr))',
+              sm: 'repeat(auto-fit, minmax(220px, 1fr))',
+              md: 'repeat(auto-fit, minmax(240px, 1fr))',
+              lg: 'repeat(auto-fit, minmax(260px, 1fr))'
             },
             gap: 3,
+            justifyContent: 'center',
+            justifyItems: 'center',
+            maxWidth: '100%',
+            width: 'fit-content',
+            mx: 'auto',
+            px: { xs: 2, sm: 4, md: 6, lg: 8 },
             mt: 4
           }}
         >
@@ -158,7 +163,8 @@ export default function ExplorePage() {
             <Card 
               key={service.id}
               sx={{ 
-                height: 200,
+                height: 220,
+                minWidth: 200,
                 bgcolor: service.services_color || '#4285f4',
                 color: 'white',
                 borderRadius: 3,
