@@ -6,8 +6,6 @@ import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import CardActionArea from '@mui/material/CardActionArea';
 import Container from '@mui/material/Container';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
@@ -50,8 +48,8 @@ export default function ExplorePage() {
     service.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleServiceClick = (serviceName: string) => {
-    router.push(`/services/${encodeURIComponent(serviceName)}`);
+  const handleServiceClick = (serviceId: number) => {
+    router.push(`/services/${serviceId}`);
   };
 
   const handleRetry = () => {
@@ -144,50 +142,87 @@ export default function ExplorePage() {
 
         <Box
           sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(3, 1fr)',
+              lg: 'repeat(4, 1fr)',
+              xl: 'repeat(5, 1fr)'
+            },
             gap: 3,
-            justifyContent: 'center',
-            alignItems: 'flex-start'
+            mt: 4
           }}
         >
           {filteredServices.map((service) => (
-            <Box
+            <Card 
               key={service.id}
-              sx={{
-                width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' },
-                maxWidth: 345
-              }}
-            >
-              <Card sx={{ 
-                maxWidth: 345, 
-                mx: "auto", 
-                height: '100%',
-                border: '1px solid #e0e0e0',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+              sx={{ 
+                height: 200,
+                bgcolor: service.services_color || '#4285f4',
+                color: 'white',
+                borderRadius: 3,
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
+                p: 3,
+                transition: 'all 0.3s ease',
                 '&:hover': {
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
-                  transform: 'translateY(-2px)',
-                  borderColor: 'black'
-                },
-                transition: 'all 0.3s ease'
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0 8px 25px rgba(0, 0, 0, 0.2)',
+                  filter: 'brightness(1.1)'
+                }
+              }}
+              onClick={() => handleServiceClick(service.id)}
+            >
+              <CardContent sx={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+                p: 2,
+                '&:last-child': { pb: 2 }
               }}>
-                <CardActionArea onClick={() => handleServiceClick(service.name)}>
-                  <ServiceImage 
+                {/* Service Icon */}
+                <Box sx={{ 
+                  width: 80, 
+                  height: 80, 
+                  mb: 2,
+                  borderRadius: '50%',
+                  bgcolor: 'rgba(255, 255, 255, 0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden'
+                }}>
+                  <ServiceImage
                     service={{
                       name: service.name,
                       icon_url: service.icon_url,
-                      services_color: service.services_color
+                      services_color: 'white'
                     }}
+                    height={80}
                   />
-                  <CardContent>
-                    <Typography variant="h6" align="center" color="black">
-                      {service.name}
-                    </Typography>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            </Box>
+                </Box>
+                
+                {/* Service Name */}
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    color: 'white',
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                    lineHeight: 1.2
+                  }}
+                >
+                  {service.name}
+                </Typography>
+              </CardContent>
+            </Card>
           ))}
         </Box>
 

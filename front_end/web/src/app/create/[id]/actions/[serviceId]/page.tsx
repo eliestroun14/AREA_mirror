@@ -39,17 +39,18 @@ interface Service {
 export default function ServiceActionsPage() {
   const params = useParams()
   const router = useRouter()
+  const zapId = params.id as string
   const serviceName = params.service as string
   const [service, setService] = useState<Service | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const handleBackClick = () => {
-    router.push('/create/actions')
+    router.push(`/create/${zapId}/actions`)
   }
 
   const handleActionClick = (actionId: number) => {
-    router.push(`/create/actions/${serviceName}/${actionId}`)
+    router.push(`/create/${zapId}/actions/${serviceName}/${actionId}`)
   }
 
   useEffect(() => {

@@ -31,8 +31,8 @@ export default function HomePage() {
     }
   };
 
-  const handleServiceClick = (serviceName: string) => {
-    router.push(`/services/${encodeURIComponent(serviceName)}`);
+  const handleServiceClick = (serviceId: number) => {
+    router.push(`/services/${serviceId}`);
   };
 
   const handleExploreAll = () => {
@@ -244,7 +244,7 @@ export default function HomePage() {
                     transform: 'translateY(-2px)'
                   }
                 }}
-                onClick={() => handleServiceClick(service.name)}
+                onClick={() => handleServiceClick(service.id)}
               >
                 <CardActionArea>
                   <CardContent sx={{ textAlign: 'center', p: 2 }}>

@@ -12,7 +12,19 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('access_token');
+      const localStorageToken = localStorage.getItem('access_token');
+      if (localStorageToken) {
+        return localStorageToken;
+      }
+  
+      const cookies = document.cookie.split(';');
+      for (const cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'access_token') {
+          localStorage.setItem('access_token', value);
+          return value;
+        }
+      }
     }
     return null;
   });

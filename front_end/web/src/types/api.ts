@@ -17,8 +17,8 @@ export interface ActionDTO {
   http_request_id: number;
   name: string;
   description: string;
-  fields: unknown;
-  variables: unknown;
+  fields: Record<string, unknown>;
+  variables: Record<string, unknown>;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -33,11 +33,24 @@ export interface TriggerDTO {
   name: string;
   description: string;
   polling_interval: number | null;
-  fields: unknown;
-  variables: unknown;
+  fields: Record<string, unknown>;
+  variables: Record<string, unknown>;
   is_active: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface ConnectionDTO {
+  id: number;
+  service_id: number;
+  service_name: string;
+  service_color: string | null;
+  icon_url: string | null;
+  connection_name: string | null;
+  account_identifier: string | null;
+  is_active: boolean;
+  created_at: string;
+  last_used_at: string | null;
 }
 
 // API Response types
@@ -47,3 +60,5 @@ export type GetTriggersByServiceResponse = TriggerDTO[];
 export type GetActionsByServiceResponse = ActionDTO[];
 export type GetActionByServiceResponse = ActionDTO | null;
 export type GetTriggerByServiceResponse = TriggerDTO | null;
+export type GetAllConnectionsResponse = { connections: ConnectionDTO[] };
+export type GetConnectionsByServiceResponse = { connections: ConnectionDTO[] };
