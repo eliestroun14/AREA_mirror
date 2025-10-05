@@ -12,10 +12,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
+      const localStorageToken = localStorage.getItem('session_token');
+      if (localStorageToken) {
+        return localStorageToken;
+      }
+  
+      const cookies = document.cookie.split(';');
+      for (const cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'session_token') {
+          localStorage.setItem('session_token', value);
+          return value;
+        }
+      }
       // Only check localStorage, as session_token cookie is httpOnly
       // and cannot be read by JavaScript
-      const localStorageToken = localStorage.getItem('access_token');
-      return localStorageToken || null;
+      //const localStorageToken = localStorage.getItem('access_token');
+      //return localStorageToken || null;
     }
     return null;
   });
@@ -23,20 +36,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isAuthenticated = !!token;
 
   useEffect(() => {
+    console.log('🔄 Auth state changed:', { 
+      isAuthenticated, 
+      hasToken: !!token, 
+      tokenPreview: token?.substring(0, 10) + '...' 
+    });
+    
     if (token) {
+      document.cookie = `session_token=${token}; path=/; SameSite=Lax`;
+      localStorage.setItem('session_token', token);
       // Store in localStorage for client-side access
       // Note: The backend also sets a httpOnly session_token cookie
       // which is automatically sent with requests (credentials: 'include')
-      localStorage.setItem('access_token', token);
+      //localStorage.setItem('access_token', token);
     } else {
-      localStorage.removeItem('access_token');
+      document.cookie = 'session_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      localStorage.removeItem('session_token');
     }
-  }, [token]);
+  }, [token, isAuthenticated]);
 
   const login = (newToken: string) => {
+    console.log('🔑 Login called with token:', newToken?.substring(0, 10) + '...');
     setToken(newToken);
   };
   const logout = () => {
+    console.log('🚪 Logout called');
     setToken(null);
   };
 

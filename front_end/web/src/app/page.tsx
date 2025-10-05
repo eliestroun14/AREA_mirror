@@ -2,6 +2,8 @@
 import * as React from "react";
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useServices } from '@/hooks/useServices';
+import ServiceCard from '@/components/ServiceCard';
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
@@ -11,6 +13,7 @@ import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import CardActionArea from "@mui/material/CardActionArea";
 import Chip from "@mui/material/Chip";
+import Skeleton from "@mui/material/Skeleton";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import database from "@/data/database.json";
@@ -18,9 +21,18 @@ import database from "@/data/database.json";
 export default function HomePage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
+  const { services, loading, error } = useServices();
   const [isMounted, setIsMounted] = React.useState(false);
 
   React.useEffect(() => setIsMounted(true), []);
+  
+  // Redirection automatique vers /explore si connecté
+  React.useEffect(() => {
+    if (isMounted && isAuthenticated) {
+      router.push('/explore');
+    }
+  }, [isMounted, isAuthenticated, router]);
+  
   if (!isMounted) return null;
 
   const handleStartToday = () => {
@@ -46,7 +58,7 @@ export default function HomePage() {
     return service ? service.service_color : "black";
   };
 
-  const featuredServices = database.services.slice(0, 11);
+  const displayServices = loading ? [] : services.filter(service => service.is_active).slice(0, 10);
 
   return (
     <Box sx={{ bgcolor: "white", minHeight: "100vh" }}>
@@ -216,64 +228,70 @@ export default function HomePage() {
               mb: 5
             }}
           >
-            ... or choose from {database.services.length}+ services
+            ... or choose from {loading ? '900' : services.length}+ services
           </Typography>
+
+          {error && (
+            <Typography 
+              color="error" 
+              align="center" 
+              sx={{ mb: 3 }}
+            >
+              Error loading services: {error}
+            </Typography>
+          )}
 
           <Box sx={{
             display: 'grid',
             gridTemplateColumns: {
-              xs: 'repeat(3, 1fr)',
-              sm: 'repeat(4, 1fr)',
-              md: 'repeat(6, 1fr)'
+              xs: 'repeat(auto-fit, minmax(150px, 1fr))',
+              sm: 'repeat(auto-fit, minmax(160px, 1fr))',
+              md: 'repeat(auto-fit, minmax(180px, 1fr))',
+              lg: 'repeat(auto-fit, minmax(200px, 1fr))'
             },
-            gap: 3,
-            mb: 5
+            gap: 4,
+            justifyContent: 'center',
+            justifyItems: 'center',
+            maxWidth: '100%',
+            width: 'fit-content',
+            mx: 'auto',
+            px: { xs: 2, sm: 4, md: 6, lg: 8 },
+            mb: 6
           }}>
-            {featuredServices.map((service, index) => (
-              <Card
-                key={index}
-                sx={{
-                  cursor: 'pointer',
-                  border: '1px solid',
-                  borderColor: '#e0e0e0',
-                  borderRadius: 2,
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    borderColor: 'black',
-                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
-                    transform: 'translateY(-2px)'
-                  }
-                }}
-                onClick={() => handleServiceClick(service.id)}
-              >
-                <CardActionArea>
-                  <CardContent sx={{ textAlign: 'center', p: 2 }}>
-                    <CardMedia
-                      component="img"
-                      height="40"
-                      image={`/assets/${service.image}`}
-                      alt={service.name}
-                      sx={{
-                        objectFit: 'contain',
-                        mb: 1,
-                        maxWidth: '40px',
-                        mx: 'auto'
-                      }}
-                    />
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: 'black',
-                        fontWeight: 500,
-                        fontSize: '0.75rem'
-                      }}
-                    >
-                      {service.name}
-                    </Typography>
+            {loading ? (
+              Array.from({ length: 10 }).map((_, index) => (
+                <Card
+                  key={index}
+                  sx={{
+                    height: '160px',
+                    minWidth: '150px',
+                    borderRadius: 3,
+                    border: '1px solid #e0e0e0'
+                  }}
+                >
+                  <CardContent sx={{ 
+                    textAlign: 'center', 
+                    p: 2,
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}>
+                    <Skeleton variant="rectangular" width={40} height={40} sx={{ mb: 1 }} />
+                    <Skeleton variant="text" width="80%" height={20} />
                   </CardContent>
-                </CardActionArea>
-              </Card>
-            ))}
+                </Card>
+              ))
+            ) : (
+              displayServices.map((service, index) => (
+                <ServiceCard
+                  key={service.id || index}
+                  service={service}
+                  onClick={handleServiceClick}
+                />
+              ))
+            )}
           </Box>
 
           <Box sx={{ textAlign: 'center' }}>

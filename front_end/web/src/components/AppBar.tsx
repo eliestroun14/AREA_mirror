@@ -15,17 +15,25 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 
 const pages = ['Explore', 'Create', 'My applets'];
-const settings = ['Profile', 'Account', 'Logout'];
+const settings = ['Logout'];
 
 function ResponsiveAppBar() {
   const { isAuthenticated, logout } = useAuth();
   const router = useRouter();
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-    const [isMounted, setIsMounted] = React.useState(false);
-    React.useEffect(() => { setIsMounted(true); }, []);
+  const [isMounted, setIsMounted] = React.useState(false);
+  React.useEffect(() => { setIsMounted(true); }, []);
 
-    if (!isMounted) return null;
+  if (!isMounted) return null;
+
+  // Pages disponibles selon l'état de connexion
+  const availablePages = isAuthenticated 
+    ? ['Explore', 'Create', 'My applets']
+    : ['Explore'];
+
+  // URL de redirection du logo selon l'état de connexion
+  const logoRedirectUrl = isAuthenticated ? '/explore' : '/';
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -85,7 +93,11 @@ function ResponsiveAppBar() {
                 variant="h6"
                 noWrap
                 component="a"
-                href="/"
+                href={logoRedirectUrl}
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push(logoRedirectUrl);
+                }}
                 sx={{
                   fontFamily: 'monospace',
                   fontWeight: 700,
@@ -128,7 +140,7 @@ function ResponsiveAppBar() {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
-              {pages.map((page) => (
+              {availablePages.map((page) => (
                 <MenuItem key={page} onClick={() => handlePageNavigation(page)}>
                   <Typography sx={{ textAlign: 'center', color: 'black' }}>{page}</Typography>
                 </MenuItem>
@@ -138,7 +150,7 @@ function ResponsiveAppBar() {
 
           {/* Desktop page names - left, close to logo */}
           <Box sx={{ display: { xs: 'none', md: 'flex' }, ml: 2, gap: 2, alignItems: 'center' }}>
-            {pages.map((page) => (
+            {availablePages.map((page) => (
               <Button
                 key={page}
                 onClick={() => handlePageNavigation(page)}
