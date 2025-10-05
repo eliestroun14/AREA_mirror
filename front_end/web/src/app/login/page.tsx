@@ -70,7 +70,7 @@ export default function LoginPage() {
         console.log('Token received:', data.session_token?.substring(0, 10) + '...');
         login(data.session_token);
         alert('Login successful!');
-        router.push('/');
+        router.push('/explore');
       } else {
         console.error('No session_token in response');
         alert('Login error: No token received');

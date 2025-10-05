@@ -25,6 +25,14 @@ export default function HomePage() {
   const [isMounted, setIsMounted] = React.useState(false);
 
   React.useEffect(() => setIsMounted(true), []);
+  
+  // Redirection automatique vers /explore si connecté
+  React.useEffect(() => {
+    if (isMounted && isAuthenticated) {
+      router.push('/explore');
+    }
+  }, [isMounted, isAuthenticated, router]);
+  
   if (!isMounted) return null;
 
   const handleStartToday = () => {

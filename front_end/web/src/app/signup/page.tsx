@@ -49,7 +49,7 @@ export default function SignupPage() {
     <Container maxWidth="sm">
       <Box
         sx={{
-          minHeight: '100vh',
+          minHeight: 'calc(100vh - 64px)',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -57,32 +57,6 @@ export default function SignupPage() {
           py: 4,
         }}
       >
-        {/* Logo Section */}
-        <Box sx={{ mb: 6, textAlign: 'center' }}>
-          <Box
-            component="img"
-            src="/assets/AreaLogo-Photoroom.png"
-            alt="AREA Logo"
-            sx={{ 
-              height: 60, 
-              width: 60, 
-              mb: 2,
-              filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15))'
-            }}
-          />
-          <Typography
-            variant="h4"
-            sx={{
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.2rem',
-              color: 'black',
-            }}
-          >
-            AREA
-          </Typography>
-        </Box>
-
         {/* Signup Form */}
         <Paper
           elevation={0}
