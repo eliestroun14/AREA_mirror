@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   HttpCode,
@@ -8,65 +7,44 @@ import {
   Res,
 } from '@nestjs/common';
 import { AuthService } from '@app/auth/auth.service';
-import {
-  SignInRequestDto,
-  SignInResponseDto,
-  SignUpRequestDto,
-  SignUpResponseDto,
-} from '@app/auth/auth.dto';
+import { SignInBody, SignUpBody, SignUpResponse } from '@app/auth/auth.dto';
 import type { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  private isValidEmail(email: string): boolean {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
-
   @HttpCode(HttpStatus.OK)
   @Post('sign-up')
-  async signUp(
-    @Body() signUpDto: SignUpRequestDto,
-  ): Promise<SignUpResponseDto> {
-    if (
-      typeof signUpDto.email !== 'string' ||
-      !this.isValidEmail(signUpDto.email)
-    )
-      throw new BadRequestException('Invalid email format.');
-    if (typeof signUpDto.password !== 'string')
-      throw new BadRequestException('Invalid password format.');
-    if (typeof signUpDto.name !== 'string')
-      throw new BadRequestException('Invalid name format.');
+  async signUp(@Body() signUpDto: SignUpBody): Promise<SignUpResponse> {
+    const user = await this.authService.signUp(signUpDto);
 
-    const { password: _, ...result } = await this.authService.signUp(signUpDto);
-    return result;
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      created_at: new Date(user.created_at).toUTCString(),
+      updated_at: new Date(user.updated_at).toUTCString(),
+    };
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('sign-in')
-  async signIn(@Body() signInDto: SignInRequestDto, @Res() res: Response) {
-    if (
-      typeof signInDto.email !== 'string' ||
-      !this.isValidEmail(signInDto.email)
-    )
-      throw new BadRequestException('Invalid email format.');
-    if (typeof signInDto.password !== 'string')
-      throw new BadRequestException('Invalid password format.');
-
+  async signIn(@Body() signInDto: SignInBody, @Res() res: Response) {
     const token = await this.authService.signIn(
       signInDto.email,
       signInDto.password,
     );
 
     res
-      .cookie('access_token', token, { httpOnly: true, sameSite: 'none', secure: true })
+      .cookie('session_token', token, {
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true,
+      })
       .status(HttpStatus.OK)
       .json({
-        access_token: token,
+        session_token: token,
       });
-    // return {
-    //   access_token: token,
-    // };
   }
 }

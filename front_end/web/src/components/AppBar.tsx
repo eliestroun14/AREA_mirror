@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -12,19 +13,27 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
 
-const pages = ['Products', 'Pricing', 'Blog'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+const pages = ['Explore', 'Create', 'My applets'];
+const settings = ['Logout'];
 
 function ResponsiveAppBar() {
   const { isAuthenticated, logout } = useAuth();
+  const router = useRouter();
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-    const [isMounted, setIsMounted] = React.useState(false);
-    React.useEffect(() => { setIsMounted(true); }, []);
+  const [isMounted, setIsMounted] = React.useState(false);
+  React.useEffect(() => { setIsMounted(true); }, []);
 
-    if (!isMounted) return null;
+  if (!isMounted) return null;
+
+  // Pages disponibles selon l'état de connexion
+  const availablePages = isAuthenticated 
+    ? ['Explore', 'Create', 'My applets']
+    : ['Explore'];
+
+  // URL de redirection du logo selon l'état de connexion
+  const logoRedirectUrl = isAuthenticated ? '/explore' : '/';
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -41,11 +50,28 @@ function ResponsiveAppBar() {
     setAnchorElUser(null);
   };
 
+  const handlePageNavigation = (page: string) => {
+    switch (page) {
+      case 'Create':
+        router.push('/create');
+        break;
+      case 'Explore':
+        router.push('/explore');
+        break;
+      case 'My applets':
+        router.push('/my_applets');
+        break;
+      default:
+        break;
+    }
+    handleCloseNavMenu();
+  };
+
   return (
-    <AppBar position="static">
+    <AppBar position="static" sx={{ backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.0)' }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          {/* Logo section - left on desktop, center on mobile */}
+          {/* Logo */}
           <Box
             sx={{
               display: 'flex',
@@ -58,31 +84,35 @@ function ResponsiveAppBar() {
               right: { xs: 0, md: 'auto' },
               top: { xs: 0, md: 'auto' },
               height: '100%',
-              pointerEvents: 'none', // Prevents logo from blocking menu button on mobile
+              pointerEvents: 'none',
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', pointerEvents: 'auto' }}>
-              <AdbIcon sx={{ mr: 1 }} />
+              <Box component="img" src="/assets/AreaLogo-Photoroom.png" alt="" sx={{ height: 32, width: 32, mr: 1, }}/>
               <Typography
                 variant="h6"
                 noWrap
                 component="a"
-                href="/"
+                href={logoRedirectUrl}
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push(logoRedirectUrl);
+                }}
                 sx={{
                   fontFamily: 'monospace',
                   fontWeight: 700,
                   letterSpacing: '.3rem',
-                  color: 'inherit',
+                  color: 'black',
                   textDecoration: 'none',
                   cursor: 'pointer',
                 }}
               >
-                LOGO
+                AREA
               </Typography>
             </Box>
           </Box>
 
-          {/* Navigation menu (mobile) - left, does not affect logo center */}
+          {/* Hamburger responsive */}
           <Box sx={{ display: { xs: 'flex', md: 'none' }, position: 'relative', zIndex: 1 }}>
             <IconButton
               size="large"
@@ -90,8 +120,7 @@ function ResponsiveAppBar() {
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleOpenNavMenu}
-              color="inherit"
-              sx={{ ml: 1 }}
+              sx={{ ml: 1, color: 'black' }}
             >
               <MenuIcon />
             </IconButton>
@@ -111,9 +140,9 @@ function ResponsiveAppBar() {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
+              {availablePages.map((page) => (
+                <MenuItem key={page} onClick={() => handlePageNavigation(page)}>
+                  <Typography sx={{ textAlign: 'center', color: 'black' }}>{page}</Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -121,8 +150,12 @@ function ResponsiveAppBar() {
 
           {/* Desktop page names - left, close to logo */}
           <Box sx={{ display: { xs: 'none', md: 'flex' }, ml: 2, gap: 2, alignItems: 'center' }}>
-            {pages.map((page) => (
-              <Button key={page} sx={{ color: 'white', px: 2, fontWeight: 500, fontSize: '1rem', minWidth: 0 }}>
+            {availablePages.map((page) => (
+              <Button
+                key={page}
+                onClick={() => handlePageNavigation(page)}
+                sx={{ color: 'black', px: 2, fontWeight: 500, fontSize: '1rem', minWidth: 0 }}
+              >
                 {page}
               </Button>
             ))}
@@ -161,13 +194,26 @@ function ResponsiveAppBar() {
                       handleCloseUserMenu();
                       if (setting === 'Logout') logout();
                     }}>
-                      <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                      <Typography sx={{ textAlign: 'center', color: 'black' }}>{setting}</Typography>
                     </MenuItem>
                   ))}
                 </Menu>
               </>
             ) : (
-              <Button color="inherit" href="/login">Login</Button>
+              <Button 
+                href="/login"
+                sx={{ 
+                  color: 'black',
+                  border: '1px solid black',
+                  borderRadius: 2,
+                  px: 3,
+                  '&:hover': {
+                    bgcolor: 'rgba(0, 0, 0, 0.04)'
+                  }
+                }}
+              >
+                Login
+              </Button>
             )}
           </Box>
         </Toolbar>

@@ -1,113 +1,139 @@
-import { Image } from 'expo-image';
-import reactLogo from '@/assets/images/react-logo.png';
-import { Platform, StyleSheet } from 'react-native';
+import { useState, useEffect, useMemo } from 'react';
+import { View, StyleSheet, FlatList, ListRenderItem, ActivityIndicator, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import SearchBar from "@/components/molecules/search-bar/search-bar";
+import { AppletsCard, Service } from '@/types/type';
+import ServiceCard from '@/components/molecules/service-card/service-card'
+import AppletCard from '@/components/molecules/applets-card/applets-card';
+import axios from 'axios';
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+type ServiceWithType = Service & { itemType: 'service' };
+type AppletWithType = AppletsCard & { itemType: 'applet' };
+type CombinedItem = ServiceWithType | AppletWithType;
 
-export default function TabTwoScreen() {
+export default function ExploreScreen() {
+  console.log('(EXPLORE)');
+  const [services, setServices] = useState<Service[]>([]);
+  const [applets, setApplets] = useState<AppletsCard[]>([]); // reste vide
+  const [search, setSearch] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+
+  useEffect(() => {
+    const getServices = async () => {
+      try {
+        const URL = `${apiUrl}/services`;
+        const response = await axios.get(URL);
+        console.log('Réponse API services:', response.data); // Ajout du log
+        setServices(response.data);
+      } catch (err) {
+        setError("Erreur lors du chargement des services");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    getServices();
+  }, [apiUrl]);
+
+  // Les applets restent vides tant que l'API n'est pas dispo
+  useEffect(() => {
+    setApplets([]);
+  }, []);
+
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  const combinedData = useMemo(() => {
+    const servicesWithType: ServiceWithType[] = services.map((item: Service) => ({
+      ...item,
+      itemType: 'service' as const
+    }));
+    const appletsWithType: AppletWithType[] = applets.map((item: AppletsCard) => ({
+      ...item,
+      itemType: 'applet' as const
+    }));
+    const combined: CombinedItem[] = [...servicesWithType, ...appletsWithType];
+    return shuffleArray(combined);
+  }, [services, applets]);
+
+  const renderItem: ListRenderItem<CombinedItem> = ({ item }) => {
+    if (item.itemType === 'service')
+      return <ServiceCard item={item} />;
+    else if (item.itemType === 'applet')
+      return <AppletCard item={item} />;
+    return null;
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
+      {isLoading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#00A35F" />
+        </View>
+      ) : error ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>{error}</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={combinedData}
+          keyExtractor={(item, index) => `${item.itemType}-${item.id}-${index}`}
+          renderItem={renderItem}
+          ListHeaderComponent={() => (
+            <View style={styles.header}>
+              <View style={styles.searchBar}>
+                <SearchBar value={search} onChangeText={setSearch} placeholder="Search..." />
+              </View>
+
+              {/* <View style={styles.Cards}>
+                <NewsCard category='Popular'
+                description='New on AREA in September 2025'
+                imageBackground={news_rafiki}
+                backgroundColor='rgba(0, 163, 95, 1)'
+                />
+              </View>
+
+              <View style={styles.Cards}>
+                <NewsCard category='Linkedin'
+                description='New on AREA in August 2025'
+                imageBackground={news_bro}
+                backgroundColor='rgba(202, 115, 0, 1)'
+                />
+              </View> */}
+            </View>
+          )}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={reactLogo}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+      )}
+    </SafeAreaView>
+
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    // flex: 1,
+
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+
+  header: {
+    padding: 10,
+    marginTop: 30
   },
+
+  searchBar: {
+    marginBottom: 15,
+  },
+
+  Cards: {
+    marginTop: 5
+  }
+
 });

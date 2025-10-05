@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 import areaLogo from '../../assets/images/AreaLogo.png';
 
 export default function LoginScreen() {
+  console.log('(PROFILE)');
 
-  const { isAuthenticated, login, logout } = useAuth();
+  const { isAuthenticated, user, login, logout } = useAuth();
+  const [error, setError] = useState("");
 
   const [form, setForm] = useState({
     email: '',
@@ -40,83 +42,137 @@ export default function LoginScreen() {
     login();
   }
 
+  const handleSignIn = async () => {
+    setError("");
+
+  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+
+    try {
+      const res = await fetch(`${apiUrl}/auth/sign-in`, { //FIXME: belek à l'ip, c'est celle d'Epitech
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: form.email, password: form.password }),
+        credentials: "include", // to receive set-cookie
+      });
+      const result = await res.json();
+
+      if (res.status === 200) {
+        const resUser = await fetch(`${apiUrl}/users/me`, { //FIXME: belek à l'ip, c'est celle d'Epitech
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": result.session_token
+          },
+          credentials: "include",
+        });
+        const resultUser = await resUser.json();
+
+        login({
+          name: resultUser.name || resultUser.user?.name || "User",
+          email: resultUser.email || resultUser.user?.email || form.email,
+        }, result.session_token);
+        Alert.alert("Succefully signed in !")
+      } else if (res.status === 401) {
+        Alert.alert("Invalid email or password.")
+        setError(result.data || "Invalid email or password.");
+      } else {
+        setError("Failed to login. Please check your credentials.");
+      }
+    } catch {
+      setError("Failed to login. Please check your credentials.");
+    }
+  };
   if (isAuthenticated === false) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <Image
-              source={areaLogo}
-              style={styles.headerImg}
-              alt="Area Logo"
-            />
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.container}>
+              <View style={styles.header}>
+                <Image
+                  source={areaLogo}
+                  style={styles.headerImg}
+                  alt="Area Logo"
+                />
 
-            <Text style={styles.title}>
-              Sign in to AREA
-            </Text>
-
-            <Text style={styles.subtitle}>
-              Get access to your profile and more.
-            </Text>
-          </View>
-
-          <View style={styles.form}>
-            <View style={styles.input}>
-              <Text style={styles.inputLabel}>
-                Email address :
-              </Text>
-
-              <TextInput
-                autoCapitalize='none'
-                autoCorrect={false}
-                keyboardType='email-address'
-                style={styles.inputControl}
-                placeholder='john@example.com'
-                placeholderTextColor='#6b7280'
-                value={form.email}
-                onChangeText={(email: string) => setForm({ ...form, email })}
-              />
-            </View>
-
-            <View style={styles.input}>
-              <Text style={styles.inputLabel}>
-                Password :
-              </Text>
-
-              <TextInput
-                secureTextEntry={true}
-                style={styles.inputControl}
-                placeholder='*********'
-                placeholderTextColor='#6b7280'
-                value={form.password}
-                onChangeText={(password: string) => setForm({ ...form, password })}
-              />
-            </View>
-
-            <View style={styles.formAction}>
-              <TouchableOpacity
-                onPress={() => {
-                  checkTextInputs()
-                }}>
-                <View style={styles.button}>
-                  <Text style={styles.buttonText}> Sign in </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity
-              style={{ marginTop: 'auto'}}
-              onPress={() => {
-                router.push("/sign-up")
-              }}>
-                <Text style={styles.formFooter}>
-                  Don&apos;t have an account ?{' '}
-                  <Text style={{ textDecorationLine: 'underline'}}>Sign up</Text>
+                <Text style={styles.title}>
+                  Sign in to AREA
                 </Text>
-            </TouchableOpacity>
 
-          </View>
-        </View>
+                <Text style={styles.subtitle}>
+                  Get access to your profile and more.
+                </Text>
+              </View>
+
+              {/* Extra padding for keyboard */}
+              <View style={[styles.form, { paddingBottom: 60 }]}> 
+                <View style={styles.input}>
+                  <Text style={styles.inputLabel}>
+                    Email address :
+                  </Text>
+
+                  <TextInput
+                    autoCapitalize='none'
+                    autoCorrect={false}
+                    keyboardType='email-address'
+                    style={styles.inputControl}
+                    placeholder='john@example.com'
+                    placeholderTextColor='#6b7280'
+                    value={form.email}
+                    onChangeText={(email: string) => setForm({ ...form, email })}
+                  />
+                </View>
+
+                <View style={styles.input}>
+                  <Text style={styles.inputLabel}>
+                    Password :
+                  </Text>
+
+                  <TextInput
+                    secureTextEntry={true}
+                    style={styles.inputControl}
+                    placeholder='*********'
+                    placeholderTextColor='#6b7280'
+                    value={form.password}
+                    onChangeText={(password: string) => setForm({ ...form, password })}
+                  />
+                </View>
+
+                <View style={styles.formAction}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      checkTextInputs()
+                    }}>
+                    <View style={styles.button}>
+                      <Text style={styles.buttonText}> Sign in </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+
+                <TouchableOpacity
+                  style={{ marginTop: 'auto'}}
+                  onPress={() => {
+                    router.push("/sign-up")
+                  }}>
+                    <Text style={styles.formFooter}>
+                      Don&apos;t have an account ?{' '}
+                      <Text style={{ textDecorationLine: 'underline'}}>Sign up</Text>
+                    </Text>
+                </TouchableOpacity>
+
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     );
   } else {
@@ -132,11 +188,11 @@ export default function LoginScreen() {
             />
 
             <Text style={styles.title}>
-              Profile name
+              {user?.name || "Profile name"}
             </Text>
 
             <Text style={styles.subtitle}>
-              Welcome profile name :)
+              Welcome {user?.name || "user"} :)
             </Text>
           </View>
 
@@ -144,6 +200,7 @@ export default function LoginScreen() {
               <TouchableOpacity
                 onPress={() => {
                   logout();
+                  form.password = '';
                 }}>
                 <View style={styles.disconnectButton}>
                   <Text style={styles.buttonText}> Sign out </Text>

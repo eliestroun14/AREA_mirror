@@ -25,5 +25,9 @@
 prisma/migrations
 prisma/migrations/**
 !prisma/schema.prisma
+!prisma/seeders
+!prisma/seeders/*
 
+!assets
+!assets/**
 node_modules

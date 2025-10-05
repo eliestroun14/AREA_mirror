@@ -25,6 +25,7 @@
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/serve-static": "^5.0.3",
     "@prisma/client": "6.16.2",
     "@types/passport-jwt": "^4.0.1",
     "bcrypt": "^6.0.0",
@@ -36,6 +37,8 @@
     "module-alias": "^2.2.3",
     "passport": "^0.7.0",
     "passport-deezer": "^0.2.0",
+    "passport-discord-auth": "^1.2.0",
+    "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "passport-spotify": "^2.0.0",
@@ -54,6 +57,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^22.10.7",
     "@types/passport-deezer": "^0.2.3",
+    "@types/passport-github2": "^1.2.9",
     "@types/passport-google-oauth20": "^2.0.16",
     "@types/passport-spotify": "^2.0.4",
     "@types/supertest": "^6.0.2",
@@ -92,7 +96,9 @@
     "moduleNameMapper": {
       "@root/(.*)": "<rootDir>/src/$1",
       "@app/(.*)": "<rootDir>/src/app/$1",
+      "@pipes/(.*)": "<rootDir>/src/pipes/$1",
       "@config/(.*)": "<rootDir>/src/config/$1",
+      "@errors/(.*)": "<rootDir>/src/errors/$1",
       "@filters/(.*)": "<rootDir>/src/filters/$1",
       "@test/(.*)": "<rootDir>/test/$1"
     }
@@ -100,6 +106,7 @@
   "_moduleAliases": {
     "@root": ".",
     "@app": "src/app",
+    "@pipes": "src/pipes",
     "@config": "src/config",
     "@filters": "src/filters",
     "@test": "test"
