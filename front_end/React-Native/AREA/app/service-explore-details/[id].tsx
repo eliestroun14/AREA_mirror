@@ -85,7 +85,7 @@ const ServiceExploreDetails = () => {
               <Text style={styles.itemTitle}>{item.name || `Trigger #${item.id}`}</Text>
             </TouchableOpacity>
           )}
-          ListEmptyComponent={<Text style={styles.emptyText}>Aucun trigger trouvé.</Text>}
+          ListEmptyComponent={<Text style={styles.emptyText}>No triggers found.</Text>}
         />
         <Text style={styles.sectionTitle}>Actions</Text>
         <FlatList
@@ -99,7 +99,7 @@ const ServiceExploreDetails = () => {
               <Text style={styles.itemTitle}>{item.name || `Action #${item.id}`}</Text>
             </TouchableOpacity>
           )}
-          ListEmptyComponent={<Text style={styles.emptyText}>Aucune action trouvée.</Text>}
+          ListEmptyComponent={<Text style={styles.emptyText}>No actions found.</Text>}
         />
       </View>
     </>
