@@ -12,7 +12,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
-      const localStorageToken = localStorage.getItem('access_token');
+      const localStorageToken = localStorage.getItem('session_token');
       if (localStorageToken) {
         return localStorageToken;
       }
@@ -20,8 +20,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const cookies = document.cookie.split(';');
       for (const cookie of cookies) {
         const [name, value] = cookie.trim().split('=');
-        if (name === 'access_token') {
-          localStorage.setItem('access_token', value);
+        if (name === 'session_token') {
+          localStorage.setItem('session_token', value);
           return value;
         }
       }
@@ -32,18 +32,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isAuthenticated = !!token;
 
   useEffect(() => {
+    console.log('🔄 Auth state changed:', { 
+      isAuthenticated, 
+      hasToken: !!token, 
+      tokenPreview: token?.substring(0, 10) + '...' 
+    });
+    
     if (token) {
-      document.cookie = 'access_token=' + token + ';';
-      localStorage.setItem('access_token', token);
+      document.cookie = `session_token=${token}; path=/; SameSite=Lax`;
+      localStorage.setItem('session_token', token);
     } else {
-      localStorage.removeItem('access_token');
+      document.cookie = 'session_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      localStorage.removeItem('session_token');
     }
-  }, [token]);
+  }, [token, isAuthenticated]);
 
   const login = (newToken: string) => {
+    console.log('🔑 Login called with token:', newToken?.substring(0, 10) + '...');
     setToken(newToken);
   };
   const logout = () => {
+    console.log('🚪 Logout called');
     setToken(null);
   };
 

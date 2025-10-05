@@ -20,7 +20,11 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     try {
-      const res = await fetch('http://localhost:8080/auth/sign-in', {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+      console.log('Attempting login to:', `${API_BASE_URL}/auth/sign-in`);
+      console.log('Login data:', { email, password: '***' });
+      
+      const res = await fetch(`${API_BASE_URL}/auth/sign-in`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -28,18 +32,61 @@ export default function LoginPage() {
         credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
+      
+      console.log('Response status:', res.status);
+      console.log('Response ok:', res.ok);
+      console.log('Response headers:', res.headers);
+      
+      if (!res.ok) {
+        console.error('Response not ok, trying to get error details...');
+        try {
+          const errorData = await res.text();
+          console.error('Error response:', errorData);
+          
+          let parsedError;
+          try {
+            parsedError = JSON.parse(errorData);
+          } catch {
+            parsedError = { message: errorData };
+          }
+          
+          if (res.status === 401) {
+            alert(parsedError.message || 'Invalid credentials.');
+          } else {
+            alert(parsedError.message || `Server error: ${res.status}`);
+          }
+          return;
+        } catch (textError) {
+          console.error('Could not read error response:', textError);
+          alert(`Server error: ${res.status} - Could not read response`);
+          return;
+        }
+      }
+      
       const data = await res.json();
-      if (res.status === 401) {
-        alert(data.message || 'Invalid credentials.');
-      } else if (res.ok) {
-        login(data.access_token);
+      console.log('Response data:', data);
+      
+      if (data.session_token) {
+        console.log('Token received:', data.session_token?.substring(0, 10) + '...');
+        login(data.session_token);
         alert('Login successful!');
         router.push('/');
       } else {
-        alert(data.message || 'Login error.');
+        console.error('No session_token in response');
+        alert('Login error: No token received');
       }
-    } catch {
-      alert('Network or server error.');
+    } catch (error) {
+      console.error(' Login error details:', error);
+      
+      const err = error as Error;
+      console.error(' Error name:', err.name);
+      console.error(' Error message:', err.message);
+      
+      if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        alert('Cannot connect to server. Please check if the backend is running on port 3000.');
+      } else {
+        alert(`Network or server error: ${err.message}`);
+      }
     }
   }
 

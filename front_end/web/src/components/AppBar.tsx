@@ -15,7 +15,7 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 
 const pages = ['Explore', 'Create', 'My applets'];
-const settings = ['Profile', 'Account', 'Logout'];
+const settings = ['Logout'];
 
 function ResponsiveAppBar() {
   const { isAuthenticated, logout } = useAuth();
@@ -86,6 +86,10 @@ function ResponsiveAppBar() {
                 noWrap
                 component="a"
                 href="/"
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push('/');
+                }}
                 sx={{
                   fontFamily: 'monospace',
                   fontWeight: 700,
