@@ -69,7 +69,7 @@ export class WorkflowService {
       );
     if (!(await this.checkIfReadyToTrigger(zap.id, trigger))) return false;
 
-    this.logger.log(`Executing zap '${zap.name}:${zap.id}'.`);
+    // this.logger.log(`Executing zap '${zap.name}:${zap.id}'.`);
     const triggerAccessToken = await this.getAccessToken(
       triggerStep.connection_id,
     );
@@ -120,6 +120,7 @@ export class WorkflowService {
     const zap_step: zap_steps[] = await this.getActionStepsOf(zap.id);
 
     for (const actionStep of zap_step) {
+      console.log('Exec action:', actionStep);
       if (!actionStep.source_step_id) {
         this.logger.error(
           `Action step with id '${actionStep.id}' do not have a source_step_id.`,
@@ -208,7 +209,7 @@ export class WorkflowService {
     return await this.prisma.zap_steps.findMany({
       where: {
         zap_id: zapId,
-        OR: [{ step_order: 0 }, { step_type: constants.step_types.action }],
+        AND: [{ step_type: constants.step_types.action }],
       },
     });
   }
@@ -236,14 +237,14 @@ export class WorkflowService {
         take: 1,
       });
 
-      console.log('Zap: ', zap);
-      console.log('LastExec: ', lastExecutions);
-      console.log(
-        'Condition: ',
-        zap !== null &&
-          trigger.trigger_type === constants.trigger_types.schedule &&
-          zap.last_run_at === null,
-      );
+      // console.log('Zap: ', zap);
+      // console.log('LastExec: ', lastExecutions);
+      // console.log(
+      //   'Condition: ',
+      //   zap !== null &&
+      //     trigger.trigger_type === constants.trigger_types.schedule &&
+      //     zap.last_run_at === null,
+      // );
 
       if (
         zap !== null &&
@@ -254,10 +255,10 @@ export class WorkflowService {
       if (lastExecutions.length === 0 || !lastExecutions[0].ended_at)
         return false;
 
-      console.log(
-        'Is ready ? ',
-        lastExecutions[0].ended_at.getTime() - Date.now() > interval,
-      );
+      // console.log(
+      //   'Is ready ? ',
+      //   lastExecutions[0].ended_at.getTime() - Date.now() > interval,
+      // );
       return lastExecutions[0].ended_at.getTime() - Date.now() > interval;
     }
     return false;
