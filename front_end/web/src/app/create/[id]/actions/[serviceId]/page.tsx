@@ -301,83 +301,93 @@ export default function ServiceActionsPage() {
         ) : (
           <Box
             sx={{
-              display: 'grid',
-              gridTemplateColumns: { 
-                xs: '1fr',
-                sm: 'repeat(2, 1fr)',
-                md: 'repeat(3, 1fr)',
-                lg: 'repeat(3, 1fr)'
-              },
-              gap: 4
+              display: 'flex',
+              justifyContent: 'center',
+              width: '100%'
             }}
           >
-            {actions.map((action) => (
-              <Card
-                key={action.id}
-                sx={{
-                  borderRadius: 4,
-                  bgcolor: serviceColor,
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
-                  overflow: 'hidden',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  height: '300px',
-                  '&:hover': {
-                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
-                    transform: 'translateY(-4px)'
-                  },
-                  transition: 'all 0.3s ease'
-                }}
-              >
-                <CardActionArea
-                  onClick={() => handleActionClick(action.id)}
-                  sx={{ 
-                    p: 4, 
-                    height: '100%', 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    alignItems: 'flex-start',
-                    justifyContent: 'flex-start'
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { 
+                  xs: '1fr',
+                  sm: 'repeat(2, 1fr)',
+                  md: 'repeat(3, 1fr)',
+                  lg: 'repeat(3, 1fr)'
+                },
+                gap: 4,
+                width: '100%',
+                maxWidth: '1200px'
+              }}
+            >
+              {actions.map((action) => (
+                <Card
+                  key={action.id}
+                  sx={{
+                    borderRadius: 4,
+                    bgcolor: serviceColor,
+                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '300px',
+                    '&:hover': {
+                      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
+                      transform: 'translateY(-4px)'
+                    },
+                    transition: 'all 0.3s ease'
                   }}
                 >
-                  <CardContent sx={{ p: 0, width: '100%' }}>
-                    <Typography
-                      variant="h5"
-                      sx={{
-                        color: 'white',
-                        fontWeight: 700,
-                        mb: 2,
-                        fontSize: { xs: '1.5rem', md: '1.75rem' },
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        textAlign: 'left'
-                      }}
-                    >
-                      {action.name}
-                    </Typography>
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        color: 'rgba(255, 255, 255, 0.9)',
-                        lineHeight: 1.5,
-                        fontSize: { xs: '1.1rem', md: '1.2rem' },
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 4,
-                        WebkitBoxOrient: 'vertical',
-                        textAlign: 'left'
-                      }}
-                    >
-                      {action.description}
-                    </Typography>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            ))}
+                  <CardActionArea
+                    onClick={() => handleActionClick(action.id)}
+                    sx={{ 
+                      p: 4, 
+                      height: '100%', 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      alignItems: 'flex-start',
+                      justifyContent: 'flex-start'
+                    }}
+                  >
+                    <CardContent sx={{ p: 0, width: '100%' }}>
+                      <Typography
+                        variant="h5"
+                        sx={{
+                          color: 'white',
+                          fontWeight: 700,
+                          mb: 2,
+                          fontSize: { xs: '1.5rem', md: '1.75rem' },
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          textAlign: 'left'
+                        }}
+                      >
+                        {action.name}
+                      </Typography>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          color: 'rgba(255, 255, 255, 0.9)',
+                          lineHeight: 1.5,
+                          fontSize: { xs: '1.1rem', md: '1.2rem' },
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 4,
+                          WebkitBoxOrient: 'vertical',
+                          textAlign: 'left'
+                        }}
+                      >
+                        {action.description}
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              ))}
+            </Box>
           </Box>
         )}
       </Container>

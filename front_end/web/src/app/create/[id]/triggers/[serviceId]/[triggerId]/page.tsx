@@ -76,7 +76,8 @@ export default function TriggerFieldsPage() {
   }
 
   const handleCreateTrigger = async () => {
-    if (!selectedConnection) {
+    // Only require connection if trigger type is not SCHEDULE
+    if (trigger?.trigger_type !== 'SCHEDULE' && !selectedConnection) {
       setError('Please select a connection')
       return
     }
@@ -98,10 +99,11 @@ export default function TriggerFieldsPage() {
       })
       
       // Call API to create the trigger
+      // For SCHEDULE triggers, use a dummy connection ID or handle it differently
       await apiService.createZapTrigger(
         Number(zapId),
         Number(triggerId),
-        selectedConnection as number,
+        trigger?.trigger_type === 'SCHEDULE' ? (selectedConnection as number || 0) : selectedConnection as number,
         formData,
         token
       )
@@ -138,7 +140,7 @@ export default function TriggerFieldsPage() {
       const fieldConfig = fieldValue as Record<string, unknown>
       
       // Check if the field is active (default to true if not specified)
-      const isActive = fieldConfig.active !== false
+      const isActive = fieldConfig.is_active !== false
       
       // Skip inactive fields
       if (!isActive) {
@@ -152,7 +154,9 @@ export default function TriggerFieldsPage() {
       const fieldPlaceholder = (fieldConfig.placeholder as string) || ''
       const fieldDefaultValue = (fieldConfig.default_value as string) || ''
       const fieldOrder = (fieldConfig.field_order as number) || 999
-      const selectOptions = Array.isArray(fieldConfig.select_options) ? fieldConfig.select_options as string[] : undefined
+      const selectOptions = Array.isArray(fieldConfig.select_options) && fieldConfig.select_options.length > 0 
+        ? fieldConfig.select_options as string[] 
+        : undefined
       
       // Map API type to input type
       let inputType: 'text' | 'select' | 'number' | 'date' | 'time' = 'text'
@@ -199,7 +203,16 @@ export default function TriggerFieldsPage() {
           throw new Error('You must be logged in to access this page')
         }
         
-        // Fetch user connections for this service
+        // Fetch specific trigger data using apiService FIRST
+        const triggerData = await apiService.getTriggerByService(serviceId, triggerId)
+        
+        if (!triggerData) {
+          throw new Error('Trigger not found')
+        }
+        
+        setTrigger(triggerData)
+        
+        // Fetch user connections for this service (skip for SCHEDULE triggers)
         try {
           const connectionsData = await apiService.getConnectionsByService(Number(serviceId), token)
           setConnections(connectionsData.connections)
@@ -210,19 +223,15 @@ export default function TriggerFieldsPage() {
           }
         } catch (connError) {
           console.error('Error fetching connections:', connError)
-          setError('You need to connect your account to this service first')
-          setLoading(false)
-          return
+          // Only show error if it's not a SCHEDULE trigger
+          if (triggerData?.trigger_type !== 'SCHEDULE') {
+            setError('You need to connect your account to this service first')
+            setLoading(false)
+            return
+          }
+          // For SCHEDULE triggers, continue without connections
+          setConnections([])
         }
-        
-        // Fetch specific trigger data using apiService
-        const triggerData = await apiService.getTriggerByService(serviceId, triggerId)
-        
-        if (!triggerData) {
-          throw new Error('Trigger not found')
-        }
-        
-        setTrigger(triggerData)
         
         // Initialize form data with default values
         const triggerFieldsObj = triggerData.fields as Record<string, unknown>
@@ -439,19 +448,20 @@ export default function TriggerFieldsPage() {
 
       {/* Form Fields */}
       <Container maxWidth="sm">
-        {/* Connection Selection - Always shown first */}
-        <Box
-          sx={{
-            bgcolor: 'white',
-            borderRadius: 3,
-            p: 4,
-            mb: 3,
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
-          }}
-        >
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: serviceColor }}>
-            Select Account
-          </Typography>
+        {/* Connection Selection - Only shown if trigger type is not SCHEDULE */}
+        {trigger.trigger_type !== 'SCHEDULE' && (
+          <Box
+            sx={{
+              bgcolor: 'white',
+              borderRadius: 3,
+              p: 4,
+              mb: 3,
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+            }}
+          >
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: serviceColor }}>
+              Select Account
+            </Typography>
           
           {connections.length === 0 ? (
             <Box>
@@ -508,7 +518,8 @@ export default function TriggerFieldsPage() {
               </Select>
             </FormControl>
           )}
-        </Box>
+          </Box>
+        )}
 
         {triggerFields.length > 0 && (
           <Box
@@ -579,7 +590,7 @@ export default function TriggerFieldsPage() {
           variant="contained"
           size="large"
           fullWidth
-          disabled={!selectedConnection || connections.length === 0 || submitting}
+          disabled={(trigger.trigger_type !== 'SCHEDULE' && (!selectedConnection || connections.length === 0)) || submitting}
           sx={{
             bgcolor: 'white',
             color: serviceColor,

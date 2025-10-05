@@ -15,6 +15,12 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import CircularProgress from '@mui/material/CircularProgress'
 import Alert from '@mui/material/Alert'
+import Popover from '@mui/material/Popover'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
+import ListItemText from '@mui/material/ListItemText'
+import Chip from '@mui/material/Chip'
 import { apiService } from '@/services/api'
 import { useAuth } from '@/context/AuthContext'
 import { ActionDTO, ServiceDTO, ConnectionDTO } from '@/types/api'
@@ -27,6 +33,67 @@ interface ActionField {
   placeholder?: string
   options?: string[]
   default?: string
+  order: number
+}
+
+const generateActionFields = (action: ActionDTO): ActionField[] => {
+  const fields: ActionField[] = []
+  
+  // Parse fields from the action (it's a JSON object from the API)
+  const actionFieldsObj = action.fields as Record<string, unknown>
+  
+  // Iterate through each field in the action.fields object
+  Object.entries(actionFieldsObj).forEach(([fieldKey, fieldValue]) => {
+    // fieldValue should be an object with properties like type, label, required, options, etc.
+    const fieldConfig = fieldValue as Record<string, unknown>
+    
+    // Check if the field is active (default to true if not specified)
+    const isActive = fieldConfig.is_active !== false
+    
+    // Skip inactive fields
+    if (!isActive) {
+      return
+    }
+    
+    // Extract field configuration with all the new properties
+    const fieldType = (fieldConfig.type as string)?.toLowerCase() || 'string'
+    const fieldName = (fieldConfig.field_name as string) || fieldKey.charAt(0).toUpperCase() + fieldKey.slice(1).replace(/_/g, ' ')
+    const fieldRequired = (fieldConfig.required as boolean) || false
+    const fieldPlaceholder = (fieldConfig.placeholder as string) || ''
+    const fieldDefaultValue = (fieldConfig.default_value as string) || ''
+    const fieldOrder = (fieldConfig.field_order as number) || 999
+    const selectOptions = Array.isArray(fieldConfig.select_options) && fieldConfig.select_options.length > 0 
+      ? fieldConfig.select_options as string[] 
+      : undefined
+    
+    // Map API type to input type
+    let inputType = 'text'
+    if (fieldType === 'select' || selectOptions) {
+      inputType = 'select'
+    } else if (fieldType === 'number') {
+      inputType = 'number'
+    } else if (fieldType === 'email') {
+      inputType = 'email'
+    } else if (fieldType === 'textarea') {
+      inputType = 'textarea'
+    }
+    
+    fields.push({
+      name: fieldKey,
+      type: inputType,
+      label: fieldName,
+      options: selectOptions,
+      required: fieldRequired,
+      placeholder: fieldPlaceholder,
+      default: fieldDefaultValue,
+      order: fieldOrder
+    })
+  })
+  
+  // Sort fields by order
+  fields.sort((a, b) => a.order - b.order)
+
+  return fields
 }
 
 export default function ActionConfigPage() {
@@ -47,6 +114,9 @@ export default function ActionConfigPage() {
   const [submitting, setSubmitting] = useState(false)
   const [triggerStepId, setTriggerStepId] = useState<number | null>(null)
   const [existingActionsCount, setExistingActionsCount] = useState(0)
+  const [triggerVariables, setTriggerVariables] = useState<Record<string, unknown>>({})
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+  const [currentFieldName, setCurrentFieldName] = useState<string>('')
 
   const handleOAuth2Connect = () => {
     if (!service) {
@@ -81,6 +151,30 @@ export default function ActionConfigPage() {
     }))
   }
 
+  const handleOpenVariablesMenu = (event: React.MouseEvent<HTMLElement>, fieldName: string) => {
+    setAnchorEl(event.currentTarget)
+    setCurrentFieldName(fieldName)
+  }
+
+  const handleCloseVariablesMenu = () => {
+    setAnchorEl(null)
+    setCurrentFieldName('')
+  }
+
+  const handleInsertVariable = (variableName: string) => {
+    const currentValue = formData[currentFieldName] || ''
+    const newValue = currentValue + `{{${variableName}}}`
+    
+    setFormData(prev => ({
+      ...prev,
+      [currentFieldName]: newValue
+    }))
+    
+    handleCloseVariablesMenu()
+  }
+
+  const open = Boolean(anchorEl)
+
   const handleCreateAction = async () => {
     if (!action || !service || !token) return
 
@@ -95,7 +189,7 @@ export default function ActionConfigPage() {
     }
 
     // Validation basique
-    const actionFields = Array.isArray(action.fields) ? action.fields as unknown as ActionField[] : []
+    const actionFields = generateActionFields(action)
     const missingFields = actionFields
       .filter(field => field.required && !formData[field.name])
       .map(field => field.label)
@@ -176,11 +270,15 @@ export default function ActionConfigPage() {
           return
         }
 
-        // Fetch trigger step to get fromStepId
+        // Fetch trigger step to get fromStepId and variables
         try {
           const triggerData = await apiService.getZapTrigger(Number(zapId), token)
           if (triggerData?.step?.id) {
             setTriggerStepId(triggerData.step.id)
+            // Store trigger variables for use in action fields
+            if (triggerData.trigger?.variables) {
+              setTriggerVariables(triggerData.trigger.variables)
+            }
           } else {
             setError('Please configure a trigger first before adding actions')
             setLoading(false)
@@ -204,7 +302,7 @@ export default function ActionConfigPage() {
         }
         
         // Initialize formData with default values
-        const actionFields = Array.isArray(actionData.fields) ? actionData.fields as unknown as ActionField[] : []
+        const actionFields = generateActionFields(actionData)
         const initialData: Record<string, string> = {}
         actionFields.forEach((field: ActionField) => {
           if (field.default) {
@@ -227,63 +325,89 @@ export default function ActionConfigPage() {
   }, [serviceId, actionId, zapId, token])
 
   const renderField = (field: ActionField) => {
+    const hasVariables = Object.keys(triggerVariables).length > 0
+    
     return (
-      <FormControl key={field.name} fullWidth>
-        {field.type === 'select' ? (
-          <>
-            <InputLabel>{field.label}</InputLabel>
-            <Select
+      <Box key={field.name}>
+        <FormControl fullWidth>
+          {field.type === 'select' ? (
+            <>
+              <InputLabel>{field.label}</InputLabel>
+              <Select
+                value={formData[field.name] || ''}
+                onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                label={field.label}
+                required={field.required}
+                sx={{
+                  bgcolor: 'white',
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2
+                  }
+                }}
+              >
+                {field.options?.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </>
+          ) : field.type === 'textarea' ? (
+            <TextField
+              label={field.label}
               value={formData[field.name] || ''}
               onChange={(e) => handleFieldChange(field.name, e.target.value)}
-              label={field.label}
               required={field.required}
+              placeholder={field.placeholder}
+              multiline
+              rows={4}
+              fullWidth
               sx={{
-                bgcolor: 'white',
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 2
                 }
               }}
-            >
-              {field.options?.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </Select>
-          </>
-        ) : field.type === 'textarea' ? (
-          <TextField
-            label={field.label}
-            value={formData[field.name] || ''}
-            onChange={(e) => handleFieldChange(field.name, e.target.value)}
-            required={field.required}
-            placeholder={field.placeholder}
-            multiline
-            rows={4}
-            fullWidth
+            />
+          ) : (
+            <TextField
+              label={field.label}
+              value={formData[field.name] || ''}
+              onChange={(e) => handleFieldChange(field.name, e.target.value)}
+              required={field.required}
+              type={field.type === 'email' ? 'email' : field.type === 'number' ? 'number' : 'text'}
+              placeholder={field.placeholder}
+              fullWidth
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2
+                }
+              }}
+            />
+          )}
+        </FormControl>
+        
+        {/* Button to insert variables */}
+        {hasVariables && (
+          <Button
+            onClick={(e) => handleOpenVariablesMenu(e, field.name)}
+            size="small"
+            variant="outlined"
             sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 2
+              mt: 1,
+              textTransform: 'none',
+              fontSize: '0.875rem',
+              borderColor: serviceColor || '#1976d2',
+              color: serviceColor || '#1976d2',
+              '&:hover': {
+                borderColor: serviceColor || '#1976d2',
+                bgcolor: `${serviceColor || '#1976d2'}15`
               }
             }}
-          />
-        ) : (
-          <TextField
-            label={field.label}
-            value={formData[field.name] || ''}
-            onChange={(e) => handleFieldChange(field.name, e.target.value)}
-            required={field.required}
-            type={field.type === 'email' ? 'email' : field.type === 'number' ? 'number' : 'text'}
-            placeholder={field.placeholder}
-            fullWidth
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 2
-              }
-            }}
-          />
+          >
+            + Insert Variable
+          </Button>
         )}
-      </FormControl>
+      </Box>
     )
   }
 
@@ -498,7 +622,7 @@ export default function ActionConfigPage() {
   }
 
   const serviceColor = service.services_color
-  const actionFields = Array.isArray(action.fields) ? action.fields as unknown as ActionField[] : []
+  const actionFields = generateActionFields(action)
 
   return (
     <Box
@@ -684,6 +808,89 @@ export default function ActionConfigPage() {
             </Box>
           </Box>
         )}
+
+        {/* Popover for variable selection */}
+        <Popover
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleCloseVariablesMenu}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+        >
+          <Box sx={{ p: 2, maxWidth: 400 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, color: serviceColor }}>
+              Available Variables from Trigger
+            </Typography>
+            
+            {Object.keys(triggerVariables).length === 0 ? (
+              <Typography variant="body2" color="text.secondary">
+                No variables available
+              </Typography>
+            ) : (
+              <List sx={{ p: 0 }}>
+                {Object.entries(triggerVariables).map(([variableKey, variableValue]) => {
+                  // Handle the structure: { type: "string", name: "Prompt", key: "data.prompt" }
+                  const variable = variableValue as Record<string, unknown>
+                  const displayName = (variable.name as string) || variableKey
+                  const variableName = (variable.name as string) || variableKey
+                  const variableType = (variable.type as string) || 'unknown'
+                  const variableKeyPath = (variable.key as string) || ''
+                  
+                  return (
+                    <ListItem key={variableKey} disablePadding>
+                      <ListItemButton
+                        onClick={() => handleInsertVariable(variableName)}
+                        sx={{
+                          borderRadius: 1,
+                          mb: 1,
+                          '&:hover': {
+                            bgcolor: `${serviceColor}15`
+                          }
+                        }}
+                      >
+                        <ListItemText
+                          primary={
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                {displayName}
+                              </Typography>
+                              <Chip
+                                label={variableType}
+                                size="small"
+                                sx={{
+                                  bgcolor: `${serviceColor}15`,
+                                  color: serviceColor,
+                                  fontSize: '0.7rem',
+                                  height: 20
+                                }}
+                              />
+                            </Box>
+                          }
+                          secondary={
+                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, fontFamily: 'monospace' }}>
+                              {`{{${variableName}}}`}
+                              {variableKeyPath && (
+                                <Typography component="span" variant="caption" color="text.disabled" sx={{ ml: 1 }}>
+                                  ({variableKeyPath})
+                                </Typography>
+                              )}
+                            </Typography>
+                          }
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  )
+                })}
+              </List>
+            )}
+          </Box>
+        </Popover>
 
         {/* Create Action Button */}
         {error && (

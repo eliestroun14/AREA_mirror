@@ -26,7 +26,6 @@ export default function HomePage() {
 
   React.useEffect(() => setIsMounted(true), []);
   
-  // Redirection automatique vers /explore si connecté
   React.useEffect(() => {
     if (isMounted && isAuthenticated) {
       router.push('/explore');
@@ -127,97 +126,8 @@ export default function HomePage() {
         </Box>
       </Container>
 
-      {/* Popular Applets Section */}
-      <Box sx={{ bgcolor: '#f8f9fa', py: 8 }}>
-        <Container maxWidth="lg">
-          <Typography
-            variant="h4"
-            align="center"
-            sx={{
-              color: 'black',
-              fontWeight: 600,
-              mb: 1
-            }}
-          >
-            Get started with any Applet
-          </Typography>
-
-          <Box sx={{
-            display: 'grid',
-            gridTemplateColumns: {
-              xs: '1fr',
-              sm: 'repeat(2, 1fr)',
-              lg: 'repeat(2, 1fr)'
-            },
-            gap: 3,
-            mt: 5,
-            maxWidth: '900px',
-            mx: 'auto'
-          }}>
-            {popularApplets.map((applet, index) => (
-              <Card
-                key={index}
-                sx={{
-                  height: '100%',
-                  border: '1px solid',
-                  borderColor: '#e0e0e0',
-                  borderRadius: 3,
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    borderColor: 'black',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
-                    transform: 'translateY(-4px)'
-                  }
-                }}
-              >
-                <CardActionArea sx={{ height: '100%', p: 3 }}>
-                  <CardContent sx={{ p: 0 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <AutoFixHighIcon sx={{ color: getServiceColor(applet.trigger_service), mr: 1 }} />
-                      <Typography variant="h6" sx={{ fontWeight: 600, color: 'black' }}>
-                        {applet.title}
-                      </Typography>
-                    </Box>
-
-                    <Typography variant="body2" color="#666666" sx={{ mb: 3 }}>
-                      {applet.description}
-                    </Typography>
-
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Chip
-                          label={applet.trigger_service}
-                          size="small"
-                          sx={{
-                            bgcolor: '#f5f5f5',
-                            color: 'black',
-                            fontWeight: 500
-                          }}
-                        />
-                        <Chip
-                          label={applet.action_service}
-                          size="small"
-                          sx={{
-                            bgcolor: '#f5f5f5',
-                            color: 'black',
-                            fontWeight: 500
-                          }}
-                        />
-                      </Box>
-                      <Typography variant="caption" color="#666666" sx={{ fontWeight: 600 }}>
-                        {applet.users} users
-                      </Typography>
-                    </Box>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            ))}
-          </Box>
-        </Container>
-      </Box>
-
       {/* Services Section */}
-      <Box sx={{ py: 8 }}>
+      <Box sx={{ bgcolor: '#f8f9fa',py: 8 }}>
         <Container maxWidth="lg">
           <Typography
             variant="h4"
@@ -321,7 +231,7 @@ export default function HomePage() {
       </Box>
 
       {/* Features Section */}
-      <Box sx={{ bgcolor: '#f8f9fa', py: 8 }}>
+      <Box sx={{ py: 8 }}>
         <Container maxWidth="lg">
           <Typography
             variant="h4"

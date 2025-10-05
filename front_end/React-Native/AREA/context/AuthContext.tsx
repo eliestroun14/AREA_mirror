@@ -10,18 +10,29 @@
 import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 
+interface User {
+  name: string;
+  email: string;
+}
+
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: () => void;
+  user: User | null;
+  sessionToken: string | null;
+  login: (userData: User, sessionToken: string) => void;
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [user, setUser] = useState<User | null>(null);
+
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
 
   useEffect(() => {
     const loadAuth = async () => {
@@ -32,21 +43,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loadAuth();
   }, []);
 
-  const login = async () => {
+  const login = async (userData: User, sessionToken: string) => {
     await SecureStore.setItemAsync('auth', 'true');
     setIsAuthenticated(true);
+    setUser(userData);
+    setSessionToken(sessionToken);
   };
 
   const logout = async () => {
     await SecureStore.deleteItemAsync('auth');
     setIsAuthenticated(false);
+    setUser(null);
+    setSessionToken(null);
   };
 
   // if (loading == true)
   //   return null; //TODO: mettre un splashScreen !!
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, sessionToken, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

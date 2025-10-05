@@ -14,6 +14,12 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import CircularProgress from '@mui/material/CircularProgress'
 import Alert from '@mui/material/Alert'
+import Popover from '@mui/material/Popover'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
+import ListItemText from '@mui/material/ListItemText'
+import Chip from '@mui/material/Chip'
 import { apiService } from '@/services/api'
 import { ServiceDTO, ActionDTO, ConnectionDTO } from '@/types/api'
 import { useAuth } from '@/context/AuthContext'
@@ -44,6 +50,9 @@ export default function EditActionPage() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [formData, setFormData] = useState<Record<string, string>>({})
+  const [triggerVariables, setTriggerVariables] = useState<Record<string, unknown>>({})
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+  const [currentFieldName, setCurrentFieldName] = useState<string>('')
 
   const handleBackClick = () => {
     router.push(`/create/${zapId}`)
@@ -124,6 +133,30 @@ export default function EditActionPage() {
     }))
   }
 
+  const handleOpenVariablesMenu = (event: React.MouseEvent<HTMLElement>, fieldName: string) => {
+    setAnchorEl(event.currentTarget)
+    setCurrentFieldName(fieldName)
+  }
+
+  const handleCloseVariablesMenu = () => {
+    setAnchorEl(null)
+    setCurrentFieldName('')
+  }
+
+  const handleInsertVariable = (variableName: string) => {
+    const currentValue = formData[currentFieldName] || ''
+    const newValue = currentValue + `{{${variableName}}}`
+    
+    setFormData(prev => ({
+      ...prev,
+      [currentFieldName]: newValue
+    }))
+    
+    handleCloseVariablesMenu()
+  }
+
+  const open = Boolean(anchorEl)
+
   const generateActionFields = (action: ActionDTO): ActionField[] => {
     const fields: ActionField[] = []
     
@@ -132,8 +165,10 @@ export default function EditActionPage() {
     Object.entries(actionFieldsObj).forEach(([fieldKey, fieldValue]) => {
       const fieldConfig = fieldValue as Record<string, unknown>
       
-      const isActive = fieldConfig.active !== false
+      // Check if the field is active (default to true if not specified)
+      const isActive = fieldConfig.is_active !== false
       
+      // Skip inactive fields
       if (!isActive) {
         return
       }
@@ -144,7 +179,9 @@ export default function EditActionPage() {
       const fieldPlaceholder = (fieldConfig.placeholder as string) || ''
       const fieldDefaultValue = (fieldConfig.default_value as string) || ''
       const fieldOrder = (fieldConfig.field_order as number) || 999
-      const selectOptions = Array.isArray(fieldConfig.select_options) ? fieldConfig.select_options as string[] : undefined
+      const selectOptions = Array.isArray(fieldConfig.select_options) && fieldConfig.select_options.length > 0 
+        ? fieldConfig.select_options as string[] 
+        : undefined
       
       let inputType: 'text' | 'select' | 'number' | 'date' | 'time' | 'textarea' = 'text'
       if (fieldType === 'select' || selectOptions) {
@@ -155,7 +192,7 @@ export default function EditActionPage() {
         inputType = 'date'
       } else if (fieldType === 'time') {
         inputType = 'time'
-      } else if (fieldType === 'textarea') {
+      } else if (fieldType === 'textarea' || fieldType === 'email') {
         inputType = 'textarea'
       }
       
@@ -215,6 +252,17 @@ export default function EditActionPage() {
         
         // Initialize form data with existing values
         setFormData(existingAction.step.payload as Record<string, string>)
+        
+        // Fetch trigger variables
+        try {
+          const triggerData = await apiService.getZapTrigger(Number(zapId), token)
+          if (triggerData?.trigger?.variables) {
+            setTriggerVariables(triggerData.trigger.variables)
+          }
+        } catch (triggerError) {
+          console.error('Error fetching trigger variables:', triggerError)
+          // Non-blocking error - continue without variables
+        }
         
       } catch (err) {
         console.error('Error fetching action data:', err)
@@ -435,64 +483,92 @@ export default function EditActionPage() {
             }}
           >
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              {actionFields.map((field) => (
-                <FormControl key={field.name} fullWidth>
-                  {field.type === 'select' ? (
-                    <>
-                      <InputLabel>{field.label}</InputLabel>
-                      <Select
-                        value={formData[field.name] || ''}
-                        onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                        label={field.label}
-                        required={field.required}
+              {actionFields.map((field) => {
+                const hasVariables = Object.keys(triggerVariables).length > 0
+                
+                return (
+                  <Box key={field.name}>
+                    <FormControl fullWidth>
+                      {field.type === 'select' ? (
+                        <>
+                          <InputLabel>{field.label}</InputLabel>
+                          <Select
+                            value={formData[field.name] || ''}
+                            onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                            label={field.label}
+                            required={field.required}
+                            sx={{
+                              bgcolor: 'white',
+                              '& .MuiOutlinedInput-root': {
+                                borderRadius: 2
+                              }
+                            }}
+                          >
+                            {field.options?.map((option) => (
+                              <MenuItem key={option} value={option}>
+                                {option}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </>
+                      ) : field.type === 'textarea' ? (
+                        <TextField
+                          label={field.label}
+                          value={formData[field.name] || ''}
+                          onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                          required={field.required}
+                          placeholder={field.placeholder}
+                          multiline
+                          rows={4}
+                          fullWidth
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2
+                            }
+                          }}
+                        />
+                      ) : (
+                        <TextField
+                          label={field.label}
+                          value={formData[field.name] || ''}
+                          onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                          required={field.required}
+                          type={field.type}
+                          placeholder={field.placeholder}
+                          fullWidth
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2
+                            }
+                          }}
+                        />
+                      )}
+                    </FormControl>
+                    
+                    {/* Button to insert variables */}
+                    {hasVariables && (
+                      <Button
+                        onClick={(e) => handleOpenVariablesMenu(e, field.name)}
+                        size="small"
+                        variant="outlined"
                         sx={{
-                          bgcolor: 'white',
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: 2
+                          mt: 1,
+                          textTransform: 'none',
+                          fontSize: '0.875rem',
+                          borderColor: serviceColor || '#1976d2',
+                          color: serviceColor || '#1976d2',
+                          '&:hover': {
+                            borderColor: serviceColor || '#1976d2',
+                            bgcolor: `${serviceColor || '#1976d2'}15`
                           }
                         }}
                       >
-                        {field.options?.map((option) => (
-                          <MenuItem key={option} value={option}>
-                            {option}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </>
-                  ) : field.type === 'textarea' ? (
-                    <TextField
-                      label={field.label}
-                      value={formData[field.name] || ''}
-                      onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                      required={field.required}
-                      placeholder={field.placeholder}
-                      multiline
-                      rows={4}
-                      fullWidth
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: 2
-                        }
-                      }}
-                    />
-                  ) : (
-                    <TextField
-                      label={field.label}
-                      value={formData[field.name] || ''}
-                      onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                      required={field.required}
-                      type={field.type}
-                      placeholder={field.placeholder}
-                      fullWidth
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: 2
-                        }
-                      }}
-                    />
-                  )}
-                </FormControl>
-              ))}
+                        + Insert Variable
+                      </Button>
+                    )}
+                  </Box>
+                )
+              })}
             </Box>
           </Box>
         )}
@@ -536,6 +612,89 @@ export default function EditActionPage() {
             'Update action'
           )}
         </Button>
+
+        {/* Popover for variable selection */}
+        <Popover
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleCloseVariablesMenu}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+        >
+          <Box sx={{ p: 2, maxWidth: 400 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, color: serviceColor }}>
+              Available Variables from Trigger
+            </Typography>
+            
+            {Object.keys(triggerVariables).length === 0 ? (
+              <Typography variant="body2" color="text.secondary">
+                No variables available
+              </Typography>
+            ) : (
+              <List sx={{ p: 0 }}>
+                {Object.entries(triggerVariables).map(([variableKey, variableValue]) => {
+                  // Handle the structure: { type: "string", name: "Prompt", key: "data.prompt" }
+                  const variable = variableValue as Record<string, unknown>
+                  const displayName = (variable.name as string) || variableKey
+                  const variableName = (variable.name as string) || variableKey
+                  const variableType = (variable.type as string) || 'unknown'
+                  const variableKeyPath = (variable.key as string) || ''
+                  
+                  return (
+                    <ListItem key={variableKey} disablePadding>
+                      <ListItemButton
+                        onClick={() => handleInsertVariable(variableName)}
+                        sx={{
+                          borderRadius: 1,
+                          mb: 1,
+                          '&:hover': {
+                            bgcolor: `${serviceColor}15`
+                          }
+                        }}
+                      >
+                        <ListItemText
+                          primary={
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                {displayName}
+                              </Typography>
+                              <Chip
+                                label={variableType}
+                                size="small"
+                                sx={{
+                                  bgcolor: `${serviceColor}15`,
+                                  color: serviceColor,
+                                  fontSize: '0.7rem',
+                                  height: 20
+                                }}
+                              />
+                            </Box>
+                          }
+                          secondary={
+                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, fontFamily: 'monospace' }}>
+                              {`{{${variableName}}}`}
+                              {variableKeyPath && (
+                                <Typography component="span" variant="caption" color="text.disabled" sx={{ ml: 1 }}>
+                                  ({variableKeyPath})
+                                </Typography>
+                              )}
+                            </Typography>
+                          }
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  )
+                })}
+              </List>
+            )}
+          </Box>
+        </Popover>
       </Container>
     </Box>
   )

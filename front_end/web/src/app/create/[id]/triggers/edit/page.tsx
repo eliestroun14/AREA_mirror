@@ -49,7 +49,8 @@ export default function EditTriggerPage() {
   }
 
   const handleUpdateTrigger = async () => {
-    if (!selectedConnection) {
+    // Only require connection if trigger type is not SCHEDULE
+    if (trigger?.trigger_type !== 'SCHEDULE' && !selectedConnection) {
       setError('Please select a connection')
       return
     }
@@ -75,11 +76,15 @@ export default function EditTriggerPage() {
         payload: formData
       })
       
-      // Get connection to retrieve accountIdentifier
-      const connection = await apiService.getConnectionById(selectedConnection as number, token)
-      
-      if (!connection.account_identifier) {
-        throw new Error('Connection does not have an account identifier')
+      // Get connection to retrieve accountIdentifier (skip for SCHEDULE triggers)
+      let accountIdentifier = ''
+      if (trigger.trigger_type !== 'SCHEDULE') {
+        const connection = await apiService.getConnectionById(selectedConnection as number, token)
+        
+        if (!connection.account_identifier) {
+          throw new Error('Connection does not have an account identifier')
+        }
+        accountIdentifier = connection.account_identifier
       }
       
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
@@ -91,7 +96,7 @@ export default function EditTriggerPage() {
         },
         body: JSON.stringify({
           triggerId: trigger.id,
-          accountIdentifier: connection.account_identifier,
+          accountIdentifier: accountIdentifier,
           payload: formData
         })
       })
@@ -130,8 +135,10 @@ export default function EditTriggerPage() {
     Object.entries(triggerFieldsObj).forEach(([fieldKey, fieldValue]) => {
       const fieldConfig = fieldValue as Record<string, unknown>
       
-      const isActive = fieldConfig.active !== false
+      // Check if the field is active (default to true if not specified)
+      const isActive = fieldConfig.is_active !== false
       
+      // Skip inactive fields
       if (!isActive) {
         return
       }
@@ -142,7 +149,9 @@ export default function EditTriggerPage() {
       const fieldPlaceholder = (fieldConfig.placeholder as string) || ''
       const fieldDefaultValue = (fieldConfig.default_value as string) || ''
       const fieldOrder = (fieldConfig.field_order as number) || 999
-      const selectOptions = Array.isArray(fieldConfig.select_options) ? fieldConfig.select_options as string[] : undefined
+      const selectOptions = Array.isArray(fieldConfig.select_options) && fieldConfig.select_options.length > 0 
+        ? fieldConfig.select_options as string[] 
+        : undefined
       
       let inputType: 'text' | 'select' | 'number' | 'date' | 'time' = 'text'
       if (fieldType === 'select' || selectOptions) {
@@ -192,7 +201,10 @@ export default function EditTriggerPage() {
         // Set service data
         setService(existingTrigger.service)
         
-        // Fetch user connections for this service
+        // Set trigger data
+        setTrigger(existingTrigger.trigger)
+        
+        // Fetch user connections for this service (skip for SCHEDULE triggers)
         try {
           const connectionsData = await apiService.getConnectionsByService(existingTrigger.service.id, token)
           setConnections(connectionsData.connections)
@@ -201,13 +213,15 @@ export default function EditTriggerPage() {
           setSelectedConnection(existingTrigger.connection.id)
         } catch (connError) {
           console.error('Error fetching connections:', connError)
-          setError('You need to connect your account to this service first')
-          setLoading(false)
-          return
+          // Only show error if it's not a SCHEDULE trigger
+          if (existingTrigger.trigger.trigger_type !== 'SCHEDULE') {
+            setError('You need to connect your account to this service first')
+            setLoading(false)
+            return
+          }
+          // For SCHEDULE triggers, continue without connections
+          setConnections([])
         }
-        
-        // Set trigger data
-        setTrigger(existingTrigger.trigger)
         
         // Initialize form data with existing values
         setFormData(existingTrigger.step.payload as Record<string, string>)
@@ -369,19 +383,20 @@ export default function EditTriggerPage() {
 
       {/* Form Fields */}
       <Container maxWidth="sm">
-        {/* Connection Selection */}
-        <Box
-          sx={{
-            bgcolor: 'white',
-            borderRadius: 3,
-            p: 4,
-            mb: 3,
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
-          }}
-        >
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: serviceColor }}>
-            Select Account
-          </Typography>
+        {/* Connection Selection - Only shown if trigger type is not SCHEDULE */}
+        {trigger.trigger_type !== 'SCHEDULE' && (
+          <Box
+            sx={{
+              bgcolor: 'white',
+              borderRadius: 3,
+              p: 4,
+              mb: 3,
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+            }}
+          >
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: serviceColor }}>
+              Select Account
+            </Typography>
           
           {connections.length === 0 ? (
             <Alert severity="warning" sx={{ mb: 3 }}>
@@ -418,7 +433,8 @@ export default function EditTriggerPage() {
               </Select>
             </FormControl>
           )}
-        </Box>
+          </Box>
+        )}
 
         {triggerFields.length > 0 && (
           <Box
@@ -489,7 +505,7 @@ export default function EditTriggerPage() {
           variant="contained"
           size="large"
           fullWidth
-          disabled={!selectedConnection || connections.length === 0 || submitting}
+          disabled={(trigger.trigger_type !== 'SCHEDULE' && (!selectedConnection || connections.length === 0)) || submitting}
           sx={{
             bgcolor: 'white',
             color: serviceColor,
