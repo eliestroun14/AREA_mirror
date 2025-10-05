@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import areaLogo from '../../assets/images/AreaLogo.png';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 
 
 export default function SignUpScreen() {
@@ -55,6 +55,7 @@ export default function SignUpScreen() {
 
       if (response.ok) {
         Alert.alert("Successfully signed up !");
+        router.replace('/profile'); // Redirect to login page
       } else {
         const error = await response.json();
         // Alert.alert(

@@ -5,6 +5,7 @@ import { Service, Action } from "@/types/type";
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
 import ActionCard from "@/components/molecules/action-card/action-card";
+import { useAuth } from "@/context/AuthContext";
 
 
 const styles = StyleSheet.create({
@@ -54,6 +55,7 @@ const CreateActionService = ({allTriggers}: Props) => {
     serviceTriggerId?: string;
   }>();
 
+  const { isAuthenticated } = useAuth();
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const [actions, setActions] = useState<Action[]>([]);
@@ -86,7 +88,7 @@ const CreateActionService = ({allTriggers}: Props) => {
   if (loading) {
     return (
       <View style={styles.container}>
-        <Text>Chargement...</Text>
+        <Text>Loading...</Text>
       </View>
     );
   }
@@ -94,7 +96,17 @@ const CreateActionService = ({allTriggers}: Props) => {
   if (!service) {
     return (
       <View style={styles.container}>
-        <Text>Service non trouvé pour l'ID: {id}</Text>
+        <Text>Service not found for ID: {id}</Text>
+      </View>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ color: 'red', textAlign: 'center', marginTop: 30 }}>
+          You must be logged in to create an action on this service.
+        </Text>
       </View>
     );
   }
