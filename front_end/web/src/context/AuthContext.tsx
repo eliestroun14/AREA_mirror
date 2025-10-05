@@ -12,19 +12,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
+      // Only check localStorage, as session_token cookie is httpOnly
+      // and cannot be read by JavaScript
       const localStorageToken = localStorage.getItem('access_token');
-      if (localStorageToken) {
-        return localStorageToken;
-      }
-  
-      const cookies = document.cookie.split(';');
-      for (const cookie of cookies) {
-        const [name, value] = cookie.trim().split('=');
-        if (name === 'access_token') {
-          localStorage.setItem('access_token', value);
-          return value;
-        }
-      }
+      return localStorageToken || null;
     }
     return null;
   });
@@ -33,7 +24,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (token) {
-      document.cookie = 'access_token=' + token + ';';
+      // Store in localStorage for client-side access
+      // Note: The backend also sets a httpOnly session_token cookie
+      // which is automatically sent with requests (credentials: 'include')
       localStorage.setItem('access_token', token);
     } else {
       localStorage.removeItem('access_token');

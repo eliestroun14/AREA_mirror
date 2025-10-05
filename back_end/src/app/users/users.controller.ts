@@ -8,8 +8,10 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  Post,
   Put,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '@app/auth/jwt/jwt-auth.guard';
@@ -17,9 +19,11 @@ import type { JwtRequest } from '@app/auth/jwt/jwt.dto';
 import type {
   DeleteMeResponse,
   GetMeResponse,
+  LogoutMeResponse,
   PutMeResponse,
 } from '@app/users/users.dto';
 import { PutMeBody } from '@app/users/users.dto';
+import type { Response } from 'express';
 import { UsersService } from '@app/users/users.service';
 import { ConnectionsService } from '@app/users/connections/connections.service';
 import type {
@@ -88,6 +92,23 @@ export class UsersController {
       message: 'Your account has been deleted.',
       statusCode: HttpStatus.NO_CONTENT,
     };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('me/logout')
+  @UseGuards(JwtAuthGuard)
+  logoutMe(@Res() res: Response): void {
+    // Clear all authentication cookies
+    res.clearCookie('session_token', {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+    });
+
+    res.status(HttpStatus.OK).json({
+      message: 'You have been successfully logged out.',
+      statusCode: HttpStatus.OK,
+    });
   }
 
   @HttpCode(HttpStatus.OK)

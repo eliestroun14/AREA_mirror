@@ -53,6 +53,16 @@ export interface ConnectionDTO {
   last_used_at: string | null;
 }
 
+export interface ZapDTO {
+  id: number;
+  user_id: number;
+  name: string;
+  description: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 // API Response types
 export type GetAllServicesResponse = ServiceDTO[];
 export type GetServiceResponse = ServiceDTO;
@@ -62,3 +72,4 @@ export type GetActionByServiceResponse = ActionDTO | null;
 export type GetTriggerByServiceResponse = TriggerDTO | null;
 export type GetAllConnectionsResponse = { connections: ConnectionDTO[] };
 export type GetConnectionsByServiceResponse = { connections: ConnectionDTO[] };
+export type GetAllZapsResponse = ZapDTO[];
