@@ -1,28 +1,44 @@
 import { useState, useEffect, useMemo } from 'react';
-import { View, StyleSheet, FlatList, ListRenderItem } from 'react-native';
+import { View, StyleSheet, FlatList, ListRenderItem, ActivityIndicator, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SearchBar from "@/components/molecules/search-bar/search-bar";
 import { AppletsCard, Service } from '@/types/type';
-import db from "../../data/db.json"
 import ServiceCard from '@/components/molecules/service-card/service-card'
 import AppletCard from '@/components/molecules/applets-card/applets-card';
+import axios from 'axios';
 
 type ServiceWithType = Service & { itemType: 'service' };
 type AppletWithType = AppletsCard & { itemType: 'applet' };
 type CombinedItem = ServiceWithType | AppletWithType;
 
 export default function ExploreScreen() {
-
   const [services, setServices] = useState<Service[]>([]);
-  const [applets, setApplets] = useState<AppletsCard[]>([]);
+  const [applets, setApplets] = useState<AppletsCard[]>([]); // reste vide
   const [search, setSearch] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
   useEffect(() => {
-    setServices(db.services);
-  }, []);
+    const getServices = async () => {
+      try {
+        const URL = `${apiUrl}/services`;
+        const response = await axios.get(URL);
+        console.log('Réponse API services:', response.data); // Ajout du log
+        setServices(response.data);
+      } catch (err) {
+        setError("Erreur lors du chargement des services");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    getServices();
+  }, [apiUrl]);
 
+  // Les applets restent vides tant que l'API n'est pas dispo
   useEffect(() => {
-    setApplets(db.appletsCard);
+    setApplets([]);
   }, []);
 
   const shuffleArray = <T,>(array: T[]): T[] => {
@@ -39,12 +55,10 @@ export default function ExploreScreen() {
       ...item,
       itemType: 'service' as const
     }));
-
     const appletsWithType: AppletWithType[] = applets.map((item: AppletsCard) => ({
       ...item,
       itemType: 'applet' as const
     }));
-
     const combined: CombinedItem[] = [...servicesWithType, ...appletsWithType];
     return shuffleArray(combined);
   }, [services, applets]);
@@ -57,47 +71,46 @@ export default function ExploreScreen() {
     return null;
   };
 
-  // const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  // const getServices = async() => {
-  //   const URL = 'http://localhost:3000/services';
-  //     const response = await axios.get(URL);
-
-  //     console.log(response.data);
-  //     setServices(response.data);
-  //     setIsLoading(false);
-  // }
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
-      <FlatList
-        data={combinedData}
-        keyExtractor={(item, index) => `${item.itemType}-${item.id}-${index}`}
-        renderItem={renderItem}
-        ListHeaderComponent={() => (
-          <View style={styles.header}>
-            <View style={styles.searchBar}>
-              <SearchBar value={search} onChangeText={setSearch} placeholder="Search..." />
-            </View>
+      {isLoading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#00A35F" />
+        </View>
+      ) : error ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>{error}</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={combinedData}
+          keyExtractor={(item, index) => `${item.itemType}-${item.id}-${index}`}
+          renderItem={renderItem}
+          ListHeaderComponent={() => (
+            <View style={styles.header}>
+              <View style={styles.searchBar}>
+                <SearchBar value={search} onChangeText={setSearch} placeholder="Search..." />
+              </View>
 
-            {/* <View style={styles.Cards}>
-              <NewsCard category='Popular'
-              description='New on AREA in September 2025'
-              imageBackground={news_rafiki}
-              backgroundColor='rgba(0, 163, 95, 1)'
-              />
-            </View>
+              {/* <View style={styles.Cards}>
+                <NewsCard category='Popular'
+                description='New on AREA in September 2025'
+                imageBackground={news_rafiki}
+                backgroundColor='rgba(0, 163, 95, 1)'
+                />
+              </View>
 
-            <View style={styles.Cards}>
-              <NewsCard category='Linkedin'
-              description='New on AREA in August 2025'
-              imageBackground={news_bro}
-              backgroundColor='rgba(202, 115, 0, 1)'
-              />
-            </View> */}
-          </View>
-        )}
-      />
+              <View style={styles.Cards}>
+                <NewsCard category='Linkedin'
+                description='New on AREA in August 2025'
+                imageBackground={news_bro}
+                backgroundColor='rgba(202, 115, 0, 1)'
+                />
+              </View> */}
+            </View>
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }

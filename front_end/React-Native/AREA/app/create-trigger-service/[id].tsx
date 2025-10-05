@@ -6,6 +6,7 @@ import db from "../../data/db.json"
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
 import TriggerCard from "@/components/molecules/trigger-card/trigger-card";
+import axios from "axios";
 
 type Props = {
   allTriggers: Trigger[];
@@ -38,20 +39,20 @@ const CreateTriggerService = ({allTriggers}: Props) => {
       setService(foundService);
       console.log('Service found :', foundService);
     } else {
-      console.log('Service not found for ID :', id);
+      console.log('Service not found for ID in create trigger service:', id);
       setService(null);
     }
     setLoading(false);
   };
 
-  //TODO: quand j'aurai le back faudra changer ici !!!!
+  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
-  // const getProductDetails = async () => {
-  //   const URL = `http://localhost:3000/services/${id}`
-  //   const response = await axios.get(URL);
+  const getProductDetails = async () => {
+    const URL = `${apiUrl}/services/${id}`
+    const response = await axios.get(URL);
 
-  //   console.log('Service details :', response.data);
-  // }
+    console.log('Service details :', response.data);
+  }
 
   if (loading) {
     return (

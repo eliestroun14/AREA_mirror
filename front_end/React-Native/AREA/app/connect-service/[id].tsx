@@ -28,7 +28,7 @@ const ConnectService = (props: Props) => {
       setService(foundService);
       console.log('Service found :', foundService);
     } else {
-      console.log('Service not found for ID :', id);
+      console.log('Service not found for ID in connect service:', id);
       setService(null);
     }
     setLoading(false);

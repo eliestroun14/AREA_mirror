@@ -8,6 +8,7 @@ import { imageMap } from "@/types/image";
 import TriggerFieldCard from "@/components/molecules/trigger-field-card/trigger-field-card";
 import { TriggerField } from "@/types/type";
 import { router } from "expo-router";
+import axios from "axios";
 
 type Props = {}
 
@@ -47,12 +48,14 @@ const TriggerFieldsPage = (props: Props) => {
 
   //TODO: quand j'aurai le back faudra changer ici !!!!
 
-  // const getProductDetails = async () => {
-  //   const URL = `http://localhost:3000/services/${id}`
-  //   const response = await axios.get(URL);
+  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
-  //   console.log('Service details :', response.data);
-  // }
+  const getProductDetails = async () => {
+    const URL = `${apiUrl}/services/${id}`
+    const response = await axios.get(URL);
+
+    console.log('Service details :', response.data);
+  }
 
   if (loading) {
     return (
