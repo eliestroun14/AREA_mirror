@@ -1,8 +1,7 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';
-import { Service, Trigger } from "@/types/type";
-import db from "../../data/db.json"
+import { Service, Trigger, Action } from "@/types/type";
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
 import ActionFieldCard from "@/components/molecules/action-field-card/action-field-card";
@@ -12,6 +11,7 @@ import { router } from "expo-router";
 type Props = {}
 
 const ActionFieldsPage = (props: Props) => {
+  console.log('(ACTION FIELDS PAGE)');
 
   const { id, actionId, serviceActionId, triggerId, serviceTriggerId } = useLocalSearchParams<{
     id?: string;
@@ -22,39 +22,41 @@ const ActionFieldsPage = (props: Props) => {
   }>();
 
   const [service, setService] = useState<Service | null>(null);
-  const [action, setAction] = useState<Trigger | null>(null);
+  const [action, setAction] = useState<Action | null>(null);
   const [loading, setLoading] = useState(true);
+  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
   useEffect(() => {
-    getServiceDetails();
-  }, [serviceActionId, actionId]);
-
-  const getServiceDetails = () => {
-    setLoading(true);
-
-    const foundService = db.services.find(s => s.id === serviceActionId);
-    if (foundService) {
-      const foundAction = foundService.triggers.find(t => t.id === actionId);
-      if (foundAction) {
-        setService(foundService);
-        setAction(foundAction);
-        console.log("Action fields:", foundAction.fields);
-      } else
-        console.log("Action not found:", actionId);
-    } else
-      console.log("Service not found:", serviceActionId);
-
-    setLoading(false);
-  };
-
-  //TODO: quand j'aurai le back faudra changer ici !!!!
-
-  // const getProductDetails = async () => {
-  //   const URL = `http://localhost:3000/services/${id}`
-  //   const response = await axios.get(URL);
-
-  //   console.log('Service details :', response.data);
-  // }
+    const fetchServiceAndAction = async () => {
+      setLoading(true);
+      try {
+        if (!serviceActionId || !actionId) {
+          setService(null);
+          setAction(null);
+          setLoading(false);
+          return;
+        }
+        // Fetch service
+        const serviceRes = await fetch(`${apiUrl}/services/${serviceActionId}`);
+        if (!serviceRes.ok) throw new Error('Service not found');
+        const serviceData: Service = await serviceRes.json();
+        setService(serviceData);
+        // Fetch action
+        const actionRes = await fetch(`${apiUrl}/services/${serviceActionId}/actions/${actionId}`);
+        if (!actionRes.ok) throw new Error('Action not found');
+        const actionData: Action = await actionRes.json();
+        setAction(actionData);
+        console.log('Action fields:', actionData.fields);
+      } catch (err) {
+        setService(null);
+        setAction(null);
+        console.log('[ActionFieldsPage] Error fetching service or action:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchServiceAndAction();
+  }, [serviceActionId, actionId, apiUrl]);
 
   if (loading) {
     return (
@@ -83,7 +85,7 @@ const ActionFieldsPage = (props: Props) => {
           options={{
             title: "Complete action fields",
             headerStyle: {
-              backgroundColor: service.backgroundColor,
+              backgroundColor: service.services_color,
             },
             headerTintColor: '#fff',
             headerTitleStyle: {
@@ -91,22 +93,18 @@ const ActionFieldsPage = (props: Props) => {
             },
           }}
         />
-        {
         <View style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
-          <View style={[styles.header, {backgroundColor: service.backgroundColor}]}>
+          <View style={[styles.header, {backgroundColor: service.services_color}]}> 
             <Image
               style={styles.appLogo}
-              source={imageMap[service.id] ?? imageMap["default"]}
+              source={imageMap[service.name] ?? imageMap["default"]}
             />
-
             <Text style={styles.actionName}>
               {action.name}
             </Text>
-
             <Text style={styles.actionDescription}>
               {action.description}
             </Text>
-
             <FlatList
               data={fieldsArray}
               keyExtractor={(item) => item.id}
@@ -115,7 +113,6 @@ const ActionFieldsPage = (props: Props) => {
               )}
               contentContainerStyle={{ padding: 16 }}
             />
-
             <TouchableOpacity style={styles.connectButton}
               onPress={() => (
               router.push({
@@ -134,7 +131,6 @@ const ActionFieldsPage = (props: Props) => {
             </TouchableOpacity>
           </View>
         </View>
-        }
     </>
   )
 }

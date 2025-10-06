@@ -1,25 +1,24 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 import { Service } from "@/types/type";
-import { imageMap } from "@/types/image";
 import { Link } from "expo-router";
+import { imageMap } from "@/types/image";
 
 type Props = {
   item: Service
 };
 
 const ServiceCard = ({ item }: Props) => {
-
   return (
     <Link href={`/service-explore-details/${item.id}`} asChild>
       <TouchableOpacity style={styles.container}>
-        <View style={[styles.button, { backgroundColor: item.backgroundColor, height: 200 }]}>
+        <View style={[styles.button, { backgroundColor: item.services_color, height: 200 }]}>
           <Image
             style={styles.appLogo}
-            source={imageMap[item.id] ?? imageMap["default"]}
+            source={imageMap[item.name] ?? imageMap["default"]}
           />
           <Text style={styles.buttonText}>
-            {item.serviceName}
+            {item.name}
           </Text>
         </View>
       </TouchableOpacity>

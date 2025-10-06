@@ -13,13 +13,13 @@ const LittleTriggerServiceCard = ({ item }: Props) => {
   return (
     <Link href={`/create-trigger-service/${item.id}`} asChild>
       <TouchableOpacity style={styles.container}>
-        <View style={[styles.button, { backgroundColor: item.backgroundColor, height: 160, width: 160 }]}>
+        <View style={[styles.button, { backgroundColor: item.services_color, height: 160, width: 160 }]}>
           <Image
             style={styles.appLogo}
-            source={imageMap[item.id] ?? imageMap["default"]}
+            source={imageMap[item.name] ?? imageMap["default"]}
           />
           <Text style={styles.buttonText}>
-            {item.serviceName}
+            {item.name}
           </Text>
         </View>
       </TouchableOpacity>

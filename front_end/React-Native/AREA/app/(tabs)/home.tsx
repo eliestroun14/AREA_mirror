@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import build from '../../assets/images/Construction crane-pana.png';
 
 export default function HomeScreen() {
+  console.log('(HOME)');
 
   const [search, setSearch] = useState("");
 

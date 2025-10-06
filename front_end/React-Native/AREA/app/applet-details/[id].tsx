@@ -2,45 +2,38 @@ import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from "react
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';
 import { AppletsCard } from "@/types/type";
-import db from "../../data/db.json"
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
 
 type Props = {}
 
 const AppletDetails = (props: Props) => {
+  console.log('(APPLET DETAILS)');
 
   const {id} = useLocalSearchParams();
   const [applet, setApplet] = useState<AppletsCard | null>(null);
   const [loading, setLoading] = useState(true);
+  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
   useEffect(() => {
-    getAppletDetails();
-  }, [id]);
-
-  const getAppletDetails = () => {
-    setLoading(true);
-
-    const foundApplet = db.appletsCard.find(applet => applet.id === Number(id));
-
-    if (foundApplet) {
-      setApplet(foundApplet);
-      console.log('Applet found :', foundApplet);
-    } else {
-      console.log('Applet not found for ID :', id);
-      setApplet(null);
-    }
-    setLoading(false);
-  };
-
-  //TODO: quand j'aurai le back faudra changer ici !!!!
-
-  // const getProductDetails = async () => {
-  //   const URL = `http://localhost:3000/services/${id}`
-  //   const response = await axios.get(URL);
-
-  //   console.log('Service details :', response.data);
-  // }
+    const fetchApplet = async () => {
+      setLoading(true);
+      try {
+        // TODO: Replace with real backend endpoint if available
+        // Example: const res = await fetch(`${apiUrl}/applets/${id}`);
+        // if (!res.ok) throw new Error('Applet not found');
+        // const data = await res.json();
+        // setApplet(data);
+        setApplet(null); // No backend, so always not found for now
+      } catch (err) {
+        setApplet(null);
+        console.log('[AppletDetails] Error fetching applet:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (id) fetchApplet();
+  }, [id, apiUrl]);
 
   if (loading) {
     return (

@@ -2,7 +2,6 @@ import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';
 import { Service } from "@/types/type";
-import db from "../../data/db.json"
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
 
@@ -10,6 +9,7 @@ import { imageMap } from "@/types/image";
 type Props = {}
 
 const ConnectService = (props: Props) => {
+  console.log('(CONNECT SERVICE)');
 
   const {id} = useLocalSearchParams();
   const [service, setService] = useState<Service | null>(null);
@@ -28,7 +28,7 @@ const ConnectService = (props: Props) => {
       setService(foundService);
       console.log('Service found :', foundService);
     } else {
-      console.log('Service not found for ID :', id);
+      console.log('Service not found for ID in connect service:', id);
       setService(null);
     }
     setLoading(false);
