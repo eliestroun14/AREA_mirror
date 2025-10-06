@@ -11,13 +11,14 @@ type Props = {
 const TriggerCard = ({ item, backgroundColor }: Props) => {
 
   const [isConnected, setIsConnected] = useState<Boolean>(true);
-  const hasFields = Object.keys(item.fields).length > 0;
+  const hasFields = item.fields && Object.keys(item.fields).length > 0;
+  const serviceIdStr = item.service_id ? item.service_id.toString() : '';
 
   if (isConnected === false) {
     return (
-      <Link href={`/connect-service/${item.service.toLocaleLowerCase()}`} asChild>
+      <Link href={`/connect-service/${serviceIdStr}`} asChild>
         <TouchableOpacity style={styles.container}>
-          <View style={[styles.button, { backgroundColor: backgroundColor, height: 60 }]}>
+          <View style={[styles.button, { backgroundColor: backgroundColor, height: 60 }]}> 
             <Text style={styles.buttonText}>
               {item.name}
             </Text>
@@ -30,10 +31,10 @@ const TriggerCard = ({ item, backgroundColor }: Props) => {
       <TouchableOpacity style={styles.container}
         onPress={() => (
           router.push({pathname: "/(tabs)/create",
-            params: {triggerId: item.id, serviceTriggerId: item.service.toLocaleLowerCase()}}
-          )
+            params: {triggerId: item.id, serviceTriggerId: serviceIdStr}
+          })
         )}>
-        <View style={[styles.button, { backgroundColor: backgroundColor, height: 60 }]}>
+        <View style={[styles.button, { backgroundColor: backgroundColor, height: 60 }]}> 
           <Text style={styles.buttonText}>
             {item.name}
           </Text>
@@ -47,11 +48,11 @@ const TriggerCard = ({ item, backgroundColor }: Props) => {
             router.push({pathname: "/trigger-fields-page/[id]",
               params: { id: item.id,
                 triggerId: item.id,
-                serviceTriggerId: item.service.toLocaleLowerCase()}
+                serviceTriggerId: serviceIdStr}
             })
           )}
         >
-          <View style={[styles.button, { backgroundColor: backgroundColor, height: 60 }]}>
+          <View style={[styles.button, { backgroundColor: backgroundColor, height: 60 }]}> 
             <Text style={styles.buttonText}>
               {item.name}
             </Text>

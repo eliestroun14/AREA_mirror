@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Service, Trigger, Action } from "@/types/type";
 import { router } from "expo-router";
 import { imageMap } from "@/types/image";
+import { useAuth } from "@/context/AuthContext";
 
 type Props = {
   serviceTrigger?: Service;
@@ -12,6 +13,19 @@ type Props = {
 };
 
 const CreateCard = ({ serviceTrigger, trigger, serviceAction, action, onPress }: Props) => {
+  console.log('(CREATE CARD)');
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ color: 'red', textAlign: 'center', marginTop: 30 }}>
+          You must be logged in to create an applet.
+        </Text>
+      </View>
+    );
+  }
+
   const hasTrigger = serviceTrigger && trigger;
   const hasAction = serviceAction && action;
 

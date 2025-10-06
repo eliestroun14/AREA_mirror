@@ -15,17 +15,25 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 
 const pages = ['Explore', 'Create', 'My applets'];
-const settings = ['Profile', 'Account', 'Logout'];
+const settings = ['Logout'];
 
 function ResponsiveAppBar() {
   const { isAuthenticated, logout } = useAuth();
   const router = useRouter();
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-    const [isMounted, setIsMounted] = React.useState(false);
-    React.useEffect(() => { setIsMounted(true); }, []);
+  const [isMounted, setIsMounted] = React.useState(false);
+  React.useEffect(() => { setIsMounted(true); }, []);
 
-    if (!isMounted) return null;
+  if (!isMounted) return null;
+
+  // Pages disponibles selon l'état de connexion
+  const availablePages = isAuthenticated 
+    ? ['Explore', 'Create', 'My applets']
+    : ['Explore'];
+
+  // URL de redirection du logo selon l'état de connexion
+  const logoRedirectUrl = isAuthenticated ? '/explore' : '/';
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -60,7 +68,7 @@ function ResponsiveAppBar() {
   };
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: '#005acd' }}>
+    <AppBar position="static" sx={{ backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.0)' }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           {/* Logo */}
@@ -85,12 +93,16 @@ function ResponsiveAppBar() {
                 variant="h6"
                 noWrap
                 component="a"
-                href="/"
+                href={logoRedirectUrl}
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push(logoRedirectUrl);
+                }}
                 sx={{
                   fontFamily: 'monospace',
                   fontWeight: 700,
                   letterSpacing: '.3rem',
-                  color: 'inherit',
+                  color: 'black',
                   textDecoration: 'none',
                   cursor: 'pointer',
                 }}
@@ -108,8 +120,7 @@ function ResponsiveAppBar() {
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleOpenNavMenu}
-              color="inherit"
-              sx={{ ml: 1 }}
+              sx={{ ml: 1, color: 'black' }}
             >
               <MenuIcon />
             </IconButton>
@@ -129,9 +140,9 @@ function ResponsiveAppBar() {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
-              {pages.map((page) => (
+              {availablePages.map((page) => (
                 <MenuItem key={page} onClick={() => handlePageNavigation(page)}>
-                  <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
+                  <Typography sx={{ textAlign: 'center', color: 'black' }}>{page}</Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -139,11 +150,11 @@ function ResponsiveAppBar() {
 
           {/* Desktop page names - left, close to logo */}
           <Box sx={{ display: { xs: 'none', md: 'flex' }, ml: 2, gap: 2, alignItems: 'center' }}>
-            {pages.map((page) => (
+            {availablePages.map((page) => (
               <Button
                 key={page}
                 onClick={() => handlePageNavigation(page)}
-                sx={{ color: 'white', px: 2, fontWeight: 500, fontSize: '1rem', minWidth: 0 }}
+                sx={{ color: 'black', px: 2, fontWeight: 500, fontSize: '1rem', minWidth: 0 }}
               >
                 {page}
               </Button>
@@ -183,13 +194,26 @@ function ResponsiveAppBar() {
                       handleCloseUserMenu();
                       if (setting === 'Logout') logout();
                     }}>
-                      <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                      <Typography sx={{ textAlign: 'center', color: 'black' }}>{setting}</Typography>
                     </MenuItem>
                   ))}
                 </Menu>
               </>
             ) : (
-              <Button color="inherit" href="/login">Login</Button>
+              <Button 
+                href="/login"
+                sx={{ 
+                  color: 'black',
+                  border: '1px solid black',
+                  borderRadius: 2,
+                  px: 3,
+                  '&:hover': {
+                    bgcolor: 'rgba(0, 0, 0, 0.04)'
+                  }
+                }}
+              >
+                Login
+              </Button>
             )}
           </Box>
         </Toolbar>

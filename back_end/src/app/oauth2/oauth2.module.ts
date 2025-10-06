@@ -7,8 +7,10 @@ import { GmailStrategy } from '@app/oauth2/services/gmail/gmail.strategy';
 import { DiscordStrategy } from '@app/oauth2/services/discord/discord.strategy';
 import { GithubStrategy } from '@app/oauth2/services/github/github.strategy';
 import { ConnectionsService } from '@app/users/connections/connections.service';
+import { AuthModule } from '@app/auth/auth.module';
 
 @Module({
+  imports: [AuthModule],
   controllers: [Oauth2Controller],
   providers: [
     Oauth2Service,

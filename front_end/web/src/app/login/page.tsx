@@ -11,8 +11,6 @@ import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import Paper from '@mui/material/Paper'
 import GoogleIcon from '@mui/icons-material/Google'
-import FacebookIcon from '@mui/icons-material/Facebook'
-import AppleIcon from '@mui/icons-material/Apple'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -22,25 +20,73 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     try {
-      const res = await fetch('http://localhost:3000/auth/sign-in', {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+      console.log('Attempting login to:', `${API_BASE_URL}/auth/sign-in`);
+      console.log('Login data:', { email, password: '***' });
+      
+      const res = await fetch(`${API_BASE_URL}/auth/sign-in`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
-      if (res.status === 401) {
-        alert(data.message || 'Invalid credentials.');
-      } else if (res.ok && data.access_token) {
-        login(data.access_token);
-        alert('Login successful!');
-        router.push('/');
-      } else {
-        alert(data.message || 'Login error.');
+      
+      console.log('Response status:', res.status);
+      console.log('Response ok:', res.ok);
+      console.log('Response headers:', res.headers);
+      
+      if (!res.ok) {
+        console.error('Response not ok, trying to get error details...');
+        try {
+          const errorData = await res.text();
+          console.error('Error response:', errorData);
+          
+          let parsedError;
+          try {
+            parsedError = JSON.parse(errorData);
+          } catch {
+            parsedError = { message: errorData };
+          }
+          
+          if (res.status === 401) {
+            alert(parsedError.message || 'Invalid credentials.');
+          } else {
+            alert(parsedError.message || `Server error: ${res.status}`);
+          }
+          return;
+        } catch (textError) {
+          console.error('Could not read error response:', textError);
+          alert(`Server error: ${res.status} - Could not read response`);
+          return;
+        }
       }
-    } catch {
-      alert('Network or server error.');
+      
+      const data = await res.json();
+      console.log('Response data:', data);
+      
+      if (data.session_token) {
+        console.log('Token received:', data.session_token?.substring(0, 10) + '...');
+        login(data.session_token);
+        alert('Login successful!');
+        router.push('/explore');
+      } else {
+        console.error('No session_token in response');
+        alert('Login error: No token received');
+      }
+    } catch (error) {
+      console.error(' Login error details:', error);
+      
+      const err = error as Error;
+      console.error(' Error name:', err.name);
+      console.error(' Error message:', err.message);
+      
+      if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        alert('Cannot connect to server. Please check if the backend is running on port 3000.');
+      } else {
+        alert(`Network or server error: ${err.message}`);
+      }
     }
   }
 
@@ -66,7 +112,7 @@ export default function LoginPage() {
               height: 60,
               width: 60,
               mb: 2,
-              filter: 'drop-shadow(0 2px 8px rgba(0, 90, 205, 0.15))'
+              filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15))'
             }}
           />
           <Typography
@@ -75,7 +121,7 @@ export default function LoginPage() {
               fontFamily: 'monospace',
               fontWeight: 700,
               letterSpacing: '.2rem',
-              color: '#005acd',
+              color: 'black',
             }}
           >
             AREA
@@ -90,9 +136,9 @@ export default function LoginPage() {
             maxWidth: 400,
             p: 4,
             borderRadius: 3,
-            border: '1px solid',
-            borderColor: 'rgba(0, 90, 205, 0.1)',
+            border: '1px solid #e0e0e0',
             backgroundColor: 'white',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
           }}
         >
           <Typography
@@ -100,7 +146,7 @@ export default function LoginPage() {
             align="center"
             gutterBottom
             sx={{
-              color: '#005acd',
+              color: 'black',
               fontWeight: 600,
               mb: 4
             }}
@@ -121,14 +167,14 @@ export default function LoginPage() {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
                   '&:hover fieldset': {
-                    borderColor: '#005acd',
+                    borderColor: 'black',
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#005acd',
+                    borderColor: 'black',
                   },
                 },
                 '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#005acd',
+                  color: 'black',
                 },
               }}
             />
@@ -145,14 +191,14 @@ export default function LoginPage() {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
                   '&:hover fieldset': {
-                    borderColor: '#005acd',
+                    borderColor: 'black',
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#005acd',
+                    borderColor: 'black',
                   },
                 },
                 '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#005acd',
+                  color: 'black',
                 },
               }}
             />
@@ -165,12 +211,12 @@ export default function LoginPage() {
               sx={{
                 py: 1.5,
                 borderRadius: 2,
-                backgroundColor: '#005acd',
+                backgroundColor: 'black',
                 fontWeight: 600,
                 fontSize: '1rem',
                 textTransform: 'none',
                 '&:hover': {
-                  backgroundColor: '#004494',
+                  backgroundColor: '#333333',
                 },
               }}
             >
@@ -193,13 +239,13 @@ export default function LoginPage() {
                 sx={{
                   py: 1.5,
                   borderRadius: 2,
-                  borderColor: '#dadce0',
-                  color: '#3c4043',
+                  borderColor: '#e0e0e0',
+                  color: 'black',
                   textTransform: 'none',
                   fontWeight: 500,
                   '&:hover': {
-                    borderColor: '#005acd',
-                    backgroundColor: 'rgba(0, 90, 205, 0.04)',
+                    borderColor: 'black',
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
                   },
                 }}
               >
@@ -211,13 +257,13 @@ export default function LoginPage() {
             <Typography
               variant="body2"
               align="center"
-              sx={{ mt: 3, color: 'text.secondary' }}
+              sx={{ mt: 3, color: '#666666' }}
             >
               New to AREA?{' '}
               <Link
                 href="/signup"
                 style={{
-                  color: '#005acd',
+                  color: 'black',
                   textDecoration: 'none',
                   fontWeight: 500
                 }}

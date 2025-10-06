@@ -7,6 +7,7 @@ import { ZapsModule } from './zaps/zaps.module';
 import { ServicesModule } from './services/services.module';
 import { AboutJsonModule } from './aboutJson/aboutJson.module';
 import { Oauth2Module } from './oauth2/oauth2.module';
+import { WebhooksModule } from './webhooks/webhooks.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { Oauth2Module } from './oauth2/oauth2.module';
     ServicesModule,
     AboutJsonModule,
     Oauth2Module,
+    WebhooksModule,
   ],
   controllers: [],
   providers: [PrismaService],

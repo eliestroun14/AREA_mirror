@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import areaLogo from '../../assets/images/AreaLogo.png';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 
 
 export default function SignUpScreen() {
   console.log('(SIGN UP)');
   const [form, setForm] = useState({
-    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -17,14 +17,19 @@ export default function SignUpScreen() {
   const validate = (text:string) => {
     console.log(text);
   const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
-    if (reg.test(text) === false)
+    if (reg.test(text) === false) {
+      console.log("Email is Not Correct");
       return false;
-    return true
+    }
+    else {
+      console.log("Email is Correct");
+      return true
+  }
 }
 
   const checkTextInputs = async () => {
-    if (!form.name.trim()) {
-      Alert.alert('Please enter name.');
+    if (!form.username.trim()) {
+      Alert.alert('Please enter username.');
       return;
     }
     if (!validate(form.email)) {
@@ -47,7 +52,7 @@ export default function SignUpScreen() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: form.name,
+          username: form.username,
           email: form.email,
           password: form.password
         }),
@@ -55,15 +60,10 @@ export default function SignUpScreen() {
 
       if (response.ok) {
         Alert.alert("Successfully signed up !");
+        router.replace('/profile'); // Redirect to login page
       } else {
         const error = await response.json();
-        // Alert.alert(
-        //   "Error",
-        //   typeof error.message === "string"
-        //     ? error.message
-        //     : JSON.stringify(error)
-        // );
-        Alert.alert("Email already used.");
+        Alert.alert("Error", error.message || "Something went wrong.");
       }
     } catch {
       Alert.alert("Network error");
@@ -186,6 +186,7 @@ export default function SignUpScreen() {
                     </View>
                   </TouchableOpacity>
                 </View>
+
               </View>
             </View>
           </ScrollView>

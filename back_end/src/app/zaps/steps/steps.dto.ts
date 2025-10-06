@@ -1,12 +1,10 @@
-import { connections, triggers, actions } from '@prisma/client';
-
 export interface StepDTO {
   id: number;
   zap_id: number;
-  connection: connections;
+  connection_id: number;
   step_type: 'TRIGGER' | 'ACTION';
-  trigger: triggers | null;
-  action: actions | null;
+  trigger_id: number | null;
+  action_id: number | null;
   step_order: number;
   payload: object;
   created_at: Date;

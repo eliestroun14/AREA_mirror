@@ -19,10 +19,14 @@ export default function LoginScreen() {
   const validate = (text:string) => {
       console.log(text);
   const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
-      if (reg.test(text) === false)
+      if (reg.test(text) === false) {
+        console.log("Email is Not Correct");
         return false;
-      else
+      }
+      else {
+        console.log("Email is Correct");
         return true
+    }
   }
 
   const checkTextInputs = () => {
@@ -34,7 +38,8 @@ export default function LoginScreen() {
       Alert.alert('Please enter password.');
       return;
     }
-    handleSignIn()
+    Alert.alert("Succefully signed in !")
+    login();
   }
 
   const handleSignIn = async () => {
@@ -79,7 +84,6 @@ export default function LoginScreen() {
       setError("Failed to login. Please check your credentials.");
     }
   };
-
   if (isAuthenticated === false) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>

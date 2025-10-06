@@ -1,0 +1,538 @@
+"use client"
+import { useState, useEffect } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import Container from '@mui/material/Container'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
+import CircularProgress from '@mui/material/CircularProgress'
+import Alert from '@mui/material/Alert'
+import { apiService } from '@/services/api'
+import { ServiceDTO, TriggerDTO, ConnectionDTO } from '@/types/api'
+import { useAuth } from '@/context/AuthContext'
+
+interface TriggerField {
+  name: string
+  type: 'text' | 'select' | 'number' | 'date' | 'time'
+  label: string
+  options?: string[]
+  required: boolean
+  placeholder?: string
+  defaultValue?: string
+  order: number
+}
+
+export default function EditTriggerPage() {
+  const params = useParams()
+  const router = useRouter()
+  const { token } = useAuth()
+  const zapId = params.id as string
+  
+  const [trigger, setTrigger] = useState<TriggerDTO | null>(null)
+  const [service, setService] = useState<ServiceDTO | null>(null)
+  const [connections, setConnections] = useState<ConnectionDTO[]>([])
+  const [selectedConnection, setSelectedConnection] = useState<number | ''>('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [formData, setFormData] = useState<Record<string, string>>({})
+
+  const handleBackClick = () => {
+    router.push(`/create/${zapId}`)
+  }
+
+  const handleUpdateTrigger = async () => {
+    // Only require connection if trigger type is not SCHEDULE
+    if (trigger?.trigger_type !== 'SCHEDULE' && !selectedConnection) {
+      setError('Please select a connection')
+      return
+    }
+
+    if (!token) {
+      setError('No authentication token found. Please login again.')
+      return
+    }
+
+    if (!trigger) {
+      setError('Trigger data not loaded')
+      return
+    }
+    
+    try {
+      setSubmitting(true)
+      setError(null)
+      
+      console.log('Updating trigger with:', {
+        zapId,
+        triggerId: trigger.id,
+        connectionId: selectedConnection,
+        payload: formData
+      })
+      
+      // Get connection to retrieve accountIdentifier (skip for SCHEDULE triggers)
+      let accountIdentifier = ''
+      if (trigger.trigger_type !== 'SCHEDULE') {
+        const connection = await apiService.getConnectionById(selectedConnection as number, token)
+        
+        if (!connection.account_identifier) {
+          throw new Error('Connection does not have an account identifier')
+        }
+        accountIdentifier = connection.account_identifier
+      }
+      
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+      const response = await fetch(`${apiBaseUrl}/zaps/${zapId}/trigger`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          triggerId: trigger.id,
+          accountIdentifier: accountIdentifier,
+          payload: formData
+        })
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('Update trigger failed:', response.status, errorText)
+        throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`)
+      }
+      
+      console.log('✅ Trigger updated successfully')
+      
+      // Redirect to the zap page after successful update
+      router.push(`/create/${zapId}`)
+      
+    } catch (err) {
+      console.error('❌ Failed to update trigger:', err)
+      setError(err instanceof Error ? err.message : 'Failed to update trigger. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleFieldChange = (fieldName: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [fieldName]: value
+    }))
+  }
+
+  const generateTriggerFields = (trigger: TriggerDTO): TriggerField[] => {
+    const fields: TriggerField[] = []
+    
+    const triggerFieldsObj = trigger.fields as Record<string, unknown>
+    
+    Object.entries(triggerFieldsObj).forEach(([fieldKey, fieldValue]) => {
+      const fieldConfig = fieldValue as Record<string, unknown>
+      
+      // Check if the field is active (default to true if not specified)
+      const isActive = fieldConfig.is_active !== false
+      
+      // Skip inactive fields
+      if (!isActive) {
+        return
+      }
+      
+      const fieldType = (fieldConfig.type as string)?.toLowerCase() || 'string'
+      const fieldName = (fieldConfig.field_name as string) || fieldKey.charAt(0).toUpperCase() + fieldKey.slice(1).replace(/_/g, ' ')
+      const fieldRequired = (fieldConfig.required as boolean) || false
+      const fieldPlaceholder = (fieldConfig.placeholder as string) || ''
+      const fieldDefaultValue = (fieldConfig.default_value as string) || ''
+      const fieldOrder = (fieldConfig.field_order as number) || 999
+      const selectOptions = Array.isArray(fieldConfig.select_options) && fieldConfig.select_options.length > 0 
+        ? fieldConfig.select_options as string[] 
+        : undefined
+      
+      let inputType: 'text' | 'select' | 'number' | 'date' | 'time' = 'text'
+      if (fieldType === 'select' || selectOptions) {
+        inputType = 'select'
+      } else if (fieldType === 'number') {
+        inputType = 'number'
+      } else if (fieldType === 'date') {
+        inputType = 'date'
+      } else if (fieldType === 'time') {
+        inputType = 'time'
+      }
+      
+      fields.push({
+        name: fieldKey,
+        type: inputType,
+        label: fieldName,
+        options: selectOptions,
+        required: fieldRequired,
+        placeholder: fieldPlaceholder,
+        defaultValue: fieldDefaultValue,
+        order: fieldOrder
+      })
+    })
+    
+    fields.sort((a, b) => a.order - b.order)
+
+    return fields
+  }
+
+  useEffect(() => {
+    const fetchTriggerData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        if (!token) {
+          throw new Error('You must be logged in to access this page')
+        }
+        
+        // Fetch existing trigger data for this zap
+        const existingTrigger = await apiService.getZapTrigger(Number(zapId), token)
+        
+        if (!existingTrigger) {
+          throw new Error('No trigger found for this zap')
+        }
+
+        // Set service data
+        setService(existingTrigger.service)
+        
+        // Set trigger data
+        setTrigger(existingTrigger.trigger)
+        
+        // Fetch user connections for this service (skip for SCHEDULE triggers)
+        try {
+          const connectionsData = await apiService.getConnectionsByService(existingTrigger.service.id, token)
+          setConnections(connectionsData.connections)
+          
+          // Pre-select the existing connection
+          setSelectedConnection(existingTrigger.connection.id)
+        } catch (connError) {
+          console.error('Error fetching connections:', connError)
+          // Only show error if it's not a SCHEDULE trigger
+          if (existingTrigger.trigger.trigger_type !== 'SCHEDULE') {
+            setError('You need to connect your account to this service first')
+            setLoading(false)
+            return
+          }
+          // For SCHEDULE triggers, continue without connections
+          setConnections([])
+        }
+        
+        // Initialize form data with existing values
+        setFormData(existingTrigger.step.payload as Record<string, string>)
+        
+      } catch (err) {
+        console.error('Error fetching trigger data:', err)
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (zapId) {
+      fetchTriggerData()
+    }
+  }, [zapId, token])
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          bgcolor: service?.services_color || '#1976d2',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        <CircularProgress sx={{ color: 'white' }} size={60} />
+      </Box>
+    )
+  }
+
+  if (error || !trigger || !service) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          bgcolor: service?.services_color || '#1976d2',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 4
+        }}
+      >
+        <Typography variant="h4" sx={{ color: 'white', mb: 2, textAlign: 'center' }}>
+          {error || 'Trigger not found'}
+        </Typography>
+        <Button
+          onClick={handleBackClick}
+          variant="contained"
+          sx={{ bgcolor: 'white', color: service?.services_color || '#1976d2' }}
+        >
+          Go Back
+        </Button>
+      </Box>
+    )
+  }
+
+  const serviceColor = service.services_color
+  const triggerFields = generateTriggerFields(trigger)
+
+  return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: serviceColor,
+        position: 'relative'
+      }}
+    >
+      {/* Header */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          p: 3,
+          pt: 4
+        }}
+      >
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={handleBackClick}
+          sx={{
+            color: 'white',
+            textTransform: 'none',
+            fontSize: '1rem',
+            fontWeight: 500,
+            borderRadius: 6,
+            px: 3,
+            py: 1,
+            border: '2px solid white',
+            '&:hover': {
+              bgcolor: 'rgba(255, 255, 255, 0.1)'
+            }
+          }}
+        >
+          Back
+        </Button>
+        
+        <Button
+          sx={{
+            minWidth: 44,
+            height: 44,
+            borderRadius: '50%',
+            color: 'white',
+            border: '2px solid white',
+            '&:hover': {
+              bgcolor: 'rgba(255, 255, 255, 0.1)'
+            }
+          }}
+        >
+          <HelpOutlineIcon />
+        </Button>
+      </Box>
+
+      {/* Title */}
+      <Typography 
+        variant="h3" 
+        sx={{ 
+          fontWeight: 700, 
+          color: 'white',
+          fontSize: { xs: '2rem', md: '3rem' },
+          textAlign: 'center',
+          mb: 6
+        }}
+      >
+        Edit trigger
+      </Typography>
+
+      {/* Trigger Icon and Description */}
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 6 }}>
+
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 700,
+            color: 'white',
+            mb: 2,
+            textAlign: 'center'
+          }}
+        >
+          {trigger.name}
+        </Typography>
+
+        <Typography
+          variant="body1"
+          sx={{
+            color: 'white',
+            textAlign: 'center',
+            maxWidth: 600,
+            mb: 6
+          }}
+        >
+          {trigger.description}
+        </Typography>
+      </Box>
+
+      {/* Form Fields */}
+      <Container maxWidth="sm">
+        {/* Connection Selection - Only shown if trigger type is not SCHEDULE */}
+        {trigger.trigger_type !== 'SCHEDULE' && (
+          <Box
+            sx={{
+              bgcolor: 'white',
+              borderRadius: 3,
+              p: 4,
+              mb: 3,
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+            }}
+          >
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: serviceColor }}>
+              Select Account
+            </Typography>
+          
+          {connections.length === 0 ? (
+            <Alert severity="warning" sx={{ mb: 3 }}>
+              No connections available for {service.name}.
+            </Alert>
+          ) : (
+            <FormControl fullWidth required>
+              <InputLabel>Account</InputLabel>
+              <Select
+                value={selectedConnection}
+                onChange={(e) => setSelectedConnection(e.target.value as number)}
+                label="Account"
+                sx={{
+                  bgcolor: 'white',
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2
+                  }
+                }}
+              >
+                {connections.map((connection) => (
+                  <MenuItem key={connection.id} value={connection.id}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Typography variant="body1">
+                        {connection.connection_name || connection.account_identifier || `Connection ${connection.id}`}
+                      </Typography>
+                      {connection.account_identifier && connection.connection_name && (
+                        <Typography variant="caption" color="text.secondary">
+                          {connection.account_identifier}
+                        </Typography>
+                      )}
+                    </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+          </Box>
+        )}
+
+        {triggerFields.length > 0 && (
+          <Box
+            sx={{
+              bgcolor: 'white',
+              borderRadius: 3,
+              p: 4,
+              mb: 4,
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+            }}
+          >
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              {triggerFields.map((field) => (
+                <FormControl key={field.name} fullWidth>
+                  {field.type === 'select' ? (
+                    <>
+                      <InputLabel>{field.label}</InputLabel>
+                      <Select
+                        value={formData[field.name] || ''}
+                        onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                        label={field.label}
+                        required={field.required}
+                        sx={{
+                          bgcolor: 'white',
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: 2
+                          }
+                        }}
+                      >
+                        {field.options?.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </>
+                  ) : (
+                    <TextField
+                      label={field.label}
+                      value={formData[field.name] || ''}
+                      onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                      required={field.required}
+                      type={field.type}
+                      placeholder={field.placeholder}
+                      fullWidth
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: 2
+                        }
+                      }}
+                    />
+                  )}
+                </FormControl>
+              ))}
+            </Box>
+          </Box>
+        )}
+
+        {/* Update Trigger Button */}
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
+        
+        <Button
+          onClick={handleUpdateTrigger}
+          variant="contained"
+          size="large"
+          fullWidth
+          disabled={(trigger.trigger_type !== 'SCHEDULE' && (!selectedConnection || connections.length === 0)) || submitting}
+          sx={{
+            bgcolor: 'white',
+            color: serviceColor,
+            fontWeight: 700,
+            fontSize: '1.2rem',
+            py: 2,
+            borderRadius: 6,
+            mb: 4,
+            '&:hover': {
+              bgcolor: 'rgba(255, 255, 255, 0.9)'
+            },
+            '&:disabled': {
+              bgcolor: 'rgba(255, 255, 255, 0.5)',
+              color: 'rgba(0, 0, 0, 0.3)'
+            }
+          }}
+        >
+          {submitting ? (
+            <>
+              <CircularProgress size={24} sx={{ color: serviceColor, mr: 2 }} />
+              Updating trigger...
+            </>
+          ) : (
+            'Update trigger'
+          )}
+        </Button>
+      </Container>
+    </Box>
+  )
+}
