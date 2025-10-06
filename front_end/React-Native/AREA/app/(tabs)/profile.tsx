@@ -39,7 +39,6 @@ export default function LoginScreen() {
       return;
     }
     Alert.alert("Succefully signed in !")
-    login();
   }
 
   const handleSignIn = async () => {
