@@ -6,10 +6,12 @@ import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
 import TriggerCard from "@/components/molecules/trigger-card/trigger-card";
 import axios from "axios";
+import { useAuth } from "@/context/AuthContext";
 
 const CreateTriggerService = () => {
   console.log('(CREATE TRIGGER SERVICE)');
   const { id } = useLocalSearchParams();
+  const { isAuthenticated } = useAuth();
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const [triggers, setTriggers] = useState<Trigger[]>([]);
@@ -24,8 +26,8 @@ const CreateTriggerService = () => {
         // Fetch triggers for this service
         const triggersRes = await axios.get(`${apiUrl}/services/${id}/triggers`);
         setTriggers(triggersRes.data);
-        console.log('Fetched triggers CREATE:', triggersRes.data);
         console.log('Service details CREATE:', serviceRes.data);
+        console.log('Fetched triggers CREATE:', triggersRes.data);
       } catch (err) {
         setService(null);
         setTriggers([]);
@@ -49,6 +51,16 @@ const CreateTriggerService = () => {
     return (
       <View style={styles.container}>
         <Text>Service non trouvé pour l'ID: {id}</Text>
+      </View>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ color: 'red', textAlign: 'center', marginTop: 30 }}>
+          You must be logged in to create a trigger on this service.
+        </Text>
       </View>
     );
   }

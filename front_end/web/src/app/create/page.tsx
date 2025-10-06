@@ -1,108 +1,57 @@
 "use client"
+
+import { useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
-import Button from '@mui/material/Button'
-import { useRouter } from 'next/navigation'
+import CircularProgress from '@mui/material/CircularProgress'
+import { apiService } from '@/services/api'
 
 export default function CreatePage() {
   const router = useRouter()
+  const hasCreatedZap = useRef(false)
 
-  const handleHelpClick = () => {
-    router.push('/help')
-  }
+  useEffect(() => {
+    const createZapAndRedirect = async () => {
+      if (hasCreatedZap.current) {
+        console.log('Zap creation already in progress')
+        return
+      }
 
-  const handleCancelClick = () => {
-    router.push('/explore')
-  }
+      hasCreatedZap.current = true
 
-  const handleCreateAppletClick = () => {
-    router.push('/create/applets')
-  }
+      try {
+        console.log('Creating new zap...')
+        const newZap = await apiService.createZap()
+        console.log('Zap created with ID:', newZap.id)
+        router.push(`/create/${newZap.id}`)
+      } catch (error) {
+        console.error('Failed to create zap:', error)
+        hasCreatedZap.current = false
+      }
+    }
+
+    createZapAndRedirect()
+  }, [router])
 
   return (
     <Box
       sx={{
-        p: 4,
-        bgcolor: "#f5ffff",
-        minHeight: "calc(100vh - 64px)",
-        overflow: "auto",
-        position: "relative"
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 'calc(100vh - 64px)',
+        bgcolor: 'white'
       }}
     >
-      {/* Bouton Cancel en haut à gauche */}
-      <Button
-        onClick={handleCancelClick}
-        variant="outlined"
-        sx={{
-          position: "absolute",
-          top: 16,
-          left: 16,
-          color: '#005acd',
-          borderColor: '#005acd',
-          '&:hover': {
-            backgroundColor: 'rgba(0, 90, 205, 0.1)',
-            borderColor: '#005acd'
-          }
-        }}
-      >
-        Cancel
-      </Button>
-
-      {/* Icône d'aide en haut à droite */}
-      <IconButton
-        onClick={handleHelpClick}
-        sx={{
-          position: "absolute",
-          top: 16,
-          right: 16,
-          p: 1,
-          '&:hover': {
-            backgroundColor: 'rgba(0, 90, 205, 0.1)'
-          }
-        }}
-      >
-        <Box
-          component="img"
-          src="/assets/point_d_interrogation.png"
-          alt="Aide"
-          sx={{
-            width: 32,
-            height: 32,
-            cursor: 'pointer'
-          }}
-        />
-      </IconButton>
-
-      <Typography variant="h3" align="center" color="#005acd" gutterBottom>
-        Create
+      <CircularProgress size={60} sx={{ mb: 3 }} />
+      <Typography variant="h5" color="text.primary" gutterBottom>
+        Creating your new applet...
       </Typography>
-      <Typography variant="body1" align="center" color="black" sx={{ mb: 4 }}>
-        Create your personalized applets here.
+      <Typography variant="body2" color="text.secondary">
+        Please wait a moment
       </Typography>
-
-      {/* Button to create an applet */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-        <Button
-          variant="contained"
-          size="large"
-          onClick={handleCreateAppletClick}
-          sx={{
-            bgcolor: '#005acd',
-            color: 'white',
-            px: 6,
-            py: 2,
-            fontSize: '1.2rem',
-            fontWeight: 600,
-            borderRadius: 2,
-            '&:hover': {
-              bgcolor: '#003d9a'
-            }
-          }}
-        >
-          Create a new applet
-        </Button>
-      </Box>
     </Box>
   )
 }

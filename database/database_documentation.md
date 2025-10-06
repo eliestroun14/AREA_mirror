@@ -184,14 +184,14 @@ Définit les modèles de requêtes HTTP utilisés par les triggers (polling) et 
 
 ### Structure
 
-| Colonne | Type | Contraintes | Description |
-|---------|------|-------------|-------------|
-| `id` | INT | PK, AUTO_INCREMENT | Identifiant unique de la requête |
-| `description` | VARCHAR | NOT NULL | Description pour identifier la requête (usage développeur) |
-| `method` | VARCHAR | DEFAULT 'GET' | Méthode HTTP (GET, POST, PUT, DELETE, PATCH) |
-| `endpoint` | VARCHAR | NOT NULL | Chemin de l'endpoint API (ex: `/v1/messages`) |
-| `body_schema` | JSON | NOT NULL | Structure du body à envoyer (peut être vide `{}`) |
-| `header_schema` | JSON | NOT NULL | Structure des headers requis (ex: Authorization) |
+| Colonne         | Type    | Contraintes        | Description                                                |
+|-----------------|---------|--------------------|------------------------------------------------------------|
+| `id`            | INT     | PK, AUTO_INCREMENT | Identifiant unique de la requête                           |
+| `description`   | VARCHAR | NOT NULL           | Description pour identifier la requête (usage développeur) |
+| `method`        | VARCHAR | DEFAULT 'GET'      | Méthode HTTP (GET, POST, PUT, DELETE, PATCH)               |
+| `endpoint`      | VARCHAR | NOT NULL           | Chemin de l'endpoint API (ex: `/v1/messages`)              |
+| `body_schema`   | JSON    | NOT NULL           | Structure du body à envoyer (peut être vide `{}`)          |
+| `header_schema` | JSON    | NOT NULL           | Structure des headers requis (ex: Authorization)           |
 
 ### Relations
 - **1 http_request → N triggers** : Une requête peut être utilisée par plusieurs triggers

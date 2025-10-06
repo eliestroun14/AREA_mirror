@@ -2,7 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@root/prisma/prisma.service';
 import { OAuth2Provider } from '@app/oauth2/oauth2.dto';
 import { ServicesService } from '@app/services/services.service';
-import { connections } from '@prisma/client';
+import { connections, Prisma } from '@prisma/client';
+
+type ConnectionWithService = Prisma.connectionsGetPayload<{
+  include: { service: true };
+}>;
 
 @Injectable()
 export class ConnectionsService {
@@ -77,5 +81,35 @@ export class ConnectionsService {
         `Connection with account's id ${account_identifier} do not exists.`,
       );
     return connection;
+  }
+
+  async getAllUserConnections(
+    userId: number,
+  ): Promise<ConnectionWithService[]> {
+    return this.prisma.connections.findMany({
+      where: {
+        user_id: userId,
+        is_active: true,
+      },
+      include: {
+        service: true,
+      },
+    });
+  }
+
+  async getUserConnectionsByService(
+    userId: number,
+    serviceId: number,
+  ): Promise<ConnectionWithService[]> {
+    return this.prisma.connections.findMany({
+      where: {
+        user_id: userId,
+        service_id: serviceId,
+        is_active: true,
+      },
+      include: {
+        service: true,
+      },
+    });
   }
 }

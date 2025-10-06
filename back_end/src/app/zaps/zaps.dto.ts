@@ -3,9 +3,11 @@ import {
   IsOptional,
   IsBoolean,
   IsDefined,
-  IsNumber, IsObject,
+  IsNumber,
+  IsObject,
 } from 'class-validator';
 import { DeleteResponse } from '@config/dto';
+import type { StepDTO } from '@app/zaps/steps/steps.dto';
 
 // ===============
 //      DTOs
@@ -36,11 +38,13 @@ export type GetZapResponse = ZapDTO | null;
 
 // POST /zaps
 export class PostZapBody {
+  @IsOptional()
   @IsString()
-  name: string;
+  name?: string;
 
+  @IsOptional()
   @IsString()
-  description: string;
+  description?: string;
 }
 export type PostZapResponse = ZapDTO;
 
@@ -87,6 +91,34 @@ export interface PostZapTriggerResponse {
   zap_id: number;
 }
 
+// GET /zaps/:zapId/trigger
+export type GetZapTriggerParams = ZapByIdParams;
+export type GetZapTriggerResponse = StepDTO;
+
+// PATCH /zaps/:zapId/trigger
+export type PatchZapTriggerParams = ZapByIdParams;
+export class PatchZapTriggerBody {
+  @IsOptional()
+  @IsNumber()
+  triggerId?: number;
+
+  @IsOptional()
+  @IsString()
+  accountIdentifier?: string;
+
+  @IsOptional()
+  @IsObject()
+  payload?: object;
+}
+
+export interface PatchZapTriggerResponse {
+  zap_id: number;
+}
+
+// DELETE /zaps/:zapId/trigger
+export type DeleteZapTriggerParams = ZapByIdParams;
+export type DeleteZapTriggerResponse = DeleteResponse;
+
 // POST /zaps/:zapId/action
 export type PostZapActionParams = ZapByIdParams;
 export class PostZapActionBody {
@@ -109,3 +141,47 @@ export class PostZapActionBody {
 export interface PostZapActionResponse {
   zap_id: number;
 }
+
+// GET /zaps/:zapId/actions
+export type GetZapActionsParams = ZapByIdParams;
+export type GetZapActionsResponse = StepDTO[];
+
+// GET /zaps/:zapId/actions/:actionId
+export interface GetZapActionByIdParams {
+  zapId: string;
+  actionId: string;
+}
+export type GetZapActionByIdResponse = StepDTO;
+
+// PATCH /zaps/:zapId/actions/:actionId
+export interface PatchZapActionByIdParams {
+  zapId: string;
+  actionId: string;
+}
+export class PatchZapActionBody {
+  @IsOptional()
+  @IsNumber()
+  actionId?: number;
+
+  @IsOptional()
+  @IsString()
+  accountIdentifier?: string;
+
+  @IsOptional()
+  @IsObject()
+  payload?: object;
+
+  @IsOptional()
+  @IsNumber()
+  stepOrder?: number;
+}
+export interface PatchZapActionResponse {
+  action_id: number;
+}
+
+// DELETE /zaps/:zapId/actions/:actionId
+export interface DeleteZapActionByIdParams {
+  zapId: string;
+  actionId: string;
+}
+export type DeleteZapActionResponse = DeleteResponse;

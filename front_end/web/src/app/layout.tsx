@@ -6,7 +6,7 @@ import { AuthProvider } from '@/context/AuthContext'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr">
+    <html lang="en">
       <body>
         <ThemeProvider theme={theme}>
           <CssBaseline />
