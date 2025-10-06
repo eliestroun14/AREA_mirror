@@ -14,24 +14,32 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '@app/auth/jwt/jwt-auth.guard';
 import type { JwtRequest } from '@app/auth/jwt/jwt.dto';
-import type {
+import type { GetMeResponse, PutMeResponse } from '@app/users/users.dto';
+import {
+  PutMeBody,
   DeleteMeResponse,
-  GetMeResponse,
   LogoutMeResponse,
-  PutMeResponse,
+  UserDTO,
 } from '@app/users/users.dto';
-import { PutMeBody } from '@app/users/users.dto';
 import type { Response } from 'express';
 import { UsersService } from '@app/users/users.service';
 import { ConnectionsService } from '@app/users/connections/connections.service';
-import type {
+import {
   GetAllConnectionsResponse,
   GetConnectionsByServiceResponse,
   ConnectionResponseDTO,
 } from '@app/users/connections/connection.dto';
 
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(
@@ -42,6 +50,25 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @Get('me')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Obtenir son profil utilisateur',
+    description:
+      "Retourne les informations du profil de l'utilisateur authentifié.",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Profil récupéré avec succès',
+    type: UserDTO,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Non authentifié',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Accès refusé',
+  })
   async getMe(@Req() req: JwtRequest): Promise<GetMeResponse> {
     const user = await this.service.getUserById(req.user.userId);
 
@@ -59,6 +86,25 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @Put('me')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Mettre à jour son profil',
+    description:
+      "Permet de modifier l'email et le nom de l'utilisateur authentifié.",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Profil mis à jour avec succès',
+    type: UserDTO,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Données invalides',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Non authentifié',
+  })
   async putMe(
     @Req() req: JwtRequest,
     @Body() body: PutMeBody,
@@ -85,6 +131,21 @@ export class UsersController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('me')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Supprimer son compte',
+    description:
+      "Supprime définitivement le compte de l'utilisateur authentifié et toutes ses données.",
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Compte supprimé avec succès',
+    type: DeleteMeResponse,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Non authentifié',
+  })
   async deleteMe(@Req() req: JwtRequest): Promise<DeleteMeResponse> {
     const user = await this.service.deleteUser({ id: req.user.userId });
 
@@ -97,6 +158,21 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @Post('me/logout')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Se déconnecter',
+    description:
+      "Déconnecte l'utilisateur en supprimant les cookies d'authentification.",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Déconnexion réussie',
+    type: LogoutMeResponse,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Non authentifié',
+  })
   logoutMe(@Res() res: Response): void {
     // Clear all authentication cookies
     res.clearCookie('session_token', {
@@ -114,6 +190,21 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @Get('me/connections')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Obtenir toutes ses connexions',
+    description:
+      "Retourne la liste de toutes les connexions OAuth2 de l'utilisateur (GitHub, Discord, Gmail, etc.).",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Liste des connexions récupérée avec succès',
+    type: GetAllConnectionsResponse,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Non authentifié',
+  })
   async getAllConnections(
     @Req() req: JwtRequest,
   ): Promise<GetAllConnectionsResponse> {
@@ -146,6 +237,27 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @Get('me/connections/service/:serviceId')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Obtenir les connexions pour un service spécifique',
+    description:
+      "Retourne la liste des connexions de l'utilisateur pour un service donné (ex: toutes les connexions GitHub).",
+  })
+  @ApiParam({
+    name: 'serviceId',
+    description: 'Identifiant du service',
+    example: 1,
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Liste des connexions pour le service récupérée avec succès',
+    type: GetConnectionsByServiceResponse,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Non authentifié',
+  })
   async getConnectionsByService(
     @Req() req: JwtRequest,
     @Param('serviceId', ParseIntPipe) serviceId: number,
