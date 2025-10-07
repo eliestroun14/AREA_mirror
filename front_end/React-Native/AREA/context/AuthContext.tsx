@@ -43,11 +43,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(savedUser ? JSON.parse(savedUser) : null);
       setSessionToken(savedToken || null);
       setLoading(true);
-      console.log('[AuthContext] Restored from storage:', {
-        isAuthenticated: saved === 'true',
-        user: savedUser ? JSON.parse(savedUser) : null,
-        sessionToken: savedToken || null
-      });
     }
     loadAuth();
   }, []);
@@ -59,7 +54,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsAuthenticated(true);
     setUser(userData);
     setSessionToken(sessionToken);
-    console.log('[AuthContext] Login:', { userData, sessionToken });
   };
 
   const logout = async () => {
@@ -69,7 +63,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsAuthenticated(false);
     setUser(null);
     setSessionToken(null);
-    console.log('[AuthContext] Logout');
   };
 
   // if (loading == true)

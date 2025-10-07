@@ -44,8 +44,7 @@ export default function LoginScreen() {
       Alert.alert('Please enter password.');
       return;
     }
-    Alert.alert("Succefully signed in !")
-    login();
+    handleSignIn();
   }
 
   const handleSignIn = async () => {
@@ -203,7 +202,7 @@ export default function LoginScreen() {
             </Text>
 
             <Text style={styles.subtitle}>
-              Welcome {user?.name} :
+              Welcome {user?.name} :)
             </Text>
           </View>
 
