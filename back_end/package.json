@@ -95,13 +95,13 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "moduleNameMapper": {
-      "@root/(.*)": "<rootDir>/src/$1",
-      "@app/(.*)": "<rootDir>/src/app/$1",
-      "@pipes/(.*)": "<rootDir>/src/pipes/$1",
-      "@config/(.*)": "<rootDir>/src/config/$1",
-      "@errors/(.*)": "<rootDir>/src/errors/$1",
-      "@filters/(.*)": "<rootDir>/src/filters/$1",
-      "@test/(.*)": "<rootDir>/test/$1"
+      "@root/(.*)": "<rootDir>/$1",
+      "@app/(.*)": "<rootDir>/app/$1",
+      "@pipes/(.*)": "<rootDir>/pipes/$1",
+      "@config/(.*)": "<rootDir>/config/$1",
+      "@errors/(.*)": "<rootDir>/errors/$1",
+      "@filters/(.*)": "<rootDir>/filters/$1",
+      "@test/(.*)": "<rootDir>/../test/$1"
     }
   },
   "_moduleAliases": {
