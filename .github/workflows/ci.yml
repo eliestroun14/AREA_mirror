@@ -52,10 +52,10 @@ jobs:
         working-directory: ./back_end
 
       - name: Build backend Docker image
-        run: docker build -t area-backend-test ./back_end
+        run: docker compose build backend-test
 
-      - name: Run backend e2e tests in Docker
-        run: docker run --rm area-backend-test pnpm test:e2e
+      - name: Run backend e2e tests in Docker Compose
+        run: docker compose run --rm backend-test
 
       - name: Check if docker-compose exists
         id: check-docker
