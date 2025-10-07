@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from "react-native";
+import { StyleSheet, Text, View, Image, TouchableOpacity, Alert, BackHandler } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';
 import { Service } from "@/types/type";
@@ -7,6 +7,11 @@ import { imageMap } from "@/types/image";
 import { useAuth } from "@/context/AuthContext";
 import { useAuthRequest, makeRedirectUri, ResponseType } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
+import { useRouter, useNavigation } from "expo-router";
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from "react";
+
+const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 
 type Props = {}
@@ -131,6 +136,20 @@ const ConnectService = (props: Props) => {
       console.log('Network error:', e);
     }
   };
+
+  const router = useRouter();
+  const navigation = useNavigation();
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        router.replace("/select-trigger-service");
+        return true;
+      };
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => subscription.remove();
+    }, [])
+  );
 
   if (loading) {
     return (
