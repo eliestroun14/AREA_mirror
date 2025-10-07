@@ -176,6 +176,9 @@ const ConnectService = (props: Props) => {
           >
             <Text style={styles.connectButtonText}>Connect</Text>
           </TouchableOpacity>
+          <Text style={{ color: 'red', textAlign: 'center', marginTop: 20 }}>
+            You must connect your account to this service before creating an action.
+          </Text>
           {!sessionToken && (
             <Text style={{ color: 'red', textAlign: 'center', marginTop: 10 }}>
               Veuillez vous connecter pour lier ce service.

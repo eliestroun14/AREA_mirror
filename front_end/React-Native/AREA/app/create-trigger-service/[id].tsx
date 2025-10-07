@@ -50,6 +50,12 @@ const CreateTriggerService = () => {
     if (id) getServiceDetails();
   }, [id, apiUrl, sessionToken]);
 
+  useEffect(() => {
+    if (!loading && !connection && service && isAuthenticated) {
+      router.push(`/connect-service/${id}`);
+    }
+  }, [loading, connection, service, isAuthenticated, id, router]);
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -76,19 +82,8 @@ const CreateTriggerService = () => {
     );
   }
   if (!connection) {
-    return (
-      <View style={styles.container}>
-        <Text style={{ color: 'red', textAlign: 'center', marginTop: 30 }}>
-          You must connect your account to this service before creating a trigger.
-        </Text>
-        <TouchableOpacity
-          style={{ marginTop: 20, backgroundColor: '#7289da', padding: 16, borderRadius: 8 }}
-          onPress={() => router.push(`/connect-service/${id}`)}
-        >
-          <Text style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>Connect your account</Text>
-        </TouchableOpacity>
-      </View>
-    );
+    // Show nothing while redirecting
+    return null;
   }
 
   return (
