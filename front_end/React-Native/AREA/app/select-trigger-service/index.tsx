@@ -1,16 +1,21 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, StyleSheet, FlatList } from 'react-native';
-import { Stack } from 'expo-router';
+import { View, StyleSheet, FlatList, BackHandler } from 'react-native';
+import { Stack, useRouter } from 'expo-router';
 import SearchBar from '@/components/molecules/search-bar/search-bar';
 import { useState, useEffect } from 'react';
 import LittleTriggerServiceCard from '@/components/molecules/little-trigger-service-card/little-trigger-service-card';
 import { Service } from '@/types/type';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+
+const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 export default function SelectTriggerService() {
   console.log('(SELECT TRIGGER SERVICE)');
   const [search, setSearch] = useState("");
   const [services, setServices] = useState<Service[]>([]);
   const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  const router = useRouter();
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -26,6 +31,17 @@ export default function SelectTriggerService() {
     };
     fetchServices();
   }, [apiUrl]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        router.replace('/create');
+        return true;
+      };
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => subscription.remove();
+    }, [router])
+  );
 
   return (
     <>
