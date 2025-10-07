@@ -12,8 +12,17 @@ Now you have a android folder.
 
 Once you have android folder, run this command (in AREA/ folder) `./build_apk.sh`
 
-If keystore file already exist, press enter to continue.
-Press again enter to continue, it will build your apk and show you the path to get it : `app/build/outputs/apk/release/app-release.apk`
+#### If keystore file already exist.
+
+Press enter two times to continue, it will build your apk and show you the path to get it : `app/build/outputs/apk/release/app-release.apk`
+
+#### If keystore file does not exist.
+
+Key name: area
+Key Alias: keyAlias
+password: password
+
+Follow each step in the bash script.
 
 ### Second Step : Install the apk on your device
 
