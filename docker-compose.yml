@@ -83,6 +83,16 @@ services:
     networks:
       - area_network
 
+  backend-test:
+    build: ./back_end
+    networks:
+      - area_network
+    env_file:
+      - .env
+    depends_on:
+      - wait-for-db
+    entrypoint: ["pnpm", "test:e2e"]
+
 networks:
   area_network:
 
