@@ -37,24 +37,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const loadAuth = async () => {
       const saved = await SecureStore.getItemAsync('auth');
+      const savedUser = await SecureStore.getItemAsync('user');
+      const savedToken = await SecureStore.getItemAsync('sessionToken');
       setIsAuthenticated(saved === 'true');
+      setUser(savedUser ? JSON.parse(savedUser) : null);
+      setSessionToken(savedToken || null);
       setLoading(true);
+      console.log('[AuthContext] Restored from storage:', {
+        isAuthenticated: saved === 'true',
+        user: savedUser ? JSON.parse(savedUser) : null,
+        sessionToken: savedToken || null
+      });
     }
     loadAuth();
   }, []);
 
   const login = async (userData: User, sessionToken: string) => {
     await SecureStore.setItemAsync('auth', 'true');
+    await SecureStore.setItemAsync('user', JSON.stringify(userData));
+    await SecureStore.setItemAsync('sessionToken', sessionToken);
     setIsAuthenticated(true);
     setUser(userData);
     setSessionToken(sessionToken);
+    console.log('[AuthContext] Login:', { userData, sessionToken });
   };
 
   const logout = async () => {
     await SecureStore.deleteItemAsync('auth');
+    await SecureStore.deleteItemAsync('user');
+    await SecureStore.deleteItemAsync('sessionToken');
     setIsAuthenticated(false);
     setUser(null);
     setSessionToken(null);
+    console.log('[AuthContext] Logout');
   };
 
   // if (loading == true)

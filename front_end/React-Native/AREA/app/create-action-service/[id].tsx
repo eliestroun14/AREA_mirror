@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, FlatList } from "react-native";
+import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';
 import { Service, Action } from "@/types/type";
@@ -6,6 +6,8 @@ import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
 import ActionCard from "@/components/molecules/action-card/action-card";
 import { useAuth } from "@/context/AuthContext";
+import axios from "axios";
+import { useRouter } from "expo-router";
 
 
 const styles = StyleSheet.create({
@@ -55,11 +57,13 @@ const CreateActionService = ({allTriggers}: Props) => {
     serviceTriggerId?: string;
   }>();
 
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, sessionToken } = useAuth();
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const [actions, setActions] = useState<Action[]>([]);
+  const [connection, setConnection] = useState<any>(null);
   const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  const router = useRouter();
 
   useEffect(() => {
     const fetchServiceAndActions = async () => {
@@ -74,16 +78,24 @@ const CreateActionService = ({allTriggers}: Props) => {
         if (!actionsRes.ok) throw new Error('Actions not found');
         const actionsData: Action[] = await actionsRes.json();
         setActions(actionsData);
+        // Fetch user connection for this service
+        if (sessionToken) {
+          const connRes = await axios.get(`${apiUrl}/users/me/connections/service/${id}`, {
+            headers: { Authorization: `Bearer ${sessionToken}` },
+          });
+          setConnection(connRes.data.connections?.[0] || null);
+        }
       } catch (err) {
         setService(null);
         setActions([]);
+        setConnection(null);
         console.log('[CreateActionService] Error fetching service or actions:', err);
       } finally {
         setLoading(false);
       }
     };
     if (id) fetchServiceAndActions();
-  }, [id, apiUrl]);
+  }, [id, apiUrl, sessionToken]);
 
   if (loading) {
     return (
@@ -107,6 +119,21 @@ const CreateActionService = ({allTriggers}: Props) => {
         <Text style={{ color: 'red', textAlign: 'center', marginTop: 30 }}>
           You must be logged in to create an action on this service.
         </Text>
+      </View>
+    );
+  }
+  if (!connection) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ color: 'red', textAlign: 'center', marginTop: 30 }}>
+          You must connect your account to this service before creating an action.
+        </Text>
+        <TouchableOpacity
+          style={{ marginTop: 20, backgroundColor: '#7289da', padding: 16, borderRadius: 8 }}
+          onPress={() => router.push(`/connect-service/${id}`)}
+        >
+          <Text style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>Connect your account</Text>
+        </TouchableOpacity>
       </View>
     );
   }

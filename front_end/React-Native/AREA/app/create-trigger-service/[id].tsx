@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, FlatList } from "react-native";
+import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';
 import { Service, Trigger } from "@/types/type";
@@ -7,15 +7,18 @@ import { imageMap } from "@/types/image";
 import TriggerCard from "@/components/molecules/trigger-card/trigger-card";
 import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "expo-router";
 
 const CreateTriggerService = () => {
   console.log('(CREATE TRIGGER SERVICE)');
   const { id } = useLocalSearchParams();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, sessionToken } = useAuth();
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const [triggers, setTriggers] = useState<Trigger[]>([]);
+  const [connection, setConnection] = useState<any>(null);
   const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  const router = useRouter();
 
   useEffect(() => {
     const getServiceDetails = async () => {
@@ -26,18 +29,26 @@ const CreateTriggerService = () => {
         // Fetch triggers for this service
         const triggersRes = await axios.get(`${apiUrl}/services/${id}/triggers`);
         setTriggers(triggersRes.data);
+        // Fetch user connection for this service
+        if (sessionToken) {
+          const connRes = await axios.get(`${apiUrl}/users/me/connections/service/${id}`, {
+            headers: { Authorization: `Bearer ${sessionToken}` },
+          });
+          setConnection(connRes.data.connections?.[0] || null);
+        }
         console.log('Service details CREATE:', serviceRes.data);
         console.log('Fetched triggers CREATE:', triggersRes.data);
       } catch (err) {
         setService(null);
         setTriggers([]);
+        setConnection(null);
         console.log('Service not found for ID in create trigger service:', id);
       } finally {
         setLoading(false);
       }
     };
     if (id) getServiceDetails();
-  }, [id, apiUrl]);
+  }, [id, apiUrl, sessionToken]);
 
   if (loading) {
     return (
@@ -61,6 +72,21 @@ const CreateTriggerService = () => {
         <Text style={{ color: 'red', textAlign: 'center', marginTop: 30 }}>
           You must be logged in to create a trigger on this service.
         </Text>
+      </View>
+    );
+  }
+  if (!connection) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ color: 'red', textAlign: 'center', marginTop: 30 }}>
+          You must connect your account to this service before creating a trigger.
+        </Text>
+        <TouchableOpacity
+          style={{ marginTop: 20, backgroundColor: '#7289da', padding: 16, borderRadius: 8 }}
+          onPress={() => router.push(`/connect-service/${id}`)}
+        >
+          <Text style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>Connect your account</Text>
+        </TouchableOpacity>
       </View>
     );
   }
