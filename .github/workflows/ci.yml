@@ -43,7 +43,7 @@ jobs:
       - name: Run tests
         if: steps.check-frontend.outputs.frontend_exists == 'true'
         run: npm test -- --ci
-        working-directory: ./front_end
+        working-directory: ../../front_end
 
       - name: Check if docker-compose exists
         id: check-docker
