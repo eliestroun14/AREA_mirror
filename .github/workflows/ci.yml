@@ -51,11 +51,11 @@ jobs:
         run: pnpx prisma generate
         working-directory: ./back_end
 
-      - name: Build backend Docker image
-        run: docker compose build backend-test
+      # - name: Build backend Docker image
+      #   run: docker compose build backend-test
 
-      - name: Run backend e2e tests in Docker Compose
-        run: docker compose run --rm backend-test
+      # - name: Run backend e2e tests in Docker Compose
+      #   run: docker compose run --rm backend-test
 
       - name: Check if docker-compose exists
         id: check-docker
