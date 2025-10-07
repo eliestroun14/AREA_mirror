@@ -10,16 +10,23 @@ describe('GmailStrategy', () => {
 
   describe('validate', () => {
     it('should return Gmail provider with all fields', () => {
-      const mockProfile: Profile = {
+      const mockProfile = {
         id: 'google-user-123',
         displayName: 'Test User',
         emails: [{ value: 'test@gmail.com', verified: true }],
         photos: [{ value: 'https://example.com/photo.jpg' }],
         username: 'testuser',
         provider: 'google',
-        _json: {} as any,
+        profileUrl: 'https://plus.google.com/profile',
+        _json: {
+          iss: 'https://accounts.google.com',
+          aud: 'client-id',
+          sub: 'google-user-123',
+          iat: 1234567890,
+          exp: 1234567890,
+        },
         _raw: '',
-      };
+      } as any;
 
       const result = strategy.validate(
         'access_token_123',
@@ -43,14 +50,12 @@ describe('GmailStrategy', () => {
     });
 
     it('should handle profile without email', () => {
-      const mockProfile: Profile = {
+      const mockProfile = {
         id: 'google-user-456',
         displayName: 'No Email User',
         emails: undefined,
         provider: 'google',
-        _json: {},
-        _raw: '',
-      };
+      } as any;
 
       const result = strategy.validate(
         'access_token_456',
@@ -63,15 +68,13 @@ describe('GmailStrategy', () => {
     });
 
     it('should handle profile without username', () => {
-      const mockProfile: Profile = {
+      const mockProfile = {
         id: 'google-user-789',
         displayName: 'No Username User',
         emails: [{ value: 'test@example.com', verified: true }],
         provider: 'google',
         username: undefined,
-        _json: {},
-        _raw: '',
-      };
+      } as any;
 
       const result = strategy.validate(
         'access_token_789',
@@ -83,15 +86,13 @@ describe('GmailStrategy', () => {
     });
 
     it('should handle profile without photo', () => {
-      const mockProfile: Profile = {
+      const mockProfile = {
         id: 'google-user-101',
         displayName: 'No Photo User',
         emails: [{ value: 'test@example.com', verified: true }],
         photos: undefined,
         provider: 'google',
-        _json: {},
-        _raw: '',
-      };
+      } as any;
 
       const result = strategy.validate(
         'access_token_101',
@@ -103,14 +104,12 @@ describe('GmailStrategy', () => {
     });
 
     it('should handle empty email array', () => {
-      const mockProfile: Profile = {
+      const mockProfile = {
         id: 'google-user-202',
         displayName: 'Empty Email Array',
         emails: [],
         provider: 'google',
-        _json: {},
-        _raw: '',
-      };
+      } as any;
 
       const result = strategy.validate(
         'access_token_202',
@@ -122,15 +121,13 @@ describe('GmailStrategy', () => {
     });
 
     it('should handle empty photos array', () => {
-      const mockProfile: Profile = {
+      const mockProfile = {
         id: 'google-user-303',
         displayName: 'Empty Photos Array',
         emails: [{ value: 'test@example.com', verified: true }],
         photos: [],
         provider: 'google',
-        _json: {},
-        _raw: '',
-      };
+      } as any;
 
       const result = strategy.validate(
         'access_token_303',
@@ -142,15 +139,13 @@ describe('GmailStrategy', () => {
     });
 
     it('should always set connection_name to Gmail', () => {
-      const mockProfile: Profile = {
+      const mockProfile = {
         id: 'test-id',
         displayName: 'Test User',
         emails: [{ value: 'test@example.com', verified: true }],
         photos: [{ value: 'photo.jpg' }],
         provider: 'google',
-        _json: {} as any,
-        _raw: '',
-      };
+      } as any;
 
       const result = strategy.validate('token', 'refresh', mockProfile);
 
@@ -158,14 +153,12 @@ describe('GmailStrategy', () => {
     });
 
     it('should always include email scope', () => {
-      const mockProfile: Profile = {
+      const mockProfile = {
         id: 'test-id',
         displayName: 'Test User',
         emails: [{ value: 'test@example.com', verified: true }],
         provider: 'google',
-        _json: {},
-        _raw: '',
-      };
+      } as any;
 
       const result = strategy.validate('token', 'refresh', mockProfile);
 
@@ -173,14 +166,12 @@ describe('GmailStrategy', () => {
     });
 
     it('should set expires_at to null', () => {
-      const mockProfile: Profile = {
+      const mockProfile = {
         id: 'test-id',
         displayName: 'Test User',
         emails: [{ value: 'test@example.com', verified: true }],
         provider: 'google',
-        _json: {},
-        _raw: '',
-      };
+      } as any;
 
       const result = strategy.validate('token', 'refresh', mockProfile);
 
@@ -188,14 +179,12 @@ describe('GmailStrategy', () => {
     });
 
     it('should set rate_limit_reset to null', () => {
-      const mockProfile: Profile = {
+      const mockProfile = {
         id: 'test-id',
         displayName: 'Test User',
         emails: [{ value: 'test@example.com', verified: true }],
         provider: 'google',
-        _json: {},
-        _raw: '',
-      };
+      } as any;
 
       const result = strategy.validate('token', 'refresh', mockProfile);
 
@@ -203,14 +192,12 @@ describe('GmailStrategy', () => {
     });
 
     it('should set rate_limit_remaining to undefined', () => {
-      const mockProfile: Profile = {
+      const mockProfile = {
         id: 'test-id',
         displayName: 'Test User',
         emails: [{ value: 'test@example.com', verified: true }],
         provider: 'google',
-        _json: {},
-        _raw: '',
-      };
+      } as any;
 
       const result = strategy.validate('token', 'refresh', mockProfile);
 
@@ -218,14 +205,12 @@ describe('GmailStrategy', () => {
     });
 
     it('should pass through access_token and refresh_token', () => {
-      const mockProfile: Profile = {
+      const mockProfile = {
         id: 'test-id',
         displayName: 'Test User',
         emails: [{ value: 'test@example.com', verified: true }],
         provider: 'google',
-        _json: {},
-        _raw: '',
-      };
+      } as any;
 
       const result = strategy.validate(
         'custom_access_token',

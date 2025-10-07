@@ -107,7 +107,7 @@ describe('GithubOAuthGuard', () => {
         scopes: ['user', 'repo'],
       };
 
-      const mockJwtPayload: JwtPayload = {
+      const mockJwtPayload = {
         sub: 'user-123',
         email: 'user@example.com',
       };

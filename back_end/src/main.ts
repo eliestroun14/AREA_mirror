@@ -22,6 +22,7 @@ async function main() {
       'http://localhost',
     ],
     credentials: true,
+    exposedHeaders: ['Content-Disposition'],
   });
   app.useGlobalPipes(
     new FormatedValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),

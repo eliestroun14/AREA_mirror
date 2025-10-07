@@ -31,3 +31,4 @@ prisma/migrations/**
 !assets
 !assets/**
 node_modules
+!test.txt

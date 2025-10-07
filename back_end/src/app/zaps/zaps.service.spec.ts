@@ -233,8 +233,9 @@ describe('ZapsService', () => {
 
       const result = await service.getZap(1, 1);
 
-      expect(result.created_at).toBe('');
-      expect(result.updated_at).toBe('');
+      expect(result).not.toBeNull();
+      expect(result?.created_at).toBe('');
+      expect(result?.updated_at).toBe('');
     });
   });
 
