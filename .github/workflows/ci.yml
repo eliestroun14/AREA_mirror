@@ -20,6 +20,9 @@ jobs:
         with:
           node-version: 18
 
+      - name: Enable pnpm
+        run: corepack enable pnpm
+
       - name: Check if frontend exists
         id: check-frontend
         run: |
