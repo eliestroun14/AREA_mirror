@@ -1,5 +1,17 @@
-import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Query,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import {
   ServiceDTO,
   ActionDTO,
@@ -10,6 +22,10 @@ import {
   GetActionsByServiceResponse,
   GetActionByServiceResponse,
   GetTriggerByServiceResponse,
+  SearchServicesResponse,
+  SearchTriggersResponse,
+  SearchActionsResponse,
+  SearchAllResponse,
   type GetTriggerByServiceParams,
   type GetActionByServiceParams,
   type GetActionsByServiceParams,
@@ -93,6 +109,169 @@ export class ServiceController {
   })
   async getAllServices(): Promise<GetAllServicesResponse> {
     return this.servicesService.getAllServices();
+  }
+
+  // Search routes - must be before :serviceId route
+  @Get('search')
+  @ApiOperation({
+    summary: 'Rechercher des services par nom',
+    description:
+      'Recherche des services dont le nom contient la chaîne de recherche. Supporte la pagination avec skip et take.',
+  })
+  @ApiQuery({
+    name: 'query',
+    description: 'Terme de recherche pour le nom du service',
+    example: 'git',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'skip',
+    description: "Nombre d'éléments à ignorer (pagination)",
+    example: 0,
+    required: false,
+  })
+  @ApiQuery({
+    name: 'take',
+    description: "Nombre maximum d'éléments à retourner",
+    example: 10,
+    required: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Liste des services correspondant à la recherche',
+    type: [ServiceDTO],
+  })
+  async searchServices(
+    @Query('query') query: string,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
+  ): Promise<SearchServicesResponse> {
+    const skipNum = skip ? parseInt(skip, 10) : undefined;
+    const takeNum = take ? parseInt(take, 10) : undefined;
+
+    return this.servicesService.searchServices(query, skipNum, takeNum);
+  }
+
+  @Get('search/triggers')
+  @ApiOperation({
+    summary: 'Rechercher des services par nom de trigger',
+    description:
+      'Recherche des services qui contiennent des triggers dont le nom correspond à la recherche. Retourne uniquement la liste des services (sans les détails des triggers).',
+  })
+  @ApiQuery({
+    name: 'query',
+    description: 'Terme de recherche pour le nom du trigger',
+    example: 'push',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'skip',
+    description: "Nombre d'éléments à ignorer (pagination)",
+    example: 0,
+    required: false,
+  })
+  @ApiQuery({
+    name: 'take',
+    description: "Nombre maximum d'éléments à retourner",
+    example: 10,
+    required: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Liste des services contenant des triggers correspondants',
+    type: [ServiceDTO],
+  })
+  async searchTriggers(
+    @Query('query') query: string,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
+  ): Promise<SearchTriggersResponse> {
+    const skipNum = skip ? parseInt(skip, 10) : undefined;
+    const takeNum = take ? parseInt(take, 10) : undefined;
+
+    return this.servicesService.searchTriggers(query, skipNum, takeNum);
+  }
+
+  @Get('search/actions')
+  @ApiOperation({
+    summary: "Rechercher des services par nom d'action",
+    description:
+      'Recherche des services qui contiennent des actions dont le nom correspond à la recherche. Retourne uniquement la liste des services (sans les détails des actions).',
+  })
+  @ApiQuery({
+    name: 'query',
+    description: "Terme de recherche pour le nom de l'action",
+    example: 'create',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'skip',
+    description: "Nombre d'éléments à ignorer (pagination)",
+    example: 0,
+    required: false,
+  })
+  @ApiQuery({
+    name: 'take',
+    description: "Nombre maximum d'éléments à retourner",
+    example: 10,
+    required: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Liste des services contenant des actions correspondantes',
+    type: [ServiceDTO],
+  })
+  async searchActions(
+    @Query('query') query: string,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
+  ): Promise<SearchActionsResponse> {
+    const skipNum = skip ? parseInt(skip, 10) : undefined;
+    const takeNum = take ? parseInt(take, 10) : undefined;
+
+    return this.servicesService.searchActions(query, skipNum, takeNum);
+  }
+
+  @Get('search/all')
+  @ApiOperation({
+    summary: 'Recherche globale (services, triggers, actions)',
+    description:
+      'Recherche simultanément dans les noms de services, triggers et actions. Retourne une liste unique de services qui correspondent (par nom, trigger ou action).',
+  })
+  @ApiQuery({
+    name: 'query',
+    description:
+      'Terme de recherche à appliquer sur les services, triggers et actions',
+    example: 'github',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'skip',
+    description: "Nombre d'éléments à ignorer (pagination)",
+    example: 0,
+    required: false,
+  })
+  @ApiQuery({
+    name: 'take',
+    description: "Nombre maximum d'éléments à retourner",
+    example: 10,
+    required: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Liste unique des services correspondants (dédupliqués si trouvés dans plusieurs catégories)',
+    type: [ServiceDTO],
+  })
+  async searchAll(
+    @Query('query') query: string,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
+  ): Promise<SearchAllResponse> {
+    const skipNum = skip ? parseInt(skip, 10) : undefined;
+    const takeNum = take ? parseInt(take, 10) : undefined;
+
+    return this.servicesService.searchAll(query, skipNum, takeNum);
   }
 
   @Get(':serviceId')

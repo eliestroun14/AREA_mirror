@@ -263,3 +263,43 @@ export interface GetTriggerByServiceParams {
   triggerId: string;
 }
 export type GetTriggerByServiceResponse = TriggerDTO | null;
+
+// Search DTOs
+export class SearchQueryDTO {
+  @ApiProperty({
+    description: 'Le terme de recherche',
+    example: 'github',
+    required: true,
+  })
+  query: string;
+
+  @ApiProperty({
+    description: "Nombre d'éléments à ignorer (pagination)",
+    example: 0,
+    required: false,
+    default: 0,
+  })
+  skip?: number;
+
+  @ApiProperty({
+    description: "Nombre maximum d'éléments à retourner",
+    example: 10,
+    required: false,
+  })
+  take?: number;
+}
+
+// GET /services/search?query=...&skip=...&take=...
+export type SearchServicesResponse = ServiceDTO[];
+
+// GET /services/search/triggers?query=...&skip=...&take=...
+// Retourne uniquement les services qui contiennent des triggers correspondants
+export type SearchTriggersResponse = ServiceDTO[];
+
+// GET /services/search/actions?query=...&skip=...&take=...
+// Retourne uniquement les services qui contiennent des actions correspondantes
+export type SearchActionsResponse = ServiceDTO[];
+
+// GET /services/search/all?query=...&skip=...&take=...
+// Retourne tous les services qui correspondent (par nom, trigger ou action)
+export type SearchAllResponse = ServiceDTO[];
