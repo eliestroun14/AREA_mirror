@@ -35,6 +35,12 @@ After that, you can install the apk with this next command : `adb install androi
 
 If you're already in the android folder, remove android/ in apk path.
 
-### Third Step : Uninstall the apk on your device
+### Third Step : Run expo for your apk
+
+Run this command: `npx expo run:android`
+
+You can now launch the app on your mobile!
+
+### Remove the apk on your device
 
 To remove the apk on your device run the next command : `adb uninstall com.micouillette.AREA`.
