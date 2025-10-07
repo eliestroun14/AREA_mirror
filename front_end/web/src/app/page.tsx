@@ -16,6 +16,7 @@ import Chip from "@mui/material/Chip";
 import Skeleton from "@mui/material/Skeleton";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import DownloadIcon from '@mui/icons-material/Download';
 import database from "@/data/database.json";
 
 export default function HomePage() {
@@ -48,6 +49,49 @@ export default function HomePage() {
 
   const handleExploreAll = () => {
     router.push('/explore');
+  };
+
+  const handleDownload = async () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiUrl}/download/apk`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to download file');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      
+      // Extract filename from Content-Disposition header
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'downloaded-file'; // Fallback par défaut
+      
+      console.log('Content-Disposition header:', contentDisposition);
+      
+      if (contentDisposition) {
+        // Essayer différents patterns de parsing
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        const matches = filenameRegex.exec(contentDisposition);
+        if (matches != null && matches[1]) {
+          filename = matches[1].replace(/['"]/g, '');
+        }
+      }
+      
+      console.log('Filename extracted:', filename);
+      
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      alert('Failed to download file. Please try again.');
+    }
   };
 
   const popularApplets = database.applets.filter(applet => applet.is_popular);
@@ -98,31 +142,64 @@ export default function HomePage() {
             Save time and get more done
           </Typography>
 
-          <Button
-            variant="contained"
-            size="large"
-            onClick={handleStartToday}
-            endIcon={<ArrowForwardIcon />}
-            sx={{
-              bgcolor: 'black',
-              color: 'white',
-              px: 6,
-              py: 2,
-              fontSize: '1.1rem',
-              fontWeight: 600,
-              borderRadius: 3,
-              textTransform: 'none',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-              '&:hover': {
-                bgcolor: '#333333',
-                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.25)',
-                transform: 'translateY(-2px)'
-              },
-              transition: 'all 0.3s ease'
-            }}
-          >
-            Start today
-          </Button>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 2, 
+            justifyContent: 'center',
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: 'center'
+          }}>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={handleStartToday}
+              endIcon={<ArrowForwardIcon />}
+              sx={{
+                bgcolor: 'black',
+                color: 'white',
+                px: 6,
+                py: 2,
+                fontSize: '1.1rem',
+                fontWeight: 600,
+                borderRadius: 3,
+                textTransform: 'none',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+                '&:hover': {
+                  bgcolor: '#333333',
+                  boxShadow: '0 12px 40px rgba(0, 0, 0, 0.25)',
+                  transform: 'translateY(-2px)'
+                },
+                transition: 'all 0.3s ease'
+              }}
+            >
+              Start today
+            </Button>
+
+            <Button
+              variant="outlined"
+              size="large"
+              onClick={handleDownload}
+              startIcon={<DownloadIcon />}
+              sx={{
+                color: 'black',
+                borderColor: 'black',
+                px: 6,
+                py: 2,
+                fontSize: '1.1rem',
+                fontWeight: 600,
+                borderRadius: 3,
+                textTransform: 'none',
+                '&:hover': {
+                  borderColor: '#333333',
+                  bgcolor: 'rgba(0, 0, 0, 0.04)',
+                  transform: 'translateY(-2px)'
+                },
+                transition: 'all 0.3s ease'
+              }}
+            >
+              Download mobile app
+            </Button>
+          </Box>
         </Box>
       </Container>
 

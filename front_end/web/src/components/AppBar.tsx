@@ -8,7 +8,6 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
-import DownloadIcon from '@mui/icons-material/Download';
 import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -65,49 +64,6 @@ function ResponsiveAppBar() {
         break;
     }
     handleCloseNavMenu();
-  };
-
-  const handleDownload = async () => {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-      const response = await fetch(`${apiUrl}/download/apk`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to download file');
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      
-      // Extract filename from Content-Disposition header
-      const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = 'downloaded-file'; // Fallback par défaut
-      
-      console.log('Content-Disposition header:', contentDisposition);
-      
-      if (contentDisposition) {
-        // Essayer différents patterns de parsing
-        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-        const matches = filenameRegex.exec(contentDisposition);
-        if (matches != null && matches[1]) {
-          filename = matches[1].replace(/['"]/g, '');
-        }
-      }
-      
-      console.log('Filename extracted:', filename);
-      
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Error downloading file:', error);
-      alert('Failed to download file. Please try again.');
-    }
   };
 
   return (
@@ -209,22 +165,6 @@ function ResponsiveAppBar() {
 
           {/* Authenticated menu or login button - always right */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {/* Download button */}
-            <Tooltip title="Download mobile app">
-              <IconButton
-                onClick={handleDownload}
-                sx={{
-                  color: 'black',
-                  border: '1px solid rgba(0, 0, 0, 0.12)',
-                  '&:hover': {
-                    bgcolor: 'rgba(0, 0, 0, 0.04)',
-                  },
-                }}
-              >
-                <DownloadIcon />
-              </IconButton>
-            </Tooltip>
-
             {isAuthenticated ? (
               <>
                 <Tooltip title="Open settings">
