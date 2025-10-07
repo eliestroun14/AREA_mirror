@@ -23,7 +23,7 @@ jobs:
       - name: Check if frontend exists
         id: check-frontend
         run: |
-          if [ -d "./front_end" ] && [ -f "./front_end/package.json" ]; then
+          if [ -d "./front_end/web" ] && [ -f "./front_end/web/package.json" ]; then
             echo "frontend_exists=true" >> $GITHUB_OUTPUT
           else
             echo "frontend_exists=false" >> $GITHUB_OUTPUT
@@ -33,17 +33,17 @@ jobs:
       - name: Install dependencies
         if: steps.check-frontend.outputs.frontend_exists == 'true'
         run: npm install
-        working-directory: ./front_end
+        working-directory: ./front_end/web
 
       - name: Run lint
         if: steps.check-frontend.outputs.frontend_exists == 'true'
         run: npm run lint -- --ignore-pattern '**/*.spec.ts'
-        working-directory: ./front_end
+        working-directory: ./front_end/web
 
       - name: Run tests
         if: steps.check-frontend.outputs.frontend_exists == 'true'
         run: npm test -- --ci
-        working-directory: ../../front_end
+        working-directory: ./front_end/web
 
       - name: Check if docker-compose exists
         id: check-docker
@@ -59,10 +59,9 @@ jobs:
         if: steps.check-docker.outputs.docker_exists == 'true'
         run: docker compose build
 
-      # Security scan disabled for now - enabled when actual app images are added
-      #- name: Security scan with Trivy
-      #  if: steps.check-docker.outputs.docker_exists == 'true'
-      #  uses: aquasecurity/trivy-action@master
-      #  with:
-      #    image-ref: my-app:latest
-      #    format: 'table'
+      - name: Security scan with Trivy
+        if: steps.check-docker.outputs.docker_exists == 'true'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: my-app:latest
+          format: 'table'
