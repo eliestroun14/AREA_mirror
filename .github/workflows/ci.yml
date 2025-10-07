@@ -40,10 +40,13 @@ jobs:
         run: npm run lint -- --ignore-pattern '**/*.spec.ts'
         working-directory: ./front_end/web
 
-      - name: Run tests
-        if: steps.check-frontend.outputs.frontend_exists == 'true'
-        run: npm test -- --ci
-        working-directory: ./front_end/web
+      - name: Install backend dependencies
+        run: pnpm install
+        working-directory: ./back_end
+
+      - name: Run backend e2e tests
+        run: pnpm test:e2e
+        working-directory: ./back_end
 
       - name: Check if docker-compose exists
         id: check-docker
