@@ -104,7 +104,7 @@ const ConnectService = (props: Props) => {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Authorization': sessionToken || '', // juste the token, without'Bearer
+          'Authorization': `Bearer ${sessionToken || ''}`,
         },
         credentials: 'include',
         redirect: 'manual',
