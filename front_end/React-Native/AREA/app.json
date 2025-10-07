@@ -9,16 +9,14 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.micouillette.AREA"
     },
     "android": {
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.micouillette.AREA",
-      "versionCode": 2,
-      "manifestPlaceholders": {
-        "appAuthRedirectScheme": "com.micouillette.AREA"
-      }
+      "versionCode": 2
     },
     "web": {
       "output": "static",
@@ -41,8 +39,7 @@
       "expo-web-browser"
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
+      "typedRoutes": true
     },
     "extra": {
       "router": {},
