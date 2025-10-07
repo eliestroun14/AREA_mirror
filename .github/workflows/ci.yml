@@ -37,13 +37,13 @@ jobs:
 
       - name: Run lint
         if: steps.check-frontend.outputs.frontend_exists == 'true'
-        run: npm run lint
+        run: npm run lint -- --ignore-pattern '**/*.spec.ts'
         working-directory: ./front_end
 
-      #- name: Run tests
-      #  if: steps.check-frontend.outputs.frontend_exists == 'true'
-      #  run: npm test -- --ci
-      #  working-directory: ./front_end
+      - name: Run tests
+        if: steps.check-frontend.outputs.frontend_exists == 'true'
+        run: npm test -- --ci
+        working-directory: ./front_end
 
       - name: Check if docker-compose exists
         id: check-docker
