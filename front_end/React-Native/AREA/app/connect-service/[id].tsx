@@ -1,11 +1,12 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
-import * as WebBrowser from 'expo-web-browser';
+import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';
 import { Service } from "@/types/type";
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
 import { useAuth } from "@/context/AuthContext";
+import { useAuthRequest, makeRedirectUri, ResponseType } from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
 
 
 type Props = {}
@@ -17,15 +18,65 @@ const ConnectService = (props: Props) => {
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const { sessionToken } = useAuth();
+  const redirectUri = makeRedirectUri();
+  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  const [request, response, promptAsync] = useAuthRequest(
+    {
+      responseType: ResponseType.Code,
+      clientId: service?.name?.toLowerCase() || '',
+      redirectUri,
+    },
+    { authorizationEndpoint: `${apiUrl}/oauth2/${service?.name?.toLowerCase()}` }
+  );
+
 
   useEffect(() => {
     getServiceDetails();
   }, [id]);
 
+  useEffect(() => {
+    if (response?.type === 'success' && response.params?.code) {
+      const exchangeCode = async () => {
+        try {
+          console.log('--- OAUTH DEBUG ---');
+          console.log('sessionToken:', sessionToken);
+          console.log('POST URL:', `${apiUrl}/oauth2/${service?.name?.toLowerCase()}`);
+          console.log('POST body:', { code: response.params.code, redirect_uri: redirectUri });
+          const res = await fetch(`${apiUrl}/oauth2/${service?.name?.toLowerCase()}`,
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': sessionToken || '',
+              },
+              body: JSON.stringify({ code: response.params.code, redirect_uri: redirectUri }),
+            });
+          console.log('Raw response:', res);
+          const result = await res.json();
+          console.log('Parsed response:', result);
+          if (res.status === 200) {
+            Alert.alert('Service connecté !');
+            console.log('OAuth backend result:', result);
+          } else {
+            Alert.alert('Erreur lors de la connexion au service.');
+            console.log('OAuth backend error:', result);
+          }
+        } catch (e) {
+          Alert.alert('Erreur réseau lors de la connexion au service.');
+          console.log('Network error:', e);
+        }
+      };
+      exchangeCode();
+    } else if (response?.type === 'error') {
+      Alert.alert('Erreur OAuth');
+      console.log('OAuth error:', response);
+    }
+  }, [response]);
+
   const getServiceDetails = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.EXPO_PUBLIC_API_BASE_URL}/services/${id}`);
+      const res = await fetch(`${apiUrl}/services/${id}`);
       if (!res.ok) throw new Error('Service not found');
       const data = await res.json();
       setService(data);
@@ -37,50 +88,47 @@ const ConnectService = (props: Props) => {
     setLoading(false);
   };
 
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
-  const handleConnect = async () => {
-    if (!service || !service.name) {
-      console.log('[Connect] No service or service name');
-      return;
-    }
+  const handleOAuth = async () => {
     try {
-      const oauthUrl = `${apiUrl}/oauth2/${service.name.toLowerCase()}`;
-      console.log('[Connect] Requesting OAuth2 URL:', oauthUrl, 'with sessionToken:', sessionToken);
-      const res = await fetch(oauthUrl, {
+      const url = `${apiUrl}/oauth2/${service?.name?.toLowerCase()}?redirect_uri=${encodeURIComponent(redirectUri)}`;
+      console.log('OAuth GET URL:', url);
+      console.log('sessionToken (avant requête):', sessionToken);
+      const res = await fetch(url, {
         method: 'GET',
         headers: {
-          Authorization: `${sessionToken}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': sessionToken || '', // juste the token, without'Bearer
         },
+        credentials: 'include',
+        redirect: 'manual',
       });
-      console.log('[Connect] Response status:', res.status);
-      const contentType = res.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const text = await res.text();
-        console.log('[Connect] Raw response text:', text);
-        let data;
+      let redirect = res.headers.get('Location');
+      console.log('Redirection Location:', redirect);
+      if (!redirect) {
         try {
-          data = JSON.parse(text);
-        } catch (parseErr) {
-          console.log('[Connect] Failed to parse JSON:', parseErr);
-          alert('Backend did not return valid JSON.');
-          return;
+          const data = await res.json();
+          console.log('Redirection body:', data);
+          redirect = data.redirect || data.url || null;
+        } catch (e) {
+          console.log('No JSON body for redirect:', e);
+          if (res.url && res.url.startsWith('http')) {
+            redirect = res.url;
+            console.log('Fallback redirection via res.url:', redirect);
+          }
         }
-        if (data.url) {
-          console.log('[Connect] Opening OAuth2 URL in-app:', data.url);
-          await WebBrowser.openAuthSessionAsync(data.url);
-        } else {
-          alert('No OAuth2 URL returned by backend.');
-          console.log('[Connect] No url in backend response:', data);
-        }
-      } else {
-        // If not JSON, assume it's an HTML page and open the URL directly in-app
-        console.log('[Connect] Non-JSON response, opening URL in-app:', oauthUrl);
-        await WebBrowser.openAuthSessionAsync(oauthUrl);
       }
-    } catch (err) {
-      alert('Failed to start OAuth2 flow.');
-      console.log('[Connect] OAuth2 connect error:', err);
+      if (redirect) {
+        const result = await WebBrowser.openAuthSessionAsync(redirect, redirectUri);
+        console.log('WebBrowser result:', result);
+      } else {
+        Alert.alert('Erreur: pas de redirection trouvée.');
+        console.log('Réponse brute:', res);
+      }
+    } catch (e) {
+      Alert.alert('Erreur réseau lors de la connexion au service.');
+      console.log('Network error:', e);
     }
   };
 
@@ -100,58 +148,43 @@ const ConnectService = (props: Props) => {
     );
   }
 
-  if (!sessionToken) {
-    return (
-      <View style={styles.container}>
-        <Text style={{ color: 'red', textAlign: 'center', marginTop: 30 }}>
-          You must be logged in to connect this service.
-        </Text>
-      </View>
-    );
-  }
-
   return (
     <>
       <Stack.Screen
-          options={{
-            title: "Connect Service",
-            headerStyle: {
-              backgroundColor: service.services_color,
-            },
-            headerTintColor: '#fff',
-            headerTitleStyle: {
-              fontWeight: 'bold',
-            },
-          }}
-        />
-        {
-        <View style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
-          <View style={[styles.header, {backgroundColor: service.services_color}]}>
-            <Image
-              style={styles.appLogo}
-              source={imageMap[service.id] ?? imageMap["default"]}
-            />
-
-            <Text style={styles.serviceName}>
-              {service.name}
+        options={{
+          title: "Connect Service",
+          headerStyle: {
+            backgroundColor: service.services_color,
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+      <View style={{ flex: 1, backgroundColor: "#e8ecf4" }}>
+        <View style={[styles.header, { backgroundColor: service.services_color }]}> 
+          <Image
+            style={styles.appLogo}
+            source={imageMap[service.name] ?? imageMap["default"]}
+          />
+          <Text style={styles.serviceName}>{service.name}</Text>
+          <Text style={styles.serviceDescription}>{service.documentation_url}</Text>
+          <TouchableOpacity style={styles.connectButton}
+            onPress={handleOAuth}
+            disabled={!request || !sessionToken}
+          >
+            <Text style={styles.connectButtonText}>Connect</Text>
+          </TouchableOpacity>
+          {!sessionToken && (
+            <Text style={{ color: 'red', textAlign: 'center', marginTop: 10 }}>
+              Veuillez vous connecter pour lier ce service.
             </Text>
-
-            <Text style={styles.serviceDescription}>
-              {service.documentation_url}
-            </Text>
-
-            <TouchableOpacity style={styles.connectButton}
-              onPress={handleConnect}
-              >
-              <Text style={styles.connectButtonText}>
-                  Connect
-              </Text>
-            </TouchableOpacity>
-          </View>
+          )}
         </View>
-        }
+      </View>
     </>
-  )
+  );
 }
 
 export default ConnectService
