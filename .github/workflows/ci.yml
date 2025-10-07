@@ -47,9 +47,15 @@ jobs:
         run: pnpm install
         working-directory: ./back_end
 
-      - name: Run backend e2e tests
-        run: pnpm test:e2e
+      - name: Generate Prisma client
+        run: pnpx prisma generate
         working-directory: ./back_end
+
+      - name: Build backend Docker image
+        run: docker build -t area-backend-test ./back_end
+
+      - name: Run backend e2e tests in Docker
+        run: docker run --rm area-backend-test pnpm test:e2e
 
       - name: Check if docker-compose exists
         id: check-docker
