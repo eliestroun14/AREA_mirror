@@ -21,11 +21,13 @@
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/serve-static": "^5.0.3",
+    "@nestjs/swagger": "^11.2.0",
     "@prisma/client": "6.16.2",
     "@types/passport-jwt": "^4.0.1",
     "bcrypt": "^6.0.0",
@@ -94,13 +96,13 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "moduleNameMapper": {
-      "@root/(.*)": "<rootDir>/src/$1",
-      "@app/(.*)": "<rootDir>/src/app/$1",
-      "@pipes/(.*)": "<rootDir>/src/pipes/$1",
-      "@config/(.*)": "<rootDir>/src/config/$1",
-      "@errors/(.*)": "<rootDir>/src/errors/$1",
-      "@filters/(.*)": "<rootDir>/src/filters/$1",
-      "@test/(.*)": "<rootDir>/test/$1"
+      "@root/(.*)": "<rootDir>/$1",
+      "@app/(.*)": "<rootDir>/app/$1",
+      "@pipes/(.*)": "<rootDir>/pipes/$1",
+      "@config/(.*)": "<rootDir>/config/$1",
+      "@errors/(.*)": "<rootDir>/errors/$1",
+      "@filters/(.*)": "<rootDir>/filters/$1",
+      "@test/(.*)": "<rootDir>/../test/$1"
     }
   },
   "_moduleAliases": {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -9,7 +9,12 @@ export default function LoginScreen() {
   console.log('(PROFILE)');
 
   const { isAuthenticated, user, login, logout } = useAuth();
+  console.log('Auth state on mount:', { isAuthenticated, user });
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    console.log('Auth state changed:', { isAuthenticated, user });
+  }, [isAuthenticated, user]);
 
   const [form, setForm] = useState({
     email: '',
@@ -30,6 +35,7 @@ export default function LoginScreen() {
   }
 
   const checkTextInputs = () => {
+    console.log('Checking text inputs:', form);
     if (!validate(form.email)) {
       Alert.alert('Please enter valid email.');
       return;
@@ -38,28 +44,26 @@ export default function LoginScreen() {
       Alert.alert('Please enter password.');
       return;
     }
-    Alert.alert("Succefully signed in !")
-    login();
+    handleSignIn();
   }
 
   const handleSignIn = async () => {
     setError("");
-
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
-
+    console.log('Attempting sign in with:', form);
+    const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
     try {
-      const res = await fetch(`${apiUrl}/auth/sign-in`, { //FIXME: belek à l'ip, c'est celle d'Epitech
+      const res = await fetch(`${apiUrl}/auth/sign-in`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email: form.email, password: form.password }),
-        credentials: "include", // to receive set-cookie
+        credentials: "include",
       });
       const result = await res.json();
-
+      console.log('Sign-in response:', res.status, result);
       if (res.status === 200) {
-        const resUser = await fetch(`${apiUrl}/users/me`, { //FIXME: belek à l'ip, c'est celle d'Epitech
+        const resUser = await fetch(`${apiUrl}/users/me`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -68,10 +72,14 @@ export default function LoginScreen() {
           credentials: "include",
         });
         const resultUser = await resUser.json();
-
+        console.log("User info :", resultUser); 
         login({
-          name: resultUser.name || resultUser.user?.name || "User",
-          email: resultUser.email || resultUser.user?.email || form.email,
+          name: resultUser.name || resultUser.user?.name,
+          email: resultUser.email || resultUser.user?.email,
+        }, result.session_token);
+        console.log('Called login with:', {
+          name: resultUser.name || resultUser.user?.name,
+          email: resultUser.email || resultUser.user?.email,
         }, result.session_token);
         Alert.alert("Succefully signed in !")
       } else if (res.status === 401) {
@@ -80,11 +88,13 @@ export default function LoginScreen() {
       } else {
         setError("Failed to login. Please check your credentials.");
       }
-    } catch {
+    } catch (err) {
+      console.log('Sign-in error:', err);
       setError("Failed to login. Please check your credentials.");
     }
   };
   if (isAuthenticated === false) {
+    console.log('Rendering login screen. Authenticated:', isAuthenticated, 'User:', user);
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
         <KeyboardAvoidingView
@@ -176,10 +186,10 @@ export default function LoginScreen() {
       </SafeAreaView>
     );
   } else {
+    console.log('Rendering profile screen. Authenticated:', isAuthenticated, 'User:', user);
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
         <View style={styles.container}>
-
           <View style={styles.header}>
             <Image
               source={areaLogo}
@@ -192,15 +202,17 @@ export default function LoginScreen() {
             </Text>
 
             <Text style={styles.subtitle}>
-              Welcome {user?.name || "user"} :)
+              Welcome {user?.name} :)
             </Text>
           </View>
 
           <View style={styles.formAction}>
               <TouchableOpacity
                 onPress={() => {
+                  console.log('Signing out...');
                   logout();
                   form.password = '';
+                  console.log('After logout. Authenticated:', isAuthenticated, 'User:', user);
                 }}>
                 <View style={styles.disconnectButton}>
                   <Text style={styles.buttonText}> Sign out </Text>

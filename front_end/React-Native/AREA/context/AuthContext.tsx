@@ -37,7 +37,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const loadAuth = async () => {
       const saved = await SecureStore.getItemAsync('auth');
+      const savedUser = await SecureStore.getItemAsync('user');
+      const savedToken = await SecureStore.getItemAsync('sessionToken');
       setIsAuthenticated(saved === 'true');
+      setUser(savedUser ? JSON.parse(savedUser) : null);
+      setSessionToken(savedToken || null);
       setLoading(true);
     }
     loadAuth();
@@ -45,6 +49,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (userData: User, sessionToken: string) => {
     await SecureStore.setItemAsync('auth', 'true');
+    await SecureStore.setItemAsync('user', JSON.stringify(userData));
+    await SecureStore.setItemAsync('sessionToken', sessionToken);
     setIsAuthenticated(true);
     setUser(userData);
     setSessionToken(sessionToken);
@@ -52,6 +58,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     await SecureStore.deleteItemAsync('auth');
+    await SecureStore.deleteItemAsync('user');
+    await SecureStore.deleteItemAsync('sessionToken');
     setIsAuthenticated(false);
     setUser(null);
     setSessionToken(null);

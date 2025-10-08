@@ -1,4 +1,3 @@
-
 services:
   database:
     image: postgres:latest
@@ -41,6 +40,17 @@ services:
     depends_on:
       - wait-for-db
     entrypoint: ["/app/entrypoint.sh"]
+    develop:
+      watch:
+        - action: sync
+          target: /app/src
+          path: ./back_end/src
+        - action: rebuild
+          path: ./back_end/package.json
+        - action: rebuild
+          path: ./back_end/tsconfig.json
+        - action: rebuild
+          path: ./back_end/tsconfig.build.json
 
   nextjs:
     build: ./front_end/web/
@@ -72,6 +82,16 @@ services:
       - wait-for-nextjs
     networks:
       - area_network
+
+  backend-test:
+    build: ./back_end
+    networks:
+      - area_network
+    env_file:
+      - .env
+    depends_on:
+      - wait-for-db
+    entrypoint: ["pnpm", "test:e2e"]
 
 networks:
   area_network:

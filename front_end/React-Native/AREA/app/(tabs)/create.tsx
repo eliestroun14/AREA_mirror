@@ -24,8 +24,10 @@ export default function CreateScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [triggerConnection, setTriggerConnection] = useState<any>(null);
+  const [actionConnection, setActionConnection] = useState<any>(null);
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, sessionToken } = useAuth();
 
   // Fetch service and trigger from backend
   useEffect(() => {
@@ -71,6 +73,34 @@ export default function CreateScreen() {
     fetchServiceAndAction();
   }, [serviceActionId, actionId]);
 
+  // Fetch connections for trigger and action services
+  useEffect(() => {
+    const fetchConnections = async () => {
+      if (!sessionToken) return;
+      if (serviceTriggerId) {
+        try {
+          const res = await axios.get(`${apiUrl}/users/me/connections/service/${serviceTriggerId}`, {
+            headers: { Authorization: `Bearer ${sessionToken}` },
+          });
+          setTriggerConnection(res.data.connections?.[0] || null);
+        } catch (err) {
+          setTriggerConnection(null);
+        }
+      }
+      if (serviceActionId) {
+        try {
+          const res = await axios.get(`${apiUrl}/users/me/connections/service/${serviceActionId}`, {
+            headers: { Authorization: `Bearer ${sessionToken}` },
+          });
+          setActionConnection(res.data.connections?.[0] || null);
+        } catch (err) {
+          setActionConnection(null);
+        }
+      }
+    };
+    fetchConnections();
+  }, [serviceTriggerId, serviceActionId, sessionToken]);
+
   useFocusEffect(
     useCallback(() => {
       const backAction = () => {
@@ -106,40 +136,44 @@ export default function CreateScreen() {
 
   const handleFinish = async () => {
     if (!trigger || !action) return;
+    if (!triggerConnection || !actionConnection) {
+      setError('You must connect your account to both services before creating a zap.');
+      return;
+    }
     console.log('[Finish] Button pressed');
     router.replace('/(tabs)/explore');
     setLoading(true);
     setError(null);
     setSuccess(false);
     try {
+      const authHeaders = sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {};
       console.log('[Finish] Creating zap...');
       const zapPayload = {
         name: `Zap: ${trigger.name} -> ${action.name}`,
         description: `Auto-created zap from mobile UI`,
       };
       console.log('[Finish] Zap payload:', zapPayload);
-      const zapRes = await axios.post(`${apiUrl}/zaps`, zapPayload, { withCredentials: true });
+      const zapRes = await axios.post(`${apiUrl}/zaps`, zapPayload, { headers: authHeaders });
       const zapId = zapRes.data.id;
       console.log('[Finish] Zap created with id:', zapId);
       const triggerPayload = {
         triggerId: trigger.id,
-        accountIdentifier,
+        accountIdentifier: triggerConnection.account_identifier,
         payload: {},
       };
       console.log('[Finish] Trigger step payload:', triggerPayload);
-      const triggerStepRes = await axios.post(`${apiUrl}/zaps/${zapId}/trigger`, triggerPayload, { withCredentials: true });
+      const triggerStepRes = await axios.post(`${apiUrl}/zaps/${zapId}/trigger`, triggerPayload, { headers: authHeaders });
       console.log('[Finish] Trigger step response:', triggerStepRes.data);
-      // For fromStepId, try to get the trigger step id from response if available, else fallback to 1
       const fromStepId = triggerStepRes.data?.id || 1;
       const actionPayload = {
         actionId: action.id,
         fromStepId,
         stepOrder: 1,
-        accountIdentifier,
+        accountIdentifier: actionConnection.account_identifier,
         payload: {},
       };
       console.log('[Finish] Action step payload:', actionPayload);
-      const actionStepRes = await axios.post(`${apiUrl}/zaps/${zapId}/action`, actionPayload, { withCredentials: true });
+      const actionStepRes = await axios.post(`${apiUrl}/zaps/${zapId}/action`, actionPayload, { headers: authHeaders });
       console.log('[Finish] Action step response:', actionStepRes.data);
       setSuccess(true);
       setTimeout(() => {

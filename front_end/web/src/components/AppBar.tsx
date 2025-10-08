@@ -14,7 +14,6 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 
-const pages = ['Explore', 'Create', 'My applets'];
 const settings = ['Logout'];
 
 function ResponsiveAppBar() {
@@ -165,7 +164,7 @@ function ResponsiveAppBar() {
           <Box sx={{ flexGrow: 1 }} />
 
           {/* Authenticated menu or login button - always right */}
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {isAuthenticated ? (
               <>
                 <Tooltip title="Open settings">

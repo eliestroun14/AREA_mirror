@@ -8,7 +8,7 @@ import { Stack, router } from 'expo-router';
 export default function SignUpScreen() {
   console.log('(SIGN UP)');
   const [form, setForm] = useState({
-    username: '',
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -28,8 +28,8 @@ export default function SignUpScreen() {
 }
 
   const checkTextInputs = async () => {
-    if (!form.username.trim()) {
-      Alert.alert('Please enter username.');
+    if (!form.name.trim()) {
+      Alert.alert('Please enter name.');
       return;
     }
     if (!validate(form.email)) {
@@ -48,11 +48,11 @@ export default function SignUpScreen() {
     const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
     try {
-      const response = await fetch(`${apiUrl}/auth/sign-up`, { // FIXME: belek à l'ip, c'est celle d'Epitech
+      const response = await fetch(`${apiUrl}/auth/sign-up`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: form.username,
+          name: form.name,
           email: form.email,
           password: form.password
         }),
