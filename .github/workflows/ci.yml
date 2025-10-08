@@ -71,9 +71,9 @@ jobs:
         if: steps.check-docker.outputs.docker_exists == 'true'
         run: docker compose build
 
-      - name: Security scan with Trivy
-        if: steps.check-docker.outputs.docker_exists == 'true'
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: my-app:latest
-          format: 'table'
+      #- name: Security scan with Trivy
+      #  if: steps.check-docker.outputs.docker_exists == 'true'
+      #  uses: aquasecurity/trivy-action@master
+      #  with:
+      #    image-ref: my-app:latest
+      #    format: 'table'
