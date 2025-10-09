@@ -1,4 +1,4 @@
-FROM node:18.18.0-alpine AS builder
+FROM node:18.18.0-slim AS builder
 WORKDIR /
 COPY package*.json ./
 RUN echo "legacy-peer-deps=true" > .npmrc
