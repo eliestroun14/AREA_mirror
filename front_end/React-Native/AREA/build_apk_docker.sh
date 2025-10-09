@@ -17,7 +17,11 @@ NC='\e[0m'
 DIFF_ADD="\e[K\e[38;5;10m\e[48;5;22m"
 DIFF_DEL="\e[K\e[38;5;88m\e[48;5;224m"
 
-cleanup() { tput cnorm; }
+cleanup() {
+    if [ -t 1 ]; then
+        tput cnorm 2>/dev/null || true
+    fi
+}
 trap cleanup EXIT
 
 echo -e "${BLUE}[>>] Building a release APK...${NC}"
