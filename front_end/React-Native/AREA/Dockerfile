@@ -16,4 +16,4 @@ RUN npx --version
 
 RUN npx expo prebuild -p android
 RUN chmod +x build_apk_docker.sh
-RUN ./build_apk_docker.sh
+RUN bash -x ./build_apk_docker.sh
