@@ -195,12 +195,12 @@ const ConnectService = (props: Props) => {
           >
             <Text style={styles.connectButtonText}>Connect</Text>
           </TouchableOpacity>
-          <Text style={{ color: 'red', textAlign: 'center', marginTop: 20 }}>
+          <Text style={styles.textWarning}>
             You must connect your account to this service before creating an action.
           </Text>
           {!sessionToken && (
-            <Text style={{ color: 'red', textAlign: 'center', marginTop: 10 }}>
-              Veuillez vous connecter pour lier ce service.
+            <Text style={styles.textWarning}>
+              Please log in to link this service..
             </Text>
           )}
         </View>
@@ -224,8 +224,8 @@ const styles = StyleSheet.create({
   },
 
   appLogo: {
-    width: 80,
-    height: 80,
+    width: 120,
+    height: 120,
     alignSelf: "center",
     marginTop: 70
   },
@@ -268,6 +268,17 @@ const styles = StyleSheet.create({
 
   content: {
     alignSelf: "center"
+  },
+
+  textWarning: {
+    fontSize: 16,
+    lineHeight: 20,
+    color: '#d40000ff',
+    alignSelf: "center",
+    maxWidth: 300,
+    marginTop: 10,
+    textAlign: "center",
+    fontWeight: "500",
   },
 
 })

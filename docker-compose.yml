@@ -93,6 +93,14 @@ services:
       - wait-for-db
     entrypoint: ["pnpm", "test:e2e"]
 
+  client_mobile:
+    build: ./front_end/React-Native/AREA/
+    networks:
+      - area_network
+    depends_on:
+      - api
+
+
 networks:
   area_network:
 
