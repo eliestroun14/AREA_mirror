@@ -8,7 +8,7 @@ async function main() {
     data: [
       {
         service_id: 1, // adapte l'id selon tes services
-        http_request_id: 1, // adapte l'id selon tes http_request
+        http_request_id: 1, // adapte l'id selon tes http_requests
         name: 'Send Email',
         description: 'Send an email to a user',
         class_name: 'SendEmailAction',

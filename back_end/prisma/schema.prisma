@@ -36,13 +36,10 @@ model services {
 }
 
 model connections {
-  id                   Int         @unique @default(autoincrement())
-  user_id              Int
-  @@index([user_id])
-  service_id           Int
-  @@index([service_id])
-  account_identifier   String
-  @@index([account_identifier])
+  id                 Int    @id @default(autoincrement())
+  user_id            Int
+  service_id         Int
+  account_identifier String
 
   access_token         String
   refresh_token        String?
@@ -58,78 +55,83 @@ model connections {
   service              services    @relation(fields: [service_id], references: [id], onDelete: Cascade)
   dependent_steps      zap_steps[]
 
-  @@id([id, user_id, service_id, account_identifier])
+  @@unique([user_id, service_id, account_identifier])
+  @@index([user_id])
+  @@index([service_id])
+  @@index([account_identifier])
 }
 
-model http_request {
-  id            Int        @id @default(autoincrement())
-  description   String
-  method        String     @default("GET")
-  endpoint      String
-  body_schema   Json
-  header_schema Json
-  triggers      triggers[]
-  actions       actions[]
+model http_requests {
+  id          Int        @id @default(autoincrement())
+  description String
+  method      String     @default("GET")
+  endpoint    String
+  triggers    triggers[]
+  actions     actions[]
 }
 
 model webhooks {
   id               Int        @id @default(autoincrement())
-  header_schema    Json
-  body_schema      Json
   from_url         String
   secret           String?
-  total_received   Int          @default(0)
+  event            String
+  action           String
+  total_received   Int        @default(0)
   last_received_at DateTime?
   triggers         triggers[]
+
+  @@unique([action, event, from_url])
 }
 
 model triggers {
-  id               Int           @id @default(autoincrement())
-  service_id       Int
-  class_name       String
-  http_request_id  Int?
-  webhook_id       Int?
+  id                 Int            @id @default(autoincrement())
+  service_id         Int
+  class_name         String
+  http_request_id    Int?
+  webhook_id         Int?
+  trigger_type       String
+  name               String
+  description        String
+  require_connection Boolean        @default(true)
+  polling_interval   Int?
+  fields             Json
+  variables          Json
+  is_active          Boolean        @default(true)
+  created_at         DateTime       @default(now())
+  updated_at         DateTime       @default(now())
+  service            services       @relation(fields: [service_id], references: [id], onDelete: Cascade)
+  http_requests      http_requests? @relation(fields: [http_request_id], references: [id], onDelete: SetNull)
+  webhook            webhooks?      @relation(fields: [webhook_id], references: [id], onDelete: SetNull)
+  zap_steps          zap_steps[]
+
   @@index([service_id])
   @@index([http_request_id])
   @@index([webhook_id])
-  trigger_type     String
-  name             String
-  description      String
-  polling_interval Int?
-  fields           Json
-  variables        Json
-  is_active        Boolean       @default(true)
-  created_at       DateTime      @default(now())
-  updated_at       DateTime      @default(now())
-  service          services      @relation(fields: [service_id], references: [id], onDelete: Cascade)
-  http_request     http_request? @relation(fields: [http_request_id], references: [id], onDelete: SetNull)
-  webhook          webhooks?     @relation(fields: [webhook_id], references: [id], onDelete: SetNull)
-  zap_steps        zap_steps[]
 }
 
 model actions {
-  id              Int          @id @default(autoincrement())
+  id              Int           @id @default(autoincrement())
   service_id      Int
   class_name      String
   http_request_id Int
-  @@index([service_id])
-  @@index([http_request_id])
   name            String
   description     String
   fields          Json
   variables       Json
-  is_active       Boolean      @default(true)
-  created_at      DateTime     @default(now())
-  updated_at      DateTime     @default(now())
-  service         services     @relation(fields: [service_id], references: [id], onDelete: Cascade)
-  http_request    http_request @relation(fields: [http_request_id], references: [id], onDelete: SetNull)
+  is_active       Boolean       @default(true)
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @default(now())
+  service         services      @relation(fields: [service_id], references: [id], onDelete: Cascade)
+  http_requests   http_requests @relation(fields: [http_request_id], references: [id], onDelete: SetNull)
   zap_steps       zap_steps[]
+
+  @@index([service_id])
+  @@index([http_request_id])
 }
 
 model zaps {
   id              Int              @id @default(autoincrement())
   user_id         Int
-  @@index([user_id])
   name            String
   description     String
   is_active       Boolean          @default(false)
@@ -143,26 +145,23 @@ model zaps {
   user            users            @relation(fields: [user_id], references: [id], onDelete: Cascade)
   zap_steps       zap_steps[]
   zap_executions  zap_executions[]
+
+  @@index([user_id])
 }
 
 model zap_steps {
-  id             Int      @id @default(autoincrement())
+  id             Int  @id @default(autoincrement())
   zap_id         Int
-  @@index([zap_id])
   source_step_id Int?
-  @@index([source_step_id])
   trigger_id     Int?
-  @@index([trigger_id])
   action_id      Int?
-  @@index([action_id])
-  connection_id  Int
-  @@index([connection_id])
+  connection_id  Int?
 
-  step_type      String
-  step_order     Int
-  payload        Json
-  created_at     DateTime @default(now())
-  updated_at     DateTime @default(now())
+  step_type  String
+  step_order Int
+  payload    Json
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
 
   zap                 zaps                  @relation(fields: [zap_id], references: [id], onDelete: Cascade)
   source_step         zap_steps?            @relation("zap_steps_source", fields: [source_step_id], references: [id], onDelete: SetNull)
@@ -170,27 +169,32 @@ model zap_steps {
   trigger             triggers?             @relation(fields: [trigger_id], references: [id], onDelete: Cascade)
   action              actions?              @relation(fields: [action_id], references: [id], onDelete: Cascade)
   zap_step_executions zap_step_executions[]
-  connection          connections           @relation(fields: [connection_id], references: [id])
+  connection          connections?          @relation(fields: [connection_id], references: [id])
+
+  @@index([zap_id])
+  @@index([source_step_id])
+  @@index([trigger_id])
+  @@index([action_id])
+  @@index([connection_id])
 }
 
 model zap_executions {
   id                  Int                   @id @default(autoincrement())
   zap_id              Int
-  @@index([zap_id])
   status              String
   duration_ms         Int
   started_at          DateTime
   ended_at            DateTime?
   zap                 zaps                  @relation(fields: [zap_id], references: [id], onDelete: Cascade)
   zap_step_executions zap_step_executions[]
+
+  @@index([zap_id])
 }
 
 model zap_step_executions {
   id               Int            @id @default(autoincrement())
   zap_step_id      Int
   zap_execution_id Int
-  @@index([zap_step_id])
-  @@index([zap_execution_id])
   data             Json
   status           String
   duration_ms      Int
@@ -199,4 +203,7 @@ model zap_step_executions {
   ended_at         DateTime?
   zap_step         zap_steps      @relation(fields: [zap_step_id], references: [id], onDelete: Cascade)
   zap_execution    zap_executions @relation(fields: [zap_execution_id], references: [id], onDelete: Cascade)
+
+  @@index([zap_step_id])
+  @@index([zap_execution_id])
 }

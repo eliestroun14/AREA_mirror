@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@root/prisma/prisma.service';
 import { ZapsService } from '@app/zaps/zaps.service';
 import { TriggersService } from '@app/services/triggers/triggers.service';
-import DiscordAction_SendMessage from '@root/workflows/services/discord/discord.workflow';
 import { ZapDTO } from '@app/zaps/zaps.dto';
 import { Logger } from '@root/workflows/logger/logger';
 import {
@@ -70,9 +69,9 @@ export class WorkflowService {
     if (!(await this.checkIfReadyToTrigger(zap.id, trigger))) return false;
 
     // this.logger.log(`Executing zap '${zap.name}:${zap.id}'.`);
-    const triggerAccessToken = await this.getAccessToken(
-      triggerStep.connection_id,
-    );
+    let triggerAccessToken: string | null = null;
+    if (trigger.require_connection && triggerStep.connection_id !== null)
+      triggerAccessToken = await this.getAccessToken(triggerStep.connection_id);
     // if (!triggerAccessToken)
     //   throw new Error(
     //     `Connection account not found for step with id ${triggerStep.id}`,
@@ -179,13 +178,15 @@ export class WorkflowService {
       return { has_run: false, data: [] };
     }
 
-    const accessToken = await this.getAccessToken(step.connection_id);
-    if (!accessToken) {
-      this.logger.error(
-        `Action of zap '${action.name}:${step.zap_id}' do not have a valid connection.`,
-      );
-      return { has_run: false, data: [] };
-    }
+    let accessToken: string | null = null;
+    if (step.connection_id)
+      accessToken = await this.getAccessToken(step.connection_id);
+    // if (!accessToken) {
+    //   this.logger.error(
+    //     `Action of zap '${action.name}:${step.zap_id}' do not have a valid connection.`,
+    //   );
+    //   return { has_run: false, data: [] };
+    // }
 
     const payload = step.payload as { [key: string]: string };
     for (const key in payload) {

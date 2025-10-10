@@ -49,8 +49,7 @@ export class ConnectionsService {
     if (connection) {
       await this.prisma.connections.update({
         where: {
-          id_user_id_service_id_account_identifier: {
-            id: connection.id,
+          user_id_service_id_account_identifier: {
             user_id: connection.user_id,
             service_id: connection.service_id,
             account_identifier: connection.account_identifier,
