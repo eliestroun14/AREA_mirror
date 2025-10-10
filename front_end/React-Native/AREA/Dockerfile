@@ -22,6 +22,9 @@ RUN mkdir -p ${ANDROID_HOME}/cmdline-tools && \
 RUN yes | sdkmanager --licenses && \
     sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
+ENV GRADLE_USER_HOME=/app/.gradle
+RUN mkdir -p ${GRADLE_USER_HOME}
+
 COPY package*.json ./
 RUN echo "legacy-peer-deps=true" > .npmrc
 RUN npm install
@@ -29,6 +32,8 @@ RUN npm install
 COPY . .
 
 RUN npx expo prebuild -p android
+
+RUN cd android && ./gradlew clean || true
 
 RUN chmod +x build_apk_docker.sh
 RUN ./build_apk_docker.sh
