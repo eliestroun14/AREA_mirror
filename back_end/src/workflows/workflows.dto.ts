@@ -34,7 +34,7 @@ export abstract class WebhookTriggerJob extends TriggerJob {
 
 export abstract class ActionJob {
   public abstract run: (
-    access_token: string,
+    access_token: string | null,
     payload: object,
   ) => Promise<RunResult>;
 }

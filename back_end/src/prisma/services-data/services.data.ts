@@ -18,7 +18,7 @@ export const servicesData: Service[] = [
     triggers: [
       {
         class_name: 'ScheduleTrigger_EveryMinutes',
-        http_request: null,
+        http_requests: null,
         webhook: null,
         trigger_type: 'SCHEDULE',
         name: 'Every minutes',
@@ -44,14 +44,10 @@ export const servicesData: Service[] = [
     triggers: [],
     actions: [
       {
-        http_request: {
+        http_requests: {
           description: 'Send a message.',
           method: 'POST',
           endpoint: 'https://discord.com/api/webhooks/',
-          body_schema: {
-            content: '',
-          },
-          header_schema: {},
         },
         class_name: 'DiscordAction_SendMessage',
         name: 'Send message',
@@ -101,7 +97,7 @@ export const servicesData: Service[] = [
     triggers: [
       // {
       //   class_name: 'GithubTrigger_OnNewRepository',
-      //   http_request: null,
+      //   http_requests: null,
       //   webhook: null,
       //   trigger_type: 'WEBHOOK',
       //   name: 'On new Github Repository',

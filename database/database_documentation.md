@@ -6,7 +6,7 @@
 2. [Table users - Gestion des utilisateurs](#table-users---gestion-des-utilisateurs)
 3. [Table services - Services externes](#table-services---services-externes)
 4. [Table connections - Connexions authentifiées](#table-connections---connexions-authentifiées)
-5. [Table http_request - Requêtes HTTP](#table-http_request---requêtes-http)
+5. [Table http_requests - Requêtes HTTP](#table-http_requests---requêtes-http)
 6. [Table webhooks - Réception temps réel](#table-webhooks---réception-temps-réel)
 7. [Table triggers - Événements déclencheurs](#table-triggers---événements-déclencheurs)
 8. [Table actions - Actions exécutables](#table-actions---actions-exécutables)
@@ -177,7 +177,7 @@ Stocke les tokens d'authentification permettant aux utilisateurs d'accéder aux 
 
 ---
 
-## Table http_request - Requêtes HTTP
+## Table http_requests - Requêtes HTTP
 
 ### Description
 Définit les modèles de requêtes HTTP utilisés par les triggers (polling) et les actions. Cette table permet de configurer comment communiquer avec les APIs externes.
@@ -194,8 +194,8 @@ Définit les modèles de requêtes HTTP utilisés par les triggers (polling) et 
 | `header_schema` | JSON    | NOT NULL           | Structure des headers requis (ex: Authorization)           |
 
 ### Relations
-- **1 http_request → N triggers** : Une requête peut être utilisée par plusieurs triggers
-- **1 http_request → N actions** : Une requête peut être utilisée par plusieurs actions
+- **1 http_requests → N triggers** : Une requête peut être utilisée par plusieurs triggers
+- **1 http_requests → N actions** : Une requête peut être utilisée par plusieurs actions
 
 ### Cas d'usage
 - Définir comment polling un service pour détecter de nouveaux événements
@@ -316,25 +316,25 @@ Définit les événements qui peuvent déclencher l'exécution d'un zap. Un trig
 
 ### Structure
 
-| Colonne | Type | Contraintes | Description |
-|---------|------|-------------|-------------|
-| `id` | INT | PK, AUTO_INCREMENT | Identifiant unique du trigger |
-| `service_id` | INT | FK → services.id, NOT NULL | Service associé (Gmail, Slack, etc.) |
-| `http_request_id` | INT | FK → http_request.id, NULL | Requête pour polling/scheduling (NULL si webhook) |
-| `webhook_id` | INT | FK → webhooks.id, NULL | Webhook associé (NULL si polling) |
-| `trigger_type` | VARCHAR | NOT NULL | Type : `Webhook`, `Polling`, `Schedule` |
-| `name` | VARCHAR | NOT NULL | Nom affiché dans l'interface (ex: "Nouveau email reçu") |
-| `description` | VARCHAR | NOT NULL | Description détaillée du trigger |
-| `polling_interval` | INT | NULL | Intervalle en secondes pour le polling (NULL si webhook) |
-| `fields` | JSON | NOT NULL | Champs de configuration affichés dans le front |
-| `variables` | JSON | NOT NULL | Variables disponibles pour les actions suivantes |
-| `is_active` | BOOLEAN | DEFAULT TRUE | Indique si le trigger est disponible |
-| `created_at` | TIMESTAMP | DEFAULT NOW() | Date de création |
-| `updated_at` | TIMESTAMP | DEFAULT NOW() | Date de dernière modification |
+| Colonne            | Type      | Contraintes                 | Description                                              |
+|--------------------|-----------|-----------------------------|----------------------------------------------------------|
+| `id`               | INT       | PK, AUTO_INCREMENT          | Identifiant unique du trigger                            |
+| `service_id`       | INT       | FK → services.id, NOT NULL  | Service associé (Gmail, Slack, etc.)                     |
+| `http_request_id`  | INT       | FK → http_requests.id, NULL | Requête pour polling/scheduling (NULL si webhook)        |
+| `webhook_id`       | INT       | FK → webhooks.id, NULL      | Webhook associé (NULL si polling)                        |
+| `trigger_type`     | VARCHAR   | NOT NULL                    | Type : `Webhook`, `Polling`, `Schedule`                  |
+| `name`             | VARCHAR   | NOT NULL                    | Nom affiché dans l'interface (ex: "Nouveau email reçu")  |
+| `description`      | VARCHAR   | NOT NULL                    | Description détaillée du trigger                         |
+| `polling_interval` | INT       | NULL                        | Intervalle en secondes pour le polling (NULL si webhook) |
+| `fields`           | JSON      | NOT NULL                    | Champs de configuration affichés dans le front           |
+| `variables`        | JSON      | NOT NULL                    | Variables disponibles pour les actions suivantes         |
+| `is_active`        | BOOLEAN   | DEFAULT TRUE                | Indique si le trigger est disponible                     |
+| `created_at`       | TIMESTAMP | DEFAULT NOW()               | Date de création                                         |
+| `updated_at`       | TIMESTAMP | DEFAULT NOW()               | Date de dernière modification                            |
 
 ### Relations
 - **N triggers → 1 service** : Plusieurs triggers peuvent appartenir à un service
-- **N triggers → 1 http_request** : Plusieurs triggers peuvent utiliser la même requête
+- **N triggers → 1 http_requests** : Plusieurs triggers peuvent utiliser la même requête
 - **N triggers → 1 webhook** : Plusieurs triggers peuvent écouter le même webhook
 - **1 trigger → N zap_steps** : Un trigger peut être utilisé dans plusieurs zaps
 
@@ -431,22 +431,22 @@ Définit les actions qui peuvent être exécutées suite à un trigger. Une acti
 
 ### Structure
 
-| Colonne | Type | Contraintes | Description |
-|---------|------|-------------|-------------|
-| `id` | INT | PK, AUTO_INCREMENT | Identifiant unique de l'action |
-| `service_id` | INT | FK → services.id, NOT NULL | Service sur lequel l'action est effectuée |
-| `http_request_id` | INT | FK → http_request.id, NOT NULL | Requête HTTP à exécuter |
-| `name` | VARCHAR | NOT NULL | Nom de l'action (ex: "Envoyer un email") |
-| `description` | VARCHAR | NOT NULL | Description détaillée de l'action |
-| `fields` | JSON | NOT NULL | Champs de configuration pour l'utilisateur |
-| `variables` | JSON | NOT NULL | Variables produites par cette action (output) |
-| `is_active` | BOOLEAN | DEFAULT TRUE | Indique si l'action est disponible |
-| `created_at` | TIMESTAMP | DEFAULT NOW() | Date de création |
-| `updated_at` | TIMESTAMP | DEFAULT NOW() | Date de dernière modification |
+| Colonne           | Type      | Contraintes                     | Description                                   |
+|-------------------|-----------|---------------------------------|-----------------------------------------------|
+| `id`              | INT       | PK, AUTO_INCREMENT              | Identifiant unique de l'action                |
+| `service_id`      | INT       | FK → services.id, NOT NULL      | Service sur lequel l'action est effectuée     |
+| `http_request_id` | INT       | FK → http_requests.id, NOT NULL | Requête HTTP à exécuter                       |
+| `name`            | VARCHAR   | NOT NULL                        | Nom de l'action (ex: "Envoyer un email")      |
+| `description`     | VARCHAR   | NOT NULL                        | Description détaillée de l'action             |
+| `fields`          | JSON      | NOT NULL                        | Champs de configuration pour l'utilisateur    |
+| `variables`       | JSON      | NOT NULL                        | Variables produites par cette action (output) |
+| `is_active`       | BOOLEAN   | DEFAULT TRUE                    | Indique si l'action est disponible            |
+| `created_at`      | TIMESTAMP | DEFAULT NOW()                   | Date de création                              |
+| `updated_at`      | TIMESTAMP | DEFAULT NOW()                   | Date de dernière modification                 |
 
 ### Relations
 - **N actions → 1 service** : Plusieurs actions appartiennent à un service
-- **N actions → 1 http_request** : Plusieurs actions peuvent utiliser la même requête
+- **N actions → 1 http_requests** : Plusieurs actions peuvent utiliser la même requête
 - **1 action → N zap_steps** : Une action peut être utilisée dans plusieurs zaps
 
 ### Cas d'usage
@@ -910,10 +910,10 @@ users
   └─→ zaps
         ├─→ zap_steps
         │     ├─→ triggers ──→ services
-        │     │       ├─→ http_request
+        │     │       ├─→ http_requests
         │     │       └─→ webhooks
         │     └─→ actions ──→ services
-        │           └─→ http_request
+        │           └─→ http_requests
         └─→ zap_executions
               └─→ zap_step_executions ──→ zap_steps
 ```
@@ -922,7 +922,7 @@ users
 
 #### 1. Détection de l'événement
 - **Webhook** : Le service externe appelle notre URL → `webhooks` reçoit les données
-- **Polling** : Notre système interroge l'API via `http_request` à intervalles réguliers
+- **Polling** : Notre système interroge l'API via `http_requests` à intervalles réguliers
 
 #### 2. Identification du zap à exécuter
 ```typescript
@@ -1265,7 +1265,7 @@ Pour supporter des branches conditionnelles :
 ]
 ```
 
-### Exemple 6 : http_request.body_schema (ChatGPT API)
+### Exemple 6 : http_requests.body_schema (ChatGPT API)
 
 ```json
 {
