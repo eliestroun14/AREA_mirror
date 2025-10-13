@@ -4,21 +4,17 @@ const prisma = new PrismaClient();
 
 async function main() {
   // Ajoute ici les données à insérer dans la table services
-  await prisma.http_request.createMany({
+  await prisma.http_requests.createMany({
     data: [
       {
         description: 'Get user info',
         method: 'GET',
         endpoint: '/user/info',
-        body_schema: {},
-        header_schema: {},
       },
       {
         description: 'Update user',
         method: 'POST',
         endpoint: '/user/update',
-        body_schema: {},
-        header_schema: {},
       },
     ],
     skipDuplicates: true,

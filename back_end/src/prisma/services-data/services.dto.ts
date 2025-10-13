@@ -2,14 +2,12 @@ export interface ServiceHttpRequest {
   description: string;
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   endpoint: string;
-  body_schema: object;
-  header_schema: object;
 }
 
 export interface ServiceTriggerWebhook {
-  body_schema: object;
-  header_schema: object;
   from_url: string;
+  event: string;
+  action: string;
   secret: string;
   total_received: number;
   last_received_at: number;
@@ -36,7 +34,7 @@ export interface ServiceVariable {
 
 export interface ServiceTrigger {
   class_name: string;
-  http_request: ServiceHttpRequest | null;
+  http_requests: ServiceHttpRequest | null;
   webhook: ServiceTriggerWebhook | null;
   trigger_type: 'POLLING' | 'SCHEDULE' | 'WEBHOOK';
   name: string;
@@ -51,7 +49,7 @@ export interface ServiceTrigger {
 
 export interface ServiceAction {
   class_name: string;
-  http_request: ServiceHttpRequest;
+  http_requests: ServiceHttpRequest;
   name: string;
   description: string;
   fields: Record<string, ServiceField>;

@@ -8,7 +8,7 @@ import { DiscordAction_SendMessage_Payload } from '@root/workflows/services/disc
 
 export default class DiscordAction_SendMessage implements ActionJob {
   public async run(
-    accessToken: unknown,
+    accessToken: string | null,
     payload: DiscordAction_SendMessage_Payload,
   ): Promise<RunResult> {
     const result = await fetch(payload.webhook_url, {
