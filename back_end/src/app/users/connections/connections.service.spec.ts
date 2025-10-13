@@ -175,8 +175,7 @@ describe('ConnectionsService', () => {
 
       expect(mockPrismaService.connections.update).toHaveBeenCalledWith({
         where: {
-          id_user_id_service_id_account_identifier: {
-            id: existingConnection.id,
+          user_id_service_id_account_identifier: {
             user_id: existingConnection.user_id,
             service_id: existingConnection.service_id,
             account_identifier: existingConnection.account_identifier,
