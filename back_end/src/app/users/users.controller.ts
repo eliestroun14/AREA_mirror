@@ -38,6 +38,8 @@ import {
   GetConnectionsByServiceResponse,
   ConnectionResponseDTO,
 } from '@app/users/connections/connection.dto';
+import { ActivityService } from '@app/users/activity/activity.service';
+import { GetUserActivitiesResponse } from '@app/users/activity/activity.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -45,6 +47,7 @@ export class UsersController {
   constructor(
     private service: UsersService,
     private connectionsService: ConnectionsService,
+    private activityService: ActivityService,
   ) {}
 
   @HttpCode(HttpStatus.OK)
@@ -287,6 +290,32 @@ export class UsersController {
 
     return {
       connections: connectionsResponse,
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get('me/activities')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: "Obtenir l'historique d'activités de l'utilisateur",
+    description:
+      "Retourne les actions récentes de l'utilisateur (connexions, exécutions de zaps, ...).",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Liste des activités récupérée avec succès',
+    type: GetUserActivitiesResponse,
+  })
+  async getUserActivities(
+    @Req() req: JwtRequest,
+  ): Promise<GetUserActivitiesResponse> {
+    const activities = await this.activityService.getActivitiesForUser(
+      req.user.userId,
+    );
+
+    return {
+      activities,
     };
   }
 }
