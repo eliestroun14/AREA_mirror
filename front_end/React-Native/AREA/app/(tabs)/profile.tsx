@@ -1,20 +1,18 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 import areaLogo from '../../assets/images/AreaLogo.png';
 
 export default function LoginScreen() {
   console.log('(PROFILE)');
-  const [sessionToken, setSessionToken] = useState<string>('');
-
-  const { isAuthenticated, user, login, logout } = useAuth();
+  const { isAuthenticated, user, sessionToken, login, logout } = useAuth();
   console.log('Auth state on mount:', { isAuthenticated, user });
   const [error, setError] = useState("");
 
   useEffect(() => {
-    console.log('Auth state changed:', { isAuthenticated, user , sessionToken});
+    console.log('Auth state changed:', { isAuthenticated, user, sessionToken });
   }, [isAuthenticated, user, sessionToken]);
 
   const [form, setForm] = useState({
@@ -24,20 +22,16 @@ export default function LoginScreen() {
 
 
   useEffect(() => {
-    // Met à jour le token si présent dans le user
-    if ((user as any)?.session_token) {
-      setSessionToken((user as any).session_token);
-    }
-    // Récupère les connexions liées si authentifié
+    // Récupère les connexions liées si authentifié et sessionToken est disponible
+    if (!isAuthenticated || !sessionToken) return;
     const fetchConnections = async () => {
-      if (!isAuthenticated || !sessionToken) return;
       try {
         const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
         const res = await fetch(`${apiUrl}/users/me/connections`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': sessionToken,
+            'Authorization': sessionToken ?? '',
           },
           credentials: 'include',
         });
@@ -52,18 +46,18 @@ export default function LoginScreen() {
       }
     };
     fetchConnections();
-  }, [user, isAuthenticated, sessionToken]);
+  }, [isAuthenticated, sessionToken]);
 
-  const validate = (text:string) => {
-      console.log(text);
-  const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
-      if (reg.test(text) === false) {
-        console.log("Email is Not Correct");
-        return false;
-      }
-      else {
-        console.log("Email is Correct");
-        return true
+  const validate = (text: string) => {
+    console.log(text);
+    const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+    if (reg.test(text) === false) {
+      console.log("Email is Not Correct");
+      return false;
+    }
+    else {
+      console.log("Email is Correct");
+      return true
     }
   }
 
@@ -105,8 +99,7 @@ export default function LoginScreen() {
           credentials: "include",
         });
         const resultUser = await resUser.json();
-        console.log("User info :", resultUser); 
-        setSessionToken(result.session_token);
+        console.log("User info :", resultUser);
         login({ name: resultUser.name || resultUser.user?.name, email: resultUser.email || resultUser.user?.email }, result.session_token);
         console.log('Called login with:', {
           name: resultUser.name || resultUser.user?.name,
@@ -141,6 +134,48 @@ export default function LoginScreen() {
   };
   const [connections, setConnections] = useState<Connection[]>([]);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchUserAndConnections = async () => {
+        if (!isAuthenticated || !sessionToken) return;
+        try {
+          const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+          // Fetch user info
+          const resUser = await fetch(`${apiUrl}/users/me`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': sessionToken ?? '',
+            },
+            credentials: 'include',
+          });
+          if (resUser.status === 200) {
+            const resultUser = await resUser.json();
+            login({ name: resultUser.name || resultUser.user?.name, email: resultUser.email || resultUser.user?.email }, sessionToken);
+          }
+          // Fetch connections
+          const resConn = await fetch(`${apiUrl}/users/me/connections`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': sessionToken ?? '',
+            },
+            credentials: 'include',
+          });
+          if (resConn.status === 200) {
+            const resultConn = await resConn.json();
+            setConnections(resultConn.connections || []);
+          } else {
+            setConnections([]);
+          }
+        } catch (err) {
+          setConnections([]);
+        }
+      };
+      fetchUserAndConnections();
+    }, [isAuthenticated, sessionToken])
+  );
+
   if (isAuthenticated === false) {
     console.log('Rendering login screen. Authenticated:', isAuthenticated, 'User:', user);
     return (
@@ -172,7 +207,7 @@ export default function LoginScreen() {
               </View>
 
               {/* Extra padding for keyboard */}
-              <View style={[styles.form, { paddingBottom: 60 }]}> 
+              <View style={[styles.form, { paddingBottom: 60 }]}>
                 <View style={styles.input}>
                   <Text style={styles.inputLabel}>
                     Email address :
@@ -217,14 +252,14 @@ export default function LoginScreen() {
                 </View>
 
                 <TouchableOpacity
-                  style={{ marginTop: 'auto'}}
+                  style={{ marginTop: 'auto' }}
                   onPress={() => {
                     router.push("/sign-up")
                   }}>
-                    <Text style={styles.formFooter}>
-                      Don&apos;t have an account ?{' '}
-                      <Text style={{ textDecorationLine: 'underline'}}>Sign up</Text>
-                    </Text>
+                  <Text style={styles.formFooter}>
+                    Don&apos;t have an account ?{' '}
+                    <Text style={{ textDecorationLine: 'underline' }}>Sign up</Text>
+                  </Text>
                 </TouchableOpacity>
 
               </View>
@@ -252,7 +287,7 @@ export default function LoginScreen() {
         });
         const result = await res.json();
         if (res.status === 200) {
-          login({ name: result.name, email: result.email }, sessionToken);
+          login({ name: result.name, email: result.email }, sessionToken ?? '');
           Alert.alert('Profile updated!');
           setEditField(null);
           setEditValue('');
@@ -314,7 +349,7 @@ export default function LoginScreen() {
             </View>
 
             {/* Formulaire de modification */}
-            <View style={[styles.form, { marginBottom: 32 }]}> 
+            <View style={[styles.form, { marginBottom: 32 }]}>
               {editField ? (
                 <View style={styles.input}>
                   <Text style={styles.inputLabel}>
@@ -380,7 +415,7 @@ export default function LoginScreen() {
             </View>
 
             {/* Bouton suppression de compte */}
-            <View style={[styles.formAction, { marginBottom: 24 }]}> 
+            <View style={[styles.formAction, { marginBottom: 24 }]}>
               <TouchableOpacity
                 onPress={() => {
                   Alert.alert(
