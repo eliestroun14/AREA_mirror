@@ -53,3 +53,11 @@ export interface Action {
   updated_at: string;
 }
 
+export interface Zap {
+  id: number;
+  name: string;
+  description: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}

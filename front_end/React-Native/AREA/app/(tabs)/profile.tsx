@@ -7,21 +7,21 @@ import areaLogo from '../../assets/images/AreaLogo.png';
 
 export default function LoginScreen() {
   console.log('(PROFILE)');
+  const [sessionToken, setSessionToken] = useState<string>('');
 
   const { isAuthenticated, user, login, logout } = useAuth();
   console.log('Auth state on mount:', { isAuthenticated, user });
   const [error, setError] = useState("");
 
   useEffect(() => {
-    console.log('Auth state changed:', { isAuthenticated, user });
-  }, [isAuthenticated, user]);
+    console.log('Auth state changed:', { isAuthenticated, user , sessionToken});
+  }, [isAuthenticated, user, sessionToken]);
 
   const [form, setForm] = useState({
     email: '',
     password: '',
   });
 
-  const [sessionToken, setSessionToken] = useState<string>('');
 
   useEffect(() => {
     // Met à jour le token si présent dans le user
