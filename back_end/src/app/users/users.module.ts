@@ -4,9 +4,16 @@ import { PrismaService } from '@root/prisma/prisma.service';
 import { UsersController } from './users.controller';
 import { ConnectionsService } from './connections/connections.service';
 import { ServicesService } from '@app/services/services.service';
+import { ActivityService } from './activity/activity.service';
 
 @Module({
-  providers: [PrismaService, UsersService, ConnectionsService, ServicesService],
+  providers: [
+    PrismaService,
+    UsersService,
+    ConnectionsService,
+    ServicesService,
+    ActivityService,
+  ],
   exports: [UsersService],
   controllers: [UsersController],
 })

@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
+import { ActivityService } from './activity/activity.service';
 import { UsersService } from './users.service';
 import { ConnectionsService } from './connections/connections.service';
 import { ForbiddenException, HttpStatus } from '@nestjs/common';
@@ -20,12 +21,17 @@ describe('UsersController', () => {
     getUserConnectionsByService: jest.fn(),
   };
 
+  const mockActivityService = {
+    getActivitiesForUser: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
       providers: [
         { provide: UsersService, useValue: mockUsersService },
         { provide: ConnectionsService, useValue: mockConnectionsService },
+        { provide: ActivityService, useValue: mockActivityService },
       ],
     }).compile();
 
