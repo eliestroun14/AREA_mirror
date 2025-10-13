@@ -28,7 +28,31 @@ export default function LoginScreen() {
     if ((user as any)?.session_token) {
       setSessionToken((user as any).session_token);
     }
-  }, [user]);
+    // Récupère les connexions liées si authentifié
+    const fetchConnections = async () => {
+      if (!isAuthenticated || !sessionToken) return;
+      try {
+        const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+        const res = await fetch(`${apiUrl}/users/me/connections`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': sessionToken,
+          },
+          credentials: 'include',
+        });
+        if (res.status === 200) {
+          const result = await res.json();
+          setConnections(result.connections || []);
+        } else {
+          setConnections([]);
+        }
+      } catch (err) {
+        setConnections([]);
+      }
+    };
+    fetchConnections();
+  }, [user, isAuthenticated, sessionToken]);
 
   const validate = (text:string) => {
       console.log(text);
@@ -103,7 +127,19 @@ export default function LoginScreen() {
   const [editField, setEditField] = useState<'email' | 'name' | null>(null);
   const [editValue, setEditValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [connections, setConnections] = useState([]);
+  type Connection = {
+    id: number;
+    service_id: number;
+    service_name: string;
+    service_color?: string;
+    icon_url?: string;
+    connection_name: string;
+    account_identifier: string;
+    is_active?: boolean;
+    created_at?: string;
+    last_used_at?: string | null;
+  };
+  const [connections, setConnections] = useState<Connection[]>([]);
 
   if (isAuthenticated === false) {
     console.log('Rendering login screen. Authenticated:', isAuthenticated, 'User:', user);
@@ -324,6 +360,22 @@ export default function LoginScreen() {
                     <Text style={styles.buttonText}>Edit name</Text>
                   </TouchableOpacity>
                 </View>
+              )}
+            </View>
+
+            {/* Connexions liées */}
+            <View style={{ marginBottom: 32 }}>
+              <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' }}>Linked Accounts</Text>
+              {connections.length === 0 ? (
+                <Text style={{ textAlign: 'center', color: '#929292' }}>No linked accounts found.</Text>
+              ) : (
+                connections.map((conn, idx) => (
+                  <View key={conn.id || idx} style={{ backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 10, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 2 }}>
+                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{conn.service_name || 'Service'}</Text>
+                    <Text style={{ color: '#222' }}>Account: {conn.account_identifier}</Text>
+                    <Text style={{ color: '#929292' }}>Connection name: {conn.connection_name}</Text>
+                  </View>
+                ))
               )}
             </View>
 
