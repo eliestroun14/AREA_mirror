@@ -1,4 +1,4 @@
-FROM node:18.18.0-slim AS builder
+FROM node:20.19.0-slim
 
 RUN apt-get update && apt-get install -y \
     git \
@@ -17,13 +17,12 @@ RUN mkdir -p ${ANDROID_HOME}/cmdline-tools && \
     wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdtools.zip && \
     unzip -q cmdtools.zip -d ${ANDROID_HOME}/cmdline-tools && \
     mv ${ANDROID_HOME}/cmdline-tools/cmdline-tools ${ANDROID_HOME}/cmdline-tools/latest && \
-    rm cmdtools.zip
+    rm cmdtools.zip && \
+    yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses && \
+    ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
-RUN yes | sdkmanager --licenses && \
-    sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
-
-ENV GRADLE_USER_HOME=/app/.gradle
-RUN mkdir -p ${GRADLE_USER_HOME}
+RUN npm install -g npm@11.6.2
+RUN npm install -g eas-cli
 
 COPY package*.json ./
 RUN echo "legacy-peer-deps=true" > .npmrc
@@ -31,9 +30,16 @@ RUN npm install
 
 COPY . .
 
-RUN npx expo prebuild -p android
+# Initialiser un dépôt git pour EAS CLI  --non-interactive
+RUN git init \
+    && git config user.email "docker@local" \
+    && git config user.name "Docker Build" \
+    && git add . \
+    && git commit -m "Initial commit"
 
-RUN cd android && ./gradlew clean || true
 
-RUN chmod +x build_apk_docker.sh
-RUN ./build_apk_docker.sh
+
+COPY build.sh /build.sh
+RUN chmod +x /build.sh
+
+CMD ["/build.sh"]

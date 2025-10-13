@@ -51,6 +51,8 @@ services:
           path: ./back_end/tsconfig.json
         - action: rebuild
           path: ./back_end/tsconfig.build.json
+    volumes:
+      - mobile_builds:/app/shared_builds
 
   nextjs:
     build: ./front_end/web/
@@ -93,12 +95,18 @@ services:
       - wait-for-db
     entrypoint: ["pnpm", "test:e2e"]
 
-  # client_mobile:
-  #   build: ./front_end/React-Native/AREA/
-  #   networks:
-  #     - area_network
-  #   depends_on:
-  #     - api
+  client_mobile:
+    build: ./front_end/React-Native/AREA/
+    networks:
+      - area_network
+    depends_on:
+      - api
+    env_file:
+      - .env
+    environment:
+      - EXPO_TOKEN=${EXPO_TOKEN}
+    volumes:
+      - mobile_builds:/app/builds
 
 
 networks:
@@ -106,3 +114,4 @@ networks:
 
 volumes:
   area_database_volume:
+  mobile_builds:
