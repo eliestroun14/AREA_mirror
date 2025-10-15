@@ -20,6 +20,7 @@ const PRIVATE_ROUTES = [
   '/help',
   '/my_applets',
   '/oauth',
+  '/settings',
   // Tous les sous-chemins de /create/
 ];
 
