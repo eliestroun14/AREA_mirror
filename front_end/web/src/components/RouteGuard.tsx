@@ -21,7 +21,8 @@ const PRIVATE_ROUTES = [
   '/my_applets',
   '/oauth',
   '/settings',
-  // Tous les sous-chemins de /create/
+  '/profil',
+  // Tous les sous-chemins de /create/ et /profil/
 ];
 
 // Fonction pour vérifier si une route correspond à un pattern
@@ -34,6 +35,7 @@ const matchesPattern = (pathname: string, patterns: string[]): boolean => {
     if (pattern === '/services' && pathname.startsWith('/services/')) return true;
     if (pattern === '/create' && pathname.startsWith('/create/')) return true;
     if (pattern === '/oauth' && pathname.startsWith('/oauth/')) return true;
+    if (pattern === '/profil' && pathname.startsWith('/profil/')) return true;
     
     return false;
   });
@@ -54,6 +56,8 @@ const RouteGuard: React.FC<RouteGuardProps> = ({ children }) => {
     const checkRoute = () => {
       console.log('🔐 RouteGuard - Checking route:', pathname);
       console.log('👤 User authenticated:', isAuthenticated);
+      console.log('📋 PUBLIC_ROUTES:', PUBLIC_ROUTES);
+      console.log('🔒 PRIVATE_ROUTES:', PRIVATE_ROUTES);
 
       const isPublicRoute = matchesPattern(pathname, PUBLIC_ROUTES);
       const isPrivateRoute = matchesPattern(pathname, PRIVATE_ROUTES);

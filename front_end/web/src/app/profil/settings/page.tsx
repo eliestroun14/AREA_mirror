@@ -95,8 +95,8 @@ export default function SettingsPage() {
       try {
         setLoading(true);
         
-        // Récupération du profil utilisateur
-        const profileResponse = await fetch(`${API_BASE_URL}/users/profile`, {
+        // Récupération du profil utilisateur depuis l'API backend
+        const profileResponse = await fetch(`${API_BASE_URL}/users/me`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -107,17 +107,28 @@ export default function SettingsPage() {
         console.log('🔍 Profile API Response:', {
           status: profileResponse.status,
           ok: profileResponse.ok,
-          url: `${API_BASE_URL}/users/profile`
+          url: `${API_BASE_URL}/users/me`
         });
         
         if (profileResponse.ok) {
           const profile = await profileResponse.json();
-          console.log('✅ Profile loaded:', profile);
-          setUserProfile(profile);
-          setEditedProfile(profile);
-        } else {
-          // Si l'API n'est pas encore implémentée, utiliser des données mockées
-          console.warn('⚠️ API Profile endpoint not available, using mock data');
+          console.log('✅ Profile loaded from backend:', profile);
+          
+          // Adaptation des données du backend au format frontend
+          const adaptedProfile: UserProfile = {
+            id: profile.id.toString(),
+            email: profile.email,
+            username: profile.name || '',
+            firstName: profile.name?.split(' ')[0] || '',
+            lastName: profile.name?.split(' ').slice(1).join(' ') || '',
+            createdAt: profile.created_at,
+            isEmailVerified: true, // Par défaut, à adapter selon le backend
+          };
+          
+          setUserProfile(adaptedProfile);
+          setEditedProfile(adaptedProfile);
+        } else if (profileResponse.status === 404) {
+          console.warn('⚠️ API Endpoint /users/me not found (404), using mock data');
           const mockProfile: UserProfile = {
             id: '1',
             email: 'user@example.com',
@@ -131,8 +142,10 @@ export default function SettingsPage() {
           setEditedProfile(mockProfile);
           setMessage({ 
             type: 'error', 
-            text: `Endpoint API non disponible (${profileResponse.status}). Données de test utilisées.` 
+            text: 'Endpoint API non disponible (404). Données de test utilisées.' 
           });
+        } else {
+          throw new Error(`HTTP error! status: ${profileResponse.status}`);
         }
         
       } catch (error) {
@@ -170,16 +183,22 @@ export default function SettingsPage() {
     try {
       setSaving(true);
       
-      console.log('💾 Saving profile:', editedProfile);
+      // Préparation des données pour l'API backend (format attendu par PUT /users/me)
+      const backendData = {
+        name: `${editedProfile.firstName || ''} ${editedProfile.lastName || ''}`.trim(),
+        email: editedProfile.email,
+      };
       
-      const response = await fetch(`${API_BASE_URL}/users/profile`, {
+      console.log('💾 Saving profile to backend:', backendData);
+      
+      const response = await fetch(`${API_BASE_URL}/users/me`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify(editedProfile),
+        body: JSON.stringify(backendData),
       });
       
       console.log('🔍 Save Profile API Response:', {
@@ -189,18 +208,32 @@ export default function SettingsPage() {
       
       if (response.ok) {
         const updatedProfile = await response.json();
-        setUserProfile(updatedProfile);
+        console.log('✅ Profile updated on backend:', updatedProfile);
+        
+        // Adaptation des données du backend au format frontend
+        const adaptedProfile: UserProfile = {
+          id: updatedProfile.id.toString(),
+          email: updatedProfile.email,
+          username: updatedProfile.name || '',
+          firstName: updatedProfile.name?.split(' ')[0] || '',
+          lastName: updatedProfile.name?.split(' ').slice(1).join(' ') || '',
+          createdAt: updatedProfile.created_at,
+          isEmailVerified: userProfile?.isEmailVerified || true,
+        };
+        
+        setUserProfile(adaptedProfile);
         setIsEditing(false);
         setMessage({ type: 'success', text: 'Profil mis à jour avec succès!' });
-      } else {
-        // Simuler la sauvegarde si l'API n'est pas disponible
-        console.warn('⚠️ API Save endpoint not available, simulating save');
+      } else if (response.status === 404) {
+        console.warn('⚠️ API PUT /users/me endpoint not found (404), simulating save');
         setUserProfile(editedProfile as UserProfile);
         setIsEditing(false);
         setMessage({ 
           type: 'success', 
-          text: 'Profil mis à jour (simulation - API non disponible)' 
+          text: 'Profil mis à jour (simulation - endpoint non disponible)' 
         });
+      } else {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       
     } catch (error) {
@@ -289,7 +322,7 @@ export default function SettingsPage() {
         
         console.log('🗑️ Deleting account...');
         
-        const response = await fetch(`${API_BASE_URL}/users/account`, {
+        const response = await fetch(`${API_BASE_URL}/users/me`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -304,11 +337,17 @@ export default function SettingsPage() {
         });
         
         if (response.ok) {
-          logout();
-          router.push('/');
-        } else {
-          // Simuler la suppression si l'API n'est pas disponible
-          console.warn('⚠️ Delete Account API not available, simulating logout');
+          console.log('✅ Account deleted successfully');
+          setMessage({ 
+            type: 'success', 
+            text: 'Compte supprimé avec succès. Redirection...' 
+          });
+          setTimeout(() => {
+            logout();
+            router.push('/');
+          }, 2000);
+        } else if (response.status === 404) {
+          console.warn('⚠️ DELETE /users/me endpoint not found (404), simulating delete');
           setMessage({ 
             type: 'success', 
             text: 'Simulation de suppression - vous allez être déconnecté' 
@@ -317,6 +356,8 @@ export default function SettingsPage() {
             logout();
             router.push('/');
           }, 2000);
+        } else {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
         
       } catch (error) {

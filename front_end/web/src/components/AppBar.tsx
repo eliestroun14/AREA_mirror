@@ -194,7 +194,7 @@ function ResponsiveAppBar() {
                       if (setting === 'Logout') {
                         logout();
                       } else if (setting === 'Settings') {
-                        router.push('/settings');
+                        router.push('/profil/settings');
                       } else if (setting === 'Profile') {
                         router.push('/profil');
                       } else if (setting === 'Activity') {
