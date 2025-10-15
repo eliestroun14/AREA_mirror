@@ -10,14 +10,9 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import CardActionArea from "@mui/material/CardActionArea";
-import Chip from "@mui/material/Chip";
 import Skeleton from "@mui/material/Skeleton";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import DownloadIcon from '@mui/icons-material/Download';
-import database from "@/data/database.json";
 
 export default function HomePage() {
   const router = useRouter();
@@ -66,14 +61,12 @@ export default function HomePage() {
       a.style.display = 'none';
       a.href = url;
       
-      // Extract filename from Content-Disposition header
       const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = 'downloaded-file'; // Fallback par défaut
+      let filename = 'downloaded-file';
       
       console.log('Content-Disposition header:', contentDisposition);
       
       if (contentDisposition) {
-        // Essayer différents patterns de parsing
         const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
         const matches = filenameRegex.exec(contentDisposition);
         if (matches != null && matches[1]) {
@@ -92,13 +85,6 @@ export default function HomePage() {
       console.error('Error downloading file:', error);
       alert('Failed to download file. Please try again.');
     }
-  };
-
-  const popularApplets = database.applets.filter(applet => applet.is_popular);
-
-  const getServiceColor = (serviceName: string) => {
-    const service = database.services.find(s => s.name === serviceName);
-    return service ? service.service_color : "black";
   };
 
   const displayServices = loading ? [] : services.filter(service => service.is_active).slice(0, 10);

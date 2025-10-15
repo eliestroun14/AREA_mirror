@@ -15,16 +15,28 @@ import GoogleIcon from '@mui/icons-material/Google'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showDebugInfo, setShowDebugInfo] = useState(false)
   const router = useRouter()
   const { login } = useAuth()
+  
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
   const handleLogin = async () => {
     try {
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-      console.log('Attempting login to:', `${API_BASE_URL}/auth/sign-in`);
-      console.log('Login data:', { email, password: '***' });
+      const loginUrl = `${API_BASE_URL}/auth/sign-in`;
       
-      const res = await fetch(`${API_BASE_URL}/auth/sign-in`, {
+      console.log('🔑 Attempting login...');
+      console.log('📍 API URL:', loginUrl);
+      console.log('📧 Email:', email);
+      console.log('🌐 Environment:', process.env.NODE_ENV);
+      
+      // Vérification basique des champs
+      if (!email || !password) {
+        alert('Veuillez remplir tous les champs');
+        return;
+      }
+      
+      const res = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -33,60 +45,100 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
       
-      console.log('Response status:', res.status);
-      console.log('Response ok:', res.ok);
-      console.log('Response headers:', res.headers);
+      console.log('📊 Response status:', res.status);
+      console.log('✅ Response ok:', res.ok);
+      console.log('📋 Response headers:', Object.fromEntries(res.headers.entries()));
       
       if (!res.ok) {
-        console.error('Response not ok, trying to get error details...');
+        console.error('❌ Response not ok, analyzing error...');
+        
+        // Gestion détaillée des erreurs par code de statut
+        let errorMessage = 'Une erreur est survenue';
+        
         try {
           const errorData = await res.text();
-          console.error('Error response:', errorData);
+          console.error('📄 Error response body:', errorData);
           
           let parsedError;
           try {
             parsedError = JSON.parse(errorData);
+            console.error('📝 Parsed error:', parsedError);
           } catch {
             parsedError = { message: errorData };
           }
           
-          if (res.status === 401) {
-            alert(parsedError.message || 'Invalid credentials.');
-          } else {
-            alert(parsedError.message || `Server error: ${res.status}`);
+          switch (res.status) {
+            case 400:
+              errorMessage = parsedError.message || 'Données de connexion invalides';
+              break;
+            case 401:
+              errorMessage = parsedError.message || 'Email ou mot de passe incorrect';
+              break;
+            case 403:
+              errorMessage = 'Accès refusé. Compte peut-être désactivé.';
+              break;
+            case 404:
+              errorMessage = 'Service de connexion non trouvé. Vérifiez que le serveur est démarré.';
+              break;
+            case 500:
+              errorMessage = 'Erreur serveur interne. Veuillez réessayer plus tard.';
+              break;
+            case 502:
+            case 503:
+            case 504:
+              errorMessage = 'Serveur temporairement indisponible. Veuillez réessayer.';
+              break;
+            default:
+              errorMessage = parsedError.message || `Erreur serveur (${res.status})`;
           }
-          return;
+          
         } catch (textError) {
-          console.error('Could not read error response:', textError);
-          alert(`Server error: ${res.status} - Could not read response`);
-          return;
+          console.error('💥 Could not read error response:', textError);
+          errorMessage = `Erreur serveur (${res.status}) - Impossible de lire la réponse`;
         }
+        
+        console.error('🚨 Final error message:', errorMessage);
+        alert(errorMessage);
+        return;
       }
       
       const data = await res.json();
-      console.log('Response data:', data);
+      console.log('✅ Login successful! Response data:', data);
       
       if (data.session_token) {
-        console.log('Token received:', data.session_token?.substring(0, 10) + '...');
+        console.log('🎫 Token received:', data.session_token?.substring(0, 10) + '...');
         login(data.session_token);
-        alert('Login successful!');
+        alert('Connexion réussie !');
         router.push('/explore');
       } else {
-        console.error('No session_token in response');
-        alert('Login error: No token received');
+        console.error('❌ No session_token in response:', data);
+        alert('Erreur de connexion: Token non reçu du serveur');
       }
+      
     } catch (error) {
-      console.error(' Login error details:', error);
+      console.error('💥 Login error details:', error);
       
       const err = error as Error;
-      console.error(' Error name:', err.name);
-      console.error(' Error message:', err.message);
+      console.error('🏷️ Error name:', err.name);
+      console.error('💬 Error message:', err.message);
+      console.error('📚 Error stack:', err.stack);
       
-      if (err.name === 'TypeError' && err.message.includes('fetch')) {
-        alert('Cannot connect to server. Please check if the backend is running on port 3000.');
-      } else {
-        alert(`Network or server error: ${err.message}`);
+      let userMessage = 'Une erreur de connexion est survenue';
+      
+      if (err.name === 'TypeError') {
+        if (err.message.includes('fetch') || err.message.includes('Failed to fetch')) {
+          userMessage = 'Impossible de se connecter au serveur. Vérifiez que le backend est démarré et accessible.';
+        } else if (err.message.includes('NetworkError')) {
+          userMessage = 'Erreur réseau. Vérifiez votre connexion internet.';
+        }
+      } else if (err.name === 'AbortError') {
+        userMessage = 'La requête a été interrompue. Veuillez réessayer.';
+      } else if (err.message.includes('CORS')) {
+        userMessage = 'Problème de configuration serveur (CORS). Contactez l&apos;administrateur.';
       }
+      
+      console.error('🚨 User will see:', userMessage);
+      alert(userMessage);
     }
   }
 
@@ -271,6 +323,42 @@ export default function LoginPage() {
                 Sign up here
               </Link>
             </Typography>
+            
+            {/* Section Debug */}
+            <Box sx={{ mt: 3 }}>
+              <Button 
+                variant="text" 
+                size="small" 
+                onClick={() => setShowDebugInfo(!showDebugInfo)}
+                sx={{ color: '#666666', fontSize: '0.8rem' }}
+              >
+                {showDebugInfo ? 'Masquer' : 'Afficher'} les infos de debug
+              </Button>
+              
+              {showDebugInfo && (
+                <Box sx={{ 
+                  mt: 2, 
+                  p: 2, 
+                  bgcolor: '#f5f5f5', 
+                  borderRadius: 1,
+                  fontSize: '0.8rem',
+                  color: '#666666'
+                }}>
+                  <Typography variant="caption" display="block">
+                    <strong>URL API:</strong> {API_BASE_URL}
+                  </Typography>
+                  <Typography variant="caption" display="block">
+                    <strong>Endpoint Login:</strong> {API_BASE_URL}/auth/sign-in
+                  </Typography>
+                  <Typography variant="caption" display="block">
+                    <strong>Environnement:</strong> {process.env.NODE_ENV || 'development'}
+                  </Typography>
+                  <Typography variant="caption" display="block">
+                    <strong>User Agent:</strong> {typeof window !== 'undefined' ? window.navigator.userAgent.slice(0, 50) + '...' : 'N/A'}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
           </Box>
         </Paper>
       </Box>

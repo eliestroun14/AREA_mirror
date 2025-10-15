@@ -81,7 +81,6 @@ export default function MyAppletsPage() {
     router.push(`/create/${zapId}`)
   }
 
-  // Prevent hydration errors
   if (!isMounted) {
     return null
   }
