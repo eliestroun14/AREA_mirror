@@ -36,14 +36,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const loadAuth = async () => {
-      const saved = await SecureStore.getItemAsync('auth');
       const savedUser = await SecureStore.getItemAsync('user');
       const savedToken = await SecureStore.getItemAsync('sessionToken');
-      setIsAuthenticated(saved === 'true');
-      setUser(savedUser ? JSON.parse(savedUser) : null);
-      setSessionToken(savedToken || null);
+      if (savedUser && savedToken) {
+        setIsAuthenticated(true);
+        setUser(JSON.parse(savedUser));
+        setSessionToken(savedToken);
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
+        setSessionToken(null);
+      }
       setLoading(true);
-    }
+    };
     loadAuth();
   }, []);
 
