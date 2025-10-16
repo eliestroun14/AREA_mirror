@@ -14,7 +14,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 
-const settings = ['Logout'];
+const settings = ['Settings', 'Activity', 'Logout'];
 
 function ResponsiveAppBar() {
   const { isAuthenticated, logout } = useAuth();
@@ -191,7 +191,15 @@ function ResponsiveAppBar() {
                   {settings.map((setting) => (
                     <MenuItem key={setting} onClick={() => {
                       handleCloseUserMenu();
-                      if (setting === 'Logout') logout();
+                      if (setting === 'Logout') {
+                        logout();
+                      } else if (setting === 'Settings') {
+                        router.push('/profil/settings');
+                      } else if (setting === 'Profile') {
+                        router.push('/profil');
+                      } else if (setting === 'Activity') {
+                        router.push('/my_applets');
+                      }
                     }}>
                       <Typography sx={{ textAlign: 'center', color: 'black' }}>{setting}</Typography>
                     </MenuItem>
