@@ -43,7 +43,7 @@ export default function MyAppletsPage() {
         setZaps(userZaps)
       } catch (err) {
         console.error('Error fetching zaps:', err)
-        setError('Impossible de charger vos applets')
+        setError('Unable to load your applets')
       } finally {
         setLoading(false)
       }
@@ -60,20 +60,20 @@ export default function MyAppletsPage() {
       setZaps(zaps.map(zap => zap.id === zapId ? updatedZap : zap))
     } catch (err) {
       console.error('Error toggling zap:', err)
-      setError('Impossible de changer le statut de l\'applet')
+      setError('Unable to change the status of the applet')
     }
   }
 
   const handleDeleteZap = async (zapId: number) => {
     if (!token) return
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet applet ?')) return
+    if (!window.confirm('Are you sure you want to delete this applet ?')) return
 
     try {
       await apiService.deleteZap(zapId)
       setZaps(zaps.filter(zap => zap.id !== zapId))
     } catch (err) {
       console.error('Error deleting zap:', err)
-      setError('Impossible de supprimer l\'applet')
+      setError('Unable to delete the applet')
     }
   }
 
@@ -89,7 +89,7 @@ export default function MyAppletsPage() {
     return (
       <Box sx={{ p: 4, bgcolor: "#FFFFFF", minHeight: "calc(100vh - 64px)" }}>
         <Alert severity="warning">
-          Vous devez être connecté pour voir vos applets
+          You must be logged in to view your applets
         </Alert>
       </Box>
     )
@@ -122,10 +122,10 @@ export default function MyAppletsPage() {
       }}
     >
       <Typography variant="h3" align="center" color="primary.main" gutterBottom>
-        Mes Applets
+        My Applets
       </Typography>
       <Typography variant="body1" align="center" color="black" sx={{ mb: 4 }}>
-        Gérez et visualisez tous vos applets personnalisés.
+        Manage and view all your custom applets.
       </Typography>
 
       {error && (
@@ -137,7 +137,7 @@ export default function MyAppletsPage() {
       {zaps.length === 0 ? (
         <Box sx={{ textAlign: 'center', mt: 8 }}>
           <Typography variant="h6" color="text.secondary" gutterBottom>
-            Vous n&apos;avez pas encore d&apos;applets
+            You don&apos;t have any applets yet
           </Typography>
           <Button
             variant="contained"
@@ -145,7 +145,7 @@ export default function MyAppletsPage() {
             sx={{ mt: 2 }}
             onClick={() => router.push('/create')}
           >
-            Créer mon premier applet
+            Create my first applet
           </Button>
         </Box>
       ) : (

@@ -15,7 +15,6 @@ import GoogleIcon from '@mui/icons-material/Google'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showDebugInfo, setShowDebugInfo] = useState(false)
   const router = useRouter()
   const { login } = useAuth()
   
@@ -25,10 +24,10 @@ export default function LoginPage() {
     try {
       const loginUrl = `${API_BASE_URL}/auth/sign-in`;
       
-      console.log('🔑 Attempting login...');
-      console.log('📍 API URL:', loginUrl);
-      console.log('📧 Email:', email);
-      console.log('🌐 Environment:', process.env.NODE_ENV);
+      console.log('Attempting login...');
+      console.log('API URL:', loginUrl);
+      console.log('Email:', email);
+      console.log('Environment:', process.env.NODE_ENV);
       
       // Vérification basique des champs
       if (!email || !password) {
@@ -45,40 +44,24 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
       
-      console.log('📊 Response status:', res.status);
-      console.log('✅ Response ok:', res.ok);
-      console.log('📋 Response headers:', Object.fromEntries(res.headers.entries()));
+      console.log('Response status:', res.status);
+      console.log('Response ok:', res.ok);
+      console.log('Response headers:', Object.fromEntries(res.headers.entries()));
       
       if (!res.ok) {
-        console.error('❌ Response not ok, analyzing error...');
-        console.log('🔧 API seems unavailable, checking for development mode...');
+        console.error('Response not ok, analyzing error...');
         
-        // Mode développement : simuler la connexion si l'API n'est pas disponible
-        // Déclenchement plus large pour le mode dev (erreurs serveur, endpoints non trouvés, etc.)
-        if (res.status === 404 || res.status >= 500 || res.status === 502 || res.status === 503) {
-          console.warn('🧪 API not available (status: ' + res.status + '), enabling development mode');
-          
-          // Simuler une connexion réussie avec un token factice
-          const mockToken = `dev_token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-          console.log('🎭 Mock token generated:', mockToken.substring(0, 20) + '...');
-          
-          login(mockToken);
-          alert('🧪 Mode développement : Connexion simulée réussie!\n\nAPI backend non disponible (status: ' + res.status + '), utilisation d\'un token factice.\n\nVous pouvez maintenant naviguer dans l\'application.');
-          router.push('/explore');
-          return;
-        }
-        
-        // Gestion détaillée des erreurs par code de statut pour les vraies erreurs API
+        // Gestion détaillée des erreurs par code de statut
         let errorMessage = 'Une erreur est survenue';
         
         try {
           const errorData = await res.text();
-          console.error('📄 Error response body:', errorData);
+          console.error('Error response body:', errorData);
           
           let parsedError;
           try {
             parsedError = JSON.parse(errorData);
-            console.error('📝 Parsed error:', parsedError);
+            console.error('Parsed error:', parsedError);
           } catch {
             parsedError = { message: errorData };
           }
@@ -109,76 +92,43 @@ export default function LoginPage() {
           }
           
         } catch (textError) {
-          console.error('💥 Could not read error response:', textError);
+          console.error('Could not read error response:', textError);
           errorMessage = `Erreur serveur (${res.status}) - Impossible de lire la réponse`;
         }
         
-        console.error('🚨 Final error message:', errorMessage);
+        console.error('Final error message:', errorMessage);
         alert(errorMessage);
         return;
       }
       
       const data = await res.json();
-      console.log('✅ Login successful! Response data:', data);
+      console.log('Login successful! Response data:', data);
       
       if (data.session_token) {
-        console.log('🎫 Token received:', data.session_token?.substring(0, 10) + '...');
+        console.log('Token received:', data.session_token?.substring(0, 10) + '...');
         login(data.session_token);
         alert('Connexion réussie !');
         router.push('/explore');
       } else {
-        console.error('❌ No session_token in response:', data);
+        console.error('No session_token in response:', data);
         alert('Erreur de connexion: Token non reçu du serveur');
       }
       
     } catch (error) {
-      console.error('💥 Login error details:', error);
+      console.error('Login error details:', error);
       
       const err = error as Error;
-      console.error('🏷️ Error name:', err.name);
-      console.error('💬 Error message:', err.message);
-      console.error('📚 Error stack:', err.stack);
-      
-      // Mode développement en cas d'erreur réseau ou de connexion
-      if (err.name === 'TypeError' && (err.message.includes('fetch') || err.message.includes('Failed to fetch'))) {
-        console.warn('🧪 Network error detected, enabling development mode');
-        
-        // Simuler une connexion réussie
-        const mockToken = `dev_token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        console.log('🎭 Mock token generated for network error:', mockToken.substring(0, 20) + '...');
-        
-        login(mockToken);
-        alert('🧪 Mode développement activé!\n\nImpossible de contacter le serveur.\nConnexion simulée avec un token factice.\n\nVous pouvez maintenant naviguer dans l\'application.');
-        router.push('/explore');
-        return;
-      }
-      
-      // Pour toute autre erreur de connexion, proposer le mode développement
-      if (err.name === 'TypeError' || err.message.includes('NetworkError') || err.message.includes('ERR_')) {
-        console.warn('🧪 Connection error detected, offering development mode');
-        
-        const shouldUseDev = window.confirm(
-          '❌ Erreur de connexion au serveur\n\n' +
-          'Voulez-vous activer le mode développement ?\n' +
-          '(Simulation locale sans serveur backend)'
-        );
-        
-        if (shouldUseDev) {
-          const mockToken = `dev_token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-          console.log('🎭 User chose dev mode, mock token:', mockToken.substring(0, 20) + '...');
-          
-          login(mockToken);
-          alert('🧪 Mode développement activé!\nConnexion simulée réussie.');
-          router.push('/explore');
-          return;
-        }
-      }
+      console.error('Error name:', err.name);
+      console.error('Error message:', err.message);
+      console.error('Error stack:', err.stack);
       
       let userMessage = 'Une erreur de connexion est survenue';
       
       if (err.name === 'TypeError') {
         if (err.message.includes('NetworkError')) {
           userMessage = 'Erreur réseau. Vérifiez votre connexion internet.';
+        } else if (err.message.includes('fetch') || err.message.includes('Failed to fetch')) {
+          userMessage = 'Impossible de contacter le serveur. Vérifiez que le serveur est démarré.';
         }
       } else if (err.name === 'AbortError') {
         userMessage = 'La requête a été interrompue. Veuillez réessayer.';
@@ -186,7 +136,7 @@ export default function LoginPage() {
         userMessage = 'Problème de configuration serveur (CORS). Contactez l&apos;administrateur.';
       }
       
-      console.error('🚨 User will see:', userMessage);
+      console.error('User will see:', userMessage);
       alert(userMessage);
     }
   }
@@ -372,70 +322,6 @@ export default function LoginPage() {
                 Sign up here
               </Link>
             </Typography>
-            
-            {/* Mode Développement */}
-            <Box sx={{ mt: 2, textAlign: 'center' }}>
-              <Button 
-                variant="outlined" 
-                size="small" 
-                onClick={() => {
-                  const mockToken = `dev_token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-                  console.log('🧪 Manual dev mode activation:', mockToken.substring(0, 20) + '...');
-                  login(mockToken);
-                  alert('🧪 Mode développement activé manuellement!\nConnexion simulée réussie.');
-                  router.push('/explore');
-                }}
-                sx={{ 
-                  color: '#666666', 
-                  borderColor: '#ddd',
-                  fontSize: '0.75rem',
-                  px: 2,
-                  py: 0.5,
-                  '&:hover': {
-                    borderColor: '#999',
-                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                  }
-                }}
-              >
-                🧪 Mode Développement (Sans Backend)
-              </Button>
-            </Box>
-            
-            {/* Section Debug */}
-            <Box sx={{ mt: 3 }}>
-              <Button 
-                variant="text" 
-                size="small" 
-                onClick={() => setShowDebugInfo(!showDebugInfo)}
-                sx={{ color: '#666666', fontSize: '0.8rem' }}
-              >
-                {showDebugInfo ? 'Masquer' : 'Afficher'} les infos de debug
-              </Button>
-              
-              {showDebugInfo && (
-                <Box sx={{ 
-                  mt: 2, 
-                  p: 2, 
-                  bgcolor: '#f5f5f5', 
-                  borderRadius: 1,
-                  fontSize: '0.8rem',
-                  color: '#666666'
-                }}>
-                  <Typography variant="caption" display="block">
-                    <strong>URL API:</strong> {API_BASE_URL}
-                  </Typography>
-                  <Typography variant="caption" display="block">
-                    <strong>Endpoint Login:</strong> {API_BASE_URL}/auth/sign-in
-                  </Typography>
-                  <Typography variant="caption" display="block">
-                    <strong>Environnement:</strong> {process.env.NODE_ENV || 'development'}
-                  </Typography>
-                  <Typography variant="caption" display="block">
-                    <strong>User Agent:</strong> {typeof window !== 'undefined' ? window.navigator.userAgent.slice(0, 50) + '...' : 'N/A'}
-                  </Typography>
-                </Box>
-              )}
-            </Box>
           </Box>
         </Paper>
       </Box>

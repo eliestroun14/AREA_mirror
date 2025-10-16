@@ -54,38 +54,38 @@ const RouteGuard: React.FC<RouteGuardProps> = ({ children }) => {
 
   useEffect(() => {
     const checkRoute = () => {
-      console.log('🔐 RouteGuard - Checking route:', pathname);
-      console.log('👤 User authenticated:', isAuthenticated);
-      console.log('📋 PUBLIC_ROUTES:', PUBLIC_ROUTES);
-      console.log('🔒 PRIVATE_ROUTES:', PRIVATE_ROUTES);
+      console.log('RouteGuard - Checking route:', pathname);
+      console.log('User authenticated:', isAuthenticated);
+      console.log('PUBLIC_ROUTES:', PUBLIC_ROUTES);
+      console.log('PRIVATE_ROUTES:', PRIVATE_ROUTES);
 
       const isPublicRoute = matchesPattern(pathname, PUBLIC_ROUTES);
       const isPrivateRoute = matchesPattern(pathname, PRIVATE_ROUTES);
 
-      console.log('🌐 Is public route:', isPublicRoute);
-      console.log('🔒 Is private route:', isPrivateRoute);
+      console.log('Is public route:', isPublicRoute);
+      console.log('Is private route:', isPrivateRoute);
 
       if (isAuthenticated) {
         // Utilisateur connecté
         if (isPrivateRoute) {
           // Accès autorisé aux routes privées
-          console.log('✅ Authenticated user accessing private route - ALLOWED');
+          console.log('Authenticated user accessing private route - ALLOWED');
           setIsAuthorized(true);
         } else if (isPublicRoute) {
           // Utilisateur connecté tentant d'accéder aux routes publiques
           if (pathname === '/login' || pathname === '/signup') {
             // Rediriger vers explore si déjà connecté
-            console.log('↩️ Authenticated user accessing login/signup - REDIRECT to /explore');
+            console.log('Authenticated user accessing login/signup - REDIRECT to /explore');
             router.replace('/explore');
             return;
           } else {
             // Permettre l'accès aux autres routes publiques (/, /explore, /services)
-            console.log('✅ Authenticated user accessing public route - ALLOWED');
+            console.log('Authenticated user accessing public route - ALLOWED');
             setIsAuthorized(true);
           }
         } else {
           // Route non définie - rediriger vers explore
-          console.log('❓ Unknown route for authenticated user - REDIRECT to /explore');
+          console.log('Unknown route for authenticated user - REDIRECT to /explore');
           router.replace('/explore');
           return;
         }
@@ -93,16 +93,16 @@ const RouteGuard: React.FC<RouteGuardProps> = ({ children }) => {
         // Utilisateur non connecté
         if (isPublicRoute) {
           // Accès autorisé aux routes publiques
-          console.log('✅ Unauthenticated user accessing public route - ALLOWED');
+          console.log('Unauthenticated user accessing public route - ALLOWED');
           setIsAuthorized(true);
         } else if (isPrivateRoute) {
           // Rediriger vers login si non connecté
-          console.log('🚫 Unauthenticated user accessing private route - REDIRECT to /login');
+          console.log('Unauthenticated user accessing private route - REDIRECT to /login');
           router.replace('/login');
           return;
         } else {
           // Route non définie - rediriger vers home
-          console.log('❓ Unknown route for unauthenticated user - REDIRECT to /');
+          console.log('Unknown route for unauthenticated user - REDIRECT to /');
           router.replace('/');
           return;
         }

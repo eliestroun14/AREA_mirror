@@ -56,7 +56,7 @@ export default function SettingsPage() {
   const { token, logout } = useAuth();
   const router = useRouter();
   
-  // États pour les données utilisateur
+  // States for user data
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userSettings, setUserSettings] = useState<UserSettings>({
     emailNotifications: true,
@@ -65,11 +65,11 @@ export default function SettingsPage() {
     twoFactorAuth: false,
   });
   
-  // États pour l'édition
+  // States for editing
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Partial<UserProfile>>({});
   
-  // États pour le changement de mot de passe
+  // States for password change
   const [showPasswordSection, setShowPasswordSection] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -82,20 +82,20 @@ export default function SettingsPage() {
     confirm: false
   });
   
-  // États pour l'UI
+  // States for UI
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
-  // Chargement des données utilisateur
+  // Loading user data
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
         
-        // Récupération du profil utilisateur depuis l'API backend
+        // Fetch user profile from backend API
         const profileResponse = await fetch(`${API_BASE_URL}/users/me`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -104,7 +104,7 @@ export default function SettingsPage() {
           credentials: 'include',
         });
         
-        console.log('🔍 Profile API Response:', {
+        console.log('Profile API Response:', {
           status: profileResponse.status,
           ok: profileResponse.ok,
           url: `${API_BASE_URL}/users/me`
@@ -112,9 +112,9 @@ export default function SettingsPage() {
         
         if (profileResponse.ok) {
           const profile = await profileResponse.json();
-          console.log('✅ Profile loaded from backend:', profile);
+          console.log('Profile loaded from backend:', profile);
           
-          // Adaptation des données du backend au format frontend
+          // Adapt backend data to frontend format
           const adaptedProfile: UserProfile = {
             id: profile.id.toString(),
             email: profile.email,
@@ -122,13 +122,13 @@ export default function SettingsPage() {
             firstName: profile.name?.split(' ')[0] || '',
             lastName: profile.name?.split(' ').slice(1).join(' ') || '',
             createdAt: profile.created_at,
-            isEmailVerified: true, // Par défaut, à adapter selon le backend
+            isEmailVerified: true,
           };
           
           setUserProfile(adaptedProfile);
           setEditedProfile(adaptedProfile);
         } else if (profileResponse.status === 404) {
-          console.warn('⚠️ API Endpoint /users/me not found (404), using mock data');
+          console.warn('API Endpoint /users/me not found (404), using mock data');
           const mockProfile: UserProfile = {
             id: '1',
             email: 'user@example.com',
@@ -142,17 +142,17 @@ export default function SettingsPage() {
           setEditedProfile(mockProfile);
           setMessage({ 
             type: 'error', 
-            text: 'Endpoint API non disponible (404). Données de test utilisées.' 
+            text: 'API Endpoint not available (404). Test data used.' 
           });
         } else {
           throw new Error(`HTTP error! status: ${profileResponse.status}`);
         }
         
       } catch (error) {
-        console.error('💥 Error loading user data:', error);
+        console.error('Error loading user data:', error);
         
-        // En cas d'erreur réseau, utiliser des données mockées
-        console.warn('🔄 Using fallback mock data due to network error');
+        // In case of network error, use mock data
+        console.warn('Using fallback mock data due to network error');
         const mockProfile: UserProfile = {
           id: '1',
           email: 'user@example.com',
@@ -166,7 +166,7 @@ export default function SettingsPage() {
         setEditedProfile(mockProfile);
         setMessage({ 
           type: 'error', 
-          text: 'Impossible de se connecter à l\'API. Données de test utilisées.' 
+          text: 'Unable to connect to API. Test data used.' 
         });
       } finally {
         setLoading(false);
@@ -178,18 +178,18 @@ export default function SettingsPage() {
     }
   }, [token, API_BASE_URL]);
 
-  // Sauvegarde du profil
+  // Save profile
   const handleSaveProfile = async () => {
     try {
       setSaving(true);
       
-      // Préparation des données pour l'API backend (format attendu par PUT /users/me)
+      // Prepare data for backend API (format expected by PUT /users/me)
       const backendData = {
         name: `${editedProfile.firstName || ''} ${editedProfile.lastName || ''}`.trim(),
         email: editedProfile.email,
       };
       
-      console.log('💾 Saving profile to backend:', backendData);
+      console.log('Saving profile to backend:', backendData);
       
       const response = await fetch(`${API_BASE_URL}/users/me`, {
         method: 'PUT',
@@ -201,16 +201,16 @@ export default function SettingsPage() {
         body: JSON.stringify(backendData),
       });
       
-      console.log('🔍 Save Profile API Response:', {
+      console.log('Save Profile API Response:', {
         status: response.status,
         ok: response.ok
       });
       
       if (response.ok) {
         const updatedProfile = await response.json();
-        console.log('✅ Profile updated on backend:', updatedProfile);
+        console.log('Profile updated on backend:', updatedProfile);
         
-        // Adaptation des données du backend au format frontend
+        // Adapt backend data to frontend format
         const adaptedProfile: UserProfile = {
           id: updatedProfile.id.toString(),
           email: updatedProfile.email,
@@ -223,49 +223,49 @@ export default function SettingsPage() {
         
         setUserProfile(adaptedProfile);
         setIsEditing(false);
-        setMessage({ type: 'success', text: 'Profil mis à jour avec succès!' });
+        setMessage({ type: 'success', text: 'Profile updated successfully!' });
       } else if (response.status === 404) {
-        console.warn('⚠️ API PUT /users/me endpoint not found (404), simulating save');
+        console.warn('API PUT /users/me endpoint not found (404), simulating save');
         setUserProfile(editedProfile as UserProfile);
         setIsEditing(false);
         setMessage({ 
           type: 'success', 
-          text: 'Profil mis à jour (simulation - endpoint non disponible)' 
+          text: 'Profile updated (simulation - endpoint not available)' 
         });
       } else {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
     } catch (error) {
-      console.error('💥 Error saving profile:', error);
-      // Simuler la sauvegarde en cas d'erreur réseau
+      console.error('Error saving profile:', error);
+      // Simulate save in case of network error
       setUserProfile(editedProfile as UserProfile);
       setIsEditing(false);
       setMessage({ 
         type: 'success', 
-        text: 'Profil mis à jour localement (erreur réseau)' 
+        text: 'Profile updated locally (network error)' 
       });
     } finally {
       setSaving(false);
     }
   };
 
-  // Changement de mot de passe
+  // Password change
   const handleChangePassword = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setMessage({ type: 'error', text: 'Les mots de passe ne correspondent pas' });
+      setMessage({ type: 'error', text: 'Passwords do not match' });
       return;
     }
     
     if (passwordData.newPassword.length < 6) {
-      setMessage({ type: 'error', text: 'Le mot de passe doit contenir au moins 6 caractères' });
+      setMessage({ type: 'error', text: 'Password must contain at least 6 characters' });
       return;
     }
 
     try {
       setSaving(true);
       
-      console.log('🔐 Changing password...');
+      console.log('Changing password...');
       
       const response = await fetch(`${API_BASE_URL}/users/change-password`, {
         method: 'PUT',
@@ -280,7 +280,7 @@ export default function SettingsPage() {
         }),
       });
       
-      console.log('🔍 Change Password API Response:', {
+      console.log('Change Password API Response:', {
         status: response.status,
         ok: response.ok
       });
@@ -288,39 +288,39 @@ export default function SettingsPage() {
       if (response.ok) {
         setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
         setShowPasswordSection(false);
-        setMessage({ type: 'success', text: 'Mot de passe modifié avec succès!' });
+        setMessage({ type: 'success', text: 'Password changed successfully!' });
       } else {
-        // Simuler le changement si l'API n'est pas disponible
-        console.warn('⚠️ Change Password API not available, simulating change');
+        // Simulate the change if API is not available
+        console.warn('Change Password API not available, simulating change');
         setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
         setShowPasswordSection(false);
         setMessage({ 
           type: 'success', 
-          text: 'Mot de passe modifié (simulation - API non disponible)' 
+          text: 'Password changed (simulation - API not available)' 
         });
       }
       
     } catch (error) {
-      console.error('💥 Error changing password:', error);
-      // Simuler le changement en cas d'erreur réseau
+      console.error('Error changing password:', error);
+      // Simulate the change in case of network error
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setShowPasswordSection(false);
       setMessage({ 
         type: 'success', 
-        text: 'Mot de passe modifié localement (erreur réseau)' 
+        text: 'Password changed locally (network error)' 
       });
     } finally {
       setSaving(false);
     }
   };
 
-  // Suppression du compte
+  // Account deletion
   const handleDeleteAccount = async () => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.')) {
+    if (window.confirm('Are you sure you want to delete your account? This action is irreversible.')) {
       try {
         setSaving(true);
         
-        console.log('🗑️ Deleting account...');
+        console.log('Deleting account...');
         
         const response = await fetch(`${API_BASE_URL}/users/me`, {
           method: 'DELETE',
@@ -331,26 +331,26 @@ export default function SettingsPage() {
           credentials: 'include',
         });
         
-        console.log('🔍 Delete Account API Response:', {
+        console.log('Delete Account API Response:', {
           status: response.status,
           ok: response.ok
         });
         
         if (response.ok) {
-          console.log('✅ Account deleted successfully');
+          console.log('Account deleted successfully');
           setMessage({ 
             type: 'success', 
-            text: 'Compte supprimé avec succès. Redirection...' 
+            text: 'Account deleted successfully. Redirecting...' 
           });
           setTimeout(() => {
             logout();
             router.push('/');
           }, 2000);
         } else if (response.status === 404) {
-          console.warn('⚠️ DELETE /users/me endpoint not found (404), simulating delete');
+          console.warn('DELETE /users/me endpoint not found (404), simulating delete');
           setMessage({ 
             type: 'success', 
-            text: 'Simulation de suppression - vous allez être déconnecté' 
+            text: 'Delete simulation - you will be logged out' 
           });
           setTimeout(() => {
             logout();
@@ -361,10 +361,10 @@ export default function SettingsPage() {
         }
         
       } catch (error) {
-        console.error('💥 Error deleting account:', error);
+        console.error('Error deleting account:', error);
         setMessage({ 
           type: 'error', 
-          text: 'Erreur de connexion API - Impossible de supprimer le compte' 
+          text: 'API connection error - Unable to delete account' 
         });
       } finally {
         setSaving(false);
@@ -377,7 +377,7 @@ export default function SettingsPage() {
       <Container maxWidth="md" sx={{ py: 4, textAlign: 'center' }}>
         <CircularProgress size={40} />
         <Typography variant="body2" sx={{ mt: 2 }}>
-          Chargement des paramètres...
+          Loading settings...
         </Typography>
       </Container>
     );
@@ -385,20 +385,20 @@ export default function SettingsPage() {
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
-      {/* En-tête */}
+      {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <SettingsIcon sx={{ mr: 2, fontSize: 32, color: 'primary.main' }} />
           <Typography variant="h4" component="h1">
-            Paramètres du compte
+            Account Settings
           </Typography>
         </Box>
         <Typography variant="body1" color="text.secondary">
-          Gérez vos informations personnelles et préférences
+          Manage your personal information and preferences
         </Typography>
       </Box>
 
-      {/* Alerte de message */}
+      {/* Message alert */}
       {message && (
         <Alert 
           severity={message.type} 
@@ -409,12 +409,12 @@ export default function SettingsPage() {
         </Alert>
       )}
 
-      {/* Section Profil */}
+      {/* Profile Section */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
             <PersonIcon sx={{ mr: 2, color: 'primary.main' }} />
-            <Typography variant="h6">Informations du profil</Typography>
+            <Typography variant="h6">Profile Information</Typography>
             {!isEditing && (
               <IconButton 
                 onClick={() => setIsEditing(true)}
@@ -428,23 +428,7 @@ export default function SettingsPage() {
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
             <TextField
               fullWidth
-              label="Prénom"
-              value={isEditing ? editedProfile.firstName || '' : userProfile?.firstName || ''}
-              onChange={(e) => setEditedProfile(prev => ({ ...prev, firstName: e.target.value }))}
-              disabled={!isEditing}
-              variant={isEditing ? "outlined" : "filled"}
-            />
-            <TextField
-              fullWidth
-              label="Nom"
-              value={isEditing ? editedProfile.lastName || '' : userProfile?.lastName || ''}
-              onChange={(e) => setEditedProfile(prev => ({ ...prev, lastName: e.target.value }))}
-              disabled={!isEditing}
-              variant={isEditing ? "outlined" : "filled"}
-            />
-            <TextField
-              fullWidth
-              label="Nom d'utilisateur"
+              label="Username"
               value={isEditing ? editedProfile.username || '' : userProfile?.username || ''}
               onChange={(e) => setEditedProfile(prev => ({ ...prev, username: e.target.value }))}
               disabled={!isEditing}
@@ -458,9 +442,9 @@ export default function SettingsPage() {
               variant="filled"
               InputProps={{
                 endAdornment: userProfile?.isEmailVerified ? (
-                  <Chip label="Vérifié" color="success" size="small" />
+                  <Chip label="Verified" color="success" size="small" />
                 ) : (
-                  <Chip label="Non vérifié" color="warning" size="small" />
+                  <Chip label="Not verified" color="warning" size="small" />
                 )
               }}
             />
@@ -474,7 +458,7 @@ export default function SettingsPage() {
                 onClick={handleSaveProfile}
                 disabled={saving}
               >
-                {saving ? 'Sauvegarde...' : 'Sauvegarder'}
+                {saving ? 'Saving...' : 'Save'}
               </Button>
               <Button
                 variant="outlined"
@@ -484,19 +468,19 @@ export default function SettingsPage() {
                   setEditedProfile(userProfile || {});
                 }}
               >
-                Annuler
+                Cancel
               </Button>
             </Box>
           )}
         </CardContent>
       </Card>
 
-      {/* Section Sécurité */}
+      {/* Security Section */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
             <SecurityIcon sx={{ mr: 2, color: 'primary.main' }} />
-            <Typography variant="h6">Sécurité</Typography>
+            <Typography variant="h6">Security</Typography>
           </Box>
 
           <Box sx={{ mb: 3 }}>
@@ -504,7 +488,7 @@ export default function SettingsPage() {
               variant={showPasswordSection ? "contained" : "outlined"}
               onClick={() => setShowPasswordSection(!showPasswordSection)}
             >
-              Changer le mot de passe
+              Change Password
             </Button>
           </Box>
 
@@ -512,7 +496,7 @@ export default function SettingsPage() {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <TextField
                 fullWidth
-                label="Mot de passe actuel"
+                label="Current Password"
                 type={showPasswords.current ? 'text' : 'password'}
                 value={passwordData.currentPassword}
                 onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
@@ -531,7 +515,7 @@ export default function SettingsPage() {
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
                 <TextField
                   fullWidth
-                  label="Nouveau mot de passe"
+                  label="New Password"
                   type={showPasswords.new ? 'text' : 'password'}
                   value={passwordData.newPassword}
                   onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
@@ -549,7 +533,7 @@ export default function SettingsPage() {
                 />
                 <TextField
                   fullWidth
-                  label="Confirmer le mot de passe"
+                  label="Confirm Password"
                   type={showPasswords.confirm ? 'text' : 'password'}
                   value={passwordData.confirmPassword}
                   onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
@@ -571,19 +555,19 @@ export default function SettingsPage() {
                 onClick={handleChangePassword}
                 disabled={saving || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
               >
-                {saving ? 'Modification...' : 'Modifier le mot de passe'}
+                {saving ? 'Changing...' : 'Change Password'}
               </Button>
             </Box>
           )}
         </CardContent>
       </Card>
 
-      {/* Section Notifications */}
+      {/* Notifications Section */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
             <NotificationsIcon sx={{ mr: 2, color: 'primary.main' }} />
-            <Typography variant="h6">Préférences de notification</Typography>
+            <Typography variant="h6">Notification Preferences</Typography>
           </Box>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -594,7 +578,7 @@ export default function SettingsPage() {
                   onChange={(e) => setUserSettings(prev => ({ ...prev, emailNotifications: e.target.checked }))}
                 />
               }
-              label="Notifications par email"
+              label="Email Notifications"
             />
             <FormControlLabel
               control={
@@ -603,7 +587,7 @@ export default function SettingsPage() {
                   onChange={(e) => setUserSettings(prev => ({ ...prev, pushNotifications: e.target.checked }))}
                 />
               }
-              label="Notifications push"
+              label="Push Notifications"
             />
             <FormControlLabel
               control={
@@ -612,20 +596,20 @@ export default function SettingsPage() {
                   onChange={(e) => setUserSettings(prev => ({ ...prev, marketingEmails: e.target.checked }))}
                 />
               }
-              label="Emails marketing"
+              label="Marketing Emails"
             />
           </Box>
         </CardContent>
       </Card>
 
-      {/* Section Danger */}
+      {/* Danger Section */}
       <Card sx={{ mb: 3, border: '1px solid', borderColor: 'error.main' }}>
         <CardContent>
           <Typography variant="h6" color="error.main" sx={{ mb: 2 }}>
-            Zone de danger
+            Danger Zone
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Actions irréversibles qui affectent votre compte
+            Irreversible actions that affect your account
           </Typography>
           
           <Button
@@ -634,7 +618,7 @@ export default function SettingsPage() {
             onClick={handleDeleteAccount}
             disabled={saving}
           >
-            Supprimer mon compte
+            Delete My Account
           </Button>
         </CardContent>
       </Card>
