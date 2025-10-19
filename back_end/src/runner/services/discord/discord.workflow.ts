@@ -1,16 +1,12 @@
-import {
-  ActionRunnerJob,
-  CheckResult,
-  RunResult,
-  WebhookTriggerRunnerJob,
-} from '@root/workflows/workflows.dto';
-import { DiscordAction_SendMessage_Payload } from '@root/workflows/services/discord/discord.dto';
+import { ActionRunnerJob } from '@root/runner/zaps/actions/actions.runner.job';
+import { ActionRunResult } from '@root/runner/zaps/actions/actions.runner.dto';
+import { DiscordAction_SendMessage_Payload } from '@root/runner/services/discord/discord.dto';
+import { RunnerExecutionStatus } from '@root/runner/runner.dto';
 
-export default class DiscordAction_SendMessage implements ActionRunnerJob {
-  public async run(
-    accessToken: string | null,
+export default class DiscordAction_SendMessage extends ActionRunnerJob<DiscordAction_SendMessage_Payload> {
+  protected async _execute(
     payload: DiscordAction_SendMessage_Payload,
-  ): Promise<RunResult> {
+  ): Promise<ActionRunResult> {
     const result = await fetch(payload.webhook_url, {
       headers: {
         'Content-Type': 'application/json',
@@ -24,36 +20,16 @@ export default class DiscordAction_SendMessage implements ActionRunnerJob {
     if (result.ok) {
       return {
         data: [],
-        has_run: true,
+        status: RunnerExecutionStatus.SUCCESS,
       };
     }
     return {
       data: [],
-      has_run: false,
+      status: RunnerExecutionStatus.FAILURE,
     };
   }
 }
 
-export class DiscordTrigger_OnNewMessage implements WebhookTriggerRunnerJob {
-  public async registerToWebhook(
-    zapId: number,
-    accessToken: string,
-    payload: object,
-  ): Promise<void> {
-
-  }
-  public async check(
-    access_token: string | null,
-    payload: object,
-  ): Promise<CheckResult> {
-    console.log('New message. Payload:', payload);
-    return {
-      is_triggered: false,
-      data: [],
-    };
-  }
-}
-//
 // function main() {
 //   const action = new DiscordAction_SendMessage();
 //
