@@ -1,9 +1,9 @@
-import { CheckResult, WebhookTriggerJob } from '@root/workflows/workflows.dto';
+import { CheckResult, WebhookTriggerRunnerJob } from '@root/workflows/workflows.dto';
 import { envConstants } from '@config/env';
 import { GithubTrigger_OnNewRepository_Payload } from '@root/workflows/services/github/github.dto';
 
 export default class GithubTrigger_OnNewRepository
-  implements WebhookTriggerJob
+  implements WebhookTriggerRunnerJob
 {
   public async check(
     access_token: null,

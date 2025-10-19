@@ -1,12 +1,12 @@
 import {
-  ActionJob,
+  ActionRunnerJob,
   CheckResult,
   RunResult,
-  WebhookTriggerJob,
+  WebhookTriggerRunnerJob,
 } from '@root/workflows/workflows.dto';
 import { DiscordAction_SendMessage_Payload } from '@root/workflows/services/discord/discord.dto';
 
-export default class DiscordAction_SendMessage implements ActionJob {
+export default class DiscordAction_SendMessage implements ActionRunnerJob {
   public async run(
     accessToken: string | null,
     payload: DiscordAction_SendMessage_Payload,
@@ -34,7 +34,7 @@ export default class DiscordAction_SendMessage implements ActionJob {
   }
 }
 
-export class DiscordTrigger_OnNewMessage implements WebhookTriggerJob {
+export class DiscordTrigger_OnNewMessage implements WebhookTriggerRunnerJob {
   public async registerToWebhook(
     zapId: number,
     accessToken: string,
