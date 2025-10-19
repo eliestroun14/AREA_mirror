@@ -27,101 +27,97 @@ Dans la table connections :
 Transform data:
 ```js
 function arrayToObject(array) {
-  const obj = {};
-  
-  for (const val of array) {
-    const key = Object.keys(val);
-    obj[key] = val[key];
-  }
-  return obj;
+    const obj = {};
+
+    for (const val of array) {
+        const key = Object.keys(val);
+        obj[key] = val[key];
+    }
+    return obj;
 }
 
 function flattenizeObject(obj, parentName=null) {
-  let flattenized = [];
+    let flattenized = [];
 
-
-  for (const key of Object.keys(obj)) {
-    if (typeof obj[key] !== "object") {
-      const renamedKey = key + (parentName ? "#" + parentName : "");
-      flattenized.push({[renamedKey]: obj[key]});
-    } else {
-      if (obj[key] instanceof Array) {
-        console.log("Flattenizing object: ", obj[key]);
-        obj[key] = flattenizeObject(obj[key], key);
-        console.log("Result: ", obj[key]);
-      }
-      flattenized = flattenized.concat(flattenizeObject(obj[key], key));
+    for (const key of Object.keys(obj)) {
+        if (typeof obj[key] !== 'object')
+            flattenized.push({[key]: obj[key]});
+        else
+            flattenized = flattenized.concat(flattenizeObject(obj[key], key));
     }
-  }
-  return flattenized;
+    return flattenized;
 }
 
 function renameObjectWithKeys(obj, keys) {
-  const renamed = {};
-  
-  if (obj instanceof Array)
-    return obj.map(item => renameObjectWithKeys(item, keys[0]));
+    const renamed = {};
 
-  for (const key of Object.keys(obj)) {
-    if (typeof obj[key] === "object" && obj[key] !== null) {
-        renamed[key] = renameObjectWithKeys(obj[key], keys[key]);
-    } else {
-      renamed[keys[key]] = obj[key];
+    if (obj instanceof Array)
+        return obj.map(item => renameObjectWithKeys(item, keys[0]));
+
+    for (const key of Object.keys(obj)) {
+        if (typeof obj[key] === "object" && obj[key] !== null) {
+            renamed[key] = renameObjectWithKeys(obj[key], keys[key]);
+        } else {
+            renamed[keys[key]] = obj[key];
+        }
     }
-  }
-  return renamed;
+    return renamed;
 }
 
 function transformToVariables(obj, variablesTransformer) {
-  const renamed = renameObjectWithKeys(obj, variablesTransformer);
-  const flattenized = flattenizeObject(renamed);
-
-  return flattenized;
+    const renamed = renameObjectWithKeys(obj, variablesTransformer);
+    const flattenized = flattenizeObject(renamed);
+    return arrayToObject(flattenized);
 }
 
 const data = {
-  id: 1,
-  name: "Ma playlist",
-  tracks: [
-    {
-      name: "Garçon",
-      author: "Luther",
-      duration: 120,
-      subscribers: []
-    },
-    {
-      name: "ALED",
-      author: "Luther",
-      duration: 220,
-      subscribers: [
-        {
-          name: "John"
-        },
-        {
-          name: "Franck"
-        },
-      ]
+    id: 1,
+    name: "Ma playlist",
+    track: {
+        name: "Garçon",
+        author: "Luther",
+        duration: 120,
+        subscribers: []
     }
-  ]
 }
 
 const transformData = { // Variables
-  id: "Id",
-  name: "PlaylistName",
-  tracks: [
-    {
-      name: "TrackName",
-      author: "TrackAuthor",
-      duration: "TrackDuration",
-      subscribers: [
-        {
-          name: "SubscriberName"
-        }
-      ]
-    },
-  ]
+    id: "Id",
+    name: "PlaylistName",
+    track: {
+        name: "TrackName",
+        author: "TrackAuthor",
+        duration: "TrackDuration",
+    }
 }
 
 const variables = transformToVariables(data, transformData);
 console.log(variables);
+
+
+// const data = {
+//   id: 1,
+//   name: 'Ma playlist',
+//   track: {
+//     name: 'Garçon',
+//     author: 'Luther',
+//     duration: 120,
+//   },
+// };
+//
+// const transformData = {
+//   id: 'Id',
+//   name: 'PlaylistName',
+//   track: {
+//     name: 'TrackName',
+//     author: 'TrackAuthor',
+//     duration: 'TrackDuration',
+//   },
+// };
+//
+// const variables = JsonValueParser.transformResponseToVariables(
+//   data,
+//   transformData,
+// );
+// console.log(variables);
 ```
