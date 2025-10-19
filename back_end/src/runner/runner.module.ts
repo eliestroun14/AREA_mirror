@@ -5,20 +5,18 @@ import { TriggersRunnerService } from '@root/runner/zaps/triggers/triggers.runne
 import { ActionsRunnerService } from '@root/runner/zaps/actions/actions.runner.service';
 import { TriggersRunnerFactory } from '@root/runner/zaps/triggers/triggers.runner.factory';
 import { ActionsRunnerFactory } from '@root/runner/zaps/actions/actions.runner.factory';
-import { WorkflowService } from '@root/runner/workflows.service';
+import { RunnerService } from '@root/runner/runner.service';
 
 @Module({
   providers: [
     PrismaService,
-    WorkflowService,
+    RunnerService,
     ZapsRunnerService,
     TriggersRunnerService,
     TriggersRunnerFactory,
     ActionsRunnerService,
     ActionsRunnerFactory,
   ],
-  exports: [
-    ZapsRunnerService,
-  ]
+  exports: [ZapsRunnerService],
 })
-export class WorkflowsModule {}
+export class RunnerModule {}
