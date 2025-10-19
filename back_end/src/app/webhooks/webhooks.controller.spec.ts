@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { WebhooksController } from './webhooks.controller';
-import { WorkflowService } from '@root/workflows/workflows.service';
+import { RunnerService } from '@root/runner/runner.service';
 import { ZapsService } from '@app/zaps/zaps.service';
 
 describe('WebhooksController', () => {
@@ -15,7 +15,7 @@ describe('WebhooksController', () => {
       controllers: [WebhooksController],
       providers: [
         {
-          provide: WorkflowService,
+          provide: RunnerService,
           useValue: mockWorkflowService,
         },
         {

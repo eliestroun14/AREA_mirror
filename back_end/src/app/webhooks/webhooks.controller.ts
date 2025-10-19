@@ -1,12 +1,11 @@
 import { Body, Controller, Headers, Param, Post } from '@nestjs/common';
-import { WorkflowService } from '@root/workflows/workflows.service';
-import { TRIGGERS } from '@root/workflows/workflows.registers';
+import { RunnerService } from '@root/runner/runner.service';
 import { ZapsService } from '@app/zaps/zaps.service';
 
 @Controller('webhooks')
 export class WebhooksController {
   constructor(
-    private workflowService: WorkflowService,
+    private workflowService: RunnerService,
     private zapsService: ZapsService,
   ) {}
 
