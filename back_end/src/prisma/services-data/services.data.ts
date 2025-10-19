@@ -20,7 +20,7 @@ export const servicesData: Service[] = [
         class_name: 'ScheduleTrigger_EveryMinutes',
         http_requests: null,
         webhook: null,
-        trigger_type: 'SCHEDULE',
+        trigger_type: 'POLLING',
         name: 'Every minutes',
         description: 'Execute actions every minutes',
         polling_interval: 1000 * 60,
