@@ -4,7 +4,7 @@ import { ZapsRunnerService } from '@root/runner/zaps/zaps.runner.service';
 import { ZapJobsData } from '@root/runner/zaps/zaps.runner.dto';
 
 @Injectable()
-export class WorkflowService {
+export class RunnerService {
   private logger = new Logger('workflow');
 
   constructor(private zapRunnerService: ZapsRunnerService) {}
