@@ -1,12 +1,12 @@
-export interface VariableData {
+export interface RunnerVariableData {
   key: string;
   value: string;
 }
 
-export interface CheckResult {
+export interface RunnerCheckResult {
   status: RunnerExecutionStatus;
   is_triggered: boolean;
-  data: VariableData[];
+  data: RunnerVariableData[];
 }
 
 export enum RunnerExecutionStatus {
@@ -15,6 +15,6 @@ export enum RunnerExecutionStatus {
 }
 
 export interface RunnerExecutionResult {
-  data: VariableData[];
+  data: RunnerVariableData[];
   status: RunnerExecutionStatus;
 }
