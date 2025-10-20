@@ -11,6 +11,9 @@ export const envConstants = {
     process.env.WEB_SUCCESS_OAUTH2_REDIRECT_URL ??
     'http://127.0.0.1/oauth2/success',
 
+  mobile_oauth2_success_redirect_url:
+    process.env.MOBILE_SUCCESS_OAUTH2_REDIRECT_URL ?? 'area://oauth2/success',
+
   discord_client_id: process.env.DISCORD_CLIENT_ID ?? 'DISCORD_CLIENT_ID',
   discord_client_secret: process.env.DISCORD_CLIENT_SECRET ?? 'DISCORD_SECRET',
 
