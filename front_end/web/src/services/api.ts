@@ -8,6 +8,7 @@ import {
   GetAllConnectionsResponse,
   GetConnectionsByServiceResponse,
   GetAllZapsResponse,
+  GetUserActivitiesResponse,
   ConnectionDTO,
   TriggerDTO,
   ServiceDTO,
@@ -621,7 +622,7 @@ class ApiService {
       if (!action || !service) {
         throw new Error(`Action with id ${stepData.action_id} not found`);
       }
-      
+
       // Récupérer les détails de la connexion
       const connection = await this.getConnectionById(stepData.connection_id, token);
       
@@ -633,6 +634,49 @@ class ApiService {
       };
     } catch (error) {
       console.error('Failed to get zap action by id:', error);
+      throw error;
+    }
+  }
+
+  // Get user activities
+  async getUserActivities(token: string): Promise<GetUserActivitiesResponse> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/me/activities`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Failed to get user activities:', error);
+      throw error;
+    }
+  }
+
+  // Logout user
+  async logout(token: string): Promise<{ message: string; statusCode: number }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/me/logout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Failed to logout:', error);
       throw error;
     }
   }

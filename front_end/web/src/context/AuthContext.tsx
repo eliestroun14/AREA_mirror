@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import { apiService } from '@/services/api';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -59,8 +60,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log('🔑 Login called with token:', newToken?.substring(0, 10) + '...');
     setToken(newToken);
   };
-  const logout = () => {
+  
+  const logout = async () => {
     console.log('🚪 Logout called');
+    
+    // Si on a un token, appeler l'API de logout
+    if (token) {
+      try {
+        await apiService.logout(token);
+        console.log('✅ API logout successful');
+      } catch (error) {
+        console.error('❌ API logout failed:', error);
+        // On continue avec le logout local même si l'API échoue
+      }
+    }
+    
+    // Nettoyer le token local
     setToken(null);
   };
 

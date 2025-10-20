@@ -63,6 +63,14 @@ export interface ZapDTO {
   updated_at: string;
 }
 
+export interface ActivityDTO {
+  type: string;
+  title: string;
+  description?: string | null;
+  created_at: string;
+  meta?: Record<string, unknown> | null;
+}
+
 // API Response types
 export type GetAllServicesResponse = ServiceDTO[];
 export type GetServiceResponse = ServiceDTO;
@@ -73,3 +81,4 @@ export type GetTriggerByServiceResponse = TriggerDTO | null;
 export type GetAllConnectionsResponse = { connections: ConnectionDTO[] };
 export type GetConnectionsByServiceResponse = { connections: ConnectionDTO[] };
 export type GetAllZapsResponse = ZapDTO[];
+export type GetUserActivitiesResponse = { activities: ActivityDTO[] };
