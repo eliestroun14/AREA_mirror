@@ -66,6 +66,20 @@ function ResponsiveAppBar() {
     handleCloseNavMenu();
   };
 
+  const handleUserMenuClick = async (setting: string) => {
+    handleCloseUserMenu();
+    
+    if (setting === 'Logout') {
+      await logout();
+    } else if (setting === 'Settings') {
+      router.push('/profil/settings');
+    } else if (setting === 'Profile') {
+      router.push('/profil');
+    } else if (setting === 'Activity') {
+      router.push('/profil/activity');
+    }
+  };
+
   return (
     <AppBar position="static" sx={{ backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.0)' }}>
       <Container maxWidth="xl">
@@ -189,18 +203,7 @@ function ResponsiveAppBar() {
                   onClose={handleCloseUserMenu}
                 >
                   {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={() => {
-                      handleCloseUserMenu();
-                      if (setting === 'Logout') {
-                        logout();
-                      } else if (setting === 'Settings') {
-                        router.push('/profil/settings');
-                      } else if (setting === 'Profile') {
-                        router.push('/profil');
-                      } else if (setting === 'Activity') {
-                        router.push('/my_applets');
-                      }
-                    }}>
+                    <MenuItem key={setting} onClick={() => handleUserMenuClick(setting)}>
                       <Typography sx={{ textAlign: 'center', color: 'black' }}>{setting}</Typography>
                     </MenuItem>
                   ))}
