@@ -40,13 +40,19 @@ export class Oauth2Controller {
   @ApiOperation({
     summary: "Initier l'authentification OAuth2 avec Gmail",
     description:
-      'Redirige l\'utilisateur vers la page d\'authentification Google pour connecter son compte Gmail. Nécessite un token JWT dans le query param "token".',
+      'Redirige l\'utilisateur vers la page d\'authentification Google pour connecter son compte Gmail. Nécessite un token JWT dans le query param "token". Optionnellement, un paramètre "platform" (web|mobile) peut être passé pour la redirection.',
   })
   @ApiQuery({
     name: 'token',
     description: "Token JWT de l'utilisateur",
     required: true,
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+  })
+  @ApiQuery({
+    name: 'platform',
+    description: 'Plateforme de redirection (web ou mobile)',
+    required: false,
+    example: 'mobile',
   })
   @ApiResponse({
     status: 302,
@@ -100,8 +106,30 @@ export class Oauth2Controller {
       req.provider,
     );
 
-    // Redirect to success page instead of returning JSON
-    return res.redirect(envConstants.web_oauth2_success_redirect_url);
+    // Parse state to get platform (format: token|platform)
+    let redirectUrl = envConstants.web_oauth2_success_redirect_url;
+    const reqWithQuery = req as unknown as Request & {
+      query: Record<string, unknown>;
+    };
+    const stateRaw =
+      reqWithQuery.query &&
+      typeof reqWithQuery.query === 'object' &&
+      typeof reqWithQuery.query['state'] === 'string'
+        ? reqWithQuery.query['state']
+        : '';
+    if (stateRaw) {
+      const stateParts = stateRaw.split('|');
+      if (stateParts.length > 1) {
+        const platform = stateParts[1];
+        if (
+          platform === 'mobile' &&
+          envConstants.mobile_oauth2_success_redirect_url
+        ) {
+          redirectUrl = envConstants.mobile_oauth2_success_redirect_url;
+        }
+      }
+    }
+    return res.redirect(redirectUrl);
   }
 
   @Get(services.discord.slug)
@@ -175,8 +203,32 @@ export class Oauth2Controller {
       req.provider,
     );
 
-    // Redirect to success page instead of returning JSON
-    return res.redirect(envConstants.web_oauth2_success_redirect_url);
+    // Parse state to get platform (format: token|platform)
+    let redirectUrl = envConstants.web_oauth2_success_redirect_url;
+    const reqWithQuery = req as unknown as Request & {
+      query: Record<string, unknown>;
+    };
+    const stateRaw =
+      reqWithQuery.query &&
+      typeof reqWithQuery.query === 'object' &&
+      typeof reqWithQuery.query['state'] === 'string'
+        ? reqWithQuery.query['state']
+        : '';
+    if (stateRaw) {
+      const stateParts = stateRaw.split('|');
+      if (stateParts.length > 1) {
+        const platform = stateParts[1];
+        if (
+          platform === 'mobile' &&
+          envConstants.mobile_oauth2_success_redirect_url
+        ) {
+          redirectUrl = envConstants.mobile_oauth2_success_redirect_url;
+        }
+      }
+    }
+
+    // Redirect to platform-specific success page
+    return res.redirect(redirectUrl);
   }
 
   @Get(services.github.slug)
@@ -185,13 +237,19 @@ export class Oauth2Controller {
   @ApiOperation({
     summary: "Initier l'authentification OAuth2 avec GitHub",
     description:
-      'Redirige l\'utilisateur vers la page d\'authentification GitHub pour connecter son compte. Nécessite un token JWT dans le query param "token".',
+      'Redirige l\'utilisateur vers la page d\'authentification GitHub pour connecter son compte. Nécessite un token JWT dans le query param "token". Optionnellement, un paramètre "platform" (web|mobile) peut être passé pour la redirection.',
   })
   @ApiQuery({
     name: 'token',
     description: "Token JWT de l'utilisateur",
     required: true,
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+  })
+  @ApiQuery({
+    name: 'platform',
+    description: 'Plateforme de redirection (web ou mobile)',
+    required: false,
+    example: 'mobile',
   })
   @ApiResponse({
     status: 302,
@@ -250,7 +308,29 @@ export class Oauth2Controller {
       req.provider,
     );
 
-    // Redirect to success page instead of returning JSON
-    return res.redirect(envConstants.web_oauth2_success_redirect_url);
+    // Parse state to get platform (format: token|platform)
+    let redirectUrl = envConstants.web_oauth2_success_redirect_url;
+    const reqWithQuery = req as unknown as Request & {
+      query: Record<string, unknown>;
+    };
+    const stateRaw =
+      reqWithQuery.query &&
+      typeof reqWithQuery.query === 'object' &&
+      typeof reqWithQuery.query['state'] === 'string'
+        ? reqWithQuery.query['state']
+        : '';
+    if (stateRaw) {
+      const stateParts = stateRaw.split('|');
+      if (stateParts.length > 1) {
+        const platform = stateParts[1];
+        if (
+          platform === 'mobile' &&
+          envConstants.mobile_oauth2_success_redirect_url
+        ) {
+          redirectUrl = envConstants.mobile_oauth2_success_redirect_url;
+        }
+      }
+    }
+    return res.redirect(redirectUrl);
   }
 }

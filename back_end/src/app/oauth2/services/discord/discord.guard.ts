@@ -16,10 +16,15 @@ export class DiscordOAuthGuard extends AuthGuard('discord') {
   getAuthenticateOptions(context: ExecutionContext): any {
     const request = context.switchToHttp().getRequest<Request>();
     const tokenFromQuery = request.query.token as string;
-    // Pass the JWT token via the state parameter
+    const platformFromQuery = request.query.platform as string | undefined;
+    // Pass the JWT token and platform via the state parameter (format: token|platform)
     if (tokenFromQuery) {
+      let state = tokenFromQuery;
+      if (platformFromQuery) {
+        state += `|${platformFromQuery}`;
+      }
       return {
-        state: tokenFromQuery,
+        state,
       };
     }
     return {};
