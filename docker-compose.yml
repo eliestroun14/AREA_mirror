@@ -15,7 +15,7 @@ services:
     image: adminer
     restart: always
     ports:
-      - "8081:8080"
+      - "8082:8080"
     networks:
       - area_network
     depends_on:
@@ -52,7 +52,7 @@ services:
         - action: rebuild
           path: ./back_end/tsconfig.build.json
     volumes:
-      - mobile_builds:/app/shared_builds
+      - mobile_builds:/app/builds
 
   nextjs:
     build: ./front_end/web/
@@ -63,6 +63,8 @@ services:
       - area_network
     depends_on:
       - api
+    volumes:
+      - mobile_builds:/app/builds
 
   wait-for-nextjs:
     image: busybox
@@ -76,7 +78,7 @@ services:
     image: nginx:alpine
     container_name: nginx
     ports:
-      - "80:80"
+      - "8081:8081"
     volumes:
       - ./front_end/area/nginx.conf:/etc/nginx/nginx.conf:ro
     command: ["nginx", "-g", "daemon off;"]
