@@ -1,0 +1,45 @@
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+.npm
+.yarn
+
+# Expo
+.expo
+.expo-shared
+dist/
+
+# Android/iOS builds
+android/build
+android/.gradle
+android/.idea
+android/app/build
+ios/build
+ios/Pods
+
+# Tests
+coverage
+__tests__
+
+# Logs
+*.log
+logs
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Temp
+tmp
+temp
+.tmp
+.temp
+
+# Cache
+.cache
+*.cache
