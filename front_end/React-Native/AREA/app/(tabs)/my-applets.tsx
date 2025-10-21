@@ -122,7 +122,13 @@ export default function MyAppletsScreen() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>My Applets</Text>
-      {loading ? (
+      {!isAuthenticated ? (
+        <View style={styles.authMessageContainer}>
+          <Text style={styles.authMessageText}>
+            You must be logged in to see your applets.
+          </Text>
+        </View>
+      ) : loading ? (
         <ActivityIndicator size="large" color="#075eec" />
       ) : zaps.length === 0 ? (
         <Text style={styles.empty}>No applets found.</Text>
@@ -165,6 +171,15 @@ const styles = StyleSheet.create({
     color: '#1e1e1e',
     padding: -4,
     marginVertical: 40,
+    marginBottom: 20,
+  },
+  authMessageContainer: {
+    marginTop: 30,
+  },
+  authMessageText: {
+    color: 'red',
+    textAlign: 'center',
+    fontSize: 15,
   },
   empty: {
     fontSize: 18,
