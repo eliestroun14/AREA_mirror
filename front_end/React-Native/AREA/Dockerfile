@@ -79,6 +79,8 @@ RUN echo '<?xml version="1.0" encoding="utf-8"?>' > android/app/src/main/res/xml
     echo '    </base-config>' >> android/app/src/main/res/xml/network_security_config.xml && \
     echo '</network-security-config>' >> android/app/src/main/res/xml/network_security_config.xml
 
+RUN ls android/app/src/main
+
 RUN sed -i 's/<application/<application android:networkSecurityConfig="@xml\/network_security_config" android:usesCleartextTraffic="true"/' android/app/src/main/AndroidManifest.xml
 
 CMD ["/build.sh"]
