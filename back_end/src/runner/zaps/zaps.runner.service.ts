@@ -18,7 +18,9 @@ export class ZapsRunnerService {
     return this.prisma.zaps.findMany();
   }
 
-  async isTriggered(zap: zaps): Promise<{ id: number; result: RunnerCheckResult }> {
+  async isTriggered(
+    zap: zaps,
+  ): Promise<{ id: number; result: RunnerCheckResult }> {
     const triggerClass = await this.triggerService.getTriggerClassOf(zap);
 
     if (!triggerClass)

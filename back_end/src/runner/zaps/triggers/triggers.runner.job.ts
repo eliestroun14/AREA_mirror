@@ -8,16 +8,16 @@ import { TriggerBuilderParams } from '@root/runner/zaps/triggers/triggers.runner
 export abstract class TriggerRunnerJob<PayloadType> {
   private readonly _stepId: number;
   private readonly _triggerType: string;
-  private readonly _lastExecution: Date | null;
   private readonly _executionInterval: number | null;
+  protected readonly lastExecution: Date | null;
   protected readonly accessToken: string | null;
   protected readonly payload: PayloadType;
 
   protected constructor(params: TriggerBuilderParams) {
     this._stepId = params.stepId;
     this._triggerType = params.triggerType;
-    this._lastExecution = params.lastExecution;
     this._executionInterval = params.executionInterval;
+    this.lastExecution = params.lastExecution;
     this.accessToken = params.accessToken;
     this.payload = params.payload as PayloadType;
   }
@@ -30,10 +30,10 @@ export abstract class TriggerRunnerJob<PayloadType> {
 
   public async check(): Promise<RunnerCheckResult> {
     const currentTimestamp = Date.now();
-    const lastExecutionTimestamp = this._lastExecution?.getTime();
+    const lastExecutionTimestamp = this.lastExecution?.getTime();
 
     const isPolling = this._triggerType === constants.trigger_types.polling;
-    const hasAlreadyBeenTriggered = this._lastExecution !== null;
+    const hasAlreadyBeenTriggered = this.lastExecution !== null;
     const hasExecutionIntervalData = this._executionInterval !== null;
 
     const failureData = {
