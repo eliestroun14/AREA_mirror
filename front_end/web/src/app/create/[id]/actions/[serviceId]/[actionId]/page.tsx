@@ -118,27 +118,39 @@ export default function ActionConfigPage() {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const [currentFieldName, setCurrentFieldName] = useState<string>('')
 
-  const handleOAuth2Connect = () => {
-    if (!service) {
-      console.error('❌ No service found')
-      return
-    }
-    if (!token) {
-      console.error('❌ No token found')
-      alert('No authentication token found. Please login again.')
-      return
-    }
-    
-    console.log('✅ Service:', service.name)
-    console.log('✅ Token (first 20 chars):', token.substring(0, 20) + '...')
-    
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-    const oauth2Slug = service.name.toLowerCase()
-    const oauthUrl = `${apiBaseUrl}/oauth2/${oauth2Slug}?token=${encodeURIComponent(token)}`
-    
-    console.log('🔗 Opening OAuth URL:', oauthUrl)
-    window.open(oauthUrl, '_blank')
+  // page.tsx
+const handleOAuth2Connect = async () => {
+  if (!service || !token) {
+    console.error('❌ No service or token found');
+    alert('No authentication token found. Please login again.');
+    return;
   }
+  
+  try {
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    const response = await fetch(`${apiBaseUrl}/oauth2/encrypt-token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        platform: 'web',
+      }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to encrypt token');
+    }
+    const { encryptedToken } = await response.json();
+    const oauth2Slug = service.name.toLowerCase();
+    const oauthUrl = `${apiBaseUrl}/oauth2/${oauth2Slug}?token=${encodeURIComponent(encryptedToken)}`;
+    console.log('🔗 Opening OAuth URL with encrypted token');
+    window.open(oauthUrl, '_blank');
+  } catch (error) {
+    console.error('❌ Error initiating OAuth:', error);
+    alert('Failed to initiate OAuth connection. Please try again.');
+  }
+};
 
   const handleBackClick = () => {
     router.push(`/create/${zapId}/actions/${serviceId}`)

@@ -1,14 +1,20 @@
 import { DiscordOAuthGuard } from './discord.guard';
-import { ExecutionContext } from '@nestjs/common';
+import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
 import { DiscordProvider } from './discord.dto';
-import { JwtPayload } from '@app/auth/jwt/jwt.dto';
+import { CryptoService } from '../../crypto/crypto.service';
 
 describe('DiscordOAuthGuard', () => {
   let guard: DiscordOAuthGuard;
+  let mockCryptoService: CryptoService;
 
   beforeEach(() => {
-    guard = new DiscordOAuthGuard();
+    mockCryptoService = {
+      encryptJWT: jest.fn(() => 'encrypted_token'),
+      decryptJWT: jest.fn(() => ({ jwt: 'real_jwt_token', platform: 'web' })),
+    } as unknown as CryptoService;
+
+    guard = new DiscordOAuthGuard(mockCryptoService);
   });
 
   it('should be defined', () => {
@@ -20,10 +26,10 @@ describe('DiscordOAuthGuard', () => {
   });
 
   describe('getAuthenticateOptions', () => {
-    it('should return state with JWT token from query', () => {
+    it('should decrypt token and return state with encrypted callback token', () => {
       const mockRequest = {
         query: {
-          token: 'jwt-token-123',
+          token: 'encrypted_token_123',
         },
       } as unknown as Request;
 
@@ -33,14 +39,24 @@ describe('DiscordOAuthGuard', () => {
         }),
       } as unknown as ExecutionContext;
 
-      const result = guard.getAuthenticateOptions(mockContext);
-
-      expect(result).toEqual({
-        state: 'jwt-token-123',
+      (mockCryptoService.decryptJWT as jest.Mock).mockReturnValue({
+        jwt: 'real_jwt_token',
+        platform: 'web',
       });
+
+      (mockCryptoService.encryptJWT as jest.Mock).mockReturnValue('new_encrypted_token');
+
+      const result = guard.getAuthenticateOptions(mockContext);
+
+      expect(mockCryptoService.decryptJWT).toHaveBeenCalledWith('encrypted_token_123');
+      expect(mockCryptoService.encryptJWT).toHaveBeenCalledWith('real_jwt_token', 'web');
+      expect(result).toEqual({
+        state: 'new_encrypted_token',
+      });
+      expect(mockRequest['oauth_jwt']).toBe('real_jwt_token');
     });
 
-    it('should return empty object when token is undefined', () => {
+    it('should throw UnauthorizedException when token is missing', () => {
       const mockRequest = {
         query: {},
       } as unknown as Request;
@@ -51,14 +67,19 @@ describe('DiscordOAuthGuard', () => {
         }),
       } as unknown as ExecutionContext;
 
-      const result = guard.getAuthenticateOptions(mockContext);
-
-      expect(result).toEqual({});
+      expect(() => guard.getAuthenticateOptions(mockContext)).toThrow(
+        UnauthorizedException,
+      );
+      expect(() => guard.getAuthenticateOptions(mockContext)).toThrow(
+        'Encrypted token required',
+      );
     });
 
-    it('should return empty object when query is missing', () => {
+    it('should throw UnauthorizedException when token is invalid', () => {
       const mockRequest = {
-        query: {},
+        query: {
+          token: 'invalid_token',
+        },
       } as unknown as Request;
 
       const mockContext = {
@@ -67,12 +88,17 @@ describe('DiscordOAuthGuard', () => {
         }),
       } as unknown as ExecutionContext;
 
-      const result = guard.getAuthenticateOptions(mockContext);
+      (mockCryptoService.decryptJWT as jest.Mock).mockReturnValue(null);
 
-      expect(result).toEqual({});
+      expect(() => guard.getAuthenticateOptions(mockContext)).toThrow(
+        UnauthorizedException,
+      );
+      expect(() => guard.getAuthenticateOptions(mockContext)).toThrow(
+        'Invalid or expired encrypted token',
+      );
     });
 
-    it('should handle empty token string', () => {
+    it('should throw UnauthorizedException when token is empty string', () => {
       const mockRequest = {
         query: {
           token: '',
@@ -85,9 +111,38 @@ describe('DiscordOAuthGuard', () => {
         }),
       } as unknown as ExecutionContext;
 
+      expect(() => guard.getAuthenticateOptions(mockContext)).toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('should handle token without platform', () => {
+      const mockRequest = {
+        query: {
+          token: 'encrypted_token_456',
+        },
+      } as unknown as Request;
+
+      const mockContext = {
+        switchToHttp: jest.fn().mockReturnValue({
+          getRequest: jest.fn().mockReturnValue(mockRequest),
+        }),
+      } as unknown as ExecutionContext;
+
+      (mockCryptoService.decryptJWT as jest.Mock).mockReturnValue({
+        jwt: 'jwt_without_platform',
+        platform: undefined,
+      });
+
+      (mockCryptoService.encryptJWT as jest.Mock).mockReturnValue('callback_token');
+
       const result = guard.getAuthenticateOptions(mockContext);
 
-      expect(result).toEqual({});
+      expect(mockCryptoService.encryptJWT).toHaveBeenCalledWith(
+        'jwt_without_platform',
+        undefined,
+      );
+      expect(result.state).toBe('callback_token');
     });
   });
 
