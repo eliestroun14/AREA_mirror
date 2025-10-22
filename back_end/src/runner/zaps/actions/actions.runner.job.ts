@@ -35,9 +35,12 @@ export abstract class ActionRunnerJob<PayloadType extends Record<string, any>> {
     return this._execute(payload as PayloadType);
   }
 
-  private applyVariables(variablesData: RunnerVariableData[], value: string): string {
+  private applyVariables(
+    variablesData: RunnerVariableData[],
+    value: string,
+  ): string {
     for (const data of variablesData) {
-      value = value.replaceAll(data.key, data.value);
+      value = value.replaceAll(`{{${data.key}}}`, data.value);
     }
     return value;
   }
