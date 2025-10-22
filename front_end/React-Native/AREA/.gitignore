@@ -40,7 +40,12 @@ app-example
 
 # generated native folders
 /ios
-/android
+android/build/
+android/.gradle/
+android/.idea/
+android/app/build/
+android/app/.cxx/
+android/local.properties
 
 # android keystore
 *.keystore
