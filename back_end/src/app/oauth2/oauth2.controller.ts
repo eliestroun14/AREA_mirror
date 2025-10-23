@@ -118,7 +118,16 @@ export class Oauth2Controller {
     @Req() req: StrategyCallbackRequest,
     @Res() res: express.Response,
   ) {
-    if (!req.user) throw new UnauthenticatedException();
+    const platform = this.getPlatformFromState(req);
+    if (!req.user) {
+      const errorMsg = 'Unauthorized';
+      if (platform === 'web') {
+        return res.redirect(
+          `/oauth/error?error=${encodeURIComponent(errorMsg)}`,
+        );
+      }
+      throw new UnauthenticatedException();
+    }
 
     await this.connectionService.createConnection(
       services.gmail.name,
@@ -187,11 +196,26 @@ export class Oauth2Controller {
     @Req() req: StrategyCallbackRequest,
     @Res() res: express.Response,
   ) {
-    if (!req.user) throw new UnauthenticatedException();
+    const platform = this.getPlatformFromState(req);
+    if (!req.user) {
+      const errorMsg = 'Unauthorized';
+      if (platform === 'web') {
+        return res.redirect(
+          `/oauth/error?error=${encodeURIComponent(errorMsg)}`,
+        );
+      }
+      throw new UnauthenticatedException();
+    }
 
     if (!req.provider) {
-      console.error(`Discord provider not found for user ${req.user.userId}.`);
-      throw new InternalServerErrorException();
+      const errorMsg = `ProviderNotFound for user ${req.user?.userId ?? ''}`;
+      console.error(errorMsg);
+      if (platform === 'web') {
+        return res.redirect(
+          `/oauth/error?error=${encodeURIComponent(errorMsg)}`,
+        );
+      }
+      throw new InternalServerErrorException(errorMsg);
     }
 
     await this.connectionService.createConnection(
@@ -261,11 +285,26 @@ export class Oauth2Controller {
     @Req() req: StrategyCallbackRequest,
     @Res() res: express.Response,
   ) {
-    if (!req.user) throw new UnauthenticatedException();
+    const platform = this.getPlatformFromState(req);
+    if (!req.user) {
+      const errorMsg = 'Unauthorized';
+      if (platform === 'web') {
+        return res.redirect(
+          `/oauth/error?error=${encodeURIComponent(errorMsg)}`,
+        );
+      }
+      throw new UnauthenticatedException();
+    }
 
     if (!req.provider) {
-      console.error(`Github provider not found for user ${req.user.userId}.`);
-      throw new InternalServerErrorException();
+      const errorMsg = `ProviderNotFound for user ${req.user?.userId ?? ''}`;
+      console.error(errorMsg);
+      if (platform === 'web') {
+        return res.redirect(
+          `/oauth/error?error=${encodeURIComponent(errorMsg)}`,
+        );
+      }
+      throw new InternalServerErrorException(errorMsg);
     }
 
     await this.connectionService.createConnection(
@@ -276,5 +315,22 @@ export class Oauth2Controller {
 
     const redirectUrl = this.getRedirectUrl(req);
     return res.redirect(redirectUrl);
+  }
+
+  private getPlatformFromState(
+    req: StrategyCallbackRequest,
+  ): string | undefined {
+    const reqWithQuery = req as RequestWithQuery;
+    const stateRaw =
+      reqWithQuery.query &&
+      typeof reqWithQuery.query === 'object' &&
+      typeof reqWithQuery.query['state'] === 'string'
+        ? reqWithQuery.query['state']
+        : '';
+    if (stateRaw) {
+      const decrypted = this.cryptoService.decryptJWT(stateRaw);
+      return decrypted?.platform;
+    }
+    return undefined;
   }
 }
