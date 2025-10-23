@@ -103,7 +103,7 @@ export default function ActionConfigPage() {
   const zapId = params.id as string
   const serviceId = params.serviceId as string
   const actionId = params.actionId as string
-  
+
   const [service, setService] = useState<ServiceDTO | null>(null)
   const [action, setAction] = useState<ActionDTO | null>(null)
   const [connections, setConnections] = useState<ConnectionDTO[]>([])
@@ -118,39 +118,87 @@ export default function ActionConfigPage() {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const [currentFieldName, setCurrentFieldName] = useState<string>('')
 
-  // page.tsx
+  useEffect(() => {
+    console.log('🔊 Setting up postMessage listener...');
+
+    const handleMessage = (event: MessageEvent) => {
+      console.log('📨 Message received:', event.data);
+      console.log('📍 Message origin:', event.origin);
+
+      const allowedOrigins = [
+        'http://localhost:3001',
+        'http://localhost:8081',
+        window.location.origin
+      ];
+
+      if (!allowedOrigins.includes(event.origin)) {
+        console.warn('⚠️ Message from unauthorized origin:', event.origin);
+        return;
+      }
+
+      if (event.data?.type === 'oauth_success') {
+        console.log('✅ OAuth success detected, reloading page...');
+        window.location.reload();
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    console.log('✅ PostMessage listener ready');
+
+    return () => {
+      console.log('🔇 Removing postMessage listener...');
+      window.removeEventListener('message', handleMessage);
+    };
+  }, []);
+
 const handleOAuth2Connect = async () => {
-  if (!service || !token) {
-    console.error('❌ No service or token found');
-    alert('No authentication token found. Please login again.');
-    return;
-  }
-  
-  try {
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-    const response = await fetch(`${apiBaseUrl}/oauth2/encrypt-token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        platform: 'web',
-      }),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to encrypt token');
+    if (!service || !token) {
+      console.error('❌ No service or token found');
+      alert('No authentication token found. Please login again.');
+      return;
     }
-    const { encryptedToken } = await response.json();
-    const oauth2Slug = service.name.toLowerCase();
-    const oauthUrl = `${apiBaseUrl}/oauth2/${oauth2Slug}?token=${encodeURIComponent(encryptedToken)}`;
-    console.log('🔗 Opening OAuth URL with encrypted token');
-    window.open(oauthUrl, '_blank');
-  } catch (error) {
-    console.error('❌ Error initiating OAuth:', error);
-    alert('Failed to initiate OAuth connection. Please try again.');
-  }
-};
+
+    try {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiBaseUrl}/oauth2/encrypt-token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          platform: 'web',
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to encrypt token');
+      }
+      
+      const { encryptedToken } = await response.json();
+      const oauth2Slug = service.name.toLowerCase();
+      const oauthUrl = `${apiBaseUrl}/oauth2/${oauth2Slug}?token=${encodeURIComponent(encryptedToken)}`;
+      
+      console.log('🔗 Opening OAuth URL');
+      
+      const oauthWindow = window.open(
+        oauthUrl,
+        'oauth_window',
+        'width=600,height=700,left=100,top=100'
+      );
+      
+      if (!oauthWindow) {
+        alert('Please allow popups for this site to connect your account.');
+        return;
+      }
+      
+      console.log('✅ OAuth window opened');
+      
+    } catch (error) {
+      console.error('❌ Error initiating OAuth:', error);
+      alert('Failed to initiate OAuth connection. Please try again.');
+    }
+  };
 
   const handleBackClick = () => {
     router.push(`/create/${zapId}/actions/${serviceId}`)

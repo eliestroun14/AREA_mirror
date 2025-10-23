@@ -46,45 +46,8 @@ export default function HomePage() {
     router.push('/explore');
   };
 
-  const handleDownload = async () => {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-      const response = await fetch(`${apiUrl}/download/apk`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to download file');
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      
-      const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = 'downloaded-file';
-      
-      console.log('Content-Disposition header:', contentDisposition);
-      
-      if (contentDisposition) {
-        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-        const matches = filenameRegex.exec(contentDisposition);
-        if (matches != null && matches[1]) {
-          filename = matches[1].replace(/['"]/g, '');
-        }
-      }
-      
-      console.log('Filename extracted:', filename);
-      
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Error downloading file:', error);
-      alert('Failed to download file. Please try again.');
-    }
+  const handleDownload = () => {
+    router.push('/client.apk');
   };
 
   const displayServices = loading ? [] : services.filter(service => service.is_active).slice(0, 10);

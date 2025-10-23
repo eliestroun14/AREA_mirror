@@ -36,7 +36,7 @@ export default function TriggerFieldsPage() {
   const zapId = params.id as string
   const serviceId = params.serviceId as string
   const triggerId = params.triggerId as string
-  
+
   const [trigger, setTrigger] = useState<TriggerDTO | null>(null)
   const [service, setService] = useState<ServiceDTO | null>(null)
   const [connections, setConnections] = useState<ConnectionDTO[]>([])
@@ -46,30 +46,87 @@ export default function TriggerFieldsPage() {
   const [submitting, setSubmitting] = useState(false)
   const [formData, setFormData] = useState<Record<string, string>>({})
 
-  const handleOAuth2Connect = () => {
-    if (!service) {
-      console.error('❌ No service found')
-      return
+  useEffect(() => {
+    console.log('🔊 Setting up postMessage listener...');
+
+    const handleMessage = (event: MessageEvent) => {
+      console.log('📨 Message received:', event.data);
+      console.log('📍 Message origin:', event.origin);
+
+      const allowedOrigins = [
+        'http://localhost:3001',
+        'http://localhost:8081',
+        window.location.origin
+      ];
+
+      if (!allowedOrigins.includes(event.origin)) {
+        console.warn('⚠️ Message from unauthorized origin:', event.origin);
+        return;
+      }
+
+      if (event.data?.type === 'oauth_success') {
+        console.log('✅ OAuth success detected, reloading page...');
+        window.location.reload();
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    console.log('✅ PostMessage listener ready');
+
+    return () => {
+      console.log('🔇 Removing postMessage listener...');
+      window.removeEventListener('message', handleMessage);
+    };
+  }, []);
+
+  const handleOAuth2Connect = async () => {
+    if (!service || !token) {
+      console.error('❌ No service or token found');
+      alert('No authentication token found. Please login again.');
+      return;
     }
-    if (!token) {
-      console.error('❌ No token found')
-      alert('No authentication token found. Please login again.')
-      return
+
+    try {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiBaseUrl}/oauth2/encrypt-token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          platform: 'web',
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to encrypt token');
+      }
+      
+      const { encryptedToken } = await response.json();
+      const oauth2Slug = service.name.toLowerCase();
+      const oauthUrl = `${apiBaseUrl}/oauth2/${oauth2Slug}?token=${encodeURIComponent(encryptedToken)}`;
+      
+      console.log('🔗 Opening OAuth URL');
+      
+      const oauthWindow = window.open(
+        oauthUrl,
+        'oauth_window',
+        'width=600,height=700,left=100,top=100'
+      );
+      
+      if (!oauthWindow) {
+        alert('Please allow popups for this site to connect your account.');
+        return;
+      }
+      
+      console.log('✅ OAuth window opened');
+      
+    } catch (error) {
+      console.error('❌ Error initiating OAuth:', error);
+      alert('Failed to initiate OAuth connection. Please try again.');
     }
-    
-    console.log('✅ Service:', service.name)
-    console.log('✅ Token (first 20 chars):', token.substring(0, 20) + '...')
-    
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-    // Use service name directly and convert to lowercase for the OAuth2 slug
-    const oauth2Slug = service.name.toLowerCase()
-    const oauthUrl = `${apiBaseUrl}/oauth2/${oauth2Slug}?token=${encodeURIComponent(token)}`
-    
-    console.log('🔗 Opening OAuth URL:', oauthUrl)
-    
-    // Pass the JWT token as a query parameter so it's preserved through the OAuth flow
-    window.open(oauthUrl, '_blank')
-  }
+  };
 
   const handleBackClick = () => {
     router.push(`/create/${zapId}/triggers/${serviceId}`)
