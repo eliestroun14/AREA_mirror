@@ -10,16 +10,31 @@ export default function OAuthSuccessPage() {
   const [countdown, setCountdown] = React.useState(3);
 
   useEffect(() => {
-    // Auto-close window after 3 seconds
+    console.log('✅ OAuth Success page loaded');
+    console.log('🔍 window.opener exists:', !!window.opener);
+
+    if (window.opener && !window.opener.closed) {
+      try {
+        console.log('📤 Sending message to opener...');
+        window.opener.postMessage({ type: 'oauth_success' }, '*');
+        console.log('✅ Message sent to opener');
+      } catch (error) {
+        console.error('❌ Error sending message to opener:', error);
+      }
+    } else {
+      console.warn('⚠️ No opener window found or opener is closed');
+    }
+
+    // Auto-close après 3 secondes
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          // Try to close the window (works if opened by window.open)
           window.close();
-          // If window.close() doesn't work, redirect to home
           setTimeout(() => {
-            router.push('/explore');
+            if (!window.closed) {
+              router.push('/explore');
+            }
           }, 500);
           return 0;
         }
@@ -31,10 +46,20 @@ export default function OAuthSuccessPage() {
   }, [router]);
 
   const handleCloseNow = () => {
+    if (window.opener && !window.opener.closed) {
+      try {
+        window.opener.postMessage({ type: 'oauth_success' }, '*');
+        console.log('✅ Message sent to opener (manual close)');
+      } catch (error) {
+        console.error('❌ Error sending message:', error);
+      }
+    }
+    
     window.close();
-    // If window.close() doesn't work, redirect to home
     setTimeout(() => {
-      router.push('/explore');
+      if (!window.closed) {
+        router.push('/explore');
+      }
     }, 500);
   };
 
@@ -49,62 +74,28 @@ export default function OAuthSuccessPage() {
       }}
     >
       <Container maxWidth="sm">
-        <Paper
-          elevation={8}
-          sx={{
-            p: 6,
-            textAlign: 'center',
-            borderRadius: 3,
-            background: 'white',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              mb: 3,
-            }}
-          >
+        <Paper elevation={8} sx={{ p: 6, textAlign: 'center', borderRadius: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
             <CheckCircleIcon
               sx={{
                 fontSize: 80,
                 color: 'success.main',
                 animation: 'scaleIn 0.5s ease-out',
                 '@keyframes scaleIn': {
-                  '0%': {
-                    transform: 'scale(0)',
-                    opacity: 0,
-                  },
-                  '50%': {
-                    transform: 'scale(1.1)',
-                  },
-                  '100%': {
-                    transform: 'scale(1)',
-                    opacity: 1,
-                  },
+                  '0%': { transform: 'scale(0)', opacity: 0 },
+                  '50%': { transform: 'scale(1.1)' },
+                  '100%': { transform: 'scale(1)', opacity: 1 },
                 },
               }}
             />
           </Box>
 
-          <Typography
-            variant="h4"
-            gutterBottom
-            sx={{
-              fontWeight: 'bold',
-              color: 'text.primary',
-              mb: 2,
-            }}
-          >
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
             Sign In Successful!
           </Typography>
 
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            sx={{ mb: 4 }}
-          >
-            Your account has been successfully connected. This window will close automatically in {countdown} seconds.
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+            Your account has been successfully connected. This window will close in {countdown} seconds.
           </Typography>
 
           <Button

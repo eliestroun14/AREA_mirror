@@ -18,14 +18,19 @@ export class JwtOAuthGuard extends AuthGuard('jwt') {
   canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest<Request>();
 
-    const tokenFromState = request.query.state as string;
-    const tokenFromQuery = request.query.token as string;
-    if (tokenFromQuery) {
-      request.headers.authorization = `Bearer ${tokenFromQuery}`;
-    } else if (tokenFromState) {
-      request.headers.authorization = `Bearer ${tokenFromState}`;
+    // 1. Prend le JWT injecté par le guard Discord si présent
+    if (request['oauth_jwt']) {
+      request.headers.authorization = `Bearer ${request['oauth_jwt']}`;
+      console.log('[JwtOAuthGuard] Using JWT from request["oauth_jwt"]');
     } else {
-      console.log('⚠️ No token found in query or state parameters');
+      // 2. Utilise query.token uniquement (jamais query.state, qui peut être un token chiffré)
+      const tokenFromQuery = request.query.token as string;
+      if (tokenFromQuery) {
+        request.headers.authorization = `Bearer ${tokenFromQuery}`;
+        console.log('[JwtOAuthGuard] Using JWT from query.token');
+      } else {
+        console.log('⚠️ No token found in oauth_jwt or query.token');
+      }
     }
 
     return super.canActivate(context);
