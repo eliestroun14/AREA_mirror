@@ -4,6 +4,8 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { AuthProvider } from '@/context/AuthContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useEffect } from 'react';
+import { useRouter } from 'expo-router';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -11,13 +13,27 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const router = useRouter();
+
+  useEffect(() => {
+    const redirectToSetup = async () => {
+      setTimeout(() => {
+        router.replace('/setup-ip-screen');
+      }, 100);
+    };
+    redirectToSetup();
+  }, []);
 
   return (
     <AuthProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+          <Stack.Screen name="setup-ip-screen" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="modal"
+            options={{ presentation: 'modal', title: 'Modal' }}
+          />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>

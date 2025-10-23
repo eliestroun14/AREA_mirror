@@ -45,7 +45,7 @@ export default function SetupIpScreen() {
           Please enter the network location of the application server :
         </Text>
         <TextInput
-          placeholder="http://...:8080"
+          placeholder="Example: 127.0.0.1"
           value={ip}
           onChangeText={setIp}
           style={styles.textBox}
