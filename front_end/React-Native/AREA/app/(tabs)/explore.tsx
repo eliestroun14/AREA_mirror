@@ -7,6 +7,7 @@ import ServiceCard from '@/components/molecules/service-card/service-card'
 import AppletCard from '@/components/molecules/applets-card/applets-card';
 import axios from 'axios';
 import { getApiBaseUrl } from '@/utils/apiConfig';
+import { useApi } from '@/context/ApiContext';
 
 type ServiceWithType = Service & { itemType: 'service' };
 type AppletWithType = AppletsCard & { itemType: 'applet' };
@@ -20,15 +21,7 @@ export default function ExploreScreen() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [apiUrl, setApiUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadApiUrl = async () => {
-      const url = await getApiBaseUrl();
-      setApiUrl(url);
-    };
-    loadApiUrl();
-  }, []);
+  const apiUrl = useApi();
 
   useEffect(() => {
     const getServices = async () => {

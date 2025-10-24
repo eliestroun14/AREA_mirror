@@ -1,18 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useAuth } from '@/context/AuthContext';
 import { Zap } from '@/types/type';
 import axios from 'axios';
+import { useApi } from '@/context/ApiContext';
 
 export default function MyAppletsScreen() {
   console.log('(MY APPLETS)');
   const { user, isAuthenticated, sessionToken } = useAuth();
   const [zaps, setZaps] = useState<Zap[]>([]);
   const [loading, setLoading] = useState(true);
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  const apiUrl = useApi();
 
-  const fetchZaps = async () => {
-    if (!isAuthenticated || !sessionToken) return;
+  const fetchZaps = useCallback(async ()=> {
+    if (!isAuthenticated || !sessionToken || !apiUrl) return;
     setLoading(true);
     try {
       const URL = `${apiUrl}/zaps`;
@@ -38,11 +39,14 @@ export default function MyAppletsScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAuthenticated, sessionToken, apiUrl]);
 
   useEffect(() => {
-    fetchZaps();
-  }, [user, isAuthenticated, sessionToken]);
+    if (apiUrl && isAuthenticated && sessionToken) {
+      fetchZaps();
+    }
+  }, [apiUrl, isAuthenticated, sessionToken, fetchZaps]);
+
 
   const handleToggleZap = async (zapId: number, isActive: boolean) => {
     if (!sessionToken) {
@@ -50,7 +54,6 @@ export default function MyAppletsScreen() {
       return;
     }
     try {
-      const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
         ...(sessionToken ? { 'Authorization': sessionToken } : {}),
@@ -88,7 +91,6 @@ export default function MyAppletsScreen() {
         {
           text: 'Delete', style: 'destructive', onPress: async () => {
             try {
-              const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
               const headers: Record<string, string> = {
                 'Content-Type': 'application/json',
                 ...(sessionToken ? { 'Authorization': sessionToken } : {}),
@@ -118,6 +120,15 @@ export default function MyAppletsScreen() {
       ]
     );
   };
+
+  if (!apiUrl) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#075eec" />
+        <Text style={{ marginTop: 10 }}>Loading configuration...</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

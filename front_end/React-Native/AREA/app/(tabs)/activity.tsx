@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, 
 import { useAuth } from '@/context/AuthContext';
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { getApiBaseUrl } from '@/utils/apiConfig';
+import { useApi } from '@/context/ApiContext';
 
 interface ActivityItem {
   type: string;
@@ -24,20 +24,11 @@ export default function ActivityScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [apiUrl, setApiUrl] = useState<string | null>(null);
-  
-    useEffect(() => {
-      const loadApiUrl = async () => {
-        const url = await getApiBaseUrl();
-        setApiUrl(url);
-      };
-      loadApiUrl();
-    }, []);
+  const apiUrl = useApi();
 
   const fetchActivities = useCallback(async () => {
     if (!isAuthenticated || !sessionToken || !apiUrl) return;
 
-    
     setLoading(true);
     setError(null);
 
@@ -69,8 +60,10 @@ export default function ActivityScreen() {
   };
 
   useEffect(() => {
-    fetchActivities();
-  }, [isAuthenticated, sessionToken, apiUrl]);
+    if (apiUrl && isAuthenticated && sessionToken) {
+      fetchActivities();
+    }
+  }, [apiUrl, isAuthenticated, sessionToken]);
 
   const formatDate = (dateString: string) => {
     try {
