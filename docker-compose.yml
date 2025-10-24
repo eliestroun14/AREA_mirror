@@ -1,6 +1,6 @@
 services:
   database:
-    image: postgres:latest
+    image: postgres:17-alpine
     restart: always
     volumes:
       - area_database_volume:/var/lib/postgresql/data
@@ -22,7 +22,7 @@ services:
       - database
 
   wait-for-db:
-    image: postgres:latest
+    image: postgres:17-alpine
     depends_on:
       - database
     entrypoint: ["sh", "-c", "until pg_isready -h database -p 5432; do echo 'Waiting for database...'; sleep 2; done; echo 'Database is up.'"]
