@@ -6,6 +6,7 @@ import { AppletsCard, Service } from '@/types/type';
 import ServiceCard from '@/components/molecules/service-card/service-card'
 import AppletCard from '@/components/molecules/applets-card/applets-card';
 import axios from 'axios';
+import { getApiBaseUrl } from '@/utils/apiConfig';
 
 type ServiceWithType = Service & { itemType: 'service' };
 type AppletWithType = AppletsCard & { itemType: 'applet' };
@@ -19,7 +20,15 @@ export default function ExploreScreen() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  const [apiUrl, setApiUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadApiUrl = async () => {
+      const url = await getApiBaseUrl();
+      setApiUrl(url);
+    };
+    loadApiUrl();
+  }, []);
 
   useEffect(() => {
     const getServices = async () => {
@@ -28,6 +37,7 @@ export default function ExploreScreen() {
         const response = await axios.get(URL);
         console.log('Réponse API services:', response.data); // Ajout du log
         setServices(response.data);
+        setError(null);
       } catch (err) {
         setError("Erreur lors du chargement des services");
       } finally {

@@ -6,8 +6,7 @@ export async function getApiBaseUrl(): Promise<string> {
     if (stored) {
       const { ip } = JSON.parse(stored);
       if (ip) {
-          console.log("ip = ", ip);
-          return `http://${ip}:8080`;
+        return `http://${ip}:8080`;
       }
     }
   } catch (err) {
