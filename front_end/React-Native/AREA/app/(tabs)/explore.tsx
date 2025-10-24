@@ -32,6 +32,8 @@ export default function ExploreScreen() {
 
   useEffect(() => {
     const getServices = async () => {
+      if (!apiUrl) return;
+
       try {
         const URL = `${apiUrl}/services`;
         const response = await axios.get(URL);
