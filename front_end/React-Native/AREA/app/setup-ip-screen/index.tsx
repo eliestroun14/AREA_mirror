@@ -26,6 +26,43 @@ export default function SetupIpScreen() {
     router.push('/(tabs)/profile');
   };
 
+  const handleUseOldIP = async () => {
+    try {
+      const stored = await AsyncStorage.getItem('backend_ip');
+
+      if (!stored) {
+        Alert.alert('No saved IP', 'No previous IP found. Please enter one manually.');
+        return;
+      }
+      const { ip } = JSON.parse(stored);
+
+      if (!ip) {
+        Alert.alert('Invalid IP', 'The saved IP is invalid. Please enter a new one.');
+        return;
+      }
+
+      Alert.alert(
+        'Use existing IP?',
+        `Do you want to continue with:\n\n${ip}`,
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Yes, continue',
+            onPress: () => {
+              router.push('/(tabs)/profile');
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error('Error retrieving IP:', error);
+      Alert.alert('Error', 'An error occurred while loading saved IP.');
+    }
+  };
+
   return (
     <>
       <Stack.Screen
@@ -50,10 +87,16 @@ export default function SetupIpScreen() {
           onChangeText={setIp}
           style={styles.textBox}
         />
-        <TouchableOpacity style={styles.connectButton}
-          onPress={handleValidate}>
-          <Text style={styles.connectButtonText}>Confirm</Text>
-        </TouchableOpacity>
+        <View style={styles.buttons}>
+          <TouchableOpacity style={styles.connectButton}
+            onPress={handleValidate}>
+            <Text style={styles.connectButtonText}>Confirm</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.connectButton}
+            onPress={handleUseOldIP}>
+            <Text style={styles.connectButtonText}>Use old IP</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </>
   );
@@ -84,7 +127,14 @@ const styles = StyleSheet.create({
     fontSize: 20
   },
 
+  buttons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+
   connectButton: {
+    flex: 1,
     height: 80,
     backgroundColor: "#000",
     borderRadius: 100,
