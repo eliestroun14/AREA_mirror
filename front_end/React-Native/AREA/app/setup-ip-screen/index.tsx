@@ -1,14 +1,16 @@
 // app/setup/index.tsx
 import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
+import { useApi } from '@/context/ApiContext';
 
 export default function SetupIpScreen() {
   const [ip, setIp] = useState('');
   const router = useRouter();
+  const { reloadApiUrl } = useApi();
 
   const handleValidate = async () => {
     if (!ip.trim()) {
@@ -22,7 +24,7 @@ export default function SetupIpScreen() {
     };
 
     await AsyncStorage.setItem('backend_ip', JSON.stringify(payload));
-
+    await reloadApiUrl();
     router.push('/(tabs)/profile');
   };
 
@@ -51,7 +53,8 @@ export default function SetupIpScreen() {
           },
           {
             text: 'Yes, continue',
-            onPress: () => {
+            onPress: async () => {
+              await reloadApiUrl();
               router.push('/(tabs)/profile');
             },
           },
