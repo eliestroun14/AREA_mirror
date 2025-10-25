@@ -10,8 +10,9 @@ import * as WebBrowser from 'expo-web-browser';
 import { useRouter, useNavigation } from "expo-router";
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from "react";
+import { useApi } from "@/context/ApiContext";
 
-const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+// const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 
 type Props = {}
@@ -24,7 +25,11 @@ const ConnectService = (props: Props) => {
   const [loading, setLoading] = useState(true);
   const { sessionToken } = useAuth();
   const redirectUri = makeRedirectUri();
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+
+  const { apiUrl } = useApi();
+  
+
   const [request, response, promptAsync] = useAuthRequest(
     {
       responseType: ResponseType.Code,

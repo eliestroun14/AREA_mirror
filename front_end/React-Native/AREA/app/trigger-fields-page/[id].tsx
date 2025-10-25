@@ -7,7 +7,7 @@ import { imageMap } from "@/types/image";
 import TriggerFieldCard from "@/components/molecules/trigger-field-card/trigger-field-card";
 import { TriggerField } from "@/types/type";
 import { router } from "expo-router";
-import axios from "axios";
+import { useApi } from "@/context/ApiContext";
 
 type Props = {}
 
@@ -23,7 +23,9 @@ const TriggerFieldsPage = (props: Props) => {
   const [service, setService] = useState<Service | null>(null);
   const [trigger, setTrigger] = useState<Trigger | null>(null);
   const [loading, setLoading] = useState(true);
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+
+  const { apiUrl } = useApi();
 
   useEffect(() => {
     const fetchServiceAndTrigger = async () => {
