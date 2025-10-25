@@ -24,7 +24,7 @@ export default function ActivityScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const apiUrl = useApi();
+  const { apiUrl } = useApi();
 
   const fetchActivities = useCallback(async () => {
     if (!isAuthenticated || !sessionToken || !apiUrl) return;

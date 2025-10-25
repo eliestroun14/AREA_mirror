@@ -10,7 +10,7 @@ export default function MyAppletsScreen() {
   const { user, isAuthenticated, sessionToken } = useAuth();
   const [zaps, setZaps] = useState<Zap[]>([]);
   const [loading, setLoading] = useState(true);
-  const apiUrl = useApi();
+  const { apiUrl } = useApi();
 
   const fetchZaps = useCallback(async ()=> {
     if (!isAuthenticated || !sessionToken || !apiUrl) return;
