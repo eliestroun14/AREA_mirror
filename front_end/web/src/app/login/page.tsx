@@ -49,19 +49,19 @@ export default function LoginPage() {
       console.log('Response headers:', Object.fromEntries(res.headers.entries()));
       
       if (!res.ok) {
-        console.error('Response not ok, analyzing error...');
+        console.log('Response not ok, analyzing error...', { status: res.status, statusText: res.statusText });
         
         // Gestion détaillée des erreurs par code de statut
         let errorMessage = 'Une erreur est survenue';
         
         try {
           const errorData = await res.text();
-          console.error('Error response body:', errorData);
+          console.log('Error response body:', errorData);
           
           let parsedError;
           try {
             parsedError = JSON.parse(errorData);
-            console.error('Parsed error:', parsedError);
+            console.log('Parsed error:', parsedError);
           } catch {
             parsedError = { message: errorData };
           }
@@ -92,11 +92,11 @@ export default function LoginPage() {
           }
           
         } catch (textError) {
-          console.error('Could not read error response:', textError);
+          console.log('Could not read error response:', textError);
           errorMessage = `Erreur serveur (${res.status}) - Impossible de lire la réponse`;
         }
         
-        console.error('Final error message:', errorMessage);
+        console.log('Final error message:', errorMessage);
         alert(errorMessage);
         return;
       }
@@ -110,7 +110,7 @@ export default function LoginPage() {
         alert('Connexion réussie !');
         router.push('/explore');
       } else {
-        console.error('No session_token in response:', data);
+        console.log('No session_token in response:', data);
         alert('Erreur de connexion: Token non reçu du serveur');
       }
       
@@ -136,7 +136,7 @@ export default function LoginPage() {
         userMessage = 'Problème de configuration serveur (CORS). Contactez l&apos;administrateur.';
       }
       
-      console.error('User will see:', userMessage);
+      console.log('User will see:', userMessage);
       alert(userMessage);
     }
   }
