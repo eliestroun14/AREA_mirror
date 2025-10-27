@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy, StrategyOptions } from 'passport-microsoft';
 import { TeamsProvider } from '@app/oauth2/services/teams/teams.dto';
@@ -8,28 +8,32 @@ import { services } from '@root/prisma/services-data/services.data';
 
 @Injectable()
 export class TeamsStrategy extends PassportStrategy(Strategy, 'teams') {
+  private readonly logger = new Logger(TeamsStrategy.name);
+  
+  // Utilisons des scopes très basiques pour commencer
   private static SCOPES: string[] = [
     'openid',
     'profile', 
     'email',
-    'offline_access',
-    'https://graph.microsoft.com/Team.ReadBasic.All',
-    'https://graph.microsoft.com/Channel.ReadBasic.All',
-    'https://graph.microsoft.com/ChannelMessage.Read.All',
-    'https://graph.microsoft.com/ChannelMessage.Send',
-    'https://graph.microsoft.com/TeamMember.Read.All',
   ];
 
   constructor() {
+    const callbackURL = callbackOf(services.teams.slug);
+    
     const options: StrategyOptions = {
       clientID: envConstants.teams_client_id,
       clientSecret: envConstants.teams_client_secret,
-      callbackURL: callbackOf(services.teams.slug),
+      callbackURL: callbackURL,
       scope: TeamsStrategy.SCOPES,
-      tenant: 'common', // Permet l'authentification multi-tenant
+      tenant: 'common',
+      // Suppression du resource pour éviter les conflits
     };
 
     super(options);
+    
+    this.logger.log(`Callback URL: ${callbackURL}`);
+    this.logger.log(`Client ID: ${envConstants.teams_client_id}`);
+    this.logger.log(`Scopes: ${TeamsStrategy.SCOPES.join(', ')}`);
   }
 
   validate(
@@ -37,6 +41,8 @@ export class TeamsStrategy extends PassportStrategy(Strategy, 'teams') {
     refreshToken: string,
     profile: Profile,
   ): TeamsProvider {
+    this.logger.log(`Profile received: ${JSON.stringify(profile, null, 2)}`);
+    
     return {
       connection_name: services.teams.name,
       account_identifier: profile.id,
