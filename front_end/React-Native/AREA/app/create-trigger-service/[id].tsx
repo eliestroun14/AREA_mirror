@@ -8,6 +8,7 @@ import TriggerCard from "@/components/molecules/trigger-card/trigger-card";
 import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "expo-router";
+import { useApi } from "@/context/ApiContext";
 
 const CreateTriggerService = () => {
   console.log('(CREATE TRIGGER SERVICE)');
@@ -17,8 +18,10 @@ const CreateTriggerService = () => {
   const [loading, setLoading] = useState(true);
   const [triggers, setTriggers] = useState<Trigger[]>([]);
   const [connection, setConnection] = useState<any>(null);
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
   const router = useRouter();
+
+  const { apiUrl } = useApi();
 
   useEffect(() => {
     const getServiceDetails = async () => {

@@ -6,6 +6,7 @@ import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
 import TriggerCard from "@/components/molecules/trigger-card/trigger-card";
 import axios from "axios";
+import { useApi } from "@/context/ApiContext";
 
 const ServiceCreateDetails = () => {
   console.log('(SERVICE CREATE DETAILS)');
@@ -14,7 +15,9 @@ const ServiceCreateDetails = () => {
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const [triggers, setTriggers] = useState<Trigger[]>([]);
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+
+  const { apiUrl } = useApi();
 
   useEffect(() => {
     const fetchServiceAndTriggers = async () => {

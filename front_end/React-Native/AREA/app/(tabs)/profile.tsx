@@ -4,12 +4,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 import areaLogo from '../../assets/images/AreaLogo.png';
+import { useApi } from '@/context/ApiContext';
 
 export default function LoginScreen() {
   console.log('(PROFILE)');
   const { isAuthenticated, user, sessionToken, login, logout } = useAuth();
   console.log('Auth state on mount:', { isAuthenticated, user });
   const [error, setError] = useState("");
+
+  const { apiUrl } = useApi();
 
   useEffect(() => {
     console.log('Auth state changed:', { isAuthenticated, user, sessionToken });
@@ -26,7 +29,7 @@ export default function LoginScreen() {
     if (!isAuthenticated || !sessionToken) return;
     const fetchConnections = async () => {
       try {
-        const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+        // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
         const res = await fetch(`${apiUrl}/users/me/connections`, {
           method: 'GET',
           headers: {
@@ -77,7 +80,7 @@ export default function LoginScreen() {
   const handleSignIn = async () => {
     setError("");
     console.log('Attempting sign in with:', form);
-    const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+    // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
     try {
       const res = await fetch(`${apiUrl}/auth/sign-in`, {
         method: "POST",
@@ -139,7 +142,7 @@ export default function LoginScreen() {
       const fetchUserAndConnections = async () => {
         if (!isAuthenticated || !sessionToken) return;
         try {
-          const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+          // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
           // Fetch user info
           const resUser = await fetch(`${apiUrl}/users/me`, {
             method: 'GET',
@@ -274,7 +277,7 @@ export default function LoginScreen() {
       if (!editField || !editValue.trim() || !user) return;
       setIsLoading(true);
       try {
-        const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+        // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
         const body = editField === 'email' ? { email: editValue, name: user.name } : { email: user.email, name: editValue };
         const res = await fetch(`${apiUrl}/users/me`, {
           method: 'PUT',
@@ -305,7 +308,7 @@ export default function LoginScreen() {
       if (!user) return;
       setIsLoading(true);
       try {
-        const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+        // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
         const res = await fetch(`${apiUrl}/users/me`, {
           method: 'DELETE',
           headers: {

@@ -7,6 +7,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { BackHandler } from 'react-native';
 import { Service } from '@/types/type';
 import LittleActionServiceCard from '@/components/molecules/little-action-service-card/little-action-service-card';
+import { useApi } from '@/context/ApiContext';
 
 export default function SelectActionService() {
 
@@ -18,8 +19,10 @@ export default function SelectActionService() {
   const [search, setSearch] = useState("");
 
   const [services, setServices] = useState<Service[]>([]);
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
   const router = useRouter();
+
+  const { apiUrl } = useApi();
 
   useEffect(() => {
     const fetchServices = async () => {
