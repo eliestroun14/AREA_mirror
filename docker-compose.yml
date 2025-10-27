@@ -45,6 +45,9 @@ services:
         - action: sync
           target: /app/src
           path: ./back_end/src
+        - action: sync
+          target: /app/prisma/seeders
+          path: ./back_end/prisma/seeders
         - action: rebuild
           path: ./back_end/package.json
         - action: rebuild
