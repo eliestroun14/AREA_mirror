@@ -56,6 +56,7 @@ export default function TriggerFieldsPage() {
       const allowedOrigins = [
         'http://localhost:3001',
         'http://localhost:8081',
+        'https://manech.va.sauver.le.monde.area.projects.epitech.bzh',
         window.location.origin
       ];
 

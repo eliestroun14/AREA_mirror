@@ -126,8 +126,8 @@ export default function ActionConfigPage() {
       console.log('📍 Message origin:', event.origin);
 
       const allowedOrigins = [
-        'http://localhost:3001',
-        'http://localhost:8081',
+        'https://manech.va.sauver.le.monde.area.projects.epitech.bzh:3001',
+        'https://manech.va.sauver.le.monde.area.projects.epitech.bzh/:8081',
         window.location.origin
       ];
 

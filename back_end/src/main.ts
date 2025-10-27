@@ -21,6 +21,7 @@ async function main() {
       'http://localhost:3001',
       'http://localhost:3002',
       'http://localhost',
+      'https://manech.va.sauver.le.monde.area.projects.epitech.bzh',
     ],
     credentials: true,
     exposedHeaders: ['Content-Disposition'],
