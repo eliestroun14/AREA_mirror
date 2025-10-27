@@ -29,23 +29,3 @@ export default class DiscordAction_SendMessage extends ActionRunnerJob<DiscordAc
     };
   }
 }
-
-// function main() {
-//   const action = new DiscordAction_SendMessage();
-//
-//   action
-//     .run('', {
-//       message: 'Hello test.',
-//       webhook_url:
-//         'https://discord.com/api/webhooks/1422301381682794698/fgO-nDvMdY4C5CSorqeEZ8yHXXYYYPKqiQyvJn-l-EqbzI1MHL9BvsjOYusFJZKbbPdN',
-//     })
-//     .then((res) => {
-//       if (res.has_run) {
-//         console.log('Response has run successfully.');
-//         console.log(res.data);
-//       } else {
-//         console.log('Response failed to run.');
-//       }
-//     })
-//     .catch((err) => {});
-// }
