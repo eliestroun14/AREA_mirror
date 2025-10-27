@@ -23,6 +23,7 @@ export const servicesData: Service[] = [
         trigger_type: 'POLLING',
         name: 'Every minutes',
         description: 'Execute actions every minutes',
+        require_connection: false,
         polling_interval: 1000,
         fields: {
           seconds: {
@@ -71,6 +72,7 @@ export const servicesData: Service[] = [
         class_name: 'DiscordAction_SendMessage',
         name: 'Send message',
         description: 'Send a message to Discord using a webhook.',
+        require_connection: false,
         fields: {
           message: {
             key: 'message',
