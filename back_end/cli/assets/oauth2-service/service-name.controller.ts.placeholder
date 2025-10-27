@@ -5,7 +5,7 @@ import { AREA_OAuth2Controller } from '@app/oauth2/services/service.controller';
 
 @Injectable()
 export class <ServiceName>OAuth2Controller extends AREA_OAuth2Controller(
-  '<service-name>',
+  services.<serviceName>.slug,
   <ServiceName>OAuthGuard,
 ) {
   constructor(connectionService: ConnectionsService) {
