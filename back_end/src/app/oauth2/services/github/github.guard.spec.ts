@@ -3,12 +3,18 @@ import { ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
 import { GithubProvider } from './github.dto';
 import { JwtPayload } from '@app/auth/jwt/jwt.dto';
+import { CryptoService } from '../../crypto/crypto.service';
 
 describe('GithubOAuthGuard', () => {
   let guard: GithubOAuthGuard;
+  let mockCryptoService: CryptoService;
 
   beforeEach(() => {
-    guard = new GithubOAuthGuard();
+    mockCryptoService = {
+      encryptJWT: jest.fn(() => 'encrypted_token'),
+      decryptJWT: jest.fn(() => ({ jwt: 'real_jwt_token', platform: 'web' })),
+    } as unknown as CryptoService;
+    guard = new GithubOAuthGuard(mockCryptoService);
   });
 
   it('should be defined', () => {

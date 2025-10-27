@@ -16,9 +16,7 @@ import { formateDate } from '@config/utils';
 
 @Injectable()
 export class ZapsService {
-  constructor(
-    private prisma: PrismaService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async getAllZaps(): Promise<GetAllZapsResponse> {
     const zaps = await this.prisma.zaps.findMany();

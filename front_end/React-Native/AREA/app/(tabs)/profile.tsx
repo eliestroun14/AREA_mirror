@@ -1,36 +1,66 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 import areaLogo from '../../assets/images/AreaLogo.png';
+import { useApi } from '@/context/ApiContext';
 
 export default function LoginScreen() {
   console.log('(PROFILE)');
-
-  const { isAuthenticated, user, login, logout } = useAuth();
+  const { isAuthenticated, user, sessionToken, login, logout } = useAuth();
   console.log('Auth state on mount:', { isAuthenticated, user });
   const [error, setError] = useState("");
 
+  const { apiUrl } = useApi();
+
   useEffect(() => {
-    console.log('Auth state changed:', { isAuthenticated, user });
-  }, [isAuthenticated, user]);
+    console.log('Auth state changed:', { isAuthenticated, user, sessionToken });
+  }, [isAuthenticated, user, sessionToken]);
 
   const [form, setForm] = useState({
     email: '',
     password: '',
   });
 
-  const validate = (text:string) => {
-      console.log(text);
-  const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
-      if (reg.test(text) === false) {
-        console.log("Email is Not Correct");
-        return false;
+
+  useEffect(() => {
+    // Récupère les connexions liées si authentifié et sessionToken est disponible
+    if (!isAuthenticated || !sessionToken) return;
+    const fetchConnections = async () => {
+      try {
+        // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+        const res = await fetch(`${apiUrl}/users/me/connections`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': sessionToken ?? '',
+          },
+          credentials: 'include',
+        });
+        if (res.status === 200) {
+          const result = await res.json();
+          setConnections(result.connections || []);
+        } else {
+          setConnections([]);
+        }
+      } catch (err) {
+        setConnections([]);
       }
-      else {
-        console.log("Email is Correct");
-        return true
+    };
+    fetchConnections();
+  }, [isAuthenticated, sessionToken]);
+
+  const validate = (text: string) => {
+    console.log(text);
+    const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+    if (reg.test(text) === false) {
+      console.log("Email is Not Correct");
+      return false;
+    }
+    else {
+      console.log("Email is Correct");
+      return true
     }
   }
 
@@ -50,7 +80,7 @@ export default function LoginScreen() {
   const handleSignIn = async () => {
     setError("");
     console.log('Attempting sign in with:', form);
-    const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+    // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
     try {
       const res = await fetch(`${apiUrl}/auth/sign-in`, {
         method: "POST",
@@ -72,11 +102,8 @@ export default function LoginScreen() {
           credentials: "include",
         });
         const resultUser = await resUser.json();
-        console.log("User info :", resultUser); 
-        login({
-          name: resultUser.name || resultUser.user?.name,
-          email: resultUser.email || resultUser.user?.email,
-        }, result.session_token);
+        console.log("User info :", resultUser);
+        login({ name: resultUser.name || resultUser.user?.name, email: resultUser.email || resultUser.user?.email }, result.session_token);
         console.log('Called login with:', {
           name: resultUser.name || resultUser.user?.name,
           email: resultUser.email || resultUser.user?.email,
@@ -93,6 +120,65 @@ export default function LoginScreen() {
       setError("Failed to login. Please check your credentials.");
     }
   };
+  const [editField, setEditField] = useState<'email' | 'name' | null>(null);
+  const [editValue, setEditValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  type Connection = {
+    id: number;
+    service_id: number;
+    service_name: string;
+    service_color?: string;
+    icon_url?: string;
+    connection_name: string;
+    account_identifier: string;
+    is_active?: boolean;
+    created_at?: string;
+    last_used_at?: string | null;
+  };
+  const [connections, setConnections] = useState<Connection[]>([]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchUserAndConnections = async () => {
+        if (!isAuthenticated || !sessionToken) return;
+        try {
+          // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+          // Fetch user info
+          const resUser = await fetch(`${apiUrl}/users/me`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': sessionToken ?? '',
+            },
+            credentials: 'include',
+          });
+          if (resUser.status === 200) {
+            const resultUser = await resUser.json();
+            login({ name: resultUser.name || resultUser.user?.name, email: resultUser.email || resultUser.user?.email }, sessionToken);
+          }
+          // Fetch connections
+          const resConn = await fetch(`${apiUrl}/users/me/connections`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': sessionToken ?? '',
+            },
+            credentials: 'include',
+          });
+          if (resConn.status === 200) {
+            const resultConn = await resConn.json();
+            setConnections(resultConn.connections || []);
+          } else {
+            setConnections([]);
+          }
+        } catch (err) {
+          setConnections([]);
+        }
+      };
+      fetchUserAndConnections();
+    }, [isAuthenticated, sessionToken])
+  );
+
   if (isAuthenticated === false) {
     console.log('Rendering login screen. Authenticated:', isAuthenticated, 'User:', user);
     return (
@@ -124,7 +210,7 @@ export default function LoginScreen() {
               </View>
 
               {/* Extra padding for keyboard */}
-              <View style={[styles.form, { paddingBottom: 60 }]}> 
+              <View style={[styles.form, { paddingBottom: 60 }]}>
                 <View style={styles.input}>
                   <Text style={styles.inputLabel}>
                     Email address :
@@ -169,14 +255,14 @@ export default function LoginScreen() {
                 </View>
 
                 <TouchableOpacity
-                  style={{ marginTop: 'auto'}}
+                  style={{ marginTop: 'auto' }}
                   onPress={() => {
                     router.push("/sign-up")
                   }}>
-                    <Text style={styles.formFooter}>
-                      Don&apos;t have an account ?{' '}
-                      <Text style={{ textDecorationLine: 'underline'}}>Sign up</Text>
-                    </Text>
+                  <Text style={styles.formFooter}>
+                    Don&apos;t have an account ?{' '}
+                    <Text style={{ textDecorationLine: 'underline' }}>Sign up</Text>
+                  </Text>
                 </TouchableOpacity>
 
               </View>
@@ -186,41 +272,189 @@ export default function LoginScreen() {
       </SafeAreaView>
     );
   } else {
-    console.log('Rendering profile screen. Authenticated:', isAuthenticated, 'User:', user);
+    // Fonction pour modifier email ou nom
+    const handleEditProfile = async () => {
+      if (!editField || !editValue.trim() || !user) return;
+      setIsLoading(true);
+      try {
+        // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+        const body = editField === 'email' ? { email: editValue, name: user.name } : { email: user.email, name: editValue };
+        const res = await fetch(`${apiUrl}/users/me`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': sessionToken,
+          },
+          body: JSON.stringify(body),
+          credentials: 'include',
+        });
+        const result = await res.json();
+        if (res.status === 200) {
+          login({ name: result.name, email: result.email }, sessionToken ?? '');
+          Alert.alert('Profile updated!');
+          setEditField(null);
+          setEditValue('');
+        } else {
+          Alert.alert('Error', result.message || 'Unable to update profile.');
+        }
+      } catch (err) {
+        Alert.alert('Error', 'Unable to update profile.');
+      }
+      setIsLoading(false);
+    };
+
+    // Fonction pour supprimer le compte
+    const handleDeleteAccount = async () => {
+      if (!user) return;
+      setIsLoading(true);
+      try {
+        // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+        const res = await fetch(`${apiUrl}/users/me`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': sessionToken,
+          },
+          credentials: 'include',
+        });
+        if (res.status === 204) {
+          Alert.alert('Account deleted', 'Your account has been deleted.');
+          logout();
+        } else {
+          const result = await res.json();
+          Alert.alert('Error', result.message || 'Unable to delete account.');
+        }
+      } catch (err) {
+        Alert.alert('Error', 'Unable to delete account.');
+      }
+      setIsLoading(false);
+    };
+
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <Image
-              source={areaLogo}
-              style={styles.profileImg}
-              alt="Area Logo"
-            />
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.container}>
+            <View style={styles.header}>
+              <Image
+                source={areaLogo}
+                style={styles.profileImg}
+                alt="Area Logo"
+              />
+              <Text style={styles.title}>
+                {user?.name || "Profile name"}
+              </Text>
+              <Text style={styles.subtitle}>
+                Welcome {user?.name} :)
+              </Text>
+            </View>
 
-            <Text style={styles.title}>
-              {user?.name || "Profile name"}
-            </Text>
+            {/* Formulaire de modification */}
+            <View style={[styles.form, { marginBottom: 32 }]}>
+              {editField ? (
+                <View style={styles.input}>
+                  <Text style={styles.inputLabel}>
+                    Edit {editField === 'email' ? 'email' : 'name'}:
+                  </Text>
+                  <TextInput
+                    style={styles.inputControl}
+                    value={editValue}
+                    onChangeText={setEditValue}
+                    autoCapitalize={editField === 'email' ? 'none' : 'words'}
+                    keyboardType={editField === 'email' ? 'email-address' : 'default'}
+                    placeholder={editField === 'email' ? (user?.email || '') : (user?.name || '')}
+                  />
+                  <View style={{ flexDirection: 'row', marginTop: 10 }}>
+                    <TouchableOpacity
+                      style={[styles.button, { marginRight: 10 }]}
+                      onPress={handleEditProfile}
+                      disabled={isLoading}
+                    >
+                      <Text style={styles.buttonText}>Confirm</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.disconnectButton}
+                      onPress={() => { setEditField(null); setEditValue(''); }}
+                      disabled={isLoading}
+                    >
+                      <Text style={styles.buttonText}>Cancel</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ) : (
+                <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 20 }}>
+                  <TouchableOpacity
+                    style={[styles.button, { marginRight: 10 }]}
+                    onPress={() => setEditField('email')}
+                  >
+                    <Text style={styles.buttonText}>Edit email</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => setEditField('name')}
+                  >
+                    <Text style={styles.buttonText}>Edit name</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
 
-            <Text style={styles.subtitle}>
-              Welcome {user?.name} :)
-            </Text>
-          </View>
+            {/* Connexions liées */}
+            <View style={{ marginBottom: 32 }}>
+              <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' }}>Linked Accounts</Text>
+              {connections.length === 0 ? (
+                <Text style={{ textAlign: 'center', color: '#929292' }}>No linked accounts found.</Text>
+              ) : (
+                connections.map((conn, idx) => (
+                  <View key={conn.id || idx} style={{ backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 10, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 2 }}>
+                    <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{conn.service_name || 'Service'}</Text>
+                    <Text style={{ color: '#222' }}>Account: {conn.account_identifier}</Text>
+                    <Text style={{ color: '#929292' }}>Connection name: {conn.connection_name}</Text>
+                  </View>
+                ))
+              )}
+            </View>
 
-          <View style={styles.formAction}>
+            {/* Bouton suppression de compte */}
+            <View style={[styles.formAction, { marginBottom: 24 }]}>
+              <TouchableOpacity
+                onPress={() => {
+                  Alert.alert(
+                    'Confirmation',
+                    'Are you sure you want to delete your account? This action is irreversible.',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      { text: 'Delete', style: 'destructive', onPress: handleDeleteAccount },
+                    ]
+                  );
+                }}
+                disabled={isLoading}
+              >
+                <View style={styles.disconnectButton}>
+                  <Text style={styles.buttonText}>Delete my account</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            {/* Bouton déconnexion */}
+            <View style={styles.formAction}>
               <TouchableOpacity
                 onPress={() => {
                   console.log('Signing out...');
                   logout();
                   form.password = '';
                   console.log('After logout. Authenticated:', isAuthenticated, 'User:', user);
-                }}>
+                }}
+              >
                 <View style={styles.disconnectButton}>
-                  <Text style={styles.buttonText}> Sign out </Text>
+                  <Text style={styles.buttonText}>Sign out</Text>
                 </View>
               </TouchableOpacity>
             </View>
-
-        </View>
+          </View>
+        </ScrollView>
       </SafeAreaView>
     );
   }

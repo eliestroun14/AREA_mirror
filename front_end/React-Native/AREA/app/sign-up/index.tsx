@@ -3,6 +3,7 @@ import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, Keyb
 import { SafeAreaView } from 'react-native-safe-area-context';
 import areaLogo from '../../assets/images/AreaLogo.png';
 import { Stack, router } from 'expo-router';
+import { useApi } from '@/context/ApiContext';
 
 
 export default function SignUpScreen() {
@@ -27,6 +28,8 @@ export default function SignUpScreen() {
   }
 }
 
+const { apiUrl } = useApi();
+
   const checkTextInputs = async () => {
     if (!form.name.trim()) {
       Alert.alert('Please enter name.');
@@ -45,7 +48,7 @@ export default function SignUpScreen() {
       return;
     }
 
-    const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+    // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
     try {
       const response = await fetch(`${apiUrl}/auth/sign-up`, {

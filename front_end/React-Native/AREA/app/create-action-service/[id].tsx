@@ -8,6 +8,7 @@ import ActionCard from "@/components/molecules/action-card/action-card";
 import { useAuth } from "@/context/AuthContext";
 import axios from "axios";
 import { useRouter } from "expo-router";
+import { useApi } from "@/context/ApiContext";
 
 
 const styles = StyleSheet.create({
@@ -62,8 +63,11 @@ const CreateActionService = ({allTriggers}: Props) => {
   const [loading, setLoading] = useState(true);
   const [actions, setActions] = useState<Action[]>([]);
   const [connection, setConnection] = useState<any>(null);
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
   const router = useRouter();
+
+  const { apiUrl } = useApi();
+
 
   useEffect(() => {
     const fetchServiceAndActions = async () => {

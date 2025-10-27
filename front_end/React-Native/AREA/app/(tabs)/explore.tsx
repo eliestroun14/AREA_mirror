@@ -6,6 +6,8 @@ import { AppletsCard, Service } from '@/types/type';
 import ServiceCard from '@/components/molecules/service-card/service-card'
 import AppletCard from '@/components/molecules/applets-card/applets-card';
 import axios from 'axios';
+import { getApiBaseUrl } from '@/utils/apiConfig';
+import { useApi } from '@/context/ApiContext';
 
 type ServiceWithType = Service & { itemType: 'service' };
 type AppletWithType = AppletsCard & { itemType: 'applet' };
@@ -19,15 +21,18 @@ export default function ExploreScreen() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  const { apiUrl } = useApi();
 
   useEffect(() => {
     const getServices = async () => {
+      if (!apiUrl) return;
+
       try {
         const URL = `${apiUrl}/services`;
         const response = await axios.get(URL);
         console.log('Réponse API services:', response.data); // Ajout du log
         setServices(response.data);
+        setError(null);
       } catch (err) {
         setError("Erreur lors du chargement des services");
       } finally {
@@ -73,7 +78,7 @@ export default function ExploreScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#e8ecf4" }}>
       {isLoading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color="#00A35F" />

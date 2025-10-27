@@ -38,6 +38,10 @@ export default function ActionsPage() {
     service.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+  const getServiceColor = (service: ServiceDTO) => {
+    return service.services_color || '#4A4A4A'
+  }
+
   useEffect(() => {
     const fetchServices = async () => {
       try {
@@ -168,12 +172,14 @@ export default function ActionsPage() {
                 }
               }
             }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }
             }}
           />
         </Box>
@@ -185,98 +191,110 @@ export default function ActionsPage() {
             gridTemplateColumns: { 
               xs: 'repeat(2, 1fr)', 
               sm: 'repeat(3, 1fr)', 
-              md: 'repeat(4, 1fr)',
-              lg: 'repeat(5, 1fr)'
+              md: `repeat(${Math.min(filteredServices.length, 5)}, 1fr)` 
             },
-            gap: 3,
-            maxWidth: 1200,
-            mx: 'auto'
+            gap: 0,
+            maxWidth: filteredServices.length < 5 ? `${filteredServices.length * 200}px` : 1000,
+            mx: 'auto',
+            borderRadius: 2,
+            overflow: 'hidden',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
           }}
         >
-          {filteredServices.map((service) => (
-            <Card
-              key={service.id}
-              sx={{
-                borderRadius: 3,
-                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
-                bgcolor: service.services_color,
-                aspectRatio: '1',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)'
-                },
-                transition: 'all 0.3s ease'
-              }}
-            >
-              <CardActionArea
-                onClick={() => handleServiceClick(service.id)}
+          {filteredServices.map((service) => {
+            const serviceColor = getServiceColor(service)
+            const iconUrl = service.icon_url
+            
+            return (
+              <Card
+                key={service.id}
                 sx={{
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  p: 3
+                  borderRadius: 0,
+                  boxShadow: 'none',
+                  border: 'none',
+                  bgcolor: serviceColor,
+                  aspectRatio: '1',
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                    zIndex: 1,
+                    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.2)',
+                    borderRadius: 2
+                  },
+                  transition: 'all 0.3s ease'
                 }}
               >
-                <CardContent sx={{ textAlign: 'center', p: 0 }}>
-                  {/* Service Icon */}
-                  <Box
-                    sx={{
-                      width: 64,
-                      height: 64,
-                      bgcolor: 'white',
-                      borderRadius: 2,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      mb: 2,
-                      mx: 'auto',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    {service.icon_url ? (
-                      <Box
-                        component="img"
-                        src={service.icon_url}
-                        alt={service.name}
-                        sx={{
-                          width: 48,
-                          height: 48,
-                          objectFit: 'contain'
-                        }}
-                      />
-                    ) : (
-                      <Typography 
-                        variant="h4" 
-                        sx={{ 
-                          color: service.services_color,
-                          fontWeight: 700 
-                        }}
-                      >
-                        {service.name.charAt(0)}
-                      </Typography>
-                    )}
-                  </Box>
-                  
-                  {/* Service Name */}
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      color: 'white',
-                      fontWeight: 600,
-                      fontSize: '1rem',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    {service.name}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          ))}
+                <CardActionArea
+                  onClick={() => handleServiceClick(service.id)}
+                  sx={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    p: 3
+                  }}
+                >
+                  <CardContent sx={{ textAlign: 'center', p: 0 }}>
+                    {/* Service Icon */}
+                    <Box
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        bgcolor: 'white',
+                        borderRadius: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mb: 2,
+                        mx: 'auto',
+                        overflow: 'hidden'
+                      }}
+                    >
+                      {iconUrl ? (
+                        <Box
+                          component="img"
+                          src={iconUrl}
+                          alt={service.name}
+                          sx={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'contain',
+                            p: 1
+                          }}
+                          onError={(e) => {
+                            const target = e.target as HTMLElement
+                            target.style.display = 'none'
+                          }}
+                        />
+                      ) : (
+                        <Typography 
+                          variant="h5" 
+                          sx={{ 
+                            color: serviceColor,
+                            fontWeight: 700 
+                          }}
+                        >
+                          {service.name.charAt(0)}
+                        </Typography>
+                      )}
+                    </Box>
+                    
+                    {/* Service Name */}
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        color: 'white',
+                        fontWeight: 600,
+                        fontSize: '1rem'
+                      }}
+                    >
+                      {service.name}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            )
+          })}
         </Box>
 
         {filteredServices.length === 0 && (
@@ -285,7 +303,7 @@ export default function ActionsPage() {
               No services found
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Try adjusting your search
+              Try adjusting your search filter
             </Typography>
           </Box>
         )}

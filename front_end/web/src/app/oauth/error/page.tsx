@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Box, Typography, Button, Container, Paper } from '@mui/material';
 import ErrorIcon from '@mui/icons-material/Error';
 
@@ -11,6 +11,10 @@ export default function OAuthErrorPage() {
   const handleGoBack = () => {
     router.push('/explore');
   };
+
+  // Récupérer le message d'erreur depuis la query string
+  const searchParams = useSearchParams();
+  const errorDetail = searchParams.get('error');
 
   return (
     <Box
@@ -76,7 +80,14 @@ export default function OAuthErrorPage() {
             color="text.secondary"
             sx={{ mb: 4 }}
           >
-            There was an error connecting your account. Please try again later.
+            {`There was an error connecting your account. Please try again later.`}
+            {errorDetail && (
+              <Box mt={2}>
+                <Typography variant="body2" color="error.main">
+                  {`Details: ${errorDetail}`}
+                </Typography>
+              </Box>
+            )}
           </Typography>
 
           <Button

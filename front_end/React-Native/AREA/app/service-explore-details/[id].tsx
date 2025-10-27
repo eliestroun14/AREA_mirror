@@ -5,6 +5,7 @@ import { Service, Trigger, Action } from "@/types/type";
 import axios from 'axios';
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
+import { useApi } from "@/context/ApiContext";
 
 const ServiceExploreDetails = () => {
   const { id } = useLocalSearchParams();
@@ -13,7 +14,9 @@ const ServiceExploreDetails = () => {
   const [loading, setLoading] = useState(true);
   const [triggers, setTriggers] = useState<Trigger[]>([]);
   const [actions, setActions] = useState<Action[]>([]);
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+
+  const { apiUrl } = useApi();
 
   useEffect(() => {
     const fetchAll = async () => {

@@ -44,7 +44,7 @@ export default function HomeScreen() {
           </View>
 
           <Text style={styles.text}>
-            My Applets
+            Suggested Applets
           </Text>
 
           <Image style={styles.image}
@@ -52,7 +52,7 @@ export default function HomeScreen() {
           />
 
           <Text style={styles.text}>
-            No Applets for Moment
+            No Applets Suggested for the Moment
           </Text>
 
         </View>

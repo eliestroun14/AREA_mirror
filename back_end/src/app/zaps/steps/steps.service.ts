@@ -9,9 +9,6 @@ import { PrismaService } from '@root/prisma/prisma.service';
 import { ConnectionsService } from '@app/users/connections/connections.service';
 import { StepDTO } from '@app/zaps/steps/steps.dto';
 import { ServicesService } from '@app/services/services.service';
-import { TRIGGERS } from '@root/workflows/workflows.registers';
-import { WebhookTriggerJob } from '@root/workflows/workflows.dto';
-import { connect } from 'rxjs';
 
 @Injectable()
 export class StepsService {
