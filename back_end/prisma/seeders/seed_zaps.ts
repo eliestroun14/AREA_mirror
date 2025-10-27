@@ -7,7 +7,7 @@ async function main() {
   await prisma.zaps.createMany({
     data: [
       {
-        user_id: 1, // adapte l'id selon tes users
+        user_id: 3, // adapte l'id selon tes users
         name: 'Welcome Zap',
         description: 'Zap triggered on user signup',
         total_runs: 0,
@@ -15,7 +15,7 @@ async function main() {
         failed_runs: 0,
       },
       {
-        user_id: 2,
+        user_id: 3,
         name: 'Music Zap',
         description: 'Zap triggered on playlist creation',
         total_runs: 0,

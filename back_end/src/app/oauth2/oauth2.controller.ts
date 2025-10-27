@@ -23,6 +23,7 @@ import { services } from '@root/prisma/services-data/services.data';
 import { ConnectionsService } from '@app/users/connections/connections.service';
 import { DiscordOAuthGuard } from '@app/oauth2/services/discord/discord.guard';
 import { GithubOAuthGuard } from '@app/oauth2/services/github/github.guard';
+import { TeamsOAuthGuard } from '@app/oauth2/services/teams/teams.guard';
 import { envConstants } from '@config/env';
 import { CryptoService } from './crypto/crypto.service';
 
@@ -309,6 +310,95 @@ export class Oauth2Controller {
 
     await this.connectionService.createConnection(
       services.github.name,
+      req.user.userId,
+      req.provider,
+    );
+
+    const redirectUrl = this.getRedirectUrl(req);
+    return res.redirect(redirectUrl);
+  }
+
+  @Get(services.teams.slug)
+  @UseGuards(JwtOAuthGuard, TeamsOAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: "Initier l'authentification OAuth2 avec Microsoft Teams",
+    description:
+      "Redirige l'utilisateur vers la page d'authentification Microsoft pour connecter son compte Teams. Nécessite un token chiffré dans le query param 'token', obtenu via /oauth2/encrypt-token. La plateforme (web ou mobile) est incluse dans le token chiffré.",
+  })
+  @ApiQuery({
+    name: 'token',
+    description: 'Token chiffré obtenu via /oauth2/encrypt-token',
+    required: true,
+  })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirection vers Microsoft OAuth2',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Token chiffré manquant ou invalide',
+  })
+  async teamsAuth() {}
+
+  @Get(`${services.teams.slug}/callback`)
+  @UseGuards(TeamsOAuthGuard, JwtOAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Callback OAuth2 Microsoft Teams',
+    description:
+      "Endpoint de callback après authentification Microsoft. Enregistre la connexion Teams et redirige vers la page de succès. Le paramètre 'state' contient le token chiffré (JWT + plateforme).",
+  })
+  @ApiQuery({
+    name: 'code',
+    description: "Code d'autorisation OAuth2 retourné par Microsoft",
+    required: true,
+  })
+  @ApiQuery({
+    name: 'state',
+    description: 'Token chiffré (passé dans le state OAuth2)',
+    required: true,
+  })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirection vers la page de succès',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Non authentifié',
+  })
+  @ApiResponse({
+    status: 500,
+    description: "Erreur lors de l'enregistrement de la connexion",
+  })
+  async teamsAuthRedirect(
+    @Req() req: StrategyCallbackRequest,
+    @Res() res: express.Response,
+  ) {
+    const platform = this.getPlatformFromState(req);
+    if (!req.user) {
+      const errorMsg = 'Unauthorized';
+      if (platform === 'web') {
+        return res.redirect(
+          `/oauth/error?error=${encodeURIComponent(errorMsg)}`,
+        );
+      }
+      throw new UnauthenticatedException();
+    }
+
+    if (!req.provider) {
+      const errorMsg = `ProviderNotFound for user ${req.user?.userId ?? ''}`;
+      console.error(errorMsg);
+      if (platform === 'web') {
+        return res.redirect(
+          `/oauth/error?error=${encodeURIComponent(errorMsg)}`,
+        );
+      }
+      throw new InternalServerErrorException(errorMsg);
+    }
+
+    await this.connectionService.createConnection(
+      services.teams.name,
       req.user.userId,
       req.provider,
     );
