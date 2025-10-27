@@ -1,7 +1,10 @@
 import { zaps } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@root/prisma/prisma.service';
-import { RunnerCheckResult, RunnerExecutionStatus } from '@root/runner/runner.dto';
+import {
+  RunnerCheckResult,
+  RunnerExecutionStatus,
+} from '@root/runner/runner.dto';
 import { TriggersRunnerService } from '@root/runner/zaps/triggers/triggers.runner.service';
 import { ZapJobsData } from '@root/runner/zaps/zaps.runner.dto';
 import { ActionsRunnerService } from '@root/runner/zaps/actions/actions.runner.service';
@@ -18,9 +21,21 @@ export class ZapsRunnerService {
     return this.prisma.zaps.findMany();
   }
 
+  async saveComparisonData(
+    zapId: number,
+    comparisonData: object | null,
+  ): Promise<void> {
+    await this.prisma.zaps.update({
+      where: { id: zapId },
+      data: {
+        last_trigger_data: comparisonData ? comparisonData : undefined,
+      },
+    });
+  }
+
   async isTriggered(
     zap: zaps,
-  ): Promise<{ id: number; result: RunnerCheckResult }> {
+  ): Promise<{ id: number; result: RunnerCheckResult<object> }> {
     const triggerClass = await this.triggerService.getTriggerClassOf(zap);
 
     if (!triggerClass)
@@ -28,7 +43,8 @@ export class ZapsRunnerService {
         id: -1,
         result: {
           status: RunnerExecutionStatus.FAILURE,
-          data: [],
+          variables: [],
+          comparison_data: null,
           is_triggered: false,
         },
       };

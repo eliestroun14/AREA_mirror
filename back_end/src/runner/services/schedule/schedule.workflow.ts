@@ -6,12 +6,15 @@ import { TriggerBuilderParams } from '@root/runner/zaps/triggers/triggers.runner
 import { TriggerRunnerJob } from '@root/runner/zaps/triggers/triggers.runner.job';
 import { ScheduleTrigger_EveryMinutes_Payload } from '@root/runner/services/schedule/schedule.dto';
 
-export class ScheduleTrigger_EveryMinutes extends TriggerRunnerJob<ScheduleTrigger_EveryMinutes_Payload> {
+export class ScheduleTrigger_EveryMinutes extends TriggerRunnerJob<
+  ScheduleTrigger_EveryMinutes_Payload,
+  any
+> {
   constructor(params: TriggerBuilderParams) {
     super(params);
   }
 
-  protected async _check(): Promise<RunnerCheckResult> {
+  protected async _check(): Promise<RunnerCheckResult<any>> {
     const lastExecutionTimestamp = this.lastExecution?.getTime();
     const now = Date.now();
     const data = [{ key: 'Date', value: new Date(now).toISOString() }];
@@ -19,7 +22,8 @@ export class ScheduleTrigger_EveryMinutes extends TriggerRunnerJob<ScheduleTrigg
     if (!this.lastExecution)
       return {
         status: RunnerExecutionStatus.SUCCESS,
-        data,
+        variables: data,
+        comparison_data: {},
         is_triggered: true,
       };
 
@@ -29,12 +33,14 @@ export class ScheduleTrigger_EveryMinutes extends TriggerRunnerJob<ScheduleTrigg
     )
       return {
         status: RunnerExecutionStatus.SUCCESS,
-        data,
+        variables: data,
+        comparison_data: {},
         is_triggered: true,
       };
     return {
       status: RunnerExecutionStatus.SUCCESS,
-      data: [],
+      variables: [],
+      comparison_data: {},
       is_triggered: false,
     };
   }
