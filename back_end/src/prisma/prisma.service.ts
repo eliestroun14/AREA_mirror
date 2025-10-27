@@ -55,6 +55,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 
     const data = {
       name: service.name,
+      slug: service.slug,
       service_color: service.serviceColor,
       icon_url: service.iconUrl,
       api_base_url: service.apiBaseUrl,

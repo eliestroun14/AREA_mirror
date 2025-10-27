@@ -24,6 +24,7 @@ export class ServicesService {
     return services.map((service) => ({
       id: service.id,
       name: service.name,
+      slug: service.slug,
       icon_url: service.icon_url ?? null,
       api_base_url: service.api_base_url ?? null,
       services_color: service.service_color,
@@ -47,6 +48,7 @@ export class ServicesService {
     return {
       id: service.id,
       name: service.name,
+      slug: service.slug,
       icon_url: service.icon_url ?? null,
       api_base_url: service.api_base_url ?? null,
       services_color: service.service_color,
@@ -70,6 +72,7 @@ export class ServicesService {
     return {
       id: service.id,
       name: service.name,
+      slug: service.slug,
       icon_url: service.icon_url ?? null,
       api_base_url: service.api_base_url ?? null,
       services_color: service.service_color,
@@ -200,6 +203,7 @@ export class ServicesService {
     return services.map((service) => ({
       id: service.id,
       name: service.name,
+      slug: service.slug,
       icon_url: service.icon_url ?? null,
       api_base_url: service.api_base_url ?? null,
       services_color: service.service_color,
@@ -235,6 +239,7 @@ export class ServicesService {
         serviceMap.set(trigger.service_id, {
           id: trigger.service.id,
           name: trigger.service.name,
+          slug: trigger.service.slug,
           icon_url: trigger.service.icon_url ?? null,
           api_base_url: trigger.service.api_base_url ?? null,
           services_color: trigger.service.service_color,
@@ -285,6 +290,7 @@ export class ServicesService {
         serviceMap.set(action.service_id, {
           id: action.service.id,
           name: action.service.name,
+          slug: action.service.slug,
           icon_url: action.service.icon_url ?? null,
           api_base_url: action.service.api_base_url ?? null,
           services_color: action.service.service_color,

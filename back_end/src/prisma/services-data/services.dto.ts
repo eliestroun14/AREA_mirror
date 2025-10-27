@@ -63,6 +63,7 @@ export interface ServiceAction {
 
 export interface Service {
   name: string;
+  slug: string;
   serviceColor: string;
   iconUrl: string;
   apiBaseUrl: string;

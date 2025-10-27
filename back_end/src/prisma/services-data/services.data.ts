@@ -9,6 +9,7 @@ export const services = {
 export const servicesData: Service[] = [
   {
     name: 'Scheduling',
+    slug: 'scheduling',
     serviceColor: '#1C1C1C',
     iconUrl: '/assets/schedule.png',
     apiBaseUrl: 'none',
@@ -55,6 +56,7 @@ export const servicesData: Service[] = [
   },
   {
     name: services.discord.name,
+    slug: services.discord.slug,
     serviceColor: '#7289da',
     iconUrl: '/assets/discord.png',
     apiBaseUrl: 'https://discord.com/api',
@@ -109,6 +111,7 @@ export const servicesData: Service[] = [
   },
   {
     name: services.github.name,
+    slug: services.github.slug,
     serviceColor: '#21262d',
     iconUrl: '/assets/github.png',
     apiBaseUrl: 'https://api.github.com',
@@ -154,6 +157,7 @@ export const servicesData: Service[] = [
   },
   {
     name: services.gmail.name,
+    slug: services.gmail.slug,
     serviceColor: '#4285F4',
     iconUrl: '/assets/gmail.png',
     apiBaseUrl: 'https://gmail.googleapis.com',

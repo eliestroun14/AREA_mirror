@@ -23,6 +23,7 @@ model users {
 model services {
   id                Int           @id @default(autoincrement())
   name              String        @unique
+  slug              String        @unique
   icon_url          String?
   api_base_url      String?
   service_color     String        @default("#FFFFFF")
