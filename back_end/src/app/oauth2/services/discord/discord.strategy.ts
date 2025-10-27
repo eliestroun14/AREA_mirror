@@ -6,10 +6,10 @@ import {
   Strategy,
   StrategyOptions,
 } from 'passport-discord-auth';
-import { DiscordProvider } from '@app/oauth2/services/discord/discord.dto';
 import { envConstants } from '@config/env';
 import { callbackOf } from '@config/utils';
 import { services } from '@root/prisma/services-data/services.data';
+import { OAuth2Provider } from '@app/oauth2/oauth2.dto';
 
 @Injectable()
 export class DiscordStrategy extends PassportStrategy(Strategy, 'discord') {
@@ -30,13 +30,10 @@ export class DiscordStrategy extends PassportStrategy(Strategy, 'discord') {
     accessToken: string,
     refreshToken: string,
     profile: Profile,
-  ): DiscordProvider {
+  ): OAuth2Provider {
     return {
       connection_name: services.discord.name,
       account_identifier: profile.id,
-      email: profile.emails?.[0]?.value ?? 'none',
-      username: profile.username ?? '',
-      picture: profile.photos?.[0]?.value ?? '/assets/placeholder.png',
       rate_limit_remaining: undefined,
       rate_limit_reset: null,
       access_token: accessToken,
