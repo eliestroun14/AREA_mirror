@@ -3,15 +3,15 @@ import { AppModule } from '@app/app.module';
 import { PrismaClientKnownRequestErrorFilter } from '@filters/prisma-client-exception/prisma-client-exception.filter';
 import { FormatedValidationPipe } from '@pipes/validation-pipe/formated-validation-pipe-error';
 import cookieParser from 'cookie-parser';
-import { WorkflowsModule } from '@root/workflows/workflows.module';
-import { WorkflowService } from '@root/workflows/workflows.service';
+import { RunnerModule } from '@root/runner/runner.module';
+import { RunnerService } from '@root/runner/runner.service';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function runWorkflow() {}
 
 async function main() {
-  const workflowApp = await NestFactory.create(WorkflowsModule);
-  workflowApp.useGlobalFilters(new PrismaClientKnownRequestErrorFilter());
+  const runnerApp = await NestFactory.create(RunnerModule);
+  runnerApp.useGlobalFilters(new PrismaClientKnownRequestErrorFilter());
 
   const app = await NestFactory.create(AppModule);
   app.enableCors({
@@ -62,17 +62,17 @@ async function main() {
   });
 
   let isRunning = true;
-  const workflowService = workflowApp.get(WorkflowService);
+  const runnerService = runnerApp.get(RunnerService);
 
   const runWorkflow = async () => {
-    console.log('Running workflows');
+    console.log('Running runner');
     while (isRunning) {
-      await workflowService.run();
+      await runnerService.start();
     }
   };
 
   runWorkflow()
-    .then(() => console.log('Stopping workflows...'))
+    .then(() => console.log('Stopping runner...'))
     .catch((err) => console.error('An error occurred: ', err));
   await app.listen(process.env.PORT ?? 3000);
   isRunning = false;
