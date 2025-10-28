@@ -47,11 +47,11 @@ export default function TriggerFieldsPage() {
   const [formData, setFormData] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    console.log('🔊 Setting up postMessage listener...');
+    console.log('Setting up postMessage listener...');
 
     const handleMessage = (event: MessageEvent) => {
-      console.log('📨 Message received:', event.data);
-      console.log('📍 Message origin:', event.origin);
+      console.log('Message received:', event.data);
+      console.log('Message origin:', event.origin);
 
       const allowedOrigins = [
         'http://localhost:3001',
@@ -60,28 +60,28 @@ export default function TriggerFieldsPage() {
       ];
 
       if (!allowedOrigins.includes(event.origin)) {
-        console.warn('⚠️ Message from unauthorized origin:', event.origin);
+        console.warn('Message from unauthorized origin:', event.origin);
         return;
       }
 
       if (event.data?.type === 'oauth_success') {
-        console.log('✅ OAuth success detected, reloading page...');
+        console.log('OAuth success detected, reloading page...');
         window.location.reload();
       }
     };
 
     window.addEventListener('message', handleMessage);
-    console.log('✅ PostMessage listener ready');
+    console.log('PostMessage listener ready');
 
     return () => {
-      console.log('🔇 Removing postMessage listener...');
+      console.log('Removing postMessage listener...');
       window.removeEventListener('message', handleMessage);
     };
   }, []);
 
   const handleOAuth2Connect = async () => {
     if (!service || !token) {
-      console.error('❌ No service or token found');
+      console.error('No service or token found');
       alert('No authentication token found. Please login again.');
       return;
     }
@@ -107,7 +107,7 @@ export default function TriggerFieldsPage() {
       const oauth2Slug = service.name.toLowerCase();
       const oauthUrl = `${apiBaseUrl}/oauth2/${oauth2Slug}?token=${encodeURIComponent(encryptedToken)}`;
       
-      console.log('🔗 Opening OAuth URL');
+      console.log('Opening OAuth URL');
       
       const oauthWindow = window.open(
         oauthUrl,
@@ -120,10 +120,10 @@ export default function TriggerFieldsPage() {
         return;
       }
       
-      console.log('✅ OAuth window opened');
+      console.log('OAuth window opened');
       
     } catch (error) {
-      console.error('❌ Error initiating OAuth:', error);
+      console.error('Error initiating OAuth:', error);
       alert('Failed to initiate OAuth connection. Please try again.');
     }
   };
@@ -165,13 +165,13 @@ export default function TriggerFieldsPage() {
         token
       )
       
-      console.log('✅ Trigger created successfully')
+      console.log('Trigger created successfully')
       
       // Redirect to the zap page after successful creation (without URL params)
       router.push(`/create/${zapId}`)
       
     } catch (err) {
-      console.error('❌ Failed to create trigger:', err)
+      console.error('Failed to create trigger:', err)
       setError(err instanceof Error ? err.message : 'Failed to create trigger. Please try again.')
     } finally {
       setSubmitting(false)
@@ -443,21 +443,6 @@ export default function TriggerFieldsPage() {
           }}
         >
           Back
-        </Button>
-        
-        <Button
-          sx={{
-            minWidth: 44,
-            height: 44,
-            borderRadius: '50%',
-            color: 'white',
-            border: '2px solid white',
-            '&:hover': {
-              bgcolor: 'rgba(255, 255, 255, 0.1)'
-            }
-          }}
-        >
-          <HelpOutlineIcon />
         </Button>
       </Box>
 

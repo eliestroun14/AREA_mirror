@@ -151,21 +151,6 @@ export default function TriggersPage() {
           >
             Back
           </Button>
-          
-          <Button
-            sx={{
-              minWidth: 44,
-              height: 44,
-              borderRadius: '50%',
-              color: 'white',
-              border: '2px solid white',
-              '&:hover': {
-                bgcolor: 'rgba(255, 255, 255, 0.1)'
-              }
-            }}
-          >
-            <HelpOutlineIcon />
-          </Button>
         </Box>
 
         <Typography 
