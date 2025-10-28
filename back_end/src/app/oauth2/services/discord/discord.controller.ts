@@ -6,6 +6,7 @@ import { services } from '@root/prisma/services-data/services.data';
 
 @Injectable()
 export class DiscordOAuth2Controller extends AREA_OAuth2Controller(
+  services.discord.name,
   services.discord.slug,
   DiscordOAuthGuard,
 ) {

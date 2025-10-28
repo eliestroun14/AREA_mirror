@@ -13,11 +13,9 @@ import {
 } from '@nestjs/common';
 import { RequestWithQuery } from '@app/oauth2/services/service.dto';
 import UnauthenticatedException from '@errors/unauthenticated';
-import { services } from '@root/prisma/services-data/services.data';
 import type * as express from 'express';
 import { ConnectionsService } from '@app/users/connections/connections.service';
 import { JwtOAuthGuard } from '@app/auth/jwt/jwt-oauth.guard';
-import { DiscordOAuthGuard } from '@app/oauth2/services/discord/discord.guard';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -26,6 +24,7 @@ import {
 } from '@nestjs/swagger';
 
 export function AREA_OAuth2Controller(
+  serviceName: string,
   endpoint: string,
   guard: Type<CanActivate> | CanActivate,
 ) {
@@ -82,7 +81,7 @@ export function AREA_OAuth2Controller(
       }
 
       await this.connectionService.createConnection(
-        services.discord.name,
+        serviceName,
         req.user.userId,
         req.provider,
       );
@@ -132,7 +131,7 @@ export function AREA_OAuth2Controller(
     public async auth() {}
 
     @Get(`${endpoint}/callback`)
-    @UseGuards(DiscordOAuthGuard, JwtOAuthGuard)
+    @UseGuards(guard, JwtOAuthGuard)
     @ApiBearerAuth('JWT-auth')
     @ApiOperation({
       summary: 'Callback OAuth2 Discord',
