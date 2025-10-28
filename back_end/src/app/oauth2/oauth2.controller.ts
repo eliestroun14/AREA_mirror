@@ -23,6 +23,7 @@ import { services } from '@root/prisma/services-data/services.data';
 import { ConnectionsService } from '@app/users/connections/connections.service';
 import { DiscordOAuthGuard } from '@app/oauth2/services/discord/discord.guard';
 import { GithubOAuthGuard } from '@app/oauth2/services/github/github.guard';
+import { GoogleCalendarOAuthGuard } from './services/google-calendar/googler-calendar.guard';
 import { envConstants } from '@config/env';
 import { CryptoService } from './crypto/crypto.service';
 
@@ -309,6 +310,95 @@ export class Oauth2Controller {
 
     await this.connectionService.createConnection(
       services.github.name,
+      req.user.userId,
+      req.provider,
+    );
+
+    const redirectUrl = this.getRedirectUrl(req);
+    return res.redirect(redirectUrl);
+  }
+
+  @Get(services.googleCalendar.slug)
+  @UseGuards(JwtOAuthGuard, GoogleCalendarOAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: "Initier l'authentification OAuth2 avec <ServiceName>",
+    description:
+      'Redirige l\'utilisateur vers la page d\'authentification <ServiceName> pour connecter son compte <ServiceName>. Nécessite un token JWT dans le query param "token".',
+  })
+  @ApiQuery({
+    name: 'token',
+    description: "Token JWT de l'utilisateur",
+    required: true,
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+  })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirection vers <ServiceName> OAuth2',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT manquant ou invalide',
+  })
+  async googleCalendarAuth() {}
+  
+  @Get(`${services.googleCalendar.slug}/callback`)
+  @UseGuards(GoogleCalendarOAuthGuard, JwtOAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Callback OAuth2 GoogleCalendar',
+    description:
+      'Endpoint de callback après authentification GoogleCalendar. Enregistre la connexion GoogleCalendar et redirige vers la page de succès.',
+  })
+  @ApiQuery({
+    name: 'code',
+    description: "Code d'autorisation OAuth2 retourné par GoogleCalendar",
+    required: true,
+  })
+  @ApiQuery({
+    name: 'state',
+    description: "Token JWT de l'utilisateur (passé dans le state OAuth2)",
+    required: true,
+  })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirection vers la page de succès',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Non authentifié',
+  })
+  @ApiResponse({
+    status: 500,
+    description: "Erreur lors de l'enregistrement de la connexion",
+  })
+  async googleCalendarAuthRedirect(
+    @Req() req: StrategyCallbackRequest,
+    @Res() res: express.Response,
+  ) {
+    const platform = this.getPlatformFromState(req);
+    if (!req.user) {
+      const errorMsg = 'Unauthorized';
+      if (platform === 'web') {
+        return res.redirect(
+          `/oauth/error?error=${encodeURIComponent(errorMsg)}`,
+        );
+      }
+      throw new UnauthenticatedException();
+    }
+    if (!req.provider) {
+      const errorMsg = `ProviderNotFound for user ${req.user?.userId ?? ''}`;
+      console.error(errorMsg);
+      if (platform === 'web') {
+        return res.redirect(
+          `/oauth/error?error=${encodeURIComponent(errorMsg)}`,
+        );
+      }
+      throw new InternalServerErrorException(errorMsg);
+    }
+
+    await this.connectionService.createConnection(
+      services.googleCalendar.name,
       req.user.userId,
       req.provider,
     );

@@ -4,6 +4,7 @@ export const services = {
   gmail: { name: 'Gmail', slug: 'gmail' },
   github: { name: 'Github', slug: 'github' },
   discord: { name: 'Discord', slug: 'discord' },
+  googleCalendar: { name: 'google-calendar', slug: 'google-calendar'}
 };
 
 export const servicesData: Service[] = [
@@ -161,5 +162,59 @@ export const servicesData: Service[] = [
     isActive: true,
     triggers: [],
     actions: [],
+  },
+  {
+    name: services.googleCalendar.name,
+    serviceColor: '#2c6efc',
+    iconUrl: '/assets/googleCalendar.png',
+    apiBaseUrl: 'https://www.googleapis.com/calendar/v3',
+    authType: 'oauth2',
+    documentationUrl:
+      'https://developers.google.com/workspace/calendar/api/v3/reference',
+    isActive: true,
+    triggers: [],
+    actions: [
+      {
+        http_requests: {
+          description: 'Send a message.',
+          method: 'POST',
+          endpoint: 'https://discord.com/api/webhooks/',
+        },
+        class_name: 'DiscordAction_SendMessage',
+        name: 'Send message',
+        description: 'Send a message to Discord using a webhook.',
+        fields: {
+          message: {
+            key: 'message',
+            required: true,
+            type: 'string',
+            select_options: [],
+            field_name: 'Message',
+            default_value: 'Hello from AREA!',
+            placeholder: 'Your message',
+            field_order: 1,
+            validation_rules: {},
+            is_active: true,
+          },
+          webhook_url: {
+            key: 'webhook_url',
+            required: true,
+            type: 'string',
+            select_options: [],
+            field_name: 'Webhook URL',
+            default_value:
+              'https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_SECRET',
+            placeholder: 'Your webhook URL',
+            field_order: 0,
+            validation_rules: {},
+            is_active: true,
+          },
+        },
+        variables: [],
+        is_active: false,
+        created_at: new Date(Date.now()),
+        updated_at: new Date(Date.now()),
+      },
+    ],
   },
 ];
