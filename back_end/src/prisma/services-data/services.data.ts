@@ -1,8 +1,6 @@
 import { Service } from '@root/prisma/services-data/services.dto';
 
 export const services = {
-  gmail: { name: 'Gmail', slug: 'gmail' },
-  github: { name: 'Github', slug: 'github' },
   discord: { name: 'Discord', slug: 'discord' },
 };
 
@@ -108,64 +106,5 @@ export const servicesData: Service[] = [
         updated_at: new Date(Date.now()),
       },
     ],
-  },
-  {
-    name: services.github.name,
-    slug: services.github.slug,
-    serviceColor: '#21262d',
-    iconUrl: '/assets/github.png',
-    apiBaseUrl: 'https://api.github.com',
-    authType: 'oauth2',
-    documentationUrl: 'https://docs.github.com/en/rest/',
-    isActive: true,
-    triggers: [
-      // {
-      //   class_name: 'GithubTrigger_OnNewRepository',
-      //   http_requests: null,
-      //   webhook: null,
-      //   trigger_type: 'WEBHOOK',
-      //   name: 'On new Github Repository',
-      //   description: 'Detect when a new repository is created on your profile.',
-      //   polling_interval: null,
-      //   fields: {
-      //     owner: {
-      //       key: 'owner',
-      //       required: true,
-      //       type: 'string',
-      //       select_options: [],
-      //       field_name: 'Repository Owner',
-      //       default_value: 'nl1x',
-      //       placeholder: 'Owner',
-      //       field_order: 1,
-      //       validation_rules: {},
-      //       is_active: true,
-      //     },
-      //   },
-      //   variables: [
-      //     {
-      //       name: 'RepositoryName',
-      //       key: 'repository.name',
-      //       type: 'string',
-      //     },
-      //   ],
-      //   is_active: true,
-      //   created_at: new Date(Date.now()),
-      //   updated_at: new Date(Date.now()),
-      // },
-    ],
-    actions: [],
-  },
-  {
-    name: services.gmail.name,
-    slug: services.gmail.slug,
-    serviceColor: '#4285F4',
-    iconUrl: '/assets/gmail.png',
-    apiBaseUrl: 'https://gmail.googleapis.com',
-    authType: 'oauth2',
-    documentationUrl:
-      'https://developers.google.com/workspace/gmail/api/reference/rest',
-    isActive: true,
-    triggers: [],
-    actions: [],
-  },
+  }
 ];
