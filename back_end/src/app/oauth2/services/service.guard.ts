@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { CryptoService } from '@config/crypto';
+import { Crypto } from '@config/crypto';
 import { Request } from 'express';
 import { JwtPayload } from '@app/auth/jwt/jwt.dto';
 import {
@@ -30,7 +30,7 @@ export function AREA_AuthGuard(serviceName: string) {
         throw new UnauthorizedException('Encrypted token required');
       }
 
-      const decrypted = CryptoService.decryptJWT(encryptedToken);
+      const decrypted = Crypto.decryptJWT(encryptedToken);
       console.log('[OAuthGuard] Decrypted token:', decrypted);
 
       if (!decrypted) {
@@ -40,7 +40,7 @@ export function AREA_AuthGuard(serviceName: string) {
 
       request['oauth_jwt'] = decrypted.jwt;
 
-      const callbackToken = CryptoService.encryptJWT(
+      const callbackToken = Crypto.encryptJWT(
         decrypted.jwt,
         decrypted.platform,
       );

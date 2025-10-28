@@ -1,4 +1,4 @@
-import { CryptoService } from '@config/crypto';
+import { Crypto } from '@config/crypto';
 import type { StrategyCallbackRequest } from '@app/oauth2/oauth2.dto';
 import { envConstants } from '@config/env';
 import {
@@ -43,7 +43,7 @@ export function AREA_OAuth2Controller(
           : '';
 
       if (stateRaw) {
-        const decrypted = CryptoService.decryptJWT(stateRaw);
+        const decrypted = Crypto.decryptJWT(stateRaw);
         if (
           decrypted?.platform === 'mobile' &&
           envConstants.mobile_oauth2_success_redirect_url
@@ -102,7 +102,7 @@ export function AREA_OAuth2Controller(
           ? reqWithQuery.query['state']
           : '';
       if (stateRaw) {
-        const decrypted = CryptoService.decryptJWT(stateRaw);
+        const decrypted = Crypto.decryptJWT(stateRaw);
         return decrypted?.platform;
       }
       return undefined;
