@@ -15,7 +15,7 @@ export type TriggerRegister = {
     executionInterval: number | null,
     accessToken: string | null,
     payload: any,
-  ) => TriggerRunnerJob<any>;
+  ) => TriggerRunnerJob<any, any>;
   event: string;
   action: string;
 };

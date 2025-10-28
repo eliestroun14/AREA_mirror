@@ -23,6 +23,7 @@ model users {
 model services {
   id                Int           @id @default(autoincrement())
   name              String        @unique
+  slug              String        @unique
   icon_url          String?
   api_base_url      String?
   service_color     String        @default("#FFFFFF")
@@ -116,6 +117,7 @@ model actions {
   http_request_id Int
   name            String
   description     String
+  require_connection Boolean        @default(true)
   fields          Json
   variables       Json
   is_active       Boolean       @default(true)
@@ -139,6 +141,7 @@ model zaps {
   successful_runs Int              @default(0)
   failed_runs     Int              @default(0)
   last_run_at     DateTime?
+  last_trigger_data Json?
   created_at      DateTime         @default(now())
   updated_at      DateTime         @default(now())
   deleted_at      DateTime?

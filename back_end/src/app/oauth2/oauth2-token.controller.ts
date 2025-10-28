@@ -5,15 +5,13 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { CryptoService } from './crypto/crypto.service';
+import { Crypto } from '@config/crypto';
 import { JwtAuthGuard } from '@app/auth/jwt/jwt-auth.guard';
 import type { Request } from 'express';
 
 @ApiTags('oauth2')
 @Controller('oauth2')
 export class OAuth2TokenController {
-  constructor(private cryptoService: CryptoService) {}
-
   @Post('encrypt-token')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
@@ -45,7 +43,7 @@ export class OAuth2TokenController {
     }
 
     try {
-      const encryptedToken = this.cryptoService.encryptJWT(jwt, body.platform);
+      const encryptedToken = Crypto.encryptJWT(jwt, body.platform);
       console.log('[encryptToken] Encrypted token generated successfully');
       return {
         encryptedToken,
