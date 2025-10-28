@@ -6,6 +6,7 @@ import { services } from '@root/prisma/services-data/services.data';
 
 @Injectable()
 export class <ServiceName>OAuth2Controller extends AREA_OAuth2Controller(
+  services.<serviceName>.name,
   services.<serviceName>.slug,
   <ServiceName>OAuthGuard,
 ) {
