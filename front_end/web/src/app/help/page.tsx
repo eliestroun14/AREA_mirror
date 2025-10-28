@@ -10,7 +10,9 @@ import ListItemText from '@mui/material/ListItemText'
 import Chip from '@mui/material/Chip'
 import Alert from '@mui/material/Alert'
 import Divider from '@mui/material/Divider'
+import Button from '@mui/material/Button'
 import { styled } from '@mui/material/styles'
+import { useRouter } from 'next/navigation'
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline'
 import BoltIcon from '@mui/icons-material/Bolt'
 import ConnectWithoutContactIcon from '@mui/icons-material/ConnectWithoutContact'
@@ -18,6 +20,7 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import InfoIcon from '@mui/icons-material/Info'
 import WarningIcon from '@mui/icons-material/Warning'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
 const StyledCard = styled(Card)(({ theme }) => ({
   marginBottom: theme.spacing(3),
@@ -39,6 +42,12 @@ const steps = [
 ]
 
 export default function HelpPage() {
+  const router = useRouter()
+
+  const handleGoBack = () => {
+    router.back()
+  }
+
   return (
     <Box
       sx={{
@@ -50,6 +59,25 @@ export default function HelpPage() {
         margin: '0 auto'
       }}
     >
+      {/* Bouton Retour */}
+      <Box sx={{ mb: 3 }}>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBackIcon />}
+          onClick={handleGoBack}
+          sx={{
+            color: 'primary.main',
+            borderColor: 'primary.main',
+            '&:hover': {
+              backgroundColor: 'primary.main',
+              color: 'white',
+            }
+          }}
+        >
+          Retour
+        </Button>
+      </Box>
+
       <Typography variant="h3" align="center" color="primary.main" gutterBottom>
         Comment créer des Applets AREA
       </Typography>
