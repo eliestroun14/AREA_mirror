@@ -3,206 +3,154 @@ Documentation des services
 
 # Quick Start
 
+## AVANT D'AJOUTER UN SERVICE
+
+S'assurer que l'authentification par stratégie est disponible sur [passportjs](https://www.passportjs.org/).
+Pour cela, chercher la stratégie du service en question sur [passportjs](https://www.passportjs.org/).
+
+> [!IMPORTANT]
+> Dans ce tutoriel, vous trouverez des fichiers d'exemples avec parfois `<service-name>`, parfois `<serviceName>`, parfois `<ServiceName>`, etc..
+> Il est **OBLIGATOIRE** de respecter le format de chacune de ces placeholders.
+> 
+> Par exemple, pour le service Microsoft Teams, le format `<ServiceName>` sera `MicrosoftTeams`, et le format `<service-name>` sera `microsoft-teams`.
+
+## Application du service
+
+Pour créer un service, il faudra d'abord créer une application sur ce service.
+Cette application vous permettra d'obtenir un `CLIENT_ID` et un `CLIENT_SECRET`.
+
+Ces identifiants doivent être sauvegardés dans le fichier `back_end/src/config/env.ts`, dans la variable `envConstants` :
+```env
+<SERVICE_NAME>_CLIENT_ID="..."
+<SERVICE_NAME>_CLIENT_SECRET="..."
+```
+
+Ils seront récupérés dans le fichier `back_end/src/config/env.ts`, dans la variable `envConstants` :
+```typescript
+export const envConstants = {
+    // ...
+    
+    <service_name>_client_id: process.env.<SERVICE_NAME>_CLIENT_ID ?? '<SERVICE_NAME>_CLIENT_ID',
+    <service_name>_client_secret: process.env.<SERVICE_NAME>_CLIENT_SECRET ?? '<SERVICE_NAME>_SECRET',
+};
+```
+
 ## Ajout dans la base de donnée
 
-Pour ajouter un service dans la base de donnée, il faut dans un premier temps l'ajouter dans le fichier [src/prisma/service-data/service.data.ts](/back_end/src/prisma/services-data/services.data.ts), dans la liste `servicesData` :
+Pour ajouter un service dans la base de donnée, il faut dans un premier temps ajouter ses informations 
+dans le fichier `back_end/src/prisma/services-data/services.data.ts` dans l'objet `services` :
+
+```typescript
+export const services = {
+    // [...]
+    <serviceName>: { name: '<Service Name>', slug: '<service-name>' },
+};
+```
+
+Dans **ce même fichier**, il faut ajouter le service dans la liste `servicesData` :
 
 ```typescript
 // [...]
 
 const servicesData: Service[] = [
-  
+
   // [...]
-    
+
   {
-    name:               'Gmail',                    // Nom du service
-    serviceColor:       '#1C1C1C',                  // Couleur du service 
-                                                    //      (Le logo du service doit être visible avec cette couleur en fond)
-    iconUrl:            '/assets/gmail.png',        // Logo du service
-    apiBaseUrl:         'https://api.gmail.com',    // URL de l'API
-    authType:           'oauth2',                   // Type d'authentification (oauth2 / api_key / basic)
-    documentationUrl:   'none',                     // URL vers la documentation de l'API
-    isActive:           true,                       // Si false, alors le service ne sera pas renvoyé dans les requêtes.
-    triggers:           [],                         // Liste des triggers associées
-    actions:            [],                         // Liste des actions associées
+    name:               services.<serviceName>.name,    // Nom du service
+    slug:               services.<serviceName>.slug,    // Slug du service
+    serviceColor:       '#1C1C1C',                      // Couleur du service 
+                                                        //      (Le logo du service doit être visible avec cette couleur en fond)
+    iconUrl:            '/assets/<serviceName>.png',    // Logo du service
+    apiBaseUrl:         '<Base URL du service>',        // URL de l'API
+    authType:           'oauth2',                       // Type d'authentification (oauth2 / api_key / basic)
+    documentationUrl:   '<URL de la Documentation>',    // URL vers la documentation de l'API
+    isActive:           true,                           // Si false, alors le service ne sera pas renvoyé dans les requêtes.
+    triggers:           [],                             // Liste des triggers associées
+    actions:            [],                             // Liste des actions associées
   },
 ];
 
 // [...]
 ```
 
-## Ajout des routes d'authentification
+## Ajout de la route d'authentification
 
-Pour ajouter une route d'authentification à un service (OAuth2), et ainsi permettre à l'utilisateur de relier son compte
-sur le service en question avec l'AREA, suivez les étapes suivantes :
+### Création des fichiers requis
 
-1. Ajouter les informations de connexion à l'application OAuth dans le fichier [/src/config/env.ts](/back_end/src/config/env.ts) :
-```typescript
-export const envConstants = {
-  // ...
-  web_oauth2_success_redirect_url:
-    process.env.WEB_SUCCESS_OAUTH2_REDIRECT_URL ??
-    'http://127.0.0.1/oauth2/success',
-
-  <service_name>_client_id: process.env.<SERVICE_NAME>_CLIENT_ID ?? '<SERVICE_NAME>_CLIENT_ID',
-  <service_name>_client_secret: process.env.<SERVICE_NAME>_CLIENT_SECRET ?? '<SERVICE_NAME>_SECRET',
-};
+Afin de créer une route d'authentification, il faudra utiliser le script `back_end/cli/add_service_auth_route.sh` de la manière suivante :
+```bash
+$ add_service_auth_route.sh service-name
 ```
-2. Télécharger la dépendence correspondante sur [passportjs](https://www.passportjs.org/packages/).
-3. Créer un dossier `/src/app/oauth2/services/[service-name]`. *(Exemple : `oauth2/services/discord)*
-4. Ajouter dans ce nouveau dossier un fichier `<service-name>.dto.ts` avec le code suivant :
+
+> [!NOTE]
+> Par exemple, pour ajouter un service 'discord', il faudra faire :
+> ```bash
+> $ add_service_auth_route.sh discord
+> ```
+
+Le script va générer 4 fichiers :
+- `service-name.controller.ts`
+- `service-name.guard.ts`
+- `service-name.module.ts`
+- `service-name.strategy.ts`
+
+Parmi ces quatre fichiers, seuls les fichiers `service-name.guard.ts` et `service-name.strategy.ts` doivent être passés en revu :
+
+### service-name.guard.ts
+
+Dans la fonction `AREA_AuthGuard('<service-name>')`, le `'<service-name>'` doit correspondre au `'<service-name>'` 
+de `passport.authenticate('<service-name>', { ... })` dans l'exemple d'utilisation du service disponible sur [passportjs](https://www.passportjs.org/), dans la partie **Authenticate Requests**.
+<br>
+Pour microsoft par exemple, vous pouvez trouver cette partie ici : [passportjs/microsoft](https://www.passportjs.org/packages/passport-microsoft/#authenticate-requests).
+
+### service-name.strategy.ts
+
+Dans la fonction `PassportStrategy(Strategy, '<service-name>')`, le `'<service-name>'` doit correspondre au `'<service-name>'`
+de `passport.authenticate('<service-name>', { ... })` dans l'exemple d'utilisation du service disponible sur [passportjs](https://www.passportjs.org/).
+
+De plus, dans ce même fichier, il se peut que le package d'import soit incorrect. Pour le savoir, **à la ligne 8** de ce fichier, vous trouverez cette ligne :
 ```typescript
-import { ApiProperty } from '@nestjs/swagger';
-import { JwtRequest } from '@app/auth/jwt/jwt.dto';
-import { OAuth2Provider } from '@app/oauth2/oauth2.dto';
-
-/**
- * Informations du provider Discord après authentification OAuth2
- */
-export class <ServiceName>Provider extends OAuth2Provider {
-  provider_custom_field_1: string;
-  provider_custom_field_2: string;
-}
-
-/**
- * Requête contenant les informations <ServiceName> après OAuth2
- * (Utilisé en interne)
- */
-export interface <ServiceName>ProviderRequest extends JwtRequest {
-  provider: <ServiceName>Provider;
-}
+// [...]
+} from 'passport-<service-name>';               # EDIT THIS LINE IF AN ERROR OCCURS
+// [...]
 ```
-5. Ajouter dans ce nouveau dossier un fichier `[service-name].strategy.ts` avec le code suivant :
+
+Le package d'import doit correspondre au `<service-name>'`
+de `require('passport-<service-name>').Strategy` dans l'exemple d'utilisation du service disponible sur [passportjs](https://www.passportjs.org/), dans la partie **Configure Strategy**.
+<br>
+Pour microsoft par exemple, vous pouvez trouver cette partie ici : [passportjs/microsoft](https://www.passportjs.org/packages/passport-microsoft/#configure-strategy).
+
+### Exposition de la route d'authentification
+
+Une fois ces étapes faîtes, il ne vous suffit plus qu'à exposer la route d'authentification sur l'API.
+Pour cela, il vous suffit d'éditer le fichier `back_end/src/app/oauth2/oauth2.module.ts` en ajoutant les imports suivants :
 ```typescript
-import { Injectable } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { Profile, Strategy, StrategyOptions } from 'passport-<service-name>'; // L'import dépend de passportjs !
-import { <ServiceName>Provider } from '@app/oauth2/services/<service-name>/<service-name>.dto';
-import { envConstants } from '@config/env';
-import { callbackOf } from '@config/utils';
-import { services } from '@root/prisma/services-data/services.data';
-
-@Injectable()
-export class <ServiceName>Strategy extends PassportStrategy(Strategy, '<service-name>') {
-  private static SCOPES: string[] = ['email'];
-
-  constructor() {
-    const options: StrategyOptions = {
-      clientID: envConstants.<service_name>_client_id,
-      clientSecret: envConstants.<service_name>_client_secret,
-      callbackURL: callbackOf(services.<serviceName>.slug),
-      scope: <ServiceName>Strategy.SCOPES,
-    };
-
-    super(options);
-  }
-
-  validate(
-    accessToken: string,
-    refreshToken: string,
-    profile: Profile,
-  ): <ServiceName>Provider {
-    // Les fields `profile.XXX` dépendent de ce que propose le service !
-    return {
-      connection_name: services.<service-name>.name,
-      account_identifier: profile.id,
-      email: profile.emails?.[0]?.value ?? 'none',
-      username: profile.username ?? '',
-      picture: profile.photos?.[0]?.value ?? '/assets/placeholder.png',
-      rate_limit_remaining: undefined,
-      rate_limit_reset: null,
-      access_token: accessToken,
-      refresh_token: refreshToken,
-      expires_at: null,
-      scopes: <ServiceName>Strategy.SCOPES,
-    };
-  }
-}
+// [...]
+import { <ServiceName>OAuth2Module } from '@app/oauth2/services/<service-name>/<service-name>.module';
+import { <ServiceName>Strategy } from '@app/oauth2/services/<service-name>/<service-name>.strategy';
+// [...]
 ```
-6. Ajouter, dans le fichier [`/src/app/oauth2/oauth2.controller.ts`](/back_end/src/app/oauth2/oauth2.controller.ts), la route d'authentification et le callback :
+
+Ainsi qu'en important le module de votre service dans celui d'oauth2 ainsi qu'en lui donnant l'accès à votre stratégie :
 ```typescript
+// [...]
 
-@ApiTags('oauth2')
-@Controller('oauth2')
-export class Oauth2Controller {
-  constructor(
-    private service: Oauth2Service,
-    private connectionService: ConnectionsService,
-  ) {}
-
-  // [...]
-
-  @Get(services.<serviceName>.slug)
-  @UseGuards(JwtOAuthGuard, GmailOAuthGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({
-    summary: "Initier l'authentification OAuth2 avec <ServiceName>",
-    description:
-      'Redirige l\'utilisateur vers la page d\'authentification <ServiceName> pour connecter son compte <ServiceName>. Nécessite un token JWT dans le query param "token".',
-  })
-  @ApiQuery({
-    name: 'token',
-    description: "Token JWT de l'utilisateur",
-    required: true,
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-  })
-  @ApiResponse({
-    status: 302,
-    description: 'Redirection vers <ServiceName> OAuth2',
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Token JWT manquant ou invalide',
-  })
-  async <serviceName>Auth() {}
-  
-  @Get(`${services.<serviceName>.slug}/callback`)
-  @UseGuards(JwtOAuthGuard, <ServiceName>OAuthGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({
-    summary: 'Callback OAuth2 <ServiceName>',
-    description:
-      'Endpoint de callback après authentification <ServiceName>. Enregistre la connexion <ServiceName> et redirige vers la page de succès.',
-  })
-  @ApiQuery({
-    name: 'code',
-    description: "Code d'autorisation OAuth2 retourné par <ServiceName>",
-    required: true,
-  })
-  @ApiQuery({
-    name: 'state',
-    description: "Token JWT de l'utilisateur (passé dans le state OAuth2)",
-    required: true,
-  })
-  @ApiResponse({
-    status: 302,
-    description: 'Redirection vers la page de succès',
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Non authentifié',
-  })
-  @ApiResponse({
-    status: 500,
-    description: "Erreur lors de l'enregistrement de la connexion",
-  })
-  async <serviceName>AuthRedirect(
-    @Req() req: StrategyCallbackRequest,
-    @Res() res: express.Response,
-  ) {
-    if (!req.user) throw new UnauthenticatedException();
-  
-    await this.connectionService.createConnection(
-      services.gmail.name,
-      req.user.userId,
-      req.provider,
-    );
-  
-    // Redirect to success page instead of returning JSON
-    return res.redirect(envConstants.web_oauth2_success_redirect_url);
-  }
-}
+@Module({
+    imports: [<ServiceName>OAuth2Module, /* ... */],
+    controllers: [/* ... */],
+    providers: [
+        <ServiceName>Strategy,
+        /* ... */
+    ],
+})
+export class Oauth2Module {}
 ```
+
+Une fois cela fait, votre service est disponible !
+
+> [!NOTE]
+> N'oubliez pas de tester votre service avant de push ;)
 
 ## Ajout d'un trigger
 

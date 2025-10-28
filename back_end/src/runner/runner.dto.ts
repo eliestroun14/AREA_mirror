@@ -3,10 +3,11 @@ export interface RunnerVariableData {
   value: string;
 }
 
-export interface RunnerCheckResult {
+export interface RunnerCheckResult<ComparisonDataType> {
   status: RunnerExecutionStatus;
   is_triggered: boolean;
-  data: RunnerVariableData[];
+  variables: RunnerVariableData[];
+  comparison_data: ComparisonDataType | null;
 }
 
 export enum RunnerExecutionStatus {

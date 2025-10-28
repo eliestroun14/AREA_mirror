@@ -6,6 +6,7 @@ export interface TriggerBuilderParams {
   stepId: number;
   triggerType: string;
   lastExecution: Date | null;
+  lastComparisonData: object | null;
   executionInterval: number | null;
   accessToken: string | null;
   payload: object;
@@ -13,7 +14,7 @@ export interface TriggerBuilderParams {
 
 type TriggerBuilderFunction = (
   builder: TriggerBuilderParams,
-) => TriggerRunnerJob<any>;
+) => TriggerRunnerJob<any, any>;
 
 export class TriggersRunnerFactory {
   private registers: Record<string, TriggerBuilderFunction> = {
@@ -30,7 +31,7 @@ export class TriggersRunnerFactory {
   build(
     className: string,
     builderParams: TriggerBuilderParams,
-  ): TriggerRunnerJob<any> {
+  ): TriggerRunnerJob<any, any> {
     if (!(className in this.registers))
       throw new JobNotFoundError(builderParams.stepId, className, 'trigger');
     return this.registers[className](builderParams);

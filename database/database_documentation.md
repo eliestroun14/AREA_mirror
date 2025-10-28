@@ -41,15 +41,15 @@ Stocke les informations des utilisateurs de la plateforme Area.
 
 ### Structure
 
-| Colonne | Type | Contraintes | Description |
-|---------|------|-------------|-------------|
-| `id` | INT | PK, AUTO_INCREMENT | Identifiant unique de l'utilisateur |
-| `email` | VARCHAR | UNIQUE, NOT NULL | Email de connexion (doit être unique) |
-| `name` | VARCHAR | NOT NULL | Nom complet de l'utilisateur |
-| `password` | VARCHAR | NOT NULL | Mot de passe hashé (bcrypt/argon2) |
-| `created_at` | TIMESTAMP | DEFAULT NOW() | Date de création du compte |
-| `updated_at` | TIMESTAMP | DEFAULT NOW() | Date de dernière modification |
-| `deleted_at` | TIMESTAMP | NULL | Date de suppression (soft delete) |
+| Colonne      | Type      | Contraintes        | Description                           |
+|--------------|-----------|--------------------|---------------------------------------|
+| `id`         | INT       | PK, AUTO_INCREMENT | Identifiant unique de l'utilisateur   |
+| `email`      | VARCHAR   | UNIQUE, NOT NULL   | Email de connexion (doit être unique) |
+| `name`       | VARCHAR   | NOT NULL           | Nom complet de l'utilisateur          |
+| `password`   | VARCHAR   | NOT NULL           | Mot de passe hashé (bcrypt/argon2)    |
+| `created_at` | TIMESTAMP | DEFAULT NOW()      | Date de création du compte            |
+| `updated_at` | TIMESTAMP | DEFAULT NOW()      | Date de dernière modification         |
+| `deleted_at` | TIMESTAMP | NULL               | Date de suppression (soft delete)     |
 
 ### Relations
 - **1 user → N connections** : Un utilisateur peut avoir plusieurs connexions à différents services
@@ -82,17 +82,17 @@ Répertorie tous les services externes (APIs) disponibles pour créer des automa
 
 ### Structure
 
-| Colonne | Type | Contraintes | Description |
-|---------|------|-------------|-------------|
-| `id` | INT | PK, AUTO_INCREMENT | Identifiant unique du service |
-| `name` | VARCHAR | UNIQUE, NOT NULL | Nom du service (Gmail, Slack, Trello, etc.) |
-| `services_color` | VARCHAR | NULL | Couleur de l'entreprise
-| `icon_url` | VARCHAR | NULL | URL de l'icône du service pour l'interface |
-| `api_base_url` | VARCHAR | NULL | URL de base de l'API du service |
-| `auth_type` | VARCHAR | NOT NULL | Type d'authentification (OAuth2, API_KEY, BASIC, etc.) |
-| `documentation_url` | VARCHAR | NULL | Lien vers la documentation officielle de l'API |
-| `active` | BOOLEAN | DEFAULT TRUE | Indique si le service est actif et disponible |
-| `created_at` | TIMESTAMP | DEFAULT NOW() | Date d'ajout du service |
+| Colonne             | Type      | Contraintes        | Description                                            |
+|---------------------|-----------|--------------------|--------------------------------------------------------|
+| `id`                | INT       | PK, AUTO_INCREMENT | Identifiant unique du service                          |
+| `name`              | VARCHAR   | UNIQUE, NOT NULL   | Nom du service (Gmail, Slack, Trello, etc.)            |
+| `services_color`    | VARCHAR   | NULL               | Couleur de l'entreprise                                |
+| `icon_url`          | VARCHAR   | NULL               | URL de l'icône du service pour l'interface             |
+| `api_base_url`      | VARCHAR   | NULL               | URL de base de l'API du service                        |
+| `auth_type`         | VARCHAR   | NOT NULL           | Type d'authentification (OAuth2, API_KEY, BASIC, etc.) |
+| `documentation_url` | VARCHAR   | NULL               | Lien vers la documentation officielle de l'API         |
+| `active`            | BOOLEAN   | DEFAULT TRUE       | Indique si le service est actif et disponible          |
+| `created_at`        | TIMESTAMP | DEFAULT NOW()      | Date d'ajout du service                                |
 
 ### Relations
 - **1 service → N connections** : Un service peut être connecté par plusieurs utilisateurs
@@ -128,22 +128,26 @@ Stocke les tokens d'authentification permettant aux utilisateurs d'accéder aux 
 
 ### Structure
 
-| Colonne | Type | Contraintes | Description |
-|---------|------|-------------|-------------|
-| `id` | INT | PK, AUTO_INCREMENT | Identifiant unique de la connexion |
-| `user_id` | INT | FK → users.id, NOT NULL | Référence vers l'utilisateur propriétaire |
-| `service_id` | INT | FK → services.id, NOT NULL | Référence vers le service connecté |
-| `access_token` | VARCHAR | NOT NULL | Token d'accès à l'API (crypté en production) |
-| `refresh_token` | VARCHAR | NULL | Token de rafraîchissement pour OAuth2 |
-| `expires_at` | TIMESTAMP | NULL | Date d'expiration du token |
-| `rate_limit_remaining` | INT | DEFAULT 1000 | Nombre de requêtes restantes avant limite |
-| `rate_limit_reset` | TIMESTAMP | NULL | Date de réinitialisation de la limite de requêtes |
-| `connection_name` | VARCHAR | NULL | Nom personnalisé de la connexion |
-| `account_identifier` | VARCHAR | NULL | Identifiant du compte (email, username, etc.) |
-| `scopes` | TEXT | NULL | Permissions accordées (séparées par des espaces ou virgules) |
-| `is_active` | BOOLEAN | DEFAULT TRUE | Indique si la connexion est active |
-| `created_at` | TIMESTAMP | DEFAULT NOW() | Date de création de la connexion |
-| `last_used_at` | TIMESTAMP | NULL | Date de dernière utilisation |
+| Colonne                | Type      | Contraintes                | Description                                                  |
+|------------------------|-----------|----------------------------|--------------------------------------------------------------|
+| `id`                   | INT       | PK, AUTO_INCREMENT         | Identifiant unique de la connexion                           |
+| `user_id`              | INT       | FK → users.id, NOT NULL    | Référence vers l'utilisateur propriétaire                    |
+| `service_id`           | INT       | FK → services.id, NOT NULL | Référence vers le service connecté                           |
+| `access_token`         | VARCHAR   | NOT NULL                   | Token d'accès à l'API (crypté en production)                 |
+| `refresh_token`        | VARCHAR   | NULL                       | Token de rafraîchissement pour OAuth2                        |
+| `expires_at`           | TIMESTAMP | NULL                       | Date d'expiration du token                                   |
+| `rate_limit_remaining` | INT       | DEFAULT 1000               | Nombre de requêtes restantes avant limite                    |
+| `rate_limit_reset`     | TIMESTAMP | NULL                       | Date de réinitialisation de la limite de requêtes            |
+| `connection_name`      | VARCHAR   | NULL                       | Nom personnalisé de la connexion                             |
+| `account_identifier`   | VARCHAR   | NULL                       | Identifiant du compte (email, username, etc.)                |
+| `scopes`               | TEXT      | NULL                       | Permissions accordées (séparées par des espaces ou virgules) |
+| `is_active`            | BOOLEAN   | DEFAULT TRUE               | Indique si la connexion est active                           |
+| `created_at`           | TIMESTAMP | DEFAULT NOW()              | Date de création de la connexion                             |
+| `last_used_at`         | TIMESTAMP | NULL                       | Date de dernière utilisation                                 |
+
+### Composite unique constraints
+
+Those fields are a unique composite : `[user_id, service_id, account_identifier]`
 
 ### Relations
 - **N connections → 1 user** : Plusieurs connexions appartiennent à un utilisateur
@@ -251,15 +255,19 @@ Configure les webhooks entrants pour recevoir des notifications en temps réel d
 
 ### Structure
 
-| Colonne | Type | Contraintes | Description |
-|---------|------|-------------|-------------|
-| `id` | INT | PK, AUTO_INCREMENT | Identifiant unique du webhook |
-| `header_schema` | JSON | NOT NULL | Structure attendue des headers (peut être vide `{}`) |
-| `body_schema` | JSON | NOT NULL | Structure attendue du payload reçu |
-| `from_url` | VARCHAR | NOT NULL | URL ou domaine du service émetteur |
-| `secret` | VARCHAR | NULL | Secret pour valider l'authenticité du webhook |
-| `total_received` | INT | NULL | Compteur de webhooks reçus (statistiques) |
-| `last_received_at` | TIMESTAMP | NULL | Date du dernier webhook reçu (debugging) |
+| Colonne            | Type      | Contraintes        | Description                                   |
+|--------------------|-----------|--------------------|-----------------------------------------------|
+| `id`               | INT       | PK, AUTO_INCREMENT | Identifiant unique du webhook                 |
+| `from_url`         | VARCHAR   | NOT NULL           | URL ou domaine du service émetteur            |
+| `action`           | VARCHAR   | NOT NULL           | Action du webhook (created, deleted, ...)     |
+| `event`            | VARCHAR   | NOT NULL           | Event du webhook (repository, ...)            |
+| `secret`           | VARCHAR   | NULL               | Secret pour valider l'authenticité du webhook |
+| `total_received`   | INT       | NULL               | Compteur de webhooks reçus (statistiques)     |
+| `last_received_at` | TIMESTAMP | NULL               | Date du dernier webhook reçu (debugging)      |
+
+### Composite unique constraints
+
+Those fields are a unique composite : `[action, event, from_url]`
 
 ### Relations
 - **1 webhook → N triggers** : Un webhook peut déclencher plusieurs triggers différents

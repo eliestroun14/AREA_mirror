@@ -5,30 +5,33 @@ import {
 } from '@root/runner/runner.dto';
 import { TriggerBuilderParams } from '@root/runner/zaps/triggers/triggers.runner.factory';
 
-export abstract class TriggerRunnerJob<PayloadType> {
+export abstract class TriggerRunnerJob<PayloadType, ComparisonDataType> {
   private readonly _stepId: number;
   private readonly _triggerType: string;
   private readonly _executionInterval: number | null;
   protected readonly lastExecution: Date | null;
   protected readonly accessToken: string | null;
   protected readonly payload: PayloadType;
+  protected readonly lastComparisonData: ComparisonDataType | null;
 
   protected constructor(params: TriggerBuilderParams) {
     this._stepId = params.stepId;
     this._triggerType = params.triggerType;
     this._executionInterval = params.executionInterval;
     this.lastExecution = params.lastExecution;
+    this.lastComparisonData =
+      params.lastComparisonData as ComparisonDataType | null;
     this.accessToken = params.accessToken;
     this.payload = params.payload as PayloadType;
   }
 
-  protected abstract _check(): Promise<RunnerCheckResult>;
+  protected abstract _check(): Promise<RunnerCheckResult<ComparisonDataType>>;
 
   public getStepId(): number {
     return this._stepId;
   }
 
-  public async check(): Promise<RunnerCheckResult> {
+  public async check(): Promise<RunnerCheckResult<ComparisonDataType>> {
     const currentTimestamp = Date.now();
     const lastExecutionTimestamp = this.lastExecution?.getTime();
 
@@ -36,8 +39,9 @@ export abstract class TriggerRunnerJob<PayloadType> {
     const hasAlreadyBeenTriggered = this.lastExecution !== null;
     const hasExecutionIntervalData = this._executionInterval !== null;
 
-    const failureData = {
-      data: [],
+    const failureData: RunnerCheckResult<ComparisonDataType> = {
+      variables: [],
+      comparison_data: null,
       is_triggered: false,
       status: RunnerExecutionStatus.FAILURE,
     };

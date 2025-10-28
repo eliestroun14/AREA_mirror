@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 
 interface EncryptedTokenData {
@@ -7,15 +6,14 @@ interface EncryptedTokenData {
   exp: number;
 }
 
-@Injectable()
-export class CryptoService {
-  private readonly ENCRYPTION_KEY = process.env.TOKEN_ENCRYPTION_KEY!;
-  private readonly ALGORITHM = 'aes-256-gcm';
+export class Crypto {
+  private static readonly ENCRYPTION_KEY = process.env.TOKEN_ENCRYPTION_KEY!;
+  private static readonly ALGORITHM = 'aes-256-gcm';
 
   /**
    * Chiffre le JWT avec AES-256-GCM
    */
-  encryptJWT(jwt: string, platform?: string): string {
+  static encryptJWT(jwt: string, platform?: string): string {
     const iv = randomBytes(16);
 
     const cipher = createCipheriv(
@@ -38,7 +36,7 @@ export class CryptoService {
     return Buffer.from(result).toString('base64url');
   }
 
-  decryptJWT(
+  static decryptJWT(
     encryptedToken: string | undefined,
   ): { jwt: string; platform?: string } | null {
     if (!encryptedToken || typeof encryptedToken !== 'string') {

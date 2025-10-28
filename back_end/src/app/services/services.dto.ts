@@ -10,9 +10,15 @@ export class ServiceDTO {
 
   @ApiProperty({
     description: 'Nom du service',
-    example: 'github',
+    example: 'Github',
   })
   name: string;
+
+  @ApiProperty({
+    description: 'Slug du service',
+    example: 'github',
+  })
+  slug: string;
 
   @ApiProperty({
     description: "URL de l'icône du service",

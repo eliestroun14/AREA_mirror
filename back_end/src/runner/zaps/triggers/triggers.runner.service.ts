@@ -16,7 +16,7 @@ export class TriggersRunnerService {
 
   public async getTriggerClassOf(
     zap: zaps,
-  ): Promise<TriggerRunnerJob<any> | null> {
+  ): Promise<TriggerRunnerJob<any, any> | null> {
     const triggerStep = await this.getTriggerStepOf(zap.id);
     if (!triggerStep) return null;
 
@@ -25,6 +25,9 @@ export class TriggersRunnerService {
       stepId: triggerStep.id,
       triggerType: trigger.trigger_type,
       lastExecution: zap.last_run_at,
+      lastComparisonData: zap.last_trigger_data
+        ? JsonValueParser.parse<object>(zap.last_trigger_data)
+        : null,
       executionInterval: trigger.polling_interval,
       accessToken: triggerStep.connection?.access_token ?? null,
       payload: JsonValueParser.parse(triggerStep.payload),

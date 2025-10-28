@@ -55,6 +55,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 
     const data = {
       name: service.name,
+      slug: service.slug,
       service_color: service.serviceColor,
       icon_url: service.iconUrl,
       api_base_url: service.apiBaseUrl,
@@ -99,6 +100,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       trigger_type: trigger.trigger_type,
       name: trigger.name,
       description: trigger.description,
+      require_connection: trigger.require_connection,
       fields: trigger.fields as object,
       variables: trigger.variables as object,
       polling_interval: trigger.polling_interval,
@@ -124,6 +126,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       class_name: action.class_name,
       name: action.name,
       description: action.description,
+      require_connection: action.require_connection,
       http_requests: { connect: { id: httpRequestId } },
       fields: action.fields as object,
       variables: action.variables as object,

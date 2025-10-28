@@ -1,6 +1,4 @@
 import {
-  RunnerCheckResult,
-  RunnerExecutionResult,
   RunnerVariableData,
 } from '@root/runner/runner.dto';
 import { ActionBuilderParams } from '@root/runner/zaps/actions/actions.runner.factory';

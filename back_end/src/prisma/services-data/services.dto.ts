@@ -39,6 +39,7 @@ export interface ServiceTrigger {
   trigger_type: 'POLLING' | 'SCHEDULE' | 'WEBHOOK';
   name: string;
   description: string;
+  require_connection: boolean;
   polling_interval: number | null;
   fields: Record<string, ServiceField>;
   variables: ServiceVariable[];
@@ -52,6 +53,7 @@ export interface ServiceAction {
   http_requests: ServiceHttpRequest;
   name: string;
   description: string;
+  require_connection: boolean;
   fields: Record<string, ServiceField>;
   variables: ServiceVariable[];
   is_active: boolean;
@@ -61,6 +63,7 @@ export interface ServiceAction {
 
 export interface Service {
   name: string;
+  slug: string;
   serviceColor: string;
   iconUrl: string;
   apiBaseUrl: string;
