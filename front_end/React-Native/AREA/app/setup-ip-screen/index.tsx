@@ -85,7 +85,7 @@ export default function SetupIpScreen() {
           Please enter the network location of the application server :
         </Text>
         <TextInput
-          placeholder="Example: 127.0.0.1"
+          placeholder="Example: https://ip.address:8080"
           value={ip}
           onChangeText={setIp}
           style={styles.textBox}
@@ -110,7 +110,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    marginBottom: 50
+    marginBottom: 50,
+    backgroundColor: '#e8ecf4'
   },
 
   text: {
@@ -127,7 +128,8 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 20,
     height: 50,
-    fontSize: 20
+    fontSize: 20,
+    backgroundColor: '#ffffff'
   },
 
   buttons: {

@@ -101,21 +101,48 @@ const ConnectService = (props: Props) => {
 
   const handleOAuth = async () => {
     try {
-      const url = `${apiUrl}/oauth2/${service?.name?.toLowerCase()}?redirect_uri=${encodeURIComponent(redirectUri)}`;
+      // Step 1: Get encrypted token
+      console.log('Step 1: Getting encrypted token...');
+      const encryptResponse = await fetch(`${apiUrl}/oauth2/encrypt-token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`,
+        },
+        body: JSON.stringify({
+          platform: 'mobile',
+        }),
+      });
+
+      if (!encryptResponse.ok) {
+        throw new Error('Failed to get encrypted token');
+      }
+
+      const encryptData = await encryptResponse.json();
+      console.log('Encrypted token response:', encryptData);
+      
+      if (!encryptData.encryptedToken) {
+        throw new Error('No encrypted token received');
+      }
+
+      // Step 2: Use encrypted token to get OAuth URL
+      const oauth2Slug = service?.name?.toLowerCase();
+      const url = `${apiUrl}/oauth2/${oauth2Slug}?token=${encodeURIComponent(encryptData.encryptedToken)}`;
       console.log('OAuth GET URL:', url);
-      console.log('sessionToken (avant requête):', sessionToken);
+      
       const res = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Authorization': `Bearer ${sessionToken || ''}`,
         },
         credentials: 'include',
         redirect: 'manual',
       });
+
       let redirect = res.headers.get('Location');
       console.log('Redirection Location:', redirect);
+      
       if (!redirect) {
         try {
           const data = await res.json();
@@ -129,15 +156,16 @@ const ConnectService = (props: Props) => {
           }
         }
       }
+      
       if (redirect) {
         const result = await WebBrowser.openAuthSessionAsync(redirect, redirectUri);
         console.log('WebBrowser result:', result);
       } else {
-        Alert.alert('Erreur: pas de redirection trouvée.');
-        console.log('Réponse brute:', res);
+        Alert.alert('Error: No redirection found.');
+        console.log('Raw response:', res);
       }
     } catch (e) {
-      Alert.alert('Erreur réseau lors de la connexion au service.');
+      Alert.alert('Network error while connecting to the service.');
       console.log('Network error:', e);
     }
   };
@@ -159,7 +187,7 @@ const ConnectService = (props: Props) => {
   if (loading) {
     return (
       <View style={styles.container}>
-        <Text>Chargement...</Text>
+        <Text>Loading...</Text>
       </View>
     );
   }
@@ -167,7 +195,7 @@ const ConnectService = (props: Props) => {
   if (!service) {
     return (
       <View style={styles.container}>
-        <Text>Service non trouvé pour l'ID: {id}</Text>
+        <Text>Service not found for ID: {id}</Text>
       </View>
     );
   }
