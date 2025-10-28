@@ -11,8 +11,6 @@ export class RunnerService {
 
   /**
    * Start the runner of the AREA.
-   *
-   * This method call the `TriggerJobRunner#`
    */
   async start() {
     while (true) {
