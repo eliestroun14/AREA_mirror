@@ -57,6 +57,16 @@ export function AREA_AuthGuard(serviceName: string) {
       context: ExecutionContext,
       status?: unknown,
     ): TUser {
+      console.log("err:");
+      console.log(err);
+      console.log("user:");
+      console.log(user);
+      console.log("info:");
+      console.log(info);
+      console.log("context:");
+      console.log(context);
+      console.log("status:");
+      console.log(status);
       const req: StrategyCallbackRequest = context.switchToHttp().getRequest();
       req.provider = user;
       return req.user as TUser;

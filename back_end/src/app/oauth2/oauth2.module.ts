@@ -6,15 +6,18 @@ import { ConnectionsService } from '@app/users/connections/connections.service';
 import { AuthModule } from '@app/auth/auth.module';
 import { DiscordStrategy } from '@app/oauth2/services/discord/discord.strategy';
 import { DiscordOAuth2Module } from '@app/oauth2/services/discord/discord.module';
+import { GoogleCalendarOAuth2Module } from '@app/oauth2/services/google-calendar/google-calendar.module';
+import { GoogleCalendarStrategy } from '@app/oauth2/services/google-calendar/google-calendar.strategy';
 
 @Module({
-  imports: [AuthModule, DiscordOAuth2Module],
+  imports: [AuthModule, DiscordOAuth2Module, GoogleCalendarOAuth2Module],
   controllers: [OAuth2TokenController],
   providers: [
     PrismaService,
     ServicesService,
     ConnectionsService,
     DiscordStrategy,
+    GoogleCalendarStrategy,
   ],
 })
 export class Oauth2Module {}
