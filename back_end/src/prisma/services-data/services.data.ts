@@ -123,6 +123,7 @@ export const servicesData: Service[] = [
   },
   {
     name: services.teams.name,
+    slug: services.teams.slug,
     serviceColor: '#464EB8',
     iconUrl: '/assets/teams.svg',
     apiBaseUrl: 'https://graph.microsoft.com',
@@ -137,7 +138,8 @@ export const servicesData: Service[] = [
         trigger_type: 'POLLING',
         name: 'New message received',
         description: 'Triggers when a new message is received in a Teams channel',
-        polling_interval: 30000, // Poll every 30 seconds
+        require_connection: true,
+        polling_interval: 30000,
         fields: {
           team_id: {
             key: 'team_id',
@@ -206,6 +208,7 @@ export const servicesData: Service[] = [
         class_name: 'TeamsAction_SendMessage',
         name: 'Send message',
         description: 'Send a message to a Microsoft Teams channel.',
+        require_connection: true,
         fields: {
           team_id: {
             key: 'team_id',
@@ -258,6 +261,7 @@ export const servicesData: Service[] = [
         class_name: 'TeamsAction_SendReaction',
         name: 'React to message',
         description: 'Add a reaction to a Microsoft Teams message.',
+        require_connection: true,
         fields: {
           team_id: {
             key: 'team_id',
@@ -322,49 +326,4 @@ export const servicesData: Service[] = [
       },
     ],
   },
-    actions: [
-      {
-        http_requests: {
-          description: 'Send a message.',
-          method: 'POST',
-          endpoint: 'https://discord.com/api/webhooks/',
-        },
-        class_name: 'DiscordAction_SendMessage',
-        name: 'Send message',
-        description: 'Send a message to Discord using a webhook.',
-        require_connection: false,
-        fields: {
-          message: {
-            key: 'message',
-            required: true,
-            type: 'string',
-            select_options: [],
-            field_name: 'Message',
-            default_value: 'Hello from AREA!',
-            placeholder: 'Your message',
-            field_order: 1,
-            validation_rules: {},
-            is_active: true,
-          },
-          webhook_url: {
-            key: 'webhook_url',
-            required: true,
-            type: 'string',
-            select_options: [],
-            field_name: 'Webhook URL',
-            default_value:
-              'https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_SECRET',
-            placeholder: 'Your webhook URL',
-            field_order: 0,
-            validation_rules: {},
-            is_active: true,
-          },
-        },
-        variables: [],
-        is_active: false,
-        created_at: new Date(Date.now()),
-        updated_at: new Date(Date.now()),
-      },
-    ],
-  }
 ];

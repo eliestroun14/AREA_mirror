@@ -1,5 +1,6 @@
 import {
   RunnerExecutionStatus,
+  RunnerVariableData,
 } from '@root/runner/runner.dto';
 import { ActionBuilderParams } from '@root/runner/zaps/actions/actions.runner.factory';
 import { ActionRunnerJob } from '@root/runner/zaps/actions/actions.runner.job';

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Profile, Strategy, StrategyOptions } from 'passport-microsoft';
+import { Strategy } from 'passport-microsoft';
 import { TeamsProvider } from '@app/oauth2/services/teams/teams.dto';
 import { envConstants } from '@config/env';
 import { callbackOf } from '@config/utils';
@@ -10,23 +10,28 @@ import { services } from '@root/prisma/services-data/services.data';
 export class TeamsStrategy extends PassportStrategy(Strategy, 'teams') {
   private readonly logger = new Logger(TeamsStrategy.name);
   
-  // Utilisons des scopes très basiques pour commencer
+  // Scopes nécessaires pour Microsoft Teams
   private static SCOPES: string[] = [
     'openid',
-    'profile', 
+    'profile',
     'email',
+    'User.Read',
+    'ChatMessage.Read',
+    'ChatMessage.Send',
+    'Group.ReadWrite.All',
+    'Team.ReadBasic.All',
+    'Channel.ReadBasic.All',
   ];
 
   constructor() {
     const callbackURL = callbackOf(services.teams.slug);
     
-    const options: StrategyOptions = {
+    const options = {
       clientID: envConstants.teams_client_id,
       clientSecret: envConstants.teams_client_secret,
       callbackURL: callbackURL,
       scope: TeamsStrategy.SCOPES,
       tenant: 'common',
-      // Suppression du resource pour éviter les conflits
     };
 
     super(options);
@@ -39,14 +44,14 @@ export class TeamsStrategy extends PassportStrategy(Strategy, 'teams') {
   validate(
     accessToken: string,
     refreshToken: string,
-    profile: Profile,
+    profile: any,
   ): TeamsProvider {
     this.logger.log(`Profile received: ${JSON.stringify(profile, null, 2)}`);
     
-    return {
+    const provider = {
       connection_name: services.teams.name,
       account_identifier: profile.id,
-      email: profile.emails?.[0]?.value ?? 'none',
+      email: profile.emails?.[0]?.value ?? profile._json?.mail ?? 'none',
       username: profile.displayName ?? '',
       picture: profile.photos?.[0]?.value ?? '/assets/placeholder.png',
       rate_limit_remaining: undefined,
@@ -56,9 +61,12 @@ export class TeamsStrategy extends PassportStrategy(Strategy, 'teams') {
       expires_at: null,
       scopes: TeamsStrategy.SCOPES,
       tenant_id: profile._json?.tid ?? '',
-      given_name: profile._json?.given_name ?? '',
-      family_name: profile._json?.family_name ?? '',
-      upn: profile._json?.upn ?? '',
-    };
+      given_name: profile._json?.givenName ?? profile.name?.givenName ?? '',
+      family_name: profile._json?.surname ?? profile.name?.familyName ?? '',
+      upn: profile._json?.userPrincipalName ?? profile.userPrincipalName ?? '',
+    } as TeamsProvider;
+
+    this.logger.log(`Provider created: ${JSON.stringify(provider, null, 2)}`);
+    return provider;
   }
 }

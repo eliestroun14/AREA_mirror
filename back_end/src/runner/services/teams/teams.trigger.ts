@@ -6,17 +6,18 @@ import { TriggerBuilderParams } from '@root/runner/zaps/triggers/triggers.runner
 import { TriggerRunnerJob } from '@root/runner/zaps/triggers/triggers.runner.job';
 import { TeamsTrigger_OnNewMessage_Payload } from '@root/runner/services/teams/teams.dto';
 
-export class TeamsTrigger_OnNewMessage extends TriggerRunnerJob<TeamsTrigger_OnNewMessage_Payload> {
+export class TeamsTrigger_OnNewMessage extends TriggerRunnerJob<TeamsTrigger_OnNewMessage_Payload, object> {
   constructor(params: TriggerBuilderParams) {
     super(params);
   }
 
-  protected async _check(): Promise<RunnerCheckResult> {
+  protected async _check(): Promise<RunnerCheckResult<object>> {
     try {
       if (!this.accessToken) {
         return {
           status: RunnerExecutionStatus.FAILURE,
-          data: [],
+          variables: [],
+          comparison_data: null,
           is_triggered: false,
         };
       }
@@ -26,7 +27,8 @@ export class TeamsTrigger_OnNewMessage extends TriggerRunnerJob<TeamsTrigger_OnN
       if (!team_id || !channel_id) {
         return {
           status: RunnerExecutionStatus.FAILURE,
-          data: [],
+          variables: [],
+          comparison_data: null,
           is_triggered: false,
         };
       }
@@ -58,7 +60,8 @@ export class TeamsTrigger_OnNewMessage extends TriggerRunnerJob<TeamsTrigger_OnN
         console.error('Failed to fetch Teams messages:', response.statusText);
         return {
           status: RunnerExecutionStatus.FAILURE,
-          data: [],
+          variables: [],
+          comparison_data: null,
           is_triggered: false,
         };
       }
@@ -69,7 +72,8 @@ export class TeamsTrigger_OnNewMessage extends TriggerRunnerJob<TeamsTrigger_OnN
       if (messages.length === 0) {
         return {
           status: RunnerExecutionStatus.SUCCESS,
-          data: [],
+          variables: [],
+          comparison_data: null,
           is_triggered: false,
         };
       }
@@ -85,14 +89,16 @@ export class TeamsTrigger_OnNewMessage extends TriggerRunnerJob<TeamsTrigger_OnN
 
       return {
         status: RunnerExecutionStatus.SUCCESS,
-        data: messageData,
+        variables: messageData,
+        comparison_data: null,
         is_triggered: true,
       };
     } catch (error) {
       console.error('Error in TeamsTrigger_OnNewMessage:', error);
       return {
         status: RunnerExecutionStatus.FAILURE,
-        data: [],
+        variables: [],
+        comparison_data: null,
         is_triggered: false,
       };
     }

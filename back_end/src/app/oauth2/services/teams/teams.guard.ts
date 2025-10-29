@@ -1,3 +1,5 @@
-import { AuthGuard } from '@nestjs/passport';
+import { Injectable } from '@nestjs/common';
+import { AREA_AuthGuard } from '@app/oauth2/services/service.guard';
 
-export class TeamsOAuthGuard extends AuthGuard('teams') {}
+@Injectable()
+export class TeamsOAuthGuard extends AREA_AuthGuard('teams') {}
