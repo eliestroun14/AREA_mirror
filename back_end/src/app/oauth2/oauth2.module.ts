@@ -14,9 +14,11 @@ import { TwitchOAuth2Module } from '@app/oauth2/services/twitch/twitch.module';
 import { TwitchStrategy } from '@app/oauth2/services/twitch/twitch.strategy';
 import { YoutubeOAuth2Module } from '@app/oauth2/services/youtube/youtube.module';
 import { YoutubeStrategy } from '@app/oauth2/services/youtube/youtube.strategy';
+import { DriveOAuth2Module } from '@app/oauth2/services/drive/drive.module';
+import { DriveStrategy } from '@app/oauth2/services/drive/drive.strategy';
 
 @Module({
-  imports: [AuthModule, DiscordOAuth2Module, TeamsOAuth2Module, GoogleCalendarOAuth2Module, YoutubeOAuth2Module, TwitchOAuth2Module,],
+  imports: [AuthModule, DiscordOAuth2Module, TeamsOAuth2Module, GoogleCalendarOAuth2Module, YoutubeOAuth2Module, DriveOAuth2Module, TwitchOAuth2Module],
   controllers: [OAuth2TokenController],
   providers: [
     PrismaService,
@@ -27,6 +29,7 @@ import { YoutubeStrategy } from '@app/oauth2/services/youtube/youtube.strategy';
     GoogleCalendarStrategy,
     TwitchStrategy,
     YoutubeStrategy,
+    DriveStrategy,
   ],
 })
 export class Oauth2Module {}

@@ -6,6 +6,7 @@ export const services = {
   twitch: { name: 'Twitch', slug: 'twitch' },
   youtube: { name: 'Youtube', slug: 'youtube' },
   teams: { name: 'Teams', slug: 'teams' },
+  drive: { name: 'Drive', slug: 'drive' }
 };
 
 export const servicesData: Service[] = [
@@ -128,7 +129,7 @@ export const servicesData: Service[] = [
     name: services.teams.name,
     slug: services.teams.slug,
     serviceColor: '#464EB8',
-    iconUrl: '/assets/teams.svg',
+    iconUrl: '/assets/teams.png',
     apiBaseUrl: 'https://graph.microsoft.com',
     authType: 'oauth2',
     documentationUrl: 'https://docs.microsoft.com/en-us/graph/api/overview?view=graph-rest-1.0',
@@ -439,6 +440,61 @@ export const servicesData: Service[] = [
             name: 'test',
           },
         ],
+        is_active: false,
+        created_at: new Date(Date.now()),
+        updated_at: new Date(Date.now()),
+      },
+    ],
+  },
+  {
+    name: services.drive.name,
+    slug: services.drive.slug,
+    serviceColor: '#34A853',
+    iconUrl: '/assets/drive.png',
+    apiBaseUrl: 'https://www.googleapis.com/drive/v3',
+    authType: 'oauth2',
+    documentationUrl: 'https://developers.google.com/drive/api/v3/reference',
+    isActive: true,
+    triggers: [],
+    actions: [
+      {
+        http_requests: {
+          description: 'Send a message.',
+          method: 'POST',
+          endpoint: 'https://discord.com/api/webhooks/',
+        },
+        class_name: 'DiscordAction_SendMessage',
+        name: 'Send message',
+        description: 'Send a message to Discord using a webhook.',
+        require_connection: false,
+        fields: {
+          message: {
+            key: 'message',
+            required: true,
+            type: 'string',
+            select_options: [],
+            field_name: 'Message',
+            default_value: 'Hello from AREA!',
+            placeholder: 'Your message',
+            field_order: 1,
+            validation_rules: {},
+            is_active: true,
+          },
+          webhook_url: {
+            key: 'webhook_url',
+            required: true,
+            type: 'string',
+            select_options: [],
+            field_name: 'Webhook URL',
+            default_value:
+              'https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_SECRET',
+            placeholder: 'Your webhook URL',
+            field_order: 0,
+            validation_rules: {},
+            is_active: true,
+          },
+        },
+        variables: [],
         is_active: false,
         created_at: new Date(Date.now()),
         updated_at: new Date(Date.now()),

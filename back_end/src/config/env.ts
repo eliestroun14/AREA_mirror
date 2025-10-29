@@ -44,4 +44,7 @@ export const envConstants = {
 
   youtube_client_id: process.env.YOUTUBE_CLIENT_ID ?? 'YOUTUBE_CLIENT_ID',
   youtube_client_secret: process.env.YOUTUBE_CLIENT_SECRET ?? 'YOUTUBE_SECRET',
+
+  drive_client_id: process.env.DRIVE_CLIENT_ID ?? 'DRIVE_CLIENT_ID',
+  drive_client_secret: process.env.DRIVE_CLIENT_SECRET ?? 'DRIVE_SECRET',
 };
