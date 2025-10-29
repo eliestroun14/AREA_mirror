@@ -2,7 +2,7 @@ import { Service } from '@root/prisma/services-data/services.dto';
 
 export const services = {
   discord: { name: 'Discord', slug: 'discord' },
-  googleCalendar: { name: 'calendar', slug: 'calendar'}
+  googleCalendar: { name: 'Calendar', slug: 'calendar'}
 };
 
 export const servicesData: Service[] = [
