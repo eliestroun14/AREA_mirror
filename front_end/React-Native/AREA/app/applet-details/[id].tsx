@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { AppletsCard } from "@/types/type";
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
+import { getImageBySlug } from "@/utils/serviceImageUtils";
 import { useApi } from "@/context/ApiContext";
 
 type Props = {}

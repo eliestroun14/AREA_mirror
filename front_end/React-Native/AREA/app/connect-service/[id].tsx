@@ -3,7 +3,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';
 import { Service } from "@/types/type";
 import { Stack } from 'expo-router';
-import { imageMap } from "@/types/image";
+import { getServiceImageSource } from "@/utils/serviceImageUtils";
 import { useAuth } from "@/context/AuthContext";
 import { useAuthRequest, makeRedirectUri, ResponseType } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
@@ -14,18 +14,9 @@ import { useApi } from "@/context/ApiContext";
 
 // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
-// Map service names to their correct OAuth2 slugs
-const getServiceSlug = (serviceName: string): string => {
-  const slugMap: Record<string, string> = {
-    'Microsoft Teams': 'teams',
-    'Discord': 'discord',
-    'Gmail': 'gmail',
-    'Github': 'github',
-    'Google': 'google',
-    'Deezer': 'deezer',
-    'Spotify': 'spotify'
-  };
-  return slugMap[serviceName] || serviceName.toLowerCase().replace(/\s+/g, '-');
+// Get service slug from the service object (now using dynamic slug from backend)
+const getServiceSlug = (service: Service | null): string => {
+  return service?.slug || '';
 };
 
 type Props = {}
@@ -46,10 +37,10 @@ const ConnectService = (props: Props) => {
   const [request, response, promptAsync] = useAuthRequest(
     {
       responseType: ResponseType.Code,
-      clientId: getServiceSlug(service?.name || ''),
+      clientId: getServiceSlug(service),
       redirectUri,
     },
-    { authorizationEndpoint: `${apiUrl}/oauth2/${getServiceSlug(service?.name || '')}` }
+    { authorizationEndpoint: `${apiUrl}/oauth2/${getServiceSlug(service)}` }
   );
 
 
@@ -63,9 +54,9 @@ const ConnectService = (props: Props) => {
         try {
           console.log('--- OAUTH DEBUG ---');
           console.log('sessionToken:', sessionToken);
-          console.log('POST URL:', `${apiUrl}/oauth2/${getServiceSlug(service?.name || '')}`);
+          console.log('POST URL:', `${apiUrl}/oauth2/${getServiceSlug(service)}`);
           console.log('POST body:', { code: response.params.code, redirect_uri: redirectUri });
-          const res = await fetch(`${apiUrl}/oauth2/${getServiceSlug(service?.name || '')}`,
+          const res = await fetch(`${apiUrl}/oauth2/${getServiceSlug(service)}`,
             {
               method: 'GET',
               headers: {
@@ -114,7 +105,7 @@ const ConnectService = (props: Props) => {
 
   const handleOAuth = async () => {
     try {
-      const url = `${apiUrl}/oauth2/${getServiceSlug(service?.name || '')}?redirect_uri=${encodeURIComponent(redirectUri)}`;
+      const url = `${apiUrl}/oauth2/${getServiceSlug(service)}?redirect_uri=${encodeURIComponent(redirectUri)}`;
       console.log('OAuth GET URL:', url);
       console.log('sessionToken (avant requête):', sessionToken);
       const res = await fetch(url, {
@@ -203,7 +194,7 @@ const ConnectService = (props: Props) => {
         <View style={[styles.header, { backgroundColor: service.services_color }]}> 
           <Image
             style={styles.appLogo}
-            source={imageMap[service.name] ?? imageMap["default"]}
+            source={getServiceImageSource(service)}
           />
           <Text style={styles.serviceName}>{service.name}</Text>
           <Text style={styles.serviceDescription}>{service.documentation_url}</Text>

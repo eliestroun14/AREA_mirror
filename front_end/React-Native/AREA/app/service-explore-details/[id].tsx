@@ -5,6 +5,7 @@ import { Service, Trigger, Action } from "@/types/type";
 import axios from 'axios';
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
+import { getServiceImageSource } from "@/utils/serviceImageUtils";
 import { useApi } from "@/context/ApiContext";
 
 const ServiceExploreDetails = () => {
@@ -71,7 +72,7 @@ const ServiceExploreDetails = () => {
         <View style={[styles.header, { backgroundColor: service.services_color }]}> 
           <Image
             style={styles.appLogo}
-            source={imageMap[service.name] ?? imageMap["default"]}
+            source={getServiceImageSource(service)}
           />
           <Text style={styles.serviceName}>{service.name}</Text>
           <Text style={styles.serviceDescription}>{service.documentation_url}</Text>

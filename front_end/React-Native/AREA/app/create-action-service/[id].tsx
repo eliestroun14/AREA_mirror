@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Service, Action } from "@/types/type";
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
+import { getServiceImageSource } from "@/utils/serviceImageUtils";
 import ActionCard from "@/components/molecules/action-card/action-card";
 import { useAuth } from "@/context/AuthContext";
 import axios from "axios";
@@ -166,7 +167,7 @@ const CreateActionService = ({allTriggers}: Props) => {
                 <View style={[styles.header, {backgroundColor: service.services_color}]}> 
                   <Image
                     style={styles.appLogo}
-                    source={imageMap[service.name] ?? imageMap["default"]}
+                    source={getServiceImageSource(service)}
                   />
                   <Text style={styles.serviceName}>
                     {service.name}

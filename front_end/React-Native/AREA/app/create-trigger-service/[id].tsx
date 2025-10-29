@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Service, Trigger } from "@/types/type";
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
+import { getServiceImageSource } from "@/utils/serviceImageUtils";
 import TriggerCard from "@/components/molecules/trigger-card/trigger-card";
 import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
@@ -112,7 +113,7 @@ const CreateTriggerService = () => {
             <View style={[styles.header, { backgroundColor: service.services_color }]}> 
               <Image
                 style={styles.appLogo}
-                source={imageMap[service.id] ?? imageMap["default"]}
+                source={getServiceImageSource(service)}
               />
               <Text style={styles.serviceName}>
                 {service.name}

@@ -1,6 +1,7 @@
 export interface Service {
   id: number;
   name: string;
+  slug: string;
   icon_url: string;
   api_base_url: string;
   services_color: string;

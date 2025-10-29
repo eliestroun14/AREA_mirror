@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Service, Trigger } from "@/types/type";
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
+import { getServiceImageSource } from "@/utils/serviceImageUtils";
 import TriggerFieldCard from "@/components/molecules/trigger-field-card/trigger-field-card";
 import { TriggerField } from "@/types/type";
 import { router } from "expo-router";
@@ -97,7 +98,7 @@ const TriggerFieldsPage = (props: Props) => {
           <View style={[styles.header, {backgroundColor: service.services_color}]}>
             <Image
               style={styles.appLogo}
-              source={imageMap[service.id] ?? imageMap["default"]}
+              source={getServiceImageSource(service)}
             />
 
             <Text style={styles.triggerName}>

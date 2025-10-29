@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Service, Trigger, Action } from "@/types/type";
 import { router } from "expo-router";
 import { imageMap } from "@/types/image";
+import { getServiceImageSource } from "@/utils/serviceImageUtils";
 import { useAuth } from "@/context/AuthContext";
 
 type Props = {
@@ -56,7 +57,7 @@ const CreateCard = ({ serviceTrigger, trigger, serviceAction, action, onPress }:
         <TouchableOpacity>
           <View style={[styles.buttonTriggered, { backgroundColor: serviceTrigger.services_color }]}> 
             <Text style={styles.text}>If</Text>
-            <Image style={styles.appLogo} source={imageMap[serviceTrigger.id] ?? imageMap["default"]} />
+            <Image style={styles.appLogo} source={getServiceImageSource(serviceTrigger)} />
             <Text style={styles.triggerName}>{trigger?.name}</Text>
           </View>
         </TouchableOpacity>
@@ -85,7 +86,7 @@ const CreateCard = ({ serviceTrigger, trigger, serviceAction, action, onPress }:
         <TouchableOpacity onPress={onPress}>
           <View style={[styles.buttonTriggered, { backgroundColor: serviceTrigger.services_color }]}> 
             <Text style={styles.text}>If</Text>
-            <Image style={styles.appLogo} source={imageMap[serviceTrigger.id] ?? imageMap["default"]} />
+            <Image style={styles.appLogo} source={getServiceImageSource(serviceTrigger)} />
             <Text style={styles.triggerName}>{trigger?.name}</Text>
           </View>
         </TouchableOpacity>
@@ -93,7 +94,7 @@ const CreateCard = ({ serviceTrigger, trigger, serviceAction, action, onPress }:
         <TouchableOpacity>
           <View style={[styles.buttonTriggered, { backgroundColor: serviceAction?.services_color }]}> 
             <Text style={styles.text}>Then</Text>
-            <Image style={styles.appLogo} source={imageMap[serviceAction.id] ?? imageMap["default"]} />
+            <Image style={styles.appLogo} source={getServiceImageSource(serviceAction)} />
             <Text style={styles.triggerName}>{action?.name}</Text>
           </View>
         </TouchableOpacity>
