@@ -8,9 +8,9 @@ export interface ServiceTriggerWebhook {
   from_url: string;
   event: string;
   action: string;
-  secret: string;
   total_received: number;
   last_received_at: number;
+  create: (webhookUrl: string, secret: string, payload: object) => boolean; // Renvoie true si le webhook a bien été créé, false sinon.
 }
 
 export interface ServiceField {

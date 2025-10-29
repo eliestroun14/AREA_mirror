@@ -19,6 +19,7 @@ export default function SignupPage() {
   const [name, setName] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
   const handleSignup = async () => {
     if (password !== confirmPassword) {

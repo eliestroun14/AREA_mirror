@@ -2,10 +2,39 @@ import { Service } from '@root/prisma/services-data/services.dto';
 
 export const services = {
   discord: { name: 'Discord', slug: 'discord' },
-  googleCalendar: { name: 'Calendar', slug: 'calendar'}
+  googleCalendar: { name: 'Calendar', slug: 'calendar' },
+  github: { name: 'Github', slug: 'github' },
 };
 
 export const servicesData: Service[] = [
+  {
+    name: services.github.name,
+    slug: services.github.slug,
+    serviceColor: '#1C1C1C',
+    iconUrl: '/assets/github.png',
+    apiBaseUrl: '',
+    authType: 'oauth2',
+    documentationUrl: '',
+    isActive: true,
+    triggers: [
+      {
+        class_name: 'none',
+        http_requests: null,
+        webhook: null,
+        trigger_type: 'POLLING',
+        name: 'Test trigger for oauth',
+        description: 'ersgesg',
+        require_connection: true,
+        polling_interval: 1000,
+        fields: {},
+        variables: [],
+        is_active: true,
+        created_at: new Date(Date.now()),
+        updated_at: new Date(Date.now()),
+      },
+    ],
+    actions: [],
+  },
   {
     name: 'Scheduling',
     slug: 'scheduling',
@@ -115,7 +144,8 @@ export const servicesData: Service[] = [
     iconUrl: '/assets/googleCalendar.png',
     apiBaseUrl: 'https://www.googleapis.com/calendar/v3',
     authType: 'oauth2',
-    documentationUrl: 'https://developers.google.com/workspace/calendar/api/v3/reference',
+    documentationUrl:
+      'https://developers.google.com/workspace/calendar/api/v3/reference',
     isActive: true,
     triggers: [],
     actions: [
@@ -162,5 +192,5 @@ export const servicesData: Service[] = [
         updated_at: new Date(Date.now()),
       },
     ],
-  }
+  },
 ];

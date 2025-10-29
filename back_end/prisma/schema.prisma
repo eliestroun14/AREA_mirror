@@ -81,6 +81,7 @@ model webhooks {
   last_received_at DateTime?
   triggers         triggers[]
 
+  associated_step zap_steps? @relation("zap_steps_webhook")
   @@unique([action, event, from_url])
 }
 
@@ -155,6 +156,7 @@ model zaps {
 model zap_steps {
   id             Int  @id @default(autoincrement())
   zap_id         Int
+  webhook_id     Int? @unique
   source_step_id Int?
   trigger_id     Int?
   action_id      Int?
@@ -167,6 +169,7 @@ model zap_steps {
   updated_at DateTime @default(now())
 
   zap                 zaps                  @relation(fields: [zap_id], references: [id], onDelete: Cascade)
+  webhook             webhooks?             @relation("zap_steps_webhook", fields: [webhook_id], references: [id], onDelete: Cascade)
   source_step         zap_steps?            @relation("zap_steps_source", fields: [source_step_id], references: [id], onDelete: SetNull)
   dependent_steps     zap_steps[]           @relation("zap_steps_source")
   trigger             triggers?             @relation(fields: [trigger_id], references: [id], onDelete: Cascade)

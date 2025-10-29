@@ -5,6 +5,7 @@ import { PrismaService } from '@root/prisma/prisma.service';
 import { ConnectionsService } from '@app/users/connections/connections.service';
 import { ServicesService } from '@app/services/services.service';
 import { StepsService } from './steps/steps.service';
+import { WebhooksService } from '@app/webhooks/webhooks.service';
 
 @Module({
   controllers: [ZapsController],
@@ -14,6 +15,7 @@ import { StepsService } from './steps/steps.service';
     ServicesService,
     PrismaService,
     StepsService,
+    WebhooksService,
   ],
 })
 export class ZapsModule {}
