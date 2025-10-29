@@ -28,4 +28,7 @@ export const envConstants = {
 
   spotify_client_id: process.env.SPOTIFY_CLIENT_ID ?? 'SPOTIFY_CLIENT_ID',
   spotify_client_secret: process.env.SPOTIFY_CLIENT_SECRET ?? 'SPOTIFY_SECRET',
+
+  google_calendar_client_id: process.env.GOOGLE_CALENDAR_CLIENT_ID ?? 'GOOGLE_CALENDAR_CLIENT_ID',
+  google_calendar_client_secret: process.env.GOOGLE_CALENDAR_CLIENT_SECRET ?? 'GOOGLE_CALENDAR_SECRET',
 };
