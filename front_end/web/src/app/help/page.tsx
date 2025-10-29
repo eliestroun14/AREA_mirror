@@ -31,14 +31,14 @@ const StyledCard = styled(Card)(({ theme }) => ({
 }))
 
 const steps = [
-  'Clicker sur créer un applet',
-  'Choisir un déclencheur',
-  'Se connecter aux services (si nécessaire/pas encore fait)',
-  'Choisir une action',
-  'Se connecter aux services (si nécessaire/pas encore fait)',
-  'Configurer son action',
-  'Repeter pour des actions supplémentaires (optionnel)',
-  'Tester et activer votre applet'
+  'Click on create an applet',
+  'Choose a trigger',
+  'Connect to services (if necessary/not already done)',
+  'Choose an action',
+  'Connect to services (if necessary/not already done)',
+  'Configure your action',
+  'Repeat for additional actions (optional)',
+  'Test and activate your applet'
 ]
 
 export default function HelpPage() {
@@ -74,23 +74,23 @@ export default function HelpPage() {
             }
           }}
         >
-          Retour
+          Back
         </Button>
       </Box>
 
       <Typography variant="h3" align="center" color="primary.main" gutterBottom>
-        Comment créer des Applets AREA
+        How to create AREA Applets
       </Typography>
       
       <Typography variant="h6" align="center" color="text.secondary" sx={{ mb: 4 }}>
-        Automatisez vos tâches quotidiennes en connectant vos services préférés
+        Automate your daily tasks by connecting your favorite services
       </Typography>
 
       <Alert severity="info" sx={{ mb: 4 }}>
         <Typography variant="body2">
-          Un <strong>Applet</strong> (ou &quot;Zap&quot;) est un workflow automatisé qui connecte deux ou plusieurs applications. 
-          Il fonctionne sur le principe &quot;SI ceci ALORS cela&quot; : quand quelque chose se passe dans une application (déclencheur), 
-          une action est automatiquement exécutée dans une autre application.
+          An <strong>Applet</strong> (or &quot;Zap&quot;) is an automated workflow that connects two or more applications. 
+          It works on the principle &quot;IF this THEN that&quot;: when something happens in one application (trigger), 
+          an action is automatically executed in another application.
         </Typography>
       </Alert>
 
@@ -99,7 +99,7 @@ export default function HelpPage() {
         <CardContent>
           <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <BoltIcon color="primary" />
-            Étapes de création d&apos;un Applet
+            Applet creation steps
           </Typography>
           
           <List sx={{ mt: 2 }}>
@@ -147,22 +147,22 @@ export default function HelpPage() {
         <CardContent>
           <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <PlayCircleOutlineIcon color="primary" />
-            Choisir un déclencheur (Trigger)
+            Choose a trigger
           </Typography>
           
           <Typography variant="body1" paragraph>
-            Le déclencheur est l&apos;événement qui va lancer votre applet. C&apos;est le &quot;SI&quot; de votre automation.
+            The trigger is the event that will launch your applet. It&apos;s the &quot;IF&quot; of your automation.
           </Typography>
 
-          <Typography variant="h6" gutterBottom>Types de déclencheurs :</Typography>
+          <Typography variant="h6" gutterBottom>Types of triggers:</Typography>
           <List>
             <ListItem>
               <ListItemIcon>
                 <InfoIcon color="info" />
               </ListItemIcon>
               <ListItemText 
-                primary="Déclencheurs de polling" 
-                secondary="AREA vérifie périodiquement s&apos;il y a du nouveau contenu (ex: nouveaux emails)"
+                primary="Polling triggers" 
+                secondary="AREA periodically checks if there is new content (e.g: new emails)"
               />
             </ListItem>
             <ListItem>
@@ -170,8 +170,8 @@ export default function HelpPage() {
                 <InfoIcon color="info" />
               </ListItemIcon>
               <ListItemText 
-                primary="Déclencheurs webhook" 
-                secondary="Le service envoie instantanément une notification à AREA quand quelque chose se passe"
+                primary="Webhook triggers" 
+                secondary="The service instantly sends a notification to AREA when something happens"
               />
             </ListItem>
             <ListItem>
@@ -179,35 +179,35 @@ export default function HelpPage() {
                 <InfoIcon color="info" />
               </ListItemIcon>
               <ListItemText 
-                primary="Déclencheurs programmés" 
-                secondary="Se déclenchent à des intervalles réguliers (toutes les 5 minutes, chaque jour, etc.)"
+                primary="Scheduled triggers" 
+                secondary="Trigger at regular intervals (every 5 minutes, every day, etc.)"
               />
             </ListItem>
           </List>
         </CardContent>
       </StyledCard>
 
-      {/* Configurer les actions */}
+      {/* Configure actions */}
       <StyledCard>
         <CardContent>
           <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <SettingsIcon color="primary" />
-            Configurer les actions
+            Configure actions
           </Typography>
           
           <Typography variant="body1" paragraph>
-            Les actions sont ce qui va se passer quand votre déclencheur s&apos;active. C&apos;est le &quot;ALORS&quot; de votre automation.
+            Actions are what will happen when your trigger activates. It&apos;s the &quot;THEN&quot; of your automation.
           </Typography>
 
-          <Typography variant="h6" gutterBottom>Configuration des actions :</Typography>
+          <Typography variant="h6" gutterBottom>Action configuration:</Typography>
           <List>
             <ListItem>
               <ListItemIcon>
                 <CheckCircleIcon color="success" />
               </ListItemIcon>
               <ListItemText 
-                primary="Sélectionnez le service de destination" 
-                secondary="Choisissez dans quel service l'action va s'exécuter"
+                primary="Select the destination service" 
+                secondary="Choose which service the action will execute in"
               />
             </ListItem>
             <ListItem>
@@ -215,8 +215,8 @@ export default function HelpPage() {
                 <CheckCircleIcon color="success" />
               </ListItemIcon>
               <ListItemText 
-                primary="Configurez les paramètres" 
-                secondary="Remplissez les champs requis (destinataire, message, etc.)"
+                primary="Configure the parameters" 
+                secondary="Fill in the required fields (recipient, message, etc.)"
               />
             </ListItem>
             <ListItem>
@@ -224,26 +224,26 @@ export default function HelpPage() {
                 <CheckCircleIcon color="success" />
               </ListItemIcon>
               <ListItemText 
-                primary="Utilisez les variables" 
-                secondary="Intégrez des données du déclencheur dans votre action (nom de l&apos;expéditeur, contenu du message, etc.)"
+                primary="Use variables" 
+                secondary="Integrate data from the trigger into your action (sender name, message content, etc.)"
               />
             </ListItem>
           </List>
 
           <Alert severity="info" sx={{ mt: 2 }}>
             <Typography variant="body2">
-              <strong>Astuce :</strong> Vous pouvez ajouter plusieurs actions à un même déclencheur. 
-              Elles s&apos;exécuteront séquentiellement.
+              <strong>Tip:</strong> You can add multiple actions to the same trigger. 
+              They will execute sequentially.
             </Typography>
           </Alert>
         </CardContent>
       </StyledCard>
 
-      {/* Conseils et bonnes pratiques */}
+      {/* Tips and best practices */}
       <StyledCard>
         <CardContent>
           <Typography variant="h5" gutterBottom color="primary">
-            💡 Conseils et bonnes pratiques
+            💡 Tips and best practices
           </Typography>
           
           <List>
@@ -252,8 +252,8 @@ export default function HelpPage() {
                 <WarningIcon color="warning" />
               </ListItemIcon>
               <ListItemText 
-                primary="Attention aux boucles infinies" 
-                secondary="Évitez de créer des applets qui se déclenchent mutuellement"
+                primary="Beware of infinite loops" 
+                secondary="Avoid creating applets that trigger each other"
               />
             </ListItem>
             <ListItem>
@@ -261,8 +261,8 @@ export default function HelpPage() {
                 <InfoIcon color="info" />
               </ListItemIcon>
               <ListItemText 
-                primary="Testez avec des données réelles" 
-                secondary="Utilisez de vraies données pour tester vos applets"
+                primary="Test with real data" 
+                secondary="Use real data to test your applets"
               />
             </ListItem>
             <ListItem>
@@ -270,8 +270,8 @@ export default function HelpPage() {
                 <InfoIcon color="info" />
               </ListItemIcon>
               <ListItemText 
-                primary="Surveillez les limites d'API" 
-                secondary="Certains services ont des limites de requêtes par heure/jour"
+                primary="Monitor API limits" 
+                secondary="Some services have request limits per hour/day"
               />
             </ListItem>
             <ListItem>
@@ -279,8 +279,8 @@ export default function HelpPage() {
                 <InfoIcon color="info" />
               </ListItemIcon>
               <ListItemText 
-                primary="Donnez des noms descriptifs" 
-                secondary="Nommez vos applets de manière claire pour les retrouver facilement"
+                primary="Give descriptive names" 
+                secondary="Name your applets clearly to find them easily"
               />
             </ListItem>
           </List>
@@ -291,11 +291,11 @@ export default function HelpPage() {
       
       <Box sx={{ textAlign: 'center' }}>
         <Typography variant="h6" gutterBottom>
-          Besoin d&apos;aide supplémentaire ?
+          Need additional help?
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Si vous avez des questions spécifiques ou rencontrez des problèmes, 
-          n&apos;hésitez pas à nous contacter à{' '}
+          If you have specific questions or encounter problems, 
+          feel free to contact us at{' '}
           <strong>manech.dubreil@epitech.eu</strong>
         </Typography>
       </Box>
