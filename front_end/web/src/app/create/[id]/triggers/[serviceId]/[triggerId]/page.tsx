@@ -106,7 +106,22 @@ export default function TriggerFieldsPage() {
       }
       
       const { encryptedToken } = await response.json();
-      const oauth2Slug = service.name.toLowerCase();
+      
+      // Map service names to their correct OAuth2 slugs
+      const getServiceSlug = (serviceName: string): string => {
+        const slugMap: Record<string, string> = {
+          'Microsoft Teams': 'teams',
+          'Discord': 'discord',
+          'Gmail': 'gmail',
+          'Github': 'github',
+          'Google': 'google',
+          'Deezer': 'deezer',
+          'Spotify': 'spotify'
+        };
+        return slugMap[serviceName] || serviceName.toLowerCase().replace(/\s+/g, '-');
+      };
+      
+      const oauth2Slug = getServiceSlug(service.name);
       const oauthUrl = `${apiBaseUrl}/oauth2/${oauth2Slug}?token=${encodeURIComponent(encryptedToken)}`;
       
       console.log('Opening OAuth URL');

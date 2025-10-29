@@ -45,6 +45,7 @@
     "passport-google-oauth2": "^0.2.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
+    "passport-microsoft": "^2.1.0",
     "passport-spotify": "^2.0.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
@@ -65,6 +66,7 @@
     "@types/passport-google-oauth2": "^0.1.10",
     "@types/passport-google-oauth20": "^2.0.16",
     "@types/passport-oauth2": "^1.8.0",
+    "@types/passport-microsoft": "^2.1.1",
     "@types/passport-spotify": "^2.0.4",
     "@types/passport-twitch-latest": "^1.0.5",
     "@types/supertest": "^6.0.2",
