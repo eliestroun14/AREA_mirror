@@ -2,6 +2,10 @@ import { Module } from '@nestjs/common';
 import { OAuth2TokenController } from './oauth2-token.controller';
 import { PrismaService } from '@root/prisma/prisma.service';
 import { ServicesService } from '@app/services/services.service';
+import { GmailStrategy } from '@app/oauth2/services/gmail/gmail.strategy';
+import { DiscordStrategy } from '@app/oauth2/services/discord/discord.strategy';
+import { GithubStrategy } from '@app/oauth2/services/github/github.strategy';
+import { TeamsStrategy } from '@app/oauth2/services/teams/teams.strategy';
 import { ConnectionsService } from '@app/users/connections/connections.service';
 import { AuthModule } from '@app/auth/auth.module';
 import { DiscordStrategy } from '@app/oauth2/services/discord/discord.strategy';
@@ -17,6 +21,7 @@ import { GoogleCalendarStrategy } from '@app/oauth2/services/google-calendar/goo
     ServicesService,
     ConnectionsService,
     DiscordStrategy,
+    TeamsStrategy,
     GoogleCalendarStrategy,
   ],
 })
