@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import StepSourceSelector from '@/components/StepSourceSelector'
 import { useParams, useRouter } from 'next/navigation'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -109,11 +110,13 @@ export default function ActionConfigPage() {
   const [connections, setConnections] = useState<ConnectionDTO[]>([])
   const [selectedConnection, setSelectedConnection] = useState<number | ''>("")
   const [formData, setFormData] = useState<Record<string, string>>({})
+  const [selectedFromStepId, setSelectedFromStepId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [triggerStepId, setTriggerStepId] = useState<number | null>(null)
   const [existingActionsCount, setExistingActionsCount] = useState(0)
+  const [actionStepId, setActionStepId] = useState<number | null>(null)
   const [triggerVariables, setTriggerVariables] = useState<Record<string, unknown>>({})
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const [currentFieldName, setCurrentFieldName] = useState<string>('')
@@ -126,9 +129,11 @@ export default function ActionConfigPage() {
       console.log('📍 Message origin:', event.origin);
 
       const allowedOrigins = [
-        'https://manech.va.sauver.le.monde.area.projects.epitech.bzh:',
+        'https://manech.va.sauver.le.monde.area.projects.epitech.bzh',
         'http://localhost:8081',
+        'http://localhost:8080',
         'http://localhost:3001',
+        'http://127.0.0.1:8081',
         window.location.origin
       ];
 
@@ -170,12 +175,11 @@ const handleOAuth2Connect = async () => {
         body: JSON.stringify({
           platform: 'web',
         }),
-      });
-      
+  });
       if (!response.ok) {
         throw new Error('Failed to encrypt token');
       }
-      
+
       const { encryptedToken } = await response.json();
       const oauth2Slug = service.name.toLowerCase();
       const oauthUrl = `${apiBaseUrl}/oauth2/${oauth2Slug}?token=${encodeURIComponent(encryptedToken)}`;
@@ -268,7 +272,7 @@ const handleOAuth2Connect = async () => {
         zapId,
         actionId: action.id,
         connectionId: selectedConnection,
-        fromStepId: triggerStepId,
+        fromStepId: selectedFromStepId ?? triggerStepId,
         stepOrder: existingActionsCount + 1,
         payload: formData
       })
@@ -278,7 +282,7 @@ const handleOAuth2Connect = async () => {
         Number(zapId),
         action.id,
         selectedConnection as number,
-        triggerStepId,
+        selectedFromStepId ?? triggerStepId,
         existingActionsCount + 1,
         formData,
         token
@@ -336,7 +340,7 @@ const handleOAuth2Connect = async () => {
           const triggerData = await apiService.getZapTrigger(Number(zapId), token)
           if (triggerData?.step?.id) {
             setTriggerStepId(triggerData.step.id)
-            // Store trigger variables for use in action fields
+            setSelectedFromStepId(triggerData.step.id)
             if (triggerData.trigger?.variables) {
               setTriggerVariables(triggerData.trigger.variables)
             }
@@ -356,6 +360,14 @@ const handleOAuth2Connect = async () => {
         try {
           const actionsData = await apiService.getZapActions(Number(zapId), token)
           setExistingActionsCount(actionsData.length)
+          // Find the zap step id that corresponds to the current service action id
+          const found = actionsData.find(a => a.action?.id === Number(actionId))
+          if (found && found.step && found.step.id) {
+            setActionStepId(found.step.id)
+          } else {
+            // If not found, keep null. The StepSourceSelector will not render until we have it.
+            setActionStepId(null)
+          }
         } catch (actionsError) {
           console.error('Error fetching existing actions:', actionsError)
           // If no actions exist, that's fine - count will be 0
@@ -740,7 +752,6 @@ const handleOAuth2Connect = async () => {
 
       {/* Action Icon and Description */}
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 6 }}>
-
         <Typography
           variant="h4"
           sx={{
@@ -750,9 +761,8 @@ const handleOAuth2Connect = async () => {
             textAlign: 'center'
           }}
         >
-          {action.name}
+          {action?.name}
         </Typography>
-
         <Typography
           variant="body1"
           sx={{
@@ -762,9 +772,38 @@ const handleOAuth2Connect = async () => {
             mb: 6
           }}
         >
-          {action.description}
+          {action?.description}
         </Typography>
       </Box>
+
+      {/* Step source selector*/}
+      {service && (
+        <Container maxWidth="sm" sx={{ mb: 3 }}>
+          <Box
+            sx={{
+              bgcolor: 'white',
+              borderRadius: 3,
+              p: 4,
+              mb: 3,
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+            }}
+          >
+            <Typography variant="h6" sx={{ mb: 1, fontWeight: 600, color: serviceColor }}>
+              Source step
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
+              Choose your variable source for this action.
+            </Typography>
+            <StepSourceSelector
+              zapId={Number(zapId)}
+              currentStepId={actionStepId ?? null}
+              token={token ?? ''}
+              onRefresh={() => window.location.reload()}
+              onSelectFromStep={(id) => setSelectedFromStepId(id)}
+            />
+          </Box>
+        </Container>
+      )}
 
       {/* Form Fields */}
       <Container maxWidth="sm">
@@ -809,9 +848,9 @@ const handleOAuth2Connect = async () => {
           ) : (
             <FormControl fullWidth required>
               <InputLabel>Account</InputLabel>
-              <Select
+              <Select<number | string>
                 value={selectedConnection}
-                onChange={(e) => setSelectedConnection(e.target.value as number)}
+                onChange={(e) => setSelectedConnection((e.target.value as string) === '' ? '' : Number(e.target.value))}
                 label="Account"
                 sx={{
                   bgcolor: 'white',
@@ -871,7 +910,7 @@ const handleOAuth2Connect = async () => {
         >
           <Box sx={{ p: 2, maxWidth: 400 }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, color: serviceColor }}>
-              Available Variables from Trigger
+              Available Variables from Source step
             </Typography>
             
             {Object.keys(triggerVariables).length === 0 ? (

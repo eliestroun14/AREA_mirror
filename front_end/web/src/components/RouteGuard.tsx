@@ -12,6 +12,7 @@ const PUBLIC_ROUTES = [
   '/signup',
   '/services',
   '/client.apk',
+  '/oauth/success'
   // Pattern pour /services/[id]
 ];
 
