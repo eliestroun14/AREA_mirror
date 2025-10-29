@@ -29,13 +29,18 @@ export const envConstants = {
   spotify_client_id: process.env.SPOTIFY_CLIENT_ID ?? 'SPOTIFY_CLIENT_ID',
   spotify_client_secret: process.env.SPOTIFY_CLIENT_SECRET ?? 'SPOTIFY_SECRET',
 
+  google_calendar_client_id:
+    process.env.GOOGLE_CALENDAR_CLIENT_ID ?? 'GOOGLE_CALENDAR_CLIENT_ID',
+  google_calendar_client_secret:
+    process.env.GOOGLE_CALENDAR_CLIENT_SECRET ?? 'GOOGLE_CALENDAR_SECRET',
+
+  twitch_client_id: process.env.TWITCH_CLIENT_ID ?? 'TWITCH_CLIENT_ID',
+  twitch_client_secret: process.env.TWITCH_CLIENT_SECRET ?? 'TWITCH_SECRET',
+
   teams_client_id: process.env.TEAMS_CLIENT_ID ?? 'TEAMS_CLIENT_ID',
   teams_client_secret: process.env.TEAMS_CLIENT_SECRET ?? 'TEAMS_CLIENT_SECRET',
 
   token_encryption_key: process.env.TOKEN_ENCRYPTION_KEY ?? '331240132d30fe6405292ee8dffb7f8dafe19585afd9f1e2fac0607f6cb3c408',
-
-  google_calendar_client_id: process.env.GOOGLE_CALENDAR_CLIENT_ID ?? 'GOOGLE_CALENDAR_CLIENT_ID',
-  google_calendar_client_secret: process.env.GOOGLE_CALENDAR_CLIENT_SECRET ?? 'GOOGLE_CALENDAR_SECRET',
 
   youtube_client_id: process.env.YOUTUBE_CLIENT_ID ?? 'YOUTUBE_CLIENT_ID',
   youtube_client_secret: process.env.YOUTUBE_CLIENT_SECRET ?? 'YOUTUBE_SECRET',

@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@hewmen/passport-twitch": "^1.0.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -64,8 +65,10 @@
     "@types/passport-github2": "^1.2.9",
     "@types/passport-google-oauth2": "^0.1.10",
     "@types/passport-google-oauth20": "^2.0.16",
+    "@types/passport-oauth2": "^1.8.0",
     "@types/passport-microsoft": "^2.1.1",
     "@types/passport-spotify": "^2.0.4",
+    "@types/passport-twitch-latest": "^1.0.5",
     "@types/supertest": "^6.0.2",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",

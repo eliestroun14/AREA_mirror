@@ -1,20 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import {
-  Profile,
-  Strategy,
-  StrategyOptions,
-} from 'passport-google-oauth20';
+import { Profile, Strategy, StrategyOptions } from 'passport-google-oauth20';
 import { envConstants } from '@config/env';
 import { callbackOf } from '@config/utils';
 import { services } from '@root/prisma/services-data/services.data';
 import { OAuth2Provider } from '@app/oauth2/oauth2.dto';
 
 @Injectable()
-export class GoogleCalendarStrategy extends PassportStrategy(Strategy, 'google-calendar') {
-  private static SCOPES: string[] = [
-    'email',
-  ];
+export class GoogleCalendarStrategy extends PassportStrategy(
+  Strategy,
+  'google-calendar',
+) {
+  private static SCOPES: string[] = ['email'];
 
   constructor() {
     const options: StrategyOptions = {
@@ -32,10 +29,10 @@ export class GoogleCalendarStrategy extends PassportStrategy(Strategy, 'google-c
     refreshToken: string,
     profile: Profile,
   ): OAuth2Provider {
-    console.log("Validating");
-    console.log("access token: ", accessToken);
-    console.log("refresh token: ", refreshToken);
-    console.log("profile token: ", profile);
+    console.log('Validating');
+    console.log('access token: ', accessToken);
+    console.log('refresh token: ', refreshToken);
+    console.log('profile token: ', profile);
     return {
       connection_name: services.googleCalendar.name,
       account_identifier: profile.id,
