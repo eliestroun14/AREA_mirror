@@ -807,10 +807,11 @@ export class ZapsController {
       body.actionId === undefined &&
       body.accountIdentifier === undefined &&
       body.payload === undefined &&
-      body.stepOrder === undefined
+      body.stepOrder === undefined &&
+      body.fromStepId === undefined
     )
       throw new BadRequestException(
-        'At least one field (actionId, accountIdentifier, payload, or stepOrder) must be provided.',
+        'At least one field (actionId, accountIdentifier, payload, stepOrder or fromStepId) must be provided.',
       );
 
     // Vérifier que le zap appartient bien à l'utilisateur

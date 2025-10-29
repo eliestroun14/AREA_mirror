@@ -312,6 +312,14 @@ export class PatchZapActionBody {
   @IsOptional()
   @IsNumber()
   stepOrder?: number;
+
+  @ApiPropertyOptional({
+    description: "Nouvel identifiant de l'étape source (source_step_id)",
+    example: 1,
+  })
+  @IsOptional()
+  @IsNumber()
+  fromStepId?: number;
 }
 export class PatchZapActionResponse {
   @ApiProperty({
