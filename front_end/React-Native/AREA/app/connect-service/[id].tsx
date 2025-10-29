@@ -14,6 +14,19 @@ import { useApi } from "@/context/ApiContext";
 
 // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
+// Map service names to their correct OAuth2 slugs
+const getServiceSlug = (serviceName: string): string => {
+  const slugMap: Record<string, string> = {
+    'Microsoft Teams': 'teams',
+    'Discord': 'discord',
+    'Gmail': 'gmail',
+    'Github': 'github',
+    'Google': 'google',
+    'Deezer': 'deezer',
+    'Spotify': 'spotify'
+  };
+  return slugMap[serviceName] || serviceName.toLowerCase().replace(/\s+/g, '-');
+};
 
 type Props = {}
 
@@ -33,10 +46,10 @@ const ConnectService = (props: Props) => {
   const [request, response, promptAsync] = useAuthRequest(
     {
       responseType: ResponseType.Code,
-      clientId: service?.name?.toLowerCase() || '',
+      clientId: getServiceSlug(service?.name || ''),
       redirectUri,
     },
-    { authorizationEndpoint: `${apiUrl}/oauth2/${service?.name?.toLowerCase()}` }
+    { authorizationEndpoint: `${apiUrl}/oauth2/${getServiceSlug(service?.name || '')}` }
   );
 
 
@@ -50,9 +63,9 @@ const ConnectService = (props: Props) => {
         try {
           console.log('--- OAUTH DEBUG ---');
           console.log('sessionToken:', sessionToken);
-          console.log('POST URL:', `${apiUrl}/oauth2/${service?.name?.toLowerCase()}`);
+          console.log('POST URL:', `${apiUrl}/oauth2/${getServiceSlug(service?.name || '')}`);
           console.log('POST body:', { code: response.params.code, redirect_uri: redirectUri });
-          const res = await fetch(`${apiUrl}/oauth2/${service?.name?.toLowerCase()}`,
+          const res = await fetch(`${apiUrl}/oauth2/${getServiceSlug(service?.name || '')}`,
             {
               method: 'GET',
               headers: {
@@ -101,7 +114,7 @@ const ConnectService = (props: Props) => {
 
   const handleOAuth = async () => {
     try {
-      const url = `${apiUrl}/oauth2/${service?.name?.toLowerCase()}?redirect_uri=${encodeURIComponent(redirectUri)}`;
+      const url = `${apiUrl}/oauth2/${getServiceSlug(service?.name || '')}?redirect_uri=${encodeURIComponent(redirectUri)}`;
       console.log('OAuth GET URL:', url);
       console.log('sessionToken (avant requête):', sessionToken);
       const res = await fetch(url, {

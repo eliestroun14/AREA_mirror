@@ -1,5 +1,6 @@
 import { TriggerRunnerJob } from '@root/runner/zaps/triggers/triggers.runner.job';
 import { ScheduleTrigger_EveryMinutes } from '@root/runner/services/schedule/schedule.workflow';
+import { TeamsTrigger_OnNewMessage } from '@root/runner/services/teams/teams.trigger';
 import JobNotFoundError from '@root/runner/errors/job-not-found.error';
 
 export interface TriggerBuilderParams {
@@ -20,6 +21,9 @@ export class TriggersRunnerFactory {
   private registers: Record<string, TriggerBuilderFunction> = {
     ScheduleTrigger_EveryMinutes: (builder: TriggerBuilderParams) => {
       return new ScheduleTrigger_EveryMinutes(builder);
+    },
+    TeamsTrigger_OnNewMessage: (builder: TriggerBuilderParams) => {
+      return new TeamsTrigger_OnNewMessage(builder);
     },
   };
 
