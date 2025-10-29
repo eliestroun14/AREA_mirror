@@ -57,6 +57,7 @@ export default function TriggerFieldsPage() {
         'http://localhost:3001',
         'http://localhost:8081',
         'https://manech.va.sauver.le.monde.area.projects.epitech.bzh',
+        'http://127.0.0.1:8081',
         window.location.origin
       ];
 

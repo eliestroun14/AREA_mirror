@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react'
+import StepSourceSelector from '@/components/StepSourceSelector'
 import { useParams, useRouter } from 'next/navigation'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -50,6 +51,9 @@ export default function EditActionPage() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [formData, setFormData] = useState<Record<string, string>>({})
+  const [triggerStepId, setTriggerStepId] = useState<number | null>(null)
+  const [actionStepId, setActionStepId] = useState<number | null>(null)
+  const [selectedFromStepId, setSelectedFromStepId] = useState<number | null>(null)
   const [triggerVariables, setTriggerVariables] = useState<Record<string, unknown>>({})
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const [currentFieldName, setCurrentFieldName] = useState<string>('')
@@ -103,6 +107,8 @@ export default function EditActionPage() {
         body: JSON.stringify({
           actionId: action.id,
           accountIdentifier: connection.account_identifier,
+          // Use explicit selected source if provided, otherwise fall back to trigger
+          fromStepId: selectedFromStepId ?? triggerStepId ?? null,
           payload: formData
         })
       })
@@ -249,13 +255,24 @@ export default function EditActionPage() {
         
         // Set action data
         setAction(existingAction.action)
-        
+
+        // remember action step id and existing from_step selection
+        if (existingAction.step && existingAction.step.id) {
+          setActionStepId(existingAction.step.id)
+        }
+        if (existingAction.step && typeof existingAction.step.from_step_id !== 'undefined') {
+          setSelectedFromStepId(existingAction.step.from_step_id as number | null)
+        }
+
         // Initialize form data with existing values
         setFormData(existingAction.step.payload as Record<string, string>)
         
-        // Fetch trigger variables
+        // Fetch trigger variables and step id
         try {
           const triggerData = await apiService.getZapTrigger(Number(zapId), token)
+          if (triggerData?.step?.id) {
+            setTriggerStepId(triggerData.step.id)
+          }
           if (triggerData?.trigger?.variables) {
             setTriggerVariables(triggerData.trigger.variables)
           }
@@ -393,7 +410,6 @@ export default function EditActionPage() {
 
       {/* Action Icon and Description */}
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 6 }}>
-
         <Typography
           variant="h4"
           sx={{
@@ -403,9 +419,8 @@ export default function EditActionPage() {
             textAlign: 'center'
           }}
         >
-          {action.name}
+          {action?.name}
         </Typography>
-
         <Typography
           variant="body1"
           sx={{
@@ -415,9 +430,38 @@ export default function EditActionPage() {
             mb: 6
           }}
         >
-          {action.description}
+          {action?.description}
         </Typography>
       </Box>
+
+      {/* Step source selector*/}
+      {service && (
+        <Container maxWidth="sm" sx={{ mb: 3 }}>
+          <Box
+            sx={{
+              bgcolor: 'white',
+              borderRadius: 3,
+              p: 4,
+              mb: 3,
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+            }}
+          >
+            <Typography variant="h6" sx={{ mb: 1, fontWeight: 600, color: serviceColor }}>
+              Source step
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
+              Choose your variable source for this action.
+            </Typography>
+            <StepSourceSelector
+              zapId={Number(zapId)}
+              currentStepId={actionStepId ?? null}
+              token={token ?? ''}
+              onRefresh={() => window.location.reload()}
+              onSelectFromStep={(id) => setSelectedFromStepId(id)}
+            />
+          </Box>
+        </Container>
+      )}
 
       {/* Form Fields */}
       <Container maxWidth="sm">
@@ -629,7 +673,7 @@ export default function EditActionPage() {
         >
           <Box sx={{ p: 2, maxWidth: 400 }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, color: serviceColor }}>
-              Available Variables from Trigger
+              Available Variables from Source step
             </Typography>
             
             {Object.keys(triggerVariables).length === 0 ? (
