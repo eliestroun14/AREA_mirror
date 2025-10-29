@@ -10,9 +10,11 @@ import { DiscordOAuth2Module } from '@app/oauth2/services/discord/discord.module
 import { TeamsOAuth2Module } from '@app/oauth2/services/teams/teams.module';
 import { GoogleCalendarOAuth2Module } from '@app/oauth2/services/google-calendar/google-calendar.module';
 import { GoogleCalendarStrategy } from '@app/oauth2/services/google-calendar/google-calendar.strategy';
+import { YoutubeOAuth2Module } from '@app/oauth2/services/youtube/youtube.module';
+import { YoutubeStrategy } from '@app/oauth2/services/youtube/youtube.strategy';
 
 @Module({
-  imports: [AuthModule, DiscordOAuth2Module, TeamsOAuth2Module, GoogleCalendarOAuth2Module],
+  imports: [AuthModule, DiscordOAuth2Module, TeamsOAuth2Module, GoogleCalendarOAuth2Module, YoutubeOAuth2Module],
   controllers: [OAuth2TokenController],
   providers: [
     PrismaService,
@@ -21,6 +23,7 @@ import { GoogleCalendarStrategy } from '@app/oauth2/services/google-calendar/goo
     DiscordStrategy,
     TeamsStrategy,
     GoogleCalendarStrategy,
+    YoutubeStrategy,
   ],
 })
 export class Oauth2Module {}

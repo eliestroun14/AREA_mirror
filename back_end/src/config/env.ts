@@ -36,4 +36,7 @@ export const envConstants = {
 
   google_calendar_client_id: process.env.GOOGLE_CALENDAR_CLIENT_ID ?? 'GOOGLE_CALENDAR_CLIENT_ID',
   google_calendar_client_secret: process.env.GOOGLE_CALENDAR_CLIENT_SECRET ?? 'GOOGLE_CALENDAR_SECRET',
+
+  youtube_client_id: process.env.YOUTUBE_CLIENT_ID ?? 'YOUTUBE_CLIENT_ID',
+  youtube_client_secret: process.env.YOUTUBE_CLIENT_SECRET ?? 'YOUTUBE_SECRET',
 };
