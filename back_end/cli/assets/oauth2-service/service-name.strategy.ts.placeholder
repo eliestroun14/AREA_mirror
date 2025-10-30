@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import {
   Profile,
-  ScopeType,
+  ScopeType,                                    // IF THIS IMPORT DOES NOT EXIST, REPLACE ITS USAGE BY string[]
   Strategy,
   StrategyOptions,
-} from 'passport-<service-name>';               # EDIT THIS LINE IF AN ERROR OCCURS
+} from 'passport-<service-name>';               // EDIT THIS LINE IF AN ERROR OCCURS
 import { envConstants } from '@config/env';
 import { callbackOf } from '@config/utils';
 import { services } from '@root/prisma/services-data/services.data';

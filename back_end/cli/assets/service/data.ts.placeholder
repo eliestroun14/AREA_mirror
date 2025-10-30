@@ -1,0 +1,15 @@
+import { services } from '@root/prisma/services-data/services.data';
+import { Service } from '@root/prisma/services-data/services.dto';
+
+export const <serviceName>Data: Service = {
+  name: services.<serviceName>.name,
+  slug: services.<serviceName>.slug,
+  serviceColor: '#FFFFFF',
+  iconUrl: '/assets/<service-name>.png',
+  apiBaseUrl: '',
+  authType: 'oauth2',
+  documentationUrl: '',
+  isActive: true,
+  triggers: [],
+  actions: [],
+};

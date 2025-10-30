@@ -1,0 +1,36 @@
+import { ServiceTrigger } from '@root/prisma/services-data/services.dto';
+import { <ServiceName><TriggerName>WebhookTrigger } from '@root/services/<service-name>/triggers/<trigger-name>/<service-name>-<trigger-name>.webhook';
+import { <ServiceName><TriggerName>TriggerPayload } from '@root/services/<service-name>/triggers/<trigger-name>/<service-name>-<trigger-name>.dto';
+
+export const <serviceName><TriggerName>Data: ServiceTrigger = {
+  class_name: '',
+  http_requests: null,
+  webhook: {
+    slug: '<trigger-name>',
+    total_received: 0,
+    last_received_at: 0,
+    hook(
+      webhookUrl: string,
+      secret: string,
+      payload: object,
+      accessToken: string,
+    ) {
+      return <ServiceName><TriggerName>WebhookTrigger.hook(
+        webhookUrl,
+        secret,
+        payload as <ServiceName><TriggerName>TriggerPayload,
+        accessToken,
+      );
+    },
+  },
+  trigger_type: 'WEBHOOK',
+  name: '<TriggerTitle>',
+  description: '<TriggerDescription>',
+  require_connection: true,
+  polling_interval: 0,
+  fields: {},
+  variables: [],
+  is_active: true,
+  created_at: new Date(Date.now()),
+  updated_at: new Date(Date.now()),
+};

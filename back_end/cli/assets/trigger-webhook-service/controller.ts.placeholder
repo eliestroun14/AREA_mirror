@@ -1,0 +1,28 @@
+import { AREA_WebhookController } from '@app/webhooks/webhooks.controller';
+import { RunnerVariableData } from '@root/runner/runner.dto';
+import { WebhookController } from '@app/webhooks/webhooks.dto';
+import { RunnerService } from '@root/runner/runner.service';
+import { ZapsRunnerService } from '@root/runner/zaps/zaps.runner.service';
+import {
+  <ServiceName><TriggerName>Headers, // Modifiez le type dans '<service-name>-<trigger-name>.dto.ts'.
+  <ServiceName><TriggerName>Body, // Modifiez le type dans '<service-name>-<trigger-name>.dto.ts'.
+  <ServiceName><TriggerName>Queries, // Modifiez le type dans '<service-name>-<trigger-name>.dto.ts'.
+} from '@root/services/<service-name>/triggers/<trigger-name>/<service-name>-<trigger-name>.dto';
+
+@WebhookController('<service-name>/<trigger-name>')
+export class <ServiceName><TriggerName>WebhookController extends AREA_WebhookController {
+  constructor(
+    workflowService: RunnerService,
+    zapRunnerService: ZapsRunnerService,
+  ) {
+    super(workflowService, zapRunnerService);
+  }
+
+  protected getVariablesData(
+    headers: <ServiceName><TriggerName>Headers,
+    body: <ServiceName><TriggerName>Body,
+    queries: <ServiceName><TriggerName>Queries,
+  ): RunnerVariableData[] {
+    return [];
+  }
+}
