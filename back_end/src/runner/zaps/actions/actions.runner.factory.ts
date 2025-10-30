@@ -1,10 +1,10 @@
 import { ActionExecutor } from '@root/runner/zaps/actions/actions.runner.job';
 import JobNotFoundError from '@root/runner/errors/job-not-found.error';
-import DiscordAction_SendMessage from '@root/runner/services/discord/discord.workflow';
 import {
   TeamsAction_SendMessage,
   TeamsAction_SendReaction,
 } from '@root/runner/services/teams/teams.actions';
+import DiscordSendMessageExecutor from '@root/services/discord/actions/send-message/discord-send-message.executor';
 
 export interface ActionBuilderParams {
   stepId: number;
@@ -18,8 +18,8 @@ type ActionBuilderFunction = (
 
 export class ActionsRunnerFactory {
   private registers: Record<string, ActionBuilderFunction> = {
-    DiscordAction_SendMessage: (builder: ActionBuilderParams) => {
-      return new DiscordAction_SendMessage(builder);
+    DiscordSendMessageExecutor: (builder: ActionBuilderParams) => {
+      return new DiscordSendMessageExecutor(builder);
     },
     TeamsAction_SendMessage: (builder: ActionBuilderParams) => {
       return new TeamsAction_SendMessage(builder);

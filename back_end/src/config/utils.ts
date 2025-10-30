@@ -21,7 +21,11 @@ export const constants = {
   services: {
     discord: { name: 'Discord', slug: 'discord' },
     googleCalendar: { name: 'Calendar', slug: 'calendar' },
+    googleDrive: { name: 'Drive', slug: 'drive' },
     github: { name: 'Github', slug: 'github' },
+    microsoftTeams: { name: 'Microsoft Teams', slug: 'microsoft-teams' },
+    twitch: { name: 'Twitch', slug: 'twitch' },
+    youtube: { name: 'Youtube', slug: 'youtube' },
   },
 };
 
