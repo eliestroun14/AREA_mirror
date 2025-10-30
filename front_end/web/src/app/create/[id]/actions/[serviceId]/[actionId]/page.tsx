@@ -39,35 +39,28 @@ interface ActionField {
 
 const generateActionFields = (action: ActionDTO): ActionField[] => {
   const fields: ActionField[] = []
-  
-  // Parse fields from the action (it's a JSON object from the API)
+
   const actionFieldsObj = action.fields as Record<string, unknown>
-  
-  // Iterate through each field in the action.fields object
+
   Object.entries(actionFieldsObj).forEach(([fieldKey, fieldValue]) => {
-    // fieldValue should be an object with properties like type, label, required, options, etc.
     const fieldConfig = fieldValue as Record<string, unknown>
-    
-    // Check if the field is active (default to true if not specified)
+
     const isActive = fieldConfig.is_active !== false
-    
-    // Skip inactive fields
+
     if (!isActive) {
       return
     }
-    
-    // Extract field configuration with all the new properties
+
     const fieldType = (fieldConfig.type as string)?.toLowerCase() || 'string'
     const fieldName = (fieldConfig.field_name as string) || fieldKey.charAt(0).toUpperCase() + fieldKey.slice(1).replace(/_/g, ' ')
     const fieldRequired = (fieldConfig.required as boolean) || false
     const fieldPlaceholder = (fieldConfig.placeholder as string) || ''
     const fieldDefaultValue = (fieldConfig.default_value as string) || ''
     const fieldOrder = (fieldConfig.field_order as number) || 999
-    const selectOptions = Array.isArray(fieldConfig.select_options) && fieldConfig.select_options.length > 0 
+    const selectOptions = Array.isArray(fieldConfig.select_options) && fieldConfig.select_options.length > 0
       ? fieldConfig.select_options as string[] 
       : undefined
-    
-    // Map API type to input type
+
     let inputType = 'text'
     if (fieldType === 'select' || selectOptions) {
       inputType = 'select'
@@ -78,7 +71,7 @@ const generateActionFields = (action: ActionDTO): ActionField[] => {
     } else if (fieldType === 'textarea') {
       inputType = 'textarea'
     }
-    
+
     fields.push({
       name: fieldKey,
       type: inputType,
@@ -90,8 +83,7 @@ const generateActionFields = (action: ActionDTO): ActionField[] => {
       order: fieldOrder
     })
   })
-  
-  // Sort fields by order
+
   fields.sort((a, b) => a.order - b.order)
 
   return fields
@@ -181,39 +173,25 @@ const handleOAuth2Connect = async () => {
       }
 
       const { encryptedToken } = await response.json();
-      
-      // Map service names to their correct OAuth2 slugs
-      const getServiceSlug = (serviceName: string): string => {
-        const slugMap: Record<string, string> = {
-          'Microsoft Teams': 'teams',
-          'Discord': 'discord',
-          'Gmail': 'gmail',
-          'Github': 'github',
-          'Google': 'google',
-          'Deezer': 'deezer',
-          'Spotify': 'spotify'
-        };
-        return slugMap[serviceName] || serviceName.toLowerCase().replace(/\s+/g, '-');
-      };
-      
-      const oauth2Slug = getServiceSlug(service.name);
+
+      const oauth2Slug = service.slug;
       const oauthUrl = `${apiBaseUrl}/oauth2/${oauth2Slug}?token=${encodeURIComponent(encryptedToken)}`;
-      
+
       console.log('🔗 Opening OAuth URL');
-      
+
       const oauthWindow = window.open(
         oauthUrl,
         'oauth_window',
         'width=600,height=700,left=100,top=100'
       );
-      
+
       if (!oauthWindow) {
         alert('Please allow popups for this site to connect your account.');
         return;
       }
-      
+
       console.log('✅ OAuth window opened');
-      
+
     } catch (error) {
       console.error('❌ Error initiating OAuth:', error);
       alert('Failed to initiate OAuth connection. Please try again.');
@@ -244,12 +222,12 @@ const handleOAuth2Connect = async () => {
   const handleInsertVariable = (variableName: string) => {
     const currentValue = formData[currentFieldName] || ''
     const newValue = currentValue + `{{${variableName}}}`
-    
+
     setFormData(prev => ({
       ...prev,
       [currentFieldName]: newValue
     }))
-    
+
     handleCloseVariablesMenu()
   }
 
@@ -268,7 +246,6 @@ const handleOAuth2Connect = async () => {
       return
     }
 
-    // Validation basique
     const actionFields = generateActionFields(action)
     const missingFields = actionFields
       .filter(field => field.required && !formData[field.name])
@@ -282,7 +259,7 @@ const handleOAuth2Connect = async () => {
     try {
       setSubmitting(true)
       setError(null)
-      
+
       console.log('Creating action with:', {
         zapId,
         actionId: action.id,
@@ -291,8 +268,7 @@ const handleOAuth2Connect = async () => {
         stepOrder: existingActionsCount + 1,
         payload: formData
       })
-      
-      // Call API to create the action
+
       await apiService.createZapAction(
         Number(zapId),
         action.id,
@@ -302,10 +278,9 @@ const handleOAuth2Connect = async () => {
         formData,
         token
       )
-      
+
       console.log('✅ Action created successfully')
-      
-      // Navigate back to main create page
+
       router.push(`/create/${zapId}`)
     } catch (error) {
       console.error('Failed to create action:', error)
@@ -327,14 +302,12 @@ const handleOAuth2Connect = async () => {
           return
         }
 
-        // Fetch service and action details from API
         const serviceData = await apiService.getServiceById(Number(serviceId))
         setService(serviceData)
 
         const actionData = await apiService.getActionById(Number(serviceId), Number(actionId))
         setAction(actionData)
 
-        // Fetch available connections for this service
         const connectionsData = await apiService.getConnectionsByService(Number(serviceId), token)
         setConnections(connectionsData.connections)
 
@@ -343,14 +316,13 @@ const handleOAuth2Connect = async () => {
           setSelectedConnection(connectionsData.connections[0].id)
         }
 
-        // Check if user needs to connect their account
-        if (connectionsData.connections.length === 0) {
+        // Check if user needs to connect their account (only if action requires a connection)
+        if ((actionData as Partial<Record<'require_connection', boolean>>).require_connection && connectionsData.connections.length === 0) {
           setError('You need to connect your account to this service first')
           setLoading(false)
           return
         }
 
-        // Fetch trigger step to get fromStepId and variables
         try {
           const triggerData = await apiService.getZapTrigger(Number(zapId), token)
           if (triggerData?.step?.id) {
@@ -375,21 +347,17 @@ const handleOAuth2Connect = async () => {
         try {
           const actionsData = await apiService.getZapActions(Number(zapId), token)
           setExistingActionsCount(actionsData.length)
-          // Find the zap step id that corresponds to the current service action id
           const found = actionsData.find(a => a.action?.id === Number(actionId))
           if (found && found.step && found.step.id) {
             setActionStepId(found.step.id)
           } else {
-            // If not found, keep null. The StepSourceSelector will not render until we have it.
             setActionStepId(null)
           }
         } catch (actionsError) {
           console.error('Error fetching existing actions:', actionsError)
-          // If no actions exist, that's fine - count will be 0
           setExistingActionsCount(0)
         }
-        
-        // Initialize formData with default values
+
         const actionFields = generateActionFields(actionData)
         const initialData: Record<string, string> = {}
         actionFields.forEach((field: ActionField) => {
@@ -398,7 +366,7 @@ const handleOAuth2Connect = async () => {
           }
         })
         setFormData(initialData)
-        
+
       } catch (err) {
         console.error('Error fetching action details:', err)
         setError(err instanceof Error ? err.message : 'An error occurred')
@@ -412,9 +380,35 @@ const handleOAuth2Connect = async () => {
     }
   }, [serviceId, actionId, zapId, token])
 
+  useEffect(() => {
+    const fetchVariablesForSelectedSource = async () => {
+      try {
+        if (!token) return;
+
+        if (selectedFromStepId === null) {
+          setTriggerVariables({})
+          return
+        }
+
+        if (triggerStepId && selectedFromStepId === triggerStepId) {
+          const triggerData = await apiService.getZapTrigger(Number(zapId), token)
+          setTriggerVariables(triggerData?.trigger?.variables || {})
+        } else {
+          const actionData = await apiService.getZapActionById(Number(zapId), selectedFromStepId as number, token)
+          setTriggerVariables(actionData?.action?.variables || {})
+        }
+      } catch (err) {
+        console.error('Failed to fetch variables for selected source:', err)
+        setTriggerVariables({})
+      }
+    }
+
+    fetchVariablesForSelectedSource()
+  }, [selectedFromStepId, triggerStepId, zapId, token])
+
   const renderField = (field: ActionField) => {
     const hasVariables = Object.keys(triggerVariables).length > 0
-    
+
     return (
       <Box key={field.name}>
         <FormControl fullWidth>
@@ -473,7 +467,7 @@ const handleOAuth2Connect = async () => {
             />
           )}
         </FormControl>
-        
+
         {/* Button to insert variables */}
         {hasVariables && (
           <Button
@@ -484,11 +478,11 @@ const handleOAuth2Connect = async () => {
               mt: 1,
               textTransform: 'none',
               fontSize: '0.875rem',
-              borderColor: serviceColor || '#1976d2',
-              color: serviceColor || '#1976d2',
+              borderColor: serviceColor || '#ffffffff',
+              color: serviceColor || '#ffffffff',
               '&:hover': {
-                borderColor: serviceColor || '#1976d2',
-                bgcolor: `${serviceColor || '#1976d2'}15`
+                borderColor: serviceColor || '#ffffffff',
+                bgcolor: `${serviceColor || '#ffffffff'}15`
               }
             }}
           >
@@ -504,7 +498,7 @@ const handleOAuth2Connect = async () => {
       <Box
         sx={{
           minHeight: "100vh",
-          bgcolor: service?.services_color || '#1976d2',
+          bgcolor: service?.services_color || '#ffffffff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
@@ -556,10 +550,10 @@ const handleOAuth2Connect = async () => {
         </Box>
 
         {/* Title */}
-        <Typography 
-          variant="h3" 
-          sx={{ 
-            fontWeight: 700, 
+        <Typography
+          variant="h3"
+          sx={{
+            fontWeight: 700,
             color: 'white',
             fontSize: { xs: '2rem', md: '3rem' },
             textAlign: 'center',
@@ -610,11 +604,11 @@ const handleOAuth2Connect = async () => {
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: service.services_color }}>
               Select Account
             </Typography>
-            
+
             <Alert severity="info" sx={{ mb: 3 }}>
               You need to connect your {service.name} account to use this action.
             </Alert>
-            
+
             <Button
               onClick={handleOAuth2Connect}
               variant="contained"
@@ -668,7 +662,7 @@ const handleOAuth2Connect = async () => {
       <Box
         sx={{
           minHeight: "100vh",
-          bgcolor: service?.services_color || '#1976d2',
+          bgcolor: service?.services_color || '#ffffffff',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -682,11 +676,11 @@ const handleOAuth2Connect = async () => {
         <Typography variant="body1" sx={{ color: 'white', mb: 4, textAlign: 'center', maxWidth: 600 }}>
           {error}
         </Typography>
-        
+
         <Button
           onClick={handleBackClick}
           variant="contained"
-          sx={{ bgcolor: 'white', color: service?.services_color || '#1976d2' }}
+          sx={{ bgcolor: 'white', color: service?.services_color || '#ffffffff' }}
         >
           Go Back
         </Button>
@@ -734,7 +728,7 @@ const handleOAuth2Connect = async () => {
         >
           Back
         </Button>
-        
+
         <Button
           sx={{
             minWidth: 44,
@@ -752,10 +746,10 @@ const handleOAuth2Connect = async () => {
       </Box>
 
       {/* Title */}
-      <Typography 
-        variant="h3" 
-        sx={{ 
-          fontWeight: 700, 
+      <Typography
+        variant="h3"
+        sx={{
+          fontWeight: 700,
           color: 'white',
           fontSize: { xs: '2rem', md: '3rem' },
           textAlign: 'center',
@@ -813,7 +807,6 @@ const handleOAuth2Connect = async () => {
               zapId={Number(zapId)}
               currentStepId={actionStepId ?? null}
               token={token ?? ''}
-              onRefresh={() => window.location.reload()}
               onSelectFromStep={(id) => setSelectedFromStepId(id)}
             />
           </Box>
@@ -822,7 +815,8 @@ const handleOAuth2Connect = async () => {
 
       {/* Form Fields */}
       <Container maxWidth="sm">
-        {/* Connection Selection - Always shown first */}
+        {/* Connection Selection - Only shown if action requires a connection */}
+        {action?.require_connection && (
         <Box
           sx={{
             bgcolor: 'white',
@@ -835,7 +829,7 @@ const handleOAuth2Connect = async () => {
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: serviceColor }}>
             Select Account
           </Typography>
-          
+
           {connections.length === 0 ? (
             <Box>
               <Alert severity="info" sx={{ mb: 3 }}>
@@ -891,9 +885,10 @@ const handleOAuth2Connect = async () => {
               </Select>
             </FormControl>
           )}
-        </Box>
+  </Box>
+  )}
 
-        {actionFields.length > 0 && (
+  {actionFields.length > 0 && (
           <Box
             sx={{
               bgcolor: 'white',
@@ -927,7 +922,7 @@ const handleOAuth2Connect = async () => {
             <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, color: serviceColor }}>
               Available Variables from Source step
             </Typography>
-            
+
             {Object.keys(triggerVariables).length === 0 ? (
               <Typography variant="body2" color="text.secondary">
                 No variables available
@@ -935,13 +930,12 @@ const handleOAuth2Connect = async () => {
             ) : (
               <List sx={{ p: 0 }}>
                 {Object.entries(triggerVariables).map(([variableKey, variableValue]) => {
-                  // Handle the structure: { type: "string", name: "Prompt", key: "data.prompt" }
                   const variable = variableValue as Record<string, unknown>
                   const displayName = (variable.name as string) || variableKey
                   const variableName = (variable.name as string) || variableKey
                   const variableType = (variable.type as string) || 'unknown'
                   const variableKeyPath = (variable.key as string) || ''
-                  
+
                   return (
                     <ListItem key={variableKey} disablePadding>
                       <ListItemButton
@@ -998,13 +992,13 @@ const handleOAuth2Connect = async () => {
             {error}
           </Alert>
         )}
-        
+
         <Button
           onClick={handleCreateAction}
           variant="contained"
           size="large"
           fullWidth
-          disabled={!selectedConnection || connections.length === 0 || submitting}
+          disabled={(action?.require_connection && (!selectedConnection || connections.length === 0)) || submitting}
           sx={{
             bgcolor: 'white',
             color: serviceColor,
@@ -1027,10 +1021,10 @@ const handleOAuth2Connect = async () => {
               <CircularProgress size={24} sx={{ color: serviceColor, mr: 2 }} />
               Creating action...
             </>
-          ) : (
-            'Create action'
-          )}
-        </Button>
+            ) : (
+              'Create action'
+            )}
+          </Button>
       </Container>
     </Box>
   )

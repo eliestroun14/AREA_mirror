@@ -11,7 +11,6 @@ import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import Container from '@mui/material/Container'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import CircularProgress from '@mui/material/CircularProgress'
 import Alert from '@mui/material/Alert'
 import { apiService } from '@/services/api'
@@ -100,45 +99,31 @@ export default function TriggerFieldsPage() {
           platform: 'web',
         }),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to encrypt token');
       }
-      
+
       const { encryptedToken } = await response.json();
-      
-      // Map service names to their correct OAuth2 slugs
-      const getServiceSlug = (serviceName: string): string => {
-        const slugMap: Record<string, string> = {
-          'Microsoft Teams': 'teams',
-          'Discord': 'discord',
-          'Gmail': 'gmail',
-          'Github': 'github',
-          'Google': 'google',
-          'Deezer': 'deezer',
-          'Spotify': 'spotify'
-        };
-        return slugMap[serviceName] || serviceName.toLowerCase().replace(/\s+/g, '-');
-      };
-      
-      const oauth2Slug = getServiceSlug(service.name);
+
+      const oauth2Slug = service.slug;
       const oauthUrl = `${apiBaseUrl}/oauth2/${oauth2Slug}?token=${encodeURIComponent(encryptedToken)}`;
-      
+
       console.log('Opening OAuth URL');
-      
+
       const oauthWindow = window.open(
         oauthUrl,
         'oauth_window',
         'width=600,height=700,left=100,top=100'
       );
-      
+
       if (!oauthWindow) {
         alert('Please allow popups for this site to connect your account.');
         return;
       }
-      
+
       console.log('OAuth window opened');
-      
+
     } catch (error) {
       console.error('Error initiating OAuth:', error);
       alert('Failed to initiate OAuth connection. Please try again.');
@@ -150,8 +135,7 @@ export default function TriggerFieldsPage() {
   }
 
   const handleCreateTrigger = async () => {
-    // Only require connection if trigger type is not SCHEDULE
-    if (trigger?.trigger_type !== 'SCHEDULE' && !selectedConnection) {
+    if (trigger?.require_connection && !selectedConnection) {
       setError('Please select a connection')
       return
     }
@@ -160,20 +144,18 @@ export default function TriggerFieldsPage() {
       setError('No authentication token found. Please login again.')
       return
     }
-    
+
     try {
       setSubmitting(true)
       setError(null)
-      
+
       console.log('Creating trigger with:', {
         zapId,
         triggerId,
         connectionId: selectedConnection,
         payload: formData
       })
-      
-      // Call API to create the trigger
-      // For SCHEDULE triggers, use a dummy connection ID or handle it differently
+
       await apiService.createZapTrigger(
         Number(zapId),
         Number(triggerId),
@@ -181,12 +163,11 @@ export default function TriggerFieldsPage() {
         formData,
         token
       )
-      
+
       console.log('Trigger created successfully')
-      
-      // Redirect to the zap page after successful creation (without URL params)
+
       router.push(`/create/${zapId}`)
-      
+
     } catch (err) {
       console.error('Failed to create trigger:', err)
       setError(err instanceof Error ? err.message : 'Failed to create trigger. Please try again.')
@@ -204,35 +185,28 @@ export default function TriggerFieldsPage() {
 
   const generateTriggerFields = (trigger: TriggerDTO): TriggerField[] => {
     const fields: TriggerField[] = []
-    
-    // Parse fields from the trigger (it's a JSON object from the API)
+
     const triggerFieldsObj = trigger.fields as Record<string, unknown>
-    
-    // Iterate through each field in the trigger.fields object
+
     Object.entries(triggerFieldsObj).forEach(([fieldKey, fieldValue]) => {
-      // fieldValue should be an object with properties like type, label, required, options, etc.
       const fieldConfig = fieldValue as Record<string, unknown>
-      
-      // Check if the field is active (default to true if not specified)
+
       const isActive = fieldConfig.is_active !== false
-      
-      // Skip inactive fields
+
       if (!isActive) {
         return
       }
-      
-      // Extract field configuration with all the new properties
+
       const fieldType = (fieldConfig.type as string)?.toLowerCase() || 'string'
       const fieldName = (fieldConfig.field_name as string) || fieldKey.charAt(0).toUpperCase() + fieldKey.slice(1).replace(/_/g, ' ')
       const fieldRequired = (fieldConfig.required as boolean) || false
       const fieldPlaceholder = (fieldConfig.placeholder as string) || ''
       const fieldDefaultValue = (fieldConfig.default_value as string) || ''
       const fieldOrder = (fieldConfig.field_order as number) || 999
-      const selectOptions = Array.isArray(fieldConfig.select_options) && fieldConfig.select_options.length > 0 
-        ? fieldConfig.select_options as string[] 
+      const selectOptions = Array.isArray(fieldConfig.select_options) && fieldConfig.select_options.length > 0
+        ? fieldConfig.select_options as string[]
         : undefined
-      
-      // Map API type to input type
+
       let inputType: 'text' | 'select' | 'number' | 'date' | 'time' = 'text'
       if (fieldType === 'select' || selectOptions) {
         inputType = 'select'
@@ -243,7 +217,7 @@ export default function TriggerFieldsPage() {
       } else if (fieldType === 'time') {
         inputType = 'time'
       }
-      
+
       fields.push({
         name: fieldKey,
         type: inputType,
@@ -255,8 +229,7 @@ export default function TriggerFieldsPage() {
         order: fieldOrder
       })
     })
-    
-    // Sort fields by order
+
     fields.sort((a, b) => a.order - b.order)
 
     return fields
@@ -268,49 +241,41 @@ export default function TriggerFieldsPage() {
         setLoading(true)
         setError(null)
 
-        // Fetch service data FIRST to get the color
         const serviceData = await apiService.getServiceById(Number(serviceId))
         setService(serviceData)
 
-        // Check if user is authenticated
         if (!token) {
           throw new Error('You must be logged in to access this page')
         }
-        
-        // Fetch specific trigger data using apiService FIRST
+
         const triggerData = await apiService.getTriggerByService(serviceId, triggerId)
-        
+
         if (!triggerData) {
           throw new Error('Trigger not found')
         }
-        
+
         setTrigger(triggerData)
-        
-        // Fetch user connections for this service (skip for SCHEDULE triggers)
+
         try {
           const connectionsData = await apiService.getConnectionsByService(Number(serviceId), token)
           setConnections(connectionsData.connections)
-          
-          // Auto-select if there's only one connection
+
           if (connectionsData.connections.length === 1) {
             setSelectedConnection(connectionsData.connections[0].id)
           }
         } catch (connError) {
           console.error('Error fetching connections:', connError)
-          // Only show error if it's not a SCHEDULE trigger
-          if (triggerData?.trigger_type !== 'SCHEDULE') {
+          if (triggerData?.require_connection) {
             setError('You need to connect your account to this service first')
             setLoading(false)
             return
           }
-          // For SCHEDULE triggers, continue without connections
           setConnections([])
         }
-        
-        // Initialize form data with default values
+
         const triggerFieldsObj = triggerData.fields as Record<string, unknown>
         const initialFormData: Record<string, string> = {}
-        
+
         Object.entries(triggerFieldsObj).forEach(([fieldKey, fieldValue]) => {
           const fieldConfig = fieldValue as Record<string, unknown>
           const defaultValue = fieldConfig.default_value as string
@@ -318,9 +283,9 @@ export default function TriggerFieldsPage() {
             initialFormData[fieldKey] = defaultValue
           }
         })
-        
+
         setFormData(initialFormData)
-        
+
       } catch (err) {
         console.error('Error fetching trigger data:', err)
         setError(err instanceof Error ? err.message : 'An error occurred')
@@ -339,7 +304,7 @@ export default function TriggerFieldsPage() {
       <Box
         sx={{
           minHeight: "100vh",
-          bgcolor: service?.services_color || '#1976d2',
+          bgcolor: service?.services_color || '#ffffffff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
@@ -355,7 +320,7 @@ export default function TriggerFieldsPage() {
       <Box
         sx={{
           minHeight: "100vh",
-          bgcolor: service?.services_color || '#1976d2',
+          bgcolor: service?.services_color || '#ffffffff',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -369,16 +334,16 @@ export default function TriggerFieldsPage() {
         <Typography variant="body1" sx={{ color: 'white', mb: 4, textAlign: 'center', maxWidth: 600 }}>
           {error}
         </Typography>
-        
+
         {error?.includes('connect your account') && service ? (
           <Box sx={{ display: 'flex', gap: 2 }}>
             <Button
               onClick={handleOAuth2Connect}
               variant="contained"
               size="large"
-              sx={{ 
-                bgcolor: 'white', 
-                color: service?.services_color || '#1976d2',
+              sx={{
+                bgcolor: 'white',
+                color: service?.services_color || '#ffffffff',
                 fontWeight: 600,
                 px: 4,
                 py: 1.5,
@@ -412,7 +377,7 @@ export default function TriggerFieldsPage() {
           <Button
             onClick={handleBackClick}
             variant="contained"
-            sx={{ bgcolor: 'white', color: service?.services_color || '#1976d2' }}
+            sx={{ bgcolor: 'white', color: service?.services_color || '#ffffffff' }}
           >
             Go Back
           </Button>
@@ -464,10 +429,10 @@ export default function TriggerFieldsPage() {
       </Box>
 
       {/* Title */}
-      <Typography 
-        variant="h3" 
-        sx={{ 
-          fontWeight: 700, 
+      <Typography
+        variant="h3"
+        sx={{
+          fontWeight: 700,
           color: 'white',
           fontSize: { xs: '2rem', md: '3rem' },
           textAlign: 'center',
@@ -507,8 +472,8 @@ export default function TriggerFieldsPage() {
 
       {/* Form Fields */}
       <Container maxWidth="sm">
-        {/* Connection Selection - Only shown if trigger type is not SCHEDULE */}
-        {trigger.trigger_type !== 'SCHEDULE' && (
+  {/* Connection Selection - Only shown if trigger requires a connection */}
+  {trigger.require_connection && (
           <Box
             sx={{
               bgcolor: 'white',
@@ -521,7 +486,7 @@ export default function TriggerFieldsPage() {
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: serviceColor }}>
               Select Account
             </Typography>
-          
+
           {connections.length === 0 ? (
             <Box>
               <Alert severity="info" sx={{ mb: 3 }}>
@@ -643,13 +608,13 @@ export default function TriggerFieldsPage() {
             {error}
           </Alert>
         )}
-        
+
         <Button
           onClick={handleCreateTrigger}
           variant="contained"
           size="large"
           fullWidth
-          disabled={(trigger.trigger_type !== 'SCHEDULE' && (!selectedConnection || connections.length === 0)) || submitting}
+          disabled={(trigger.require_connection && (!selectedConnection || connections.length === 0)) || submitting}
           sx={{
             bgcolor: 'white',
             color: serviceColor,

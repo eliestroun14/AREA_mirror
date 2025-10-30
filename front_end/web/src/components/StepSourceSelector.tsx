@@ -5,13 +5,9 @@ import { apiService } from '@/services/api';
 
 interface StepSourceSelectorProps {
   zapId: number;
-  // currentStepId is optional: when provided the component edits an existing step (PATCH).
-  // When omitted/null the component works in "pre-create" mode and exposes the selected
-  // source via onSelectFromStep callback.
   currentStepId?: number | null;
   token: string;
   onRefresh?: () => void;
-  // Called in pre-create mode when the user confirms the selected source.
   onSelectFromStep?: (fromStepId: number | null) => void;
 }
 
@@ -21,19 +17,25 @@ interface StepInfo {
   step_order: number;
 }
 
-const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({ zapId, currentStepId, token, onRefresh, onSelectFromStep }) => {
+const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({ 
+  zapId, 
+  currentStepId, 
+  token, 
+  onRefresh, 
+  onSelectFromStep 
+}) => {
   const [steps, setSteps] = useState<StepInfo[]>([]);
   const [selectedStepId, setSelectedStepId] = useState<number | ''>('');
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
   useEffect(() => {
     const fetchSteps = async () => {
       setLoading(true);
       setError(null);
       try {
-        // Fetch all actions and the trigger
         const actions = await apiService.getZapActions(zapId, token);
 
         let zapTrigger = null;
@@ -46,9 +48,8 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({ zapId, currentS
           zapTrigger = null;
         }
 
-        // If currentStepId is provided -> we're editing an existing action: filter only previous steps
         if (currentStepId) {
-          // fetch current action to know its step_order and from_step_id
+          // MODE ÉDITION: filtre uniquement les étapes précédentes
           const currentAction = await apiService.getZapActionById(zapId, currentStepId, token);
           if (!currentAction) {
             setSteps([]);
@@ -66,31 +67,70 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({ zapId, currentS
               step_order: step.step_order as number,
             }));
 
+          // Ajoute le trigger seulement s'il est avant l'action courante
           if (zapTrigger && zapTrigger.step && (zapTrigger.step.step_order as number) < currentOrder) {
             const triggerEntry: StepInfo = {
               id: zapTrigger.step.id,
               name: `Trigger — ${zapTrigger.service?.name ?? 'Trigger'}`,
               step_order: zapTrigger.step.step_order as number,
             };
-            if (!filtered.find(f => f.id === triggerEntry.id)) filtered.push(triggerEntry);
+            if (!filtered.find(f => f.id === triggerEntry.id)) {
+              filtered.push(triggerEntry);
+            }
           }
 
           filtered = filtered.sort((a, b) => a.step_order - b.step_order);
           setSteps(filtered);
 
-          // existing action may have a from_step_id but we don't display it here;
-          // the selector's value is used as the source directly
-          const fromStepId = currentAction.step.from_step_id as number | null;
+          // LOGIQUE DE SÉLECTION AUTOMATIQUE
+          const fromStepId = currentAction.step.source_step_id as number | null;
 
-          const triggerId = zapTrigger && zapTrigger.step && (zapTrigger.step.step_order as number) < currentOrder
-            ? zapTrigger.step.id
-            : null;
-
-          if (triggerId !== null) setSelectedStepId(triggerId);
-          else if (fromStepId) setSelectedStepId(fromStepId);
-          else setSelectedStepId('');
+          console.log('🔍 Current source_step_id from DB:', fromStepId);
+          console.log('🔍 Available steps:', filtered.map(s => ({ id: s.id, name: s.name })));
+          
+          let stepToSelect: number | '' = '';
+          
+          if (fromStepId !== null && fromStepId !== undefined) {
+            // PRIORITÉ 1: Utilise la source existante depuis la DB
+            // Vérifie que cette étape existe toujours dans les steps disponibles
+            const stepExists = filtered.find(s => s.id === fromStepId);
+            if (stepExists) {
+              stepToSelect = fromStepId;
+              console.log('✅ Using existing source_step_id from DB:', fromStepId, `(${stepExists.name})`);
+            } else {
+              console.warn('⚠️ source_step_id', fromStepId, 'not found in available steps, using trigger as fallback');
+              const triggerId = zapTrigger && zapTrigger.step ? zapTrigger.step.id : null;
+              if (triggerId !== null) {
+                stepToSelect = triggerId;
+              }
+            }
+          } else {
+            // PRIORITÉ 2: Pas de source définie dans la DB → sélectionne le trigger par défaut
+            const triggerId = zapTrigger && zapTrigger.step && (zapTrigger.step.step_order as number) < currentOrder
+              ? zapTrigger.step.id
+              : null;
+            
+            if (triggerId !== null) {
+              stepToSelect = triggerId;
+              console.log('🎯 No source_step_id in DB, auto-selecting trigger as default:', triggerId);
+            } else if (filtered.length > 0) {
+              // Si pas de trigger, sélectionne la première étape disponible
+              stepToSelect = filtered[0].id;
+              console.log('🎯 No trigger available, auto-selecting first step:', filtered[0].id);
+            }
+          }
+          
+          setSelectedStepId(stepToSelect);
+          
+          // Notifie le parent immédiatement après le chargement initial SEULEMENT
+          if (!initialLoadDone && stepToSelect !== '' && onSelectFromStep) {
+            console.log('📤 Initial load: Notifying parent of selection:', stepToSelect);
+            onSelectFromStep(stepToSelect as number);
+            setInitialLoadDone(true);
+          }
+          
         } else {
-          // Pre-create mode: include all existing actions and the trigger (no filtering by order)
+          // MODE PRÉ-CRÉATION: inclut toutes les actions et le trigger
           const mapped: StepInfo[] = actions.map(({ step, action }) => ({
             id: step.id,
             name: action.name,
@@ -103,16 +143,31 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({ zapId, currentS
               name: `Trigger — ${zapTrigger.service?.name ?? 'Trigger'}`,
               step_order: zapTrigger.step.step_order as number,
             };
-            if (!mapped.find(f => f.id === triggerEntry.id)) mapped.push(triggerEntry);
+            if (!mapped.find(f => f.id === triggerEntry.id)) {
+              mapped.push(triggerEntry);
+            }
           }
 
           const sorted = mapped.sort((a, b) => a.step_order - b.step_order);
           setSteps(sorted);
 
-          // default selection: prefer trigger
+          // Par défaut, sélectionne le trigger
           const triggerId = zapTrigger && zapTrigger.step ? zapTrigger.step.id : null;
-          if (triggerId !== null) setSelectedStepId(triggerId);
-          else setSelectedStepId('');
+          let stepToSelect: number | '' = '';
+          
+          if (triggerId !== null) {
+            stepToSelect = triggerId;
+          } else if (sorted.length > 0) {
+            stepToSelect = sorted[0].id;
+          }
+          
+          setSelectedStepId(stepToSelect);
+          
+          // Notifie le parent
+          if (!initialLoadDone && stepToSelect !== '' && onSelectFromStep) {
+            onSelectFromStep(stepToSelect as number);
+            setInitialLoadDone(true);
+          }
         }
       } catch (e) {
         console.error(e);
@@ -130,20 +185,27 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({ zapId, currentS
     const parsed = value === '' ? '' : Number(value);
     setSelectedStepId(parsed as number | '');
 
-    // Pre-create mode: immediately notify parent of selection (no button)
+    // Mode pré-création: notifie immédiatement le parent
     if (!currentStepId && onSelectFromStep) {
       const resolved = parsed === '' ? null : (parsed as number);
       onSelectFromStep(resolved);
       return;
     }
 
-    // Edit mode (currentStepId provided): commit selection immediately via PATCH
+    // Mode édition: commit immédiat via PATCH
     if (currentStepId) {
       if (parsed === '') return;
       setSubmitting(true);
       setError(null);
       try {
         const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+        
+        console.log('📤 Updating source_step_id:', {
+          zapId,
+          currentStepId,
+          newFromStepId: parsed
+        });
+        
         const response = await fetch(`${apiBaseUrl}/zaps/${zapId}/actions/${currentStepId}`, {
           method: 'PATCH',
           headers: {
@@ -152,13 +214,22 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({ zapId, currentS
           },
           body: JSON.stringify({ fromStepId: parsed }),
         });
+        
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`);
         }
-        if (onRefresh) onRefresh();
+        
+  console.log('✅ source_step_id updated successfully');
+        
+        // Notifie le parent pour qu'il mette à jour les variables
+        if (onSelectFromStep) {
+          onSelectFromStep(parsed as number);
+        } else if (onRefresh) {
+          onRefresh();
+        }
       } catch (err) {
-        console.error(err);
+        console.error('❌ Failed to update source step:', err);
         setError('Failed to update source step');
       } finally {
         setSubmitting(false);
@@ -166,14 +237,11 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({ zapId, currentS
     }
   };
 
-  // Note: explicit confirmation button removed — selection commits immediately.
-
   return (
     <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
       {loading ? (
         <CircularProgress size={20} />
       ) : steps.length === 0 ? (
-        // If there are no previous steps, render nothing (as requested)
         null
       ) : (
         <>

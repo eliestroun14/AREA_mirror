@@ -42,6 +42,14 @@ export class StepDTO {
 
   @ApiProperty({
     description:
+      "Identifiant de l'étape source (source_step_id) si step_type est ACTION, null sinon",
+    example: null,
+    nullable: true,
+  })
+  source_step_id: number | null;
+
+  @ApiProperty({
+    description:
       "Ordre d'exécution de l'étape (0 pour trigger, 1+ pour actions)",
     example: 0,
   })
