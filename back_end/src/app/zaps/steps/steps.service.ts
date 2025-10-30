@@ -70,16 +70,7 @@ export class StepsService {
         `The connection with account's id ${data.accountIdentifier} of service ${service.name} do not exists.`,
       );
 
-    const webhook_id =
-      trigger.trigger_type !== constants.trigger_types.webhook
-        ? null
-        : await this.webhookService.createWebhookFromTriggerStep(
-            webhookUrlOf(trigger.service.name, userId, zapId, trigger.id),
-            trigger,
-            data.payload,
-          );
-
-    await this.prisma.zap_steps.create({
+    const triggerStep = await this.prisma.zap_steps.create({
       data: {
         zap_id: zapId,
         trigger_id: data.triggerId,
@@ -87,8 +78,26 @@ export class StepsService {
         step_order: 0,
         connection_id: connection.id,
         payload: data.payload,
-        webhook_id,
+        webhook_id: null,
       },
+    });
+
+    const webhook_id =
+      trigger.trigger_type !== constants.trigger_types.webhook
+        ? null
+        : await this.webhookService.createWebhookFromTriggerStep(
+            userId,
+            zapId,
+            triggerStep.id,
+            trigger,
+            trigger.service,
+            data.payload,
+            connection.access_token,
+          );
+
+    await this.prisma.zap_steps.update({
+      where: { id: triggerStep.id },
+      data: { webhook_id },
     });
   }
 

@@ -18,6 +18,9 @@ export const constants = {
     in_progress: 'IN PROGRESS',
     failed: 'FAILED',
   },
+  services: {
+    discord: { name: 'Discord', slug: 'discord' },
+  },
 };
 
 export function callbackOf(service: string): string {
@@ -25,12 +28,13 @@ export function callbackOf(service: string): string {
 }
 
 export function webhookUrlOf(
-  service: string,
+  serviceSlug: string,
+  triggerSlug: string,
   userId: number,
   zapId: number,
   triggerId: number,
 ): string {
-  return `${envConstants.api_base_url}/webhooks/${service}/${userId}/${zapId}/${triggerId}`;
+  return `${envConstants.webhook_base_url}/webhooks/${serviceSlug}/${triggerSlug}/${userId}/${zapId}/${triggerId}`;
 }
 
 export function formateDate(date: Date): string {

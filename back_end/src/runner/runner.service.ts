@@ -48,11 +48,11 @@ export class RunnerService {
 
   public async runWebhookActions(
     zap: zaps,
-    triggerId: number,
+    triggerStepId: number,
     data: RunnerVariableData[],
   ) {
     const jobsData: ZapJobsData = {
-      [triggerId]: {
+      [triggerStepId]: {
         data: data,
         status: RunnerExecutionStatus.SUCCESS,
       },
