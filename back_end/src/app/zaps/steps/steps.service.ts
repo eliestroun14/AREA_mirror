@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PostZapActionBody, PostZapTriggerBody } from '@app/zaps/zaps.dto';
 import { constants, webhookUrlOf } from '@config/utils';
@@ -349,6 +350,7 @@ export class StepsService {
       accountIdentifier?: string;
       payload?: object;
       stepOrder?: number;
+      fromStepId?: number;
     },
   ): Promise<void> {
     const step = await this.prisma.zap_steps.findFirst({
@@ -369,6 +371,7 @@ export class StepsService {
       connection_id?: number;
       payload?: object;
       step_order?: number;
+      source_step_id?: number | null;
     } = {};
 
     // Si un nouveau actionId est fourni, on vérifie qu'il existe et on récupère le service
@@ -444,6 +447,26 @@ export class StepsService {
     // Mise à jour de step_order si fourni
     if (data.stepOrder !== undefined) {
       updateData.step_order = data.stepOrder;
+    }
+
+    // Mise à jour de la source (source_step_id) si fourni
+    if (data.fromStepId !== undefined) {
+      // Vérifier que la source existe et appartient au même zap
+      const sourceStep = await this.prisma.zap_steps.findFirst({
+        where: { id: data.fromStepId, zap_id: zapId },
+      });
+      if (!sourceStep)
+        throw new NotFoundException(
+          `Source step with id ${data.fromStepId} not found for zap ${zapId}.`,
+        );
+
+      // Vérifier que la source est bien avant l'action (ordre inférieur)
+      if (sourceStep.step_order >= step.step_order)
+        throw new BadRequestException(
+          'Source step must be before the action step in order.',
+        );
+
+      updateData.source_step_id = data.fromStepId;
     }
 
     // Mise à jour du step

@@ -1,5 +1,6 @@
 import { PollTrigger } from '@root/runner/zaps/triggers/triggers.runner.job';
 import { ScheduleTrigger_EveryMinutes } from '@root/runner/services/schedule/schedule.workflow';
+import { TeamsTrigger_OnNewMessage } from '@root/runner/services/teams/teams.trigger';
 import JobNotFoundError from '@root/runner/errors/job-not-found.error';
 import {
   GithubOnNewRepositoryPoll
@@ -26,6 +27,9 @@ export class TriggersRunnerFactory {
     },
     GithubOnNewRepositoryPoll: (builder: PollTriggerBuilderParams) => {
       return new GithubOnNewRepositoryPoll(builder);
+    },
+    TeamsTrigger_OnNewMessage: (builder: TriggerBuilderParams) => {
+      return new TeamsTrigger_OnNewMessage(builder);
     },
   };
 
