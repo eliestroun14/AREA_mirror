@@ -23,24 +23,24 @@ export abstract class AREA_WebhookController {
     queries: object,
   ): RunnerVariableData[];
 
-  @Post(`:userId/:zapId/:triggerId`)
+  @Post(`:userId/:zapId/:triggerStepId`)
   async trigger(
     @Headers() headers: object,
     @Body() body: object,
     @Query() queries: object,
     @Param('userId') paramUserId: string,
     @Param('zapId') paramZapId: string,
-    @Param('triggerId') paramTriggerId: string,
+    @Param('triggerStepId') paramTriggerStepId: string,
   ) {
     const userId = Number(paramUserId);
     const zapId = Number(paramZapId);
-    const triggerId = Number(paramTriggerId);
+    const triggerStepId = Number(paramTriggerStepId);
     if (isNaN(userId))
       throw new BadRequestException(`Invalid id: ${paramUserId}.`);
     if (isNaN(zapId))
       throw new BadRequestException(`Invalid id: ${paramZapId}.`);
-    if (isNaN(triggerId))
-      throw new BadRequestException(`Invalid id: ${paramTriggerId}.`);
+    if (isNaN(triggerStepId))
+      throw new BadRequestException(`Invalid id: ${paramTriggerStepId}.`);
 
     const zap = await this.zapRunnerService.getZap(zapId, userId);
 
@@ -49,11 +49,8 @@ export abstract class AREA_WebhookController {
         message: 'Error: Either the zap do not exists or it is disabled.',
       };
 
-    // Le user crée son step trigger, ça fait une requête pour créer le webhook
-    // Puis quand le webhook fait un call api vers cette route, ça fait les checks etc.. Et ça lance ou non le trigger.
-    // TODO: Revoir le getVariablesData si on peut pas ajouter un typage en mode <VariableDataType> ou un truc comme ça ?
     const data = this.getVariablesData(headers, body, queries);
-    await this.workflowService.runWebhookActions(zap, triggerId, data);
+    await this.workflowService.runWebhookActions(zap, triggerStepId, data);
 
     return {
       message: 'Done.',

@@ -8,8 +8,8 @@ import { DiscordStrategy } from '@app/oauth2/services/discord/discord.strategy';
 import { DiscordOAuth2Module } from '@app/oauth2/services/discord/discord.module';
 import { GoogleCalendarOAuth2Module } from '@app/oauth2/services/google-calendar/google-calendar.module';
 import { GoogleCalendarStrategy } from '@app/oauth2/services/google-calendar/google-calendar.strategy';
-import { GithubStrategy } from '@app/oauth2/services/github/github.strategy';
-import { GithubOAuth2Module } from '@app/oauth2/services/github/github.module';
+import { GithubStrategy } from '@root/services/github/oauth2/github.strategy';
+import { GithubOAuth2Module } from '@root/services/github/oauth2/github.module';
 
 @Module({
   imports: [
