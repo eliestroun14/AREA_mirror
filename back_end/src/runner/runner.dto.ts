@@ -16,6 +16,6 @@ export enum RunnerExecutionStatus {
 }
 
 export interface RunnerExecutionResult {
-  data: RunnerVariableData[];
+  variables: RunnerVariableData[];
   status: RunnerExecutionStatus;
 }

@@ -4,11 +4,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PostZapActionBody, PostZapTriggerBody } from '@app/zaps/zaps.dto';
-import { constants } from '@config/utils';
+import { constants, webhookUrlOf } from '@config/utils';
 import { PrismaService } from '@root/prisma/prisma.service';
 import { ConnectionsService } from '@app/users/connections/connections.service';
 import { StepDTO } from '@app/zaps/steps/steps.dto';
 import { ServicesService } from '@app/services/services.service';
+import { servicesData } from '@root/prisma/services-data/services.data';
+import { WebhooksService } from '@app/webhooks/webhooks.service';
 
 @Injectable()
 export class StepsService {
@@ -16,6 +18,7 @@ export class StepsService {
     private prisma: PrismaService,
     private connectionsService: ConnectionsService,
     private servicesService: ServicesService,
+    private webhookService: WebhooksService,
   ) {}
 
   async createTriggerStep(
@@ -37,6 +40,9 @@ export class StepsService {
 
     const trigger = await this.prisma.triggers.findUnique({
       where: { id: data.triggerId },
+      include: {
+        service: true,
+      },
     });
     if (!trigger)
       throw new NotFoundException(
@@ -64,7 +70,7 @@ export class StepsService {
         `The connection with account's id ${data.accountIdentifier} of service ${service.name} do not exists.`,
       );
 
-    await this.prisma.zap_steps.create({
+    const triggerStep = await this.prisma.zap_steps.create({
       data: {
         zap_id: zapId,
         trigger_id: data.triggerId,
@@ -72,7 +78,26 @@ export class StepsService {
         step_order: 0,
         connection_id: connection.id,
         payload: data.payload,
+        webhook_id: null,
       },
+    });
+
+    const webhook_id =
+      trigger.trigger_type !== constants.trigger_types.webhook
+        ? null
+        : await this.webhookService.createWebhookFromTriggerStep(
+            userId,
+            zapId,
+            triggerStep.id,
+            trigger,
+            trigger.service,
+            data.payload,
+            connection.access_token,
+          );
+
+    await this.prisma.zap_steps.update({
+      where: { id: triggerStep.id },
+      data: { webhook_id },
     });
   }
 

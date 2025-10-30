@@ -8,6 +8,7 @@ import {
 import { TriggersRunnerService } from '@root/runner/zaps/triggers/triggers.runner.service';
 import { ZapJobsData } from '@root/runner/zaps/zaps.runner.dto';
 import { ActionsRunnerService } from '@root/runner/zaps/actions/actions.runner.service';
+import { constants } from '@config/utils';
 
 @Injectable()
 export class ZapsRunnerService {
@@ -19,6 +20,12 @@ export class ZapsRunnerService {
 
   async getAllZaps(): Promise<zaps[]> {
     return this.prisma.zaps.findMany();
+  }
+
+  async getZap(zapId: number, userId: number): Promise<zaps | null> {
+    return await this.prisma.zaps.findFirst({
+      where: { id: zapId, user_id: userId },
+    });
   }
 
   async saveComparisonData(
@@ -35,19 +42,37 @@ export class ZapsRunnerService {
 
   async isTriggered(
     zap: zaps,
-  ): Promise<{ id: number; result: RunnerCheckResult<object> }> {
-    const triggerClass = await this.triggerService.getTriggerClassOf(zap);
+  ): Promise<{ id: number; result: RunnerCheckResult<any> }> {
+    const failureData = {
+      id: -1,
+      result: {
+        status: RunnerExecutionStatus.FAILURE,
+        variables: [],
+        comparison_data: null,
+        is_triggered: false,
+      },
+    };
 
-    if (!triggerClass)
+    const triggerStep = await this.triggerService.getTriggerStepOf(zap.id);
+    if (!triggerStep) return failureData;
+
+    if (triggerStep.trigger.trigger_type === constants.trigger_types.webhook)
       return {
         id: -1,
         result: {
-          status: RunnerExecutionStatus.FAILURE,
+          status: RunnerExecutionStatus.SUCCESS,
           variables: [],
           comparison_data: null,
           is_triggered: false,
         },
       };
+
+    const triggerClass = await this.triggerService.getTriggerClassOf(
+      zap,
+      triggerStep,
+    );
+
+    if (!triggerClass) return failureData;
 
     return {
       id: triggerClass.getStepId(),
@@ -60,7 +85,10 @@ export class ZapsRunnerService {
 
     for (const step of steps) {
       const runResult = await this.actionService.executeAction(step, jobsData);
-      jobsData[step.id] = { status: runResult.status, data: runResult.data };
+      jobsData[step.id] = {
+        status: runResult.status,
+        variables: runResult.variables,
+      };
     }
     await this.saveZapExecution(zap);
   }

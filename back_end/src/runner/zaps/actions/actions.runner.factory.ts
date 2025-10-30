@@ -1,4 +1,4 @@
-import { ActionRunnerJob } from '@root/runner/zaps/actions/actions.runner.job';
+import { ActionExecutor } from '@root/runner/zaps/actions/actions.runner.job';
 import JobNotFoundError from '@root/runner/errors/job-not-found.error';
 import DiscordAction_SendMessage from '@root/runner/services/discord/discord.workflow';
 
@@ -10,7 +10,7 @@ export interface ActionBuilderParams {
 
 type ActionBuilderFunction = (
   builder: ActionBuilderParams,
-) => ActionRunnerJob<any>;
+) => ActionExecutor<any>;
 
 export class ActionsRunnerFactory {
   private registers: Record<string, ActionBuilderFunction> = {
@@ -27,7 +27,7 @@ export class ActionsRunnerFactory {
   build(
     className: string,
     builderParams: ActionBuilderParams,
-  ): ActionRunnerJob<any> {
+  ): ActionExecutor<any> {
     if (!(className in this.registers))
       throw new JobNotFoundError(builderParams.stepId, className, 'action');
     return this.registers[className](builderParams);

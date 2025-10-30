@@ -1,0 +1,17 @@
+import { ServiceTrigger } from '@root/prisma/services-data/services.dto';
+
+export const <serviceName><TriggerName>Data: ServiceTrigger = {
+  class_name: '<ServiceName><TriggerName>Poll',
+  http_requests: null,
+  webhook: null,
+  trigger_type: 'POLLING',
+  name: '<TriggerTitle>',
+  description: '<TriggerDescription>',
+  require_connection: true,
+  polling_interval: 1000,
+  fields: {},
+  variables: [],
+  is_active: true,
+  created_at: new Date(Date.now()),
+  updated_at: new Date(Date.now()),
+};

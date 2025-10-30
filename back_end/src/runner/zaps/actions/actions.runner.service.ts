@@ -8,7 +8,7 @@ import {
 } from '@root/runner/zaps/actions/actions.runner.dto';
 import MissingStepDataError from '@root/runner/errors/missing-step-data.error';
 import { ActionsRunnerFactory } from '@root/runner/zaps/actions/actions.runner.factory';
-import { ActionRunnerJob } from '@root/runner/zaps/actions/actions.runner.job';
+import { ActionExecutor } from '@root/runner/zaps/actions/actions.runner.job';
 import StepActionNotFoundError from '@root/runner/errors/step-action-not-found.error';
 import JsonValueParser from '@root/runner/parser/json-value.parser';
 import MissingStepActionIdError from '@root/runner/errors/missing-step-action-id.error';
@@ -58,7 +58,7 @@ export class ActionsRunnerService {
   ): Promise<ActionRunResult> {
     if (!actionStep.source_step_id)
       return {
-        data: [],
+        variables: [],
         status: RunnerExecutionStatus.FAILURE,
       };
 
@@ -70,7 +70,7 @@ export class ActionsRunnerService {
       );
 
     const actionClass = this.getClass(actionStep);
-    return actionClass.execute(jobsData[actionStep.source_step_id].data);
+    return actionClass.execute(jobsData[actionStep.source_step_id].variables);
   }
 
   /**
@@ -78,7 +78,7 @@ export class ActionsRunnerService {
    * @param actionStep The step associated to the class.
    * @private
    */
-  private getClass(actionStep: ActionStepRunnerDTO): ActionRunnerJob<any> {
+  private getClass(actionStep: ActionStepRunnerDTO): ActionExecutor<any> {
     const action = actionStep.action;
 
     if (!actionStep.action_id)

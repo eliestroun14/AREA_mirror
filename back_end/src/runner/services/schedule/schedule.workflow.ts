@@ -2,15 +2,15 @@ import {
   RunnerCheckResult,
   RunnerExecutionStatus,
 } from '@root/runner/runner.dto';
-import { TriggerBuilderParams } from '@root/runner/zaps/triggers/triggers.runner.factory';
-import { TriggerRunnerJob } from '@root/runner/zaps/triggers/triggers.runner.job';
+import { PollTriggerBuilderParams } from '@root/runner/zaps/triggers/triggers.runner.factory';
+import { PollTrigger } from '@root/runner/zaps/triggers/triggers.runner.job';
 import { ScheduleTrigger_EveryMinutes_Payload } from '@root/runner/services/schedule/schedule.dto';
 
-export class ScheduleTrigger_EveryMinutes extends TriggerRunnerJob<
+export class ScheduleTrigger_EveryMinutes extends PollTrigger<
   ScheduleTrigger_EveryMinutes_Payload,
   any
 > {
-  constructor(params: TriggerBuilderParams) {
+  constructor(params: PollTriggerBuilderParams) {
     super(params);
   }
 
