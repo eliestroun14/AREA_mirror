@@ -5,6 +5,7 @@ import JobNotFoundError from '@root/runner/errors/job-not-found.error';
 import { GithubOnNewRepositoryPoll } from '@root/services/github/triggers/on-new-repository/github-on-new-repository.poll';
 import { TwitchFollowNewChannelPoll } from '@root/services/twitch/triggers/follow-new-channel/twitch-follow-new-channel.poll';
 import { TwitchNewFollowerOnYourChannelPoll } from '@root/services/twitch/triggers/new-follower-on-your-channel/twitch-new-follower-on-your-channel.poll';
+import { TwitchNewVideoPostedByYouPoll } from '@root/services/twitch/triggers/new-video-posted-by-you/twitch-new-video-posted-by-you.poll';
 
 export interface PollTriggerBuilderParams {
   stepId: number;
@@ -36,6 +37,9 @@ export class TriggersRunnerFactory {
     },
     TwitchNewFollowerOnYourChannelPoll: (builder: PollTriggerBuilderParams) => {
       return new TwitchNewFollowerOnYourChannelPoll(builder);
+    },
+    TwitchNewVideoPostedByYouPoll: (builder: PollTriggerBuilderParams) => {
+      return new TwitchNewVideoPostedByYouPoll(builder);
     },
   };
 
