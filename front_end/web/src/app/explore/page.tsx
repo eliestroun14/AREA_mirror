@@ -144,16 +144,16 @@ export default function ExplorePage() {
           sx={{
             display: 'grid',
             gridTemplateColumns: {
-              xs: 'repeat(auto-fit, minmax(200px, 1fr))',
-              sm: 'repeat(auto-fit, minmax(220px, 1fr))',
-              md: 'repeat(auto-fit, minmax(240px, 1fr))',
-              lg: 'repeat(auto-fit, minmax(260px, 1fr))'
+              xs: 'repeat(auto-fit, 220px)',
+              sm: 'repeat(auto-fit, 220px)',
+              md: 'repeat(auto-fit, 220px)',
+              lg: 'repeat(auto-fit, 220px)'
             },
             gap: 3,
             justifyContent: 'center',
             justifyItems: 'center',
             maxWidth: '100%',
-            width: 'fit-content',
+            width: '100%',
             mx: 'auto',
             px: { xs: 2, sm: 4, md: 6, lg: 8 },
             mt: 4
@@ -164,7 +164,7 @@ export default function ExplorePage() {
               key={service.id}
               sx={{ 
                 height: 220,
-                minWidth: 200,
+                width: 200,
                 bgcolor: service.services_color || '#ffffffff',
                 color: 'white',
                 borderRadius: 3,
@@ -216,13 +216,19 @@ export default function ExplorePage() {
                 </Box>
                 
                 {/* Service Name */}
-                <Typography 
-                  variant="h6" 
-                  sx={{ 
+                <Typography
+                  variant="h6"
+                  sx={{
                     color: 'white',
                     fontWeight: 'bold',
                     textAlign: 'center',
-                    lineHeight: 1.2
+                    lineHeight: 1.2,
+                    // Prevent long names from enlarging the card: clamp to 2 lines
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical'
                   }}
                 >
                   {service.name}
