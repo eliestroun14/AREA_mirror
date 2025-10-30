@@ -23,25 +23,10 @@ export class UsersService {
   }
 
   async createUser(data: Prisma.usersCreateInput): Promise<users> {
-    const service = await this.prisma.services.findFirst({
-      where: {
-        name: 'Scheduling',
-      },
-    });
     const userData = await this.prisma.users.create({
       data,
     });
 
-    await this.prisma.connections.create({
-      data: {
-        service_id: service?.id || 1,
-        user_id: userData.id,
-        account_identifier: 'SCHEDULE',
-        access_token: 'XXXX',
-        connection_name: 'SCHEDULE',
-        is_active: true,
-      },
-    });
     return userData;
   }
 
