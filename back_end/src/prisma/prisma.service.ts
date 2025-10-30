@@ -154,18 +154,4 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     const httpRequestData = await this.http_requests.create({ data });
     return httpRequestData.id;
   }
-
-  private async createTriggerWebhook(
-    webhook: ServiceTriggerWebhook,
-  ): Promise<number> {
-    const data: Prisma.webhooksCreateInput = {
-      event: webhook.event,
-      action: webhook.action,
-      from_url: webhook.from_url,
-      // secret: webhook.secret,
-    };
-
-    const webhookData = await this.webhooks.create({ data });
-    return webhookData.id;
-  }
 }
