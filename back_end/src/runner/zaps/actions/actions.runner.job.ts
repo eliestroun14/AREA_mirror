@@ -1,10 +1,8 @@
-import {
-  RunnerVariableData,
-} from '@root/runner/runner.dto';
+import { RunnerVariableData } from '@root/runner/runner.dto';
 import { ActionBuilderParams } from '@root/runner/zaps/actions/actions.runner.factory';
 import { ActionRunResult } from '@root/runner/zaps/actions/actions.runner.dto';
 
-export abstract class ActionRunnerJob<PayloadType extends Record<string, any>> {
+export abstract class ActionExecutor<PayloadType extends Record<string, any>> {
   private readonly _stepId: number;
   protected readonly accessToken: string | null;
   private readonly payload: PayloadType;

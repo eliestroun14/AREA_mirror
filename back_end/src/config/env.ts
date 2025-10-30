@@ -6,6 +6,7 @@ export const envConstants = {
   jwtSecret: process.env.JWT_SECRET ?? 'JWT_SECRET',
   bcryptSaltRounds: Number(process.env.BCRYPT_SALT_ROUNDS ?? '10'),
 
+  webhook_base_url: process.env.WEBHOOK_BASE_URL ?? 'none',
   api_base_url: process.env.API_BASE_URL ?? 'http://127.0.0.1:3000',
   web_oauth2_success_redirect_url:
     process.env.WEB_SUCCESS_OAUTH2_REDIRECT_URL ??

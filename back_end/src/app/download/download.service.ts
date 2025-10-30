@@ -40,7 +40,7 @@ export class DownloadService {
   getFileName(filePath: string): string {
     return path.basename(filePath);
   }
-""
+
   /**
    * Get the MIME type based on file extension
    * @param fileName - The filename

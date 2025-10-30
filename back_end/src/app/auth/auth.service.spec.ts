@@ -161,10 +161,7 @@ describe('AuthService', () => {
       const result = await service.signIn(email, password);
 
       expect(mockUsersService.getUserByEmail).toHaveBeenCalledWith(email);
-      expect(bcrypt.compare).toHaveBeenCalledWith(
-        password,
-        mockUser.password,
-      );
+      expect(bcrypt.compare).toHaveBeenCalledWith(password, mockUser.password);
       expect(mockJwtService.signAsync).toHaveBeenCalledWith({
         userId: mockUser.id,
       });

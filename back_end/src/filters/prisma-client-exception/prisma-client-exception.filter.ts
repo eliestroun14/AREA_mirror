@@ -4,7 +4,8 @@ import {
   ArgumentsHost,
   ConflictException,
   InternalServerErrorException,
-  NotFoundException, BadRequestException,
+  NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 

@@ -1,4 +1,182 @@
 import { Service } from '@root/prisma/services-data/services.dto';
+import { githubOnNewIssueData } from '@root/services/github/triggers/on-new-issue/github-on-new-issue.data';
+import { githubOnNewRepositoryData } from '@root/services/github/triggers/on-new-repository/github-on-new-repository.data';
+
+// export const services = {
+//   discord: { name: 'Discord', slug: 'discord' },
+//   googleCalendar: { name: 'Calendar', slug: 'calendar' },
+//   github: { name: 'Github', slug: 'github' },
+// };
+
+// export const servicesData: Service[] = [
+  // {
+  //   name: services.github.name,
+  //   slug: services.github.slug,
+  //   serviceColor: '#1C1C1C',
+  //   iconUrl: '/assets/github.png',
+  //   apiBaseUrl: '',
+  //   authType: 'oauth2',
+  //   documentationUrl: '',
+  //   isActive: true,
+  //   triggers: [githubOnNewIssueData, githubOnNewRepositoryData],
+  //   actions: [],
+  // },
+  // {
+  //   name: 'Scheduling',
+  //   slug: 'scheduling',
+  //   serviceColor: '#1C1C1C',
+  //   iconUrl: '/assets/schedule.png',
+  //   apiBaseUrl: 'none',
+  //   authType: 'oauth2',
+  //   documentationUrl: 'none',
+  //   isActive: true,
+  //   triggers: [
+  //     {
+  //       class_name: 'ScheduleTrigger_EveryMinutes',
+  //       http_requests: null,
+  //       webhook: null,
+  //       trigger_type: 'POLLING',
+  //       name: 'Every minutes',
+  //       description: 'Execute actions every minutes',
+  //       require_connection: false,
+  //       polling_interval: 1000,
+  //       fields: {
+  //         seconds: {
+  //           key: 'Seconds',
+  //           required: true,
+  //           type: 'number',
+  //           select_options: [],
+  //           field_name: 'Interval of seconds',
+  //           default_value: '10',
+  //           placeholder: '10',
+  //           field_order: 0,
+  //           validation_rules: {},
+  //           is_active: true,
+  //         },
+  //       },
+  //       variables: [
+  //         {
+  //           name: 'Date',
+  //         },
+  //       ],
+  //       is_active: true,
+  //       created_at: new Date(Date.now()),
+  //       updated_at: new Date(Date.now()),
+  //     },
+  //   ],
+  //   actions: [],
+  // },
+  // {
+  //   name: services.discord.name,
+  //   slug: services.discord.slug,
+  //   serviceColor: '#7289da',
+  //   iconUrl: '/assets/discord.png',
+  //   apiBaseUrl: 'https://discord.com/api',
+  //   authType: 'oauth2',
+  //   documentationUrl: 'https://discord.com/developers/docs/reference/',
+  //   isActive: true,
+  //   triggers: [],
+  //   actions: [
+  //     {
+  //       http_requests: {
+  //         description: 'Send a message.',
+  //         method: 'POST',
+  //         endpoint: 'https://discord.com/api/webhooks/',
+  //       },
+  //       class_name: 'DiscordAction_SendMessage',
+  //       name: 'Send message',
+  //       description: 'Send a message to Discord using a webhook.',
+  //       require_connection: false,
+  //       fields: {
+  //         message: {
+  //           key: 'message',
+  //           required: true,
+  //           type: 'string',
+  //           select_options: [],
+  //           field_name: 'Message',
+  //           default_value: 'Hello from AREA!',
+  //           placeholder: 'Your message',
+  //           field_order: 1,
+  //           validation_rules: {},
+  //           is_active: true,
+  //         },
+  //         webhook_url: {
+  //           key: 'webhook_url',
+  //           required: true,
+  //           type: 'string',
+  //           select_options: [],
+  //           field_name: 'Webhook URL',
+  //           default_value:
+  //             'https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_SECRET',
+  //           placeholder: 'Your webhook URL',
+  //           field_order: 0,
+  //           validation_rules: {},
+  //           is_active: true,
+  //         },
+  //       },
+  //       variables: [],
+  //       is_active: false,
+  //       created_at: new Date(Date.now()),
+  //       updated_at: new Date(Date.now()),
+  //     },
+  //   ],
+  // },
+  // {
+  //   name: services.googleCalendar.name,
+  //   slug: services.googleCalendar.slug,
+  //   serviceColor: '#2c6efc',
+  //   iconUrl: '/assets/googleCalendar.png',
+  //   apiBaseUrl: 'https://www.googleapis.com/calendar/v3',
+  //   authType: 'oauth2',
+  //   documentationUrl:
+  //     'https://developers.google.com/workspace/calendar/api/v3/reference',
+  //   isActive: true,
+  //   triggers: [],
+  //   actions: [
+  //     {
+  //       http_requests: {
+  //         description: 'Send a message.',
+  //         method: 'POST',
+  //         endpoint: 'https://discord.com/api/webhooks/',
+  //       },
+  //       class_name: 'DiscordAction_SendMessage',
+  //       name: 'Send message',
+  //       description: 'Send a message to Discord using a webhook.',
+  //       require_connection: false,
+  //       fields: {
+  //         message: {
+  //           key: 'message',
+  //           required: true,
+  //           type: 'string',
+  //           select_options: [],
+  //           field_name: 'Message',
+  //           default_value: 'Hello from AREA!',
+  //           placeholder: 'Your message',
+  //           field_order: 1,
+  //           validation_rules: {},
+  //           is_active: true,
+  //         },
+  //         webhook_url: {
+  //           key: 'webhook_url',
+  //           required: true,
+  //           type: 'string',
+  //           select_options: [],
+  //           field_name: 'Webhook URL',
+  //           default_value:
+  //             'https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_SECRET',
+  //           placeholder: 'Your webhook URL',
+  //           field_order: 0,
+  //           validation_rules: {},
+  //           is_active: true,
+  //         },
+  //       },
+  //       variables: [],
+  //       is_active: false,
+  //       created_at: new Date(Date.now()),
+  //       updated_at: new Date(Date.now()),
+  //     },
+  //   ],
+  // },
 
 export const services = {
   discord: { name: 'Discord', slug: 'discord' },

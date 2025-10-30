@@ -1,6 +1,6 @@
 import { constants } from '@config/utils';
 import { TriggerStepRunnerDTO } from '@root/runner/zaps/triggers/triggers.runner.dto';
-import { TriggerRunnerJob } from '@root/runner/zaps/triggers/triggers.runner.job';
+import { PollTrigger } from '@root/runner/zaps/triggers/triggers.runner.job';
 import JsonValueParser from '@root/runner/parser/json-value.parser';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@root/prisma/prisma.service';
@@ -16,10 +16,8 @@ export class TriggersRunnerService {
 
   public async getTriggerClassOf(
     zap: zaps,
-  ): Promise<TriggerRunnerJob<any, any> | null> {
-    const triggerStep = await this.getTriggerStepOf(zap.id);
-    if (!triggerStep) return null;
-
+    triggerStep: TriggerStepRunnerDTO,
+  ): Promise<PollTrigger<any, any> | null> {
     const trigger = triggerStep.trigger;
     return this.triggerFactory.build(trigger.class_name, {
       stepId: triggerStep.id,
@@ -34,7 +32,7 @@ export class TriggersRunnerService {
     });
   }
 
-  private async getTriggerStepOf(
+  public async getTriggerStepOf(
     zapId: number,
   ): Promise<TriggerStepRunnerDTO | null> {
     const step = await this.prisma.zap_steps.findFirst({

@@ -1,9 +1,9 @@
-import { ActionRunnerJob } from '@root/runner/zaps/actions/actions.runner.job';
+import { ActionExecutor } from '@root/runner/zaps/actions/actions.runner.job';
 import { ActionRunResult } from '@root/runner/zaps/actions/actions.runner.dto';
 import { DiscordAction_SendMessage_Payload } from '@root/runner/services/discord/discord.dto';
 import { RunnerExecutionStatus } from '@root/runner/runner.dto';
 
-export default class DiscordAction_SendMessage extends ActionRunnerJob<DiscordAction_SendMessage_Payload> {
+export default class DiscordAction_SendMessage extends ActionExecutor<DiscordAction_SendMessage_Payload> {
   protected async _execute(
     payload: DiscordAction_SendMessage_Payload,
   ): Promise<ActionRunResult> {
@@ -19,12 +19,12 @@ export default class DiscordAction_SendMessage extends ActionRunnerJob<DiscordAc
 
     if (result.ok) {
       return {
-        data: [],
+        variables: [],
         status: RunnerExecutionStatus.SUCCESS,
       };
     }
     return {
-      data: [],
+      variables: [],
       status: RunnerExecutionStatus.FAILURE,
     };
   }

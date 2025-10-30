@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { <ServiceName>OAuth2Controller } from '@app/oauth2/services/<service-name>/<service-name>.controller';
+import { <ServiceName>OAuth2Controller } from '@root/services/<service-name>/oauth2/<service-name>.controller';
 import { ConnectionsService } from '@app/users/connections/connections.service';
 import { PrismaService } from '@root/prisma/prisma.service';
 import { ServicesService } from '@app/services/services.service';
