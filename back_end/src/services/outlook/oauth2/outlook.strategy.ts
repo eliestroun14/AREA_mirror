@@ -16,7 +16,7 @@ export class OutlookStrategy extends PassportStrategy(
   Strategy,
   'windowslive',
 ) {
-  private static SCOPES: ScopeType = ['email', 'identify'];
+  private static SCOPES: ScopeType = ['email', 'openid'];
 
   constructor() {
     const options: StrategyOptions = {
