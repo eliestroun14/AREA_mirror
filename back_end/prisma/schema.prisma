@@ -73,16 +73,12 @@ model http_requests {
 
 model webhooks {
   id               Int        @id @default(autoincrement())
-  from_url         String
   secret           String?
-  event            String
-  action           String
   total_received   Int        @default(0)
   last_received_at DateTime?
   triggers         triggers[]
 
   associated_step zap_steps? @relation("zap_steps_webhook")
-  @@unique([action, event, from_url])
 }
 
 model triggers {
