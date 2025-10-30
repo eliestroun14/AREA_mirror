@@ -1,4 +1,6 @@
 import { Service } from '@root/prisma/services-data/services.dto';
+import { githubOnNewIssueData } from '@root/services/github/triggers/on-new-issue/github-on-new-issue.data';
+import { githubOnNewRepositoryData } from '@root/services/github/triggers/on-new-repository/github-on-new-repository.data';
 
 export const services = {
   discord: { name: 'Discord', slug: 'discord' },
@@ -16,23 +18,7 @@ export const servicesData: Service[] = [
     authType: 'oauth2',
     documentationUrl: '',
     isActive: true,
-    triggers: [
-      {
-        class_name: 'none',
-        http_requests: null,
-        webhook: null,
-        trigger_type: 'POLLING',
-        name: 'Test trigger for oauth',
-        description: 'ersgesg',
-        require_connection: true,
-        polling_interval: 1000,
-        fields: {},
-        variables: [],
-        is_active: true,
-        created_at: new Date(Date.now()),
-        updated_at: new Date(Date.now()),
-      },
-    ],
+    triggers: [githubOnNewIssueData, githubOnNewRepositoryData],
     actions: [],
   },
   {
@@ -70,8 +56,6 @@ export const servicesData: Service[] = [
         },
         variables: [
           {
-            type: 'string',
-            key: 'date',
             name: 'Date',
           },
         ],
