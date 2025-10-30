@@ -17,6 +17,7 @@ import { YoutubeStrategy } from '@app/oauth2/services/youtube/youtube.strategy';
 import { DriveOAuth2Module } from '@app/oauth2/services/drive/drive.module';
 import { DriveStrategy } from '@app/oauth2/services/drive/drive.strategy';
 import { GithubStrategy } from '@root/services/github/oauth2/github.strategy';
+import { GithubOAuth2Module } from '@root/services/github/oauth2/github.module';
 
 @Module({
   imports: [

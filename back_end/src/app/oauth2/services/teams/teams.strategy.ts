@@ -9,7 +9,7 @@ import { services } from '@root/prisma/services-data/services.data';
 @Injectable()
 export class TeamsStrategy extends PassportStrategy(Strategy, 'teams') {
   private readonly logger = new Logger(TeamsStrategy.name);
-  
+
   // Scopes nécessaires pour Microsoft Teams
   private static SCOPES: string[] = [
     'openid',
@@ -25,7 +25,7 @@ export class TeamsStrategy extends PassportStrategy(Strategy, 'teams') {
 
   constructor() {
     const callbackURL = callbackOf(services.teams.slug);
-    
+
     const options = {
       clientID: envConstants.teams_client_id,
       clientSecret: envConstants.teams_client_secret,
@@ -35,7 +35,7 @@ export class TeamsStrategy extends PassportStrategy(Strategy, 'teams') {
     };
 
     super(options);
-    
+
     this.logger.log(`Callback URL: ${callbackURL}`);
     this.logger.log(`Client ID: ${envConstants.teams_client_id}`);
     this.logger.log(`Scopes: ${TeamsStrategy.SCOPES.join(', ')}`);
@@ -47,7 +47,7 @@ export class TeamsStrategy extends PassportStrategy(Strategy, 'teams') {
     profile: any,
   ): TeamsProvider {
     this.logger.log(`Profile received: ${JSON.stringify(profile, null, 2)}`);
-    
+
     const provider = {
       connection_name: services.teams.name,
       account_identifier: profile.id,

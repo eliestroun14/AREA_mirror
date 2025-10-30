@@ -5,13 +5,13 @@ export interface TeamsTrigger_OnNewMessage_Payload {
 }
 
 // DTOs pour les actions Teams
-export interface TeamsAction_SendMessage_Payload {
+export interface TeamsSendMessageActionPayload {
   team_id: string;
   channel_id: string;
   message: string;
 }
 
-export interface TeamsAction_SendReaction_Payload {
+export interface TeamsSendReactionActionPayload {
   team_id: string;
   channel_id: string;
   message_id: string;

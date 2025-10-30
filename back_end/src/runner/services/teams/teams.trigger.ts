@@ -2,12 +2,15 @@ import {
   RunnerCheckResult,
   RunnerExecutionStatus,
 } from '@root/runner/runner.dto';
-import { TriggerBuilderParams } from '@root/runner/zaps/triggers/triggers.runner.factory';
-import { TriggerRunnerJob } from '@root/runner/zaps/triggers/triggers.runner.job';
+import { PollTriggerBuilderParams } from '@root/runner/zaps/triggers/triggers.runner.factory';
+import { PollTrigger } from '@root/runner/zaps/triggers/triggers.runner.job';
 import { TeamsTrigger_OnNewMessage_Payload } from '@root/runner/services/teams/teams.dto';
 
-export class TeamsTrigger_OnNewMessage extends TriggerRunnerJob<TeamsTrigger_OnNewMessage_Payload, object> {
-  constructor(params: TriggerBuilderParams) {
+export class TeamsTrigger_OnNewMessage extends PollTrigger<
+  TeamsTrigger_OnNewMessage_Payload,
+  object
+> {
+  constructor(params: PollTriggerBuilderParams) {
     super(params);
   }
 

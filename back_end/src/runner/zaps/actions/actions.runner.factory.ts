@@ -1,7 +1,10 @@
 import { ActionExecutor } from '@root/runner/zaps/actions/actions.runner.job';
 import JobNotFoundError from '@root/runner/errors/job-not-found.error';
 import DiscordAction_SendMessage from '@root/runner/services/discord/discord.workflow';
-import { TeamsAction_SendMessage, TeamsAction_SendReaction } from '@root/runner/services/teams/teams.actions';
+import {
+  TeamsAction_SendMessage,
+  TeamsAction_SendReaction,
+} from '@root/runner/services/teams/teams.actions';
 
 export interface ActionBuilderParams {
   stepId: number;
