@@ -26,6 +26,7 @@ export const constants = {
     microsoftTeams: { name: 'Microsoft Teams', slug: 'microsoft-teams' },
     twitch: { name: 'Twitch', slug: 'twitch' },
     youtube: { name: 'Youtube', slug: 'youtube' },
+    outlook: { name: 'Outlook', slug: 'outlook'},
   },
 };
 

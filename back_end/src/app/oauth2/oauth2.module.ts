@@ -18,6 +18,8 @@ import { GoogleDriveOAuth2Module } from '@root/services/google-drive/oauth2/goog
 import { GoogleDriveStrategy } from '@root/services/google-drive/oauth2/google-drive.strategy';
 import { GithubStrategy } from '@root/services/github/oauth2/github.strategy';
 import { GithubOAuth2Module } from '@root/services/github/oauth2/github.module';
+import { OutlookStrategy } from '@root/services/outlook/oauth2/outlook.strategy';
+import { OutlookOAuth2Module } from '@root/services/outlook/oauth2/outlook.module';
 
 @Module({
   imports: [
@@ -29,6 +31,7 @@ import { GithubOAuth2Module } from '@root/services/github/oauth2/github.module';
     GoogleDriveOAuth2Module,
     TwitchOAuth2Module,
     GithubOAuth2Module,
+    OutlookOAuth2Module,
   ],
   controllers: [OAuth2TokenController],
   providers: [
@@ -42,6 +45,7 @@ import { GithubOAuth2Module } from '@root/services/github/oauth2/github.module';
     YoutubeStrategy,
     GoogleDriveStrategy,
     GithubStrategy,
+    OutlookStrategy,
   ],
 })
 export class Oauth2Module {}

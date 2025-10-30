@@ -6,6 +6,7 @@ import { microsoftTeamsData } from '@root/services/microsoft-teams/microsoft-tea
 import { youtubeData } from '@root/services/youtube/youtube.data';
 import { googleDriveData } from '@root/services/google-drive/google-drive.data';
 import { githubData } from '@root/services/github/github.data';
+import { outlookData } from '@root/services/outlook/outlook.data';
 
 // N'AJOUTEZ PLUS VOS SERVICES ICI ! REGARDEZ LA DOC !
 // N'AJOUTEZ PLUS VOS SERVICES ICI ! REGARDEZ LA DOC !
@@ -28,4 +29,5 @@ export const servicesData: Service[] = [
   microsoftTeamsData,
   youtubeData,
   githubData,
+  outlookData,
 ];

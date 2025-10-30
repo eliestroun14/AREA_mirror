@@ -51,4 +51,7 @@ export const envConstants = {
 
   google_drive_client_id: process.env.DRIVE_CLIENT_ID ?? 'DRIVE_CLIENT_ID',
   google_drive_client_secret: process.env.DRIVE_CLIENT_SECRET ?? 'DRIVE_SECRET',
+
+  outlook_client_id: process.env.OUTLOOK_CLIENT_ID ?? 'OUTLOOK_CLIENT_ID',
+  outlook_client_secret: process.env.OUTLOOK_CLIENT_SECRET ?? 'OUTLOOK_CLIENT_SECRET',
 };
