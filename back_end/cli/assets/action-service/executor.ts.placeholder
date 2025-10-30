@@ -8,7 +8,7 @@ export default class <ServiceName><ActionName>Executor extends ActionExecutor<<S
     payload: <ServiceName><ActionName>ActionPayload,
   ): Promise<ActionRunResult> {
     return {
-      data: [],
+      variables: [],
       status: RunnerExecutionStatus.FAILURE,
     };
   }

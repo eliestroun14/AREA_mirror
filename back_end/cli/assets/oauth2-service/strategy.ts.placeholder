@@ -12,13 +12,16 @@ import { constants } from '@config/utils';
 import { OAuth2Provider } from '@app/oauth2/oauth2.dto';
 
 @Injectable()
-export class <ServiceName>Strategy extends PassportStrategy(Strategy, '<service-name>') {
+export class <ServiceName>Strategy extends PassportStrategy(
+  Strategy,
+  constants.services.<serviceName>.slug,
+) {
   private static SCOPES: ScopeType = ['email', 'identify'];
 
   constructor() {
     const options: StrategyOptions = {
-      clientId: envConstants.<serviceName>_client_id,
-      clientSecret: envConstants.<serviceName>_client_secret,
+      clientId: envConstants.<service_name>_client_id,
+      clientSecret: envConstants.<service_name>_client_secret,
       callbackUrl: callbackOf(constants.services.<serviceName>.slug),
       scope: <ServiceName>Strategy.SCOPES,
     };
