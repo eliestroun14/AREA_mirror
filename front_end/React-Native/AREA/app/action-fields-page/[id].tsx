@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Service, Trigger, Action } from "@/types/type";
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
+import { getServiceImageSource } from "@/utils/serviceImageUtils";
 import ActionFieldCard from "@/components/molecules/action-field-card/action-field-card";
 import { TriggerField } from "@/types/type";
 import { router } from "expo-router";
@@ -101,7 +102,7 @@ const ActionFieldsPage = (props: Props) => {
           <View style={[styles.header, {backgroundColor: service.services_color}]}> 
             <Image
               style={styles.appLogo}
-              source={imageMap[service.name] ?? imageMap["default"]}
+              source={getServiceImageSource(service)}
             />
             <Text style={styles.actionName}>
               {action.name}

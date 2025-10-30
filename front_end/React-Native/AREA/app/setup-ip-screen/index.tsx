@@ -110,7 +110,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    marginBottom: 50
+    marginBottom: 50,
+    backgroundColor: '#e8ecf4'
   },
 
   text: {
