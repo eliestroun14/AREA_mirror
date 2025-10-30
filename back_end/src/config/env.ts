@@ -6,6 +6,7 @@ export const envConstants = {
   jwtSecret: process.env.JWT_SECRET ?? 'JWT_SECRET',
   bcryptSaltRounds: Number(process.env.BCRYPT_SALT_ROUNDS ?? '10'),
 
+  webhook_base_url: process.env.WEBHOOK_BASE_URL ?? 'none',
   api_base_url: process.env.API_BASE_URL ?? 'http://127.0.0.1:3000',
   web_oauth2_success_redirect_url:
     process.env.WEB_SUCCESS_OAUTH2_REDIRECT_URL ??
@@ -37,14 +38,17 @@ export const envConstants = {
   twitch_client_id: process.env.TWITCH_CLIENT_ID ?? 'TWITCH_CLIENT_ID',
   twitch_client_secret: process.env.TWITCH_CLIENT_SECRET ?? 'TWITCH_SECRET',
 
-  teams_client_id: process.env.TEAMS_CLIENT_ID ?? 'TEAMS_CLIENT_ID',
-  teams_client_secret: process.env.TEAMS_CLIENT_SECRET ?? 'TEAMS_CLIENT_SECRET',
+  microsoft_teams_client_id: process.env.TEAMS_CLIENT_ID ?? 'TEAMS_CLIENT_ID',
+  microsoft_teams_client_secret:
+    process.env.TEAMS_CLIENT_SECRET ?? 'TEAMS_CLIENT_SECRET',
 
-  token_encryption_key: process.env.TOKEN_ENCRYPTION_KEY ?? '331240132d30fe6405292ee8dffb7f8dafe19585afd9f1e2fac0607f6cb3c408',
+  token_encryption_key:
+    process.env.TOKEN_ENCRYPTION_KEY ??
+    '331240132d30fe6405292ee8dffb7f8dafe19585afd9f1e2fac0607f6cb3c408',
 
   youtube_client_id: process.env.YOUTUBE_CLIENT_ID ?? 'YOUTUBE_CLIENT_ID',
   youtube_client_secret: process.env.YOUTUBE_CLIENT_SECRET ?? 'YOUTUBE_SECRET',
 
-  drive_client_id: process.env.DRIVE_CLIENT_ID ?? 'DRIVE_CLIENT_ID',
-  drive_client_secret: process.env.DRIVE_CLIENT_SECRET ?? 'DRIVE_SECRET',
+  google_drive_client_id: process.env.DRIVE_CLIENT_ID ?? 'DRIVE_CLIENT_ID',
+  google_drive_client_secret: process.env.DRIVE_CLIENT_SECRET ?? 'DRIVE_SECRET',
 };

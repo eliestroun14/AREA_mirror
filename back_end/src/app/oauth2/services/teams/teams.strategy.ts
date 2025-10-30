@@ -1,15 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-microsoft';
-import { TeamsProvider } from '@app/oauth2/services/teams/teams.dto';
 import { envConstants } from '@config/env';
 import { callbackOf } from '@config/utils';
 import { services } from '@root/prisma/services-data/services.data';
+import { OAuth2Provider } from '@app/oauth2/oauth2.dto';
 
 @Injectable()
 export class TeamsStrategy extends PassportStrategy(Strategy, 'teams') {
   private readonly logger = new Logger(TeamsStrategy.name);
-  
+
   // Scopes nécessaires pour Microsoft Teams
   private static SCOPES: string[] = [
     'openid',
@@ -25,19 +25,19 @@ export class TeamsStrategy extends PassportStrategy(Strategy, 'teams') {
 
   constructor() {
     const callbackURL = callbackOf(services.teams.slug);
-    
+
     const options = {
-      clientID: envConstants.teams_client_id,
-      clientSecret: envConstants.teams_client_secret,
+      clientID: envConstants.microsoft_teams_client_id,
+      clientSecret: envConstants.microsoft_teams_client_secret,
       callbackURL: callbackURL,
       scope: TeamsStrategy.SCOPES,
       tenant: 'common',
     };
 
     super(options);
-    
+
     this.logger.log(`Callback URL: ${callbackURL}`);
-    this.logger.log(`Client ID: ${envConstants.teams_client_id}`);
+    this.logger.log(`Client ID: ${envConstants.microsoft_teams_client_id}`);
     this.logger.log(`Scopes: ${TeamsStrategy.SCOPES.join(', ')}`);
   }
 
@@ -45,9 +45,9 @@ export class TeamsStrategy extends PassportStrategy(Strategy, 'teams') {
     accessToken: string,
     refreshToken: string,
     profile: any,
-  ): TeamsProvider {
+  ): OAuth2Provider {
     this.logger.log(`Profile received: ${JSON.stringify(profile, null, 2)}`);
-    
+
     const provider = {
       connection_name: services.teams.name,
       account_identifier: profile.id,
@@ -64,7 +64,7 @@ export class TeamsStrategy extends PassportStrategy(Strategy, 'teams') {
       given_name: profile._json?.givenName ?? profile.name?.givenName ?? '',
       family_name: profile._json?.surname ?? profile.name?.familyName ?? '',
       upn: profile._json?.userPrincipalName ?? profile.userPrincipalName ?? '',
-    } as TeamsProvider;
+    } as OAuth2Provider;
 
     this.logger.log(`Provider created: ${JSON.stringify(provider, null, 2)}`);
     return provider;

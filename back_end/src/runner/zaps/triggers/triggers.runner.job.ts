@@ -3,9 +3,9 @@ import {
   RunnerCheckResult,
   RunnerExecutionStatus,
 } from '@root/runner/runner.dto';
-import { TriggerBuilderParams } from '@root/runner/zaps/triggers/triggers.runner.factory';
+import { PollTriggerBuilderParams } from '@root/runner/zaps/triggers/triggers.runner.factory';
 
-export abstract class TriggerRunnerJob<PayloadType, ComparisonDataType> {
+export abstract class PollTrigger<PayloadType, ComparisonDataType> {
   private readonly _stepId: number;
   private readonly _triggerType: string;
   private readonly _executionInterval: number | null;
@@ -14,7 +14,7 @@ export abstract class TriggerRunnerJob<PayloadType, ComparisonDataType> {
   protected readonly payload: PayloadType;
   protected readonly lastComparisonData: ComparisonDataType | null;
 
-  protected constructor(params: TriggerBuilderParams) {
+  protected constructor(params: PollTriggerBuilderParams) {
     this._stepId = params.stepId;
     this._triggerType = params.triggerType;
     this._executionInterval = params.executionInterval;

@@ -3,21 +3,26 @@ import {
   RunnerVariableData,
 } from '@root/runner/runner.dto';
 import { ActionBuilderParams } from '@root/runner/zaps/actions/actions.runner.factory';
-import { ActionRunnerJob } from '@root/runner/zaps/actions/actions.runner.job';
+import { ActionExecutor } from '@root/runner/zaps/actions/actions.runner.job';
 import { ActionRunResult } from '@root/runner/zaps/actions/actions.runner.dto';
-import { TeamsAction_SendMessage_Payload, TeamsAction_SendReaction_Payload } from '@root/runner/services/teams/teams.dto';
+import {
+  TeamsSendMessageActionPayload,
+  TeamsSendReactionActionPayload,
+} from '@root/runner/services/teams/teams.dto';
 
-export class TeamsAction_SendMessage extends ActionRunnerJob<TeamsAction_SendMessage_Payload> {
+export class TeamsAction_SendMessage extends ActionExecutor<TeamsSendMessageActionPayload> {
   constructor(params: ActionBuilderParams) {
     super(params);
   }
 
-  protected async _execute(payload: TeamsAction_SendMessage_Payload): Promise<ActionRunResult> {
+  protected async _execute(
+    payload: TeamsSendMessageActionPayload,
+  ): Promise<ActionRunResult> {
     try {
       if (!this.accessToken) {
         return {
           status: RunnerExecutionStatus.FAILURE,
-          data: [],
+          variables: [],
         };
       }
 
@@ -26,7 +31,7 @@ export class TeamsAction_SendMessage extends ActionRunnerJob<TeamsAction_SendMes
       if (!team_id || !channel_id || !message) {
         return {
           status: RunnerExecutionStatus.FAILURE,
-          data: [],
+          variables: [],
         };
       }
 
@@ -42,7 +47,7 @@ export class TeamsAction_SendMessage extends ActionRunnerJob<TeamsAction_SendMes
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.accessToken}`,
+          Authorization: `Bearer ${this.accessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(body),
@@ -52,15 +57,15 @@ export class TeamsAction_SendMessage extends ActionRunnerJob<TeamsAction_SendMes
         console.error('Failed to send Teams message:', response.statusText);
         return {
           status: RunnerExecutionStatus.FAILURE,
-          data: [],
+          variables: [],
         };
       }
 
-      const responseData = await response.json();
+      const responseData = (await response.json()) as { id: string };
 
       return {
         status: RunnerExecutionStatus.SUCCESS,
-        data: [
+        variables: [
           { key: 'message_id', value: responseData.id },
           { key: 'message_sent', value: 'true' },
         ],
@@ -69,23 +74,25 @@ export class TeamsAction_SendMessage extends ActionRunnerJob<TeamsAction_SendMes
       console.error('Error in TeamsAction_SendMessage:', error);
       return {
         status: RunnerExecutionStatus.FAILURE,
-        data: [],
+        variables: [],
       };
     }
   }
 }
 
-export class TeamsAction_SendReaction extends ActionRunnerJob<TeamsAction_SendReaction_Payload> {
+export class TeamsAction_SendReaction extends ActionExecutor<TeamsSendReactionActionPayload> {
   constructor(params: ActionBuilderParams) {
     super(params);
   }
 
-  protected async _execute(payload: TeamsAction_SendReaction_Payload): Promise<ActionRunResult> {
+  protected async _execute(
+    payload: TeamsSendReactionActionPayload,
+  ): Promise<ActionRunResult> {
     try {
       if (!this.accessToken) {
         return {
           status: RunnerExecutionStatus.FAILURE,
-          data: [],
+          variables: [],
         };
       }
 
@@ -94,7 +101,7 @@ export class TeamsAction_SendReaction extends ActionRunnerJob<TeamsAction_SendRe
       if (!team_id || !channel_id || !message_id || !reaction) {
         return {
           status: RunnerExecutionStatus.FAILURE,
-          data: [],
+          variables: [],
         };
       }
 
@@ -102,12 +109,12 @@ export class TeamsAction_SendReaction extends ActionRunnerJob<TeamsAction_SendRe
 
       // Mapping des réactions vers les types Microsoft Graph
       const reactionTypeMap: Record<string, string> = {
-        'like': '👍',
-        'heart': '❤️',
-        'laugh': '😂',
-        'surprised': '😮',
-        'sad': '😢',
-        'angry': '😠',
+        like: '👍',
+        heart: '❤️',
+        laugh: '😂',
+        surprised: '😮',
+        sad: '😢',
+        angry: '😠',
       };
 
       const body = {
@@ -117,7 +124,7 @@ export class TeamsAction_SendReaction extends ActionRunnerJob<TeamsAction_SendRe
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.accessToken}`,
+          Authorization: `Bearer ${this.accessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(body),
@@ -127,13 +134,13 @@ export class TeamsAction_SendReaction extends ActionRunnerJob<TeamsAction_SendRe
         console.error('Failed to send Teams reaction:', response.statusText);
         return {
           status: RunnerExecutionStatus.FAILURE,
-          data: [],
+          variables: [],
         };
       }
 
       return {
         status: RunnerExecutionStatus.SUCCESS,
-        data: [
+        variables: [
           { key: 'reaction_sent', value: 'true' },
           { key: 'reaction_type', value: reactionTypeMap[reaction] || '👍' },
         ],
@@ -142,7 +149,7 @@ export class TeamsAction_SendReaction extends ActionRunnerJob<TeamsAction_SendRe
       console.error('Error in TeamsAction_SendReaction:', error);
       return {
         status: RunnerExecutionStatus.FAILURE,
-        data: [],
+        variables: [],
       };
     }
   }

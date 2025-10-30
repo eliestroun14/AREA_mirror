@@ -2,6 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { Logger } from '@root/runner/logger/logger';
 import { ZapsRunnerService } from '@root/runner/zaps/zaps.runner.service';
 import { ZapJobsData } from '@root/runner/zaps/zaps.runner.dto';
+import {
+  RunnerExecutionStatus,
+  RunnerVariableData,
+} from '@root/runner/runner.dto';
+import { zaps } from '@prisma/client';
 
 @Injectable()
 export class RunnerService {
@@ -29,7 +34,7 @@ export class RunnerService {
 
           const jobsData: ZapJobsData = {
             [triggerResult.id]: {
-              data: triggerResult.result.variables,
+              variables: triggerResult.result.variables,
               status: triggerResult.result.status,
             },
           };
@@ -39,5 +44,19 @@ export class RunnerService {
         }
       }
     }
+  }
+
+  public async runWebhookActions(
+    zap: zaps,
+    triggerStepId: number,
+    data: RunnerVariableData[],
+  ) {
+    const jobsData: ZapJobsData = {
+      [triggerStepId]: {
+        variables: data,
+        status: RunnerExecutionStatus.SUCCESS,
+      },
+    };
+    await this.zapRunnerService.executeActionsOf(zap, jobsData);
   }
 }

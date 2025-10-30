@@ -6,7 +6,6 @@ import { ActionsRunnerService } from '@root/runner/zaps/actions/actions.runner.s
 import { TriggersRunnerFactory } from '@root/runner/zaps/triggers/triggers.runner.factory';
 import { ActionsRunnerFactory } from '@root/runner/zaps/actions/actions.runner.factory';
 import { RunnerService } from '@root/runner/runner.service';
-
 @Module({
   providers: [
     PrismaService,
@@ -17,6 +16,14 @@ import { RunnerService } from '@root/runner/runner.service';
     ActionsRunnerService,
     ActionsRunnerFactory,
   ],
-  exports: [ZapsRunnerService],
+  exports: [
+    RunnerService,
+    PrismaService,
+    ZapsRunnerService,
+    TriggersRunnerService,
+    TriggersRunnerFactory,
+    ActionsRunnerService,
+    ActionsRunnerFactory,
+  ],
 })
 export class RunnerModule {}

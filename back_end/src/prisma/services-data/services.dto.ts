@@ -5,12 +5,15 @@ export interface ServiceHttpRequest {
 }
 
 export interface ServiceTriggerWebhook {
-  from_url: string;
-  event: string;
-  action: string;
-  secret: string;
+  slug: string;
   total_received: number;
   last_received_at: number;
+  hook: (
+    webhookUrl: string,
+    secret: string,
+    payload: object,
+    accessToken: string,
+  ) => Promise<boolean>; // Renvoie true si le webhook a bien été créé, false sinon.
 }
 
 export interface ServiceField {
@@ -27,9 +30,7 @@ export interface ServiceField {
 }
 
 export interface ServiceVariable {
-  type: 'string' | 'number' | 'date';
   name: string;
-  key: string;
 }
 
 export interface ServiceTrigger {

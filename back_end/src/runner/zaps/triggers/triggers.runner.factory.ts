@@ -1,9 +1,10 @@
-import { TriggerRunnerJob } from '@root/runner/zaps/triggers/triggers.runner.job';
+import { PollTrigger } from '@root/runner/zaps/triggers/triggers.runner.job';
 import { ScheduleTrigger_EveryMinutes } from '@root/runner/services/schedule/schedule.workflow';
 import { TeamsTrigger_OnNewMessage } from '@root/runner/services/teams/teams.trigger';
 import JobNotFoundError from '@root/runner/errors/job-not-found.error';
+import { GithubOnNewRepositoryPoll } from '@root/services/github/triggers/on-new-repository/github-on-new-repository.poll';
 
-export interface TriggerBuilderParams {
+export interface PollTriggerBuilderParams {
   stepId: number;
   triggerType: string;
   lastExecution: Date | null;
@@ -14,15 +15,18 @@ export interface TriggerBuilderParams {
 }
 
 type TriggerBuilderFunction = (
-  builder: TriggerBuilderParams,
-) => TriggerRunnerJob<any, any>;
+  builder: PollTriggerBuilderParams,
+) => PollTrigger<any, any>;
 
 export class TriggersRunnerFactory {
   private registers: Record<string, TriggerBuilderFunction> = {
-    ScheduleTrigger_EveryMinutes: (builder: TriggerBuilderParams) => {
+    ScheduleTrigger_EveryMinutes: (builder: PollTriggerBuilderParams) => {
       return new ScheduleTrigger_EveryMinutes(builder);
     },
-    TeamsTrigger_OnNewMessage: (builder: TriggerBuilderParams) => {
+    GithubOnNewRepositoryPoll: (builder: PollTriggerBuilderParams) => {
+      return new GithubOnNewRepositoryPoll(builder);
+    },
+    TeamsTrigger_OnNewMessage: (builder: PollTriggerBuilderParams) => {
       return new TeamsTrigger_OnNewMessage(builder);
     },
   };
@@ -34,8 +38,8 @@ export class TriggersRunnerFactory {
    */
   build(
     className: string,
-    builderParams: TriggerBuilderParams,
-  ): TriggerRunnerJob<any, any> {
+    builderParams: PollTriggerBuilderParams,
+  ): PollTrigger<any, any> {
     if (!(className in this.registers))
       throw new JobNotFoundError(builderParams.stepId, className, 'trigger');
     return this.registers[className](builderParams);

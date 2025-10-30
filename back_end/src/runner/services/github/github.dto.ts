@@ -1,4 +1,4 @@
-export interface GithubTrigger_OnNewRepository_Payload {
+export interface GithubTriggerOnNewRepositoryPayload {
   owner: string;
   repo: string;
 }
