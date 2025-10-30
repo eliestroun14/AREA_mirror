@@ -16,7 +16,7 @@ export class TwitchStrategy extends PassportStrategy(
   Strategy,
   constants.services.twitch.slug,
 ) {
-  private static SCOPES: Scope[] = [Scope.UserReadEmail];
+  private static SCOPES: Scope[] = [Scope.UserReadEmail, Scope.UserReadFollows];
 
   constructor() {
     const options: StrategyOptions = {

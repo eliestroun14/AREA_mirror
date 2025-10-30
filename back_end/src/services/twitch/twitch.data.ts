@@ -1,5 +1,6 @@
 import { constants } from '@config/utils';
 import { Service } from '@root/prisma/services-data/services.dto';
+import { twitchFollowNewChannelData } from '@root/services/twitch/triggers/follow-new-channel/twitch-follow-new-channel.data';
 
 export const twitchData: Service = {
   name: constants.services.twitch.name,
@@ -10,6 +11,6 @@ export const twitchData: Service = {
   authType: 'oauth2',
   documentationUrl: 'https://dev.twitch.tv/docs',
   isActive: true,
-  triggers: [],
+  triggers: [twitchFollowNewChannelData],
   actions: [],
 };
