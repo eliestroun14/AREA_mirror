@@ -70,7 +70,7 @@ export class ActionsRunnerService {
       );
 
     const actionClass = this.getClass(actionStep);
-    return actionClass.execute(jobsData[actionStep.source_step_id].data);
+    return actionClass.execute(jobsData[actionStep.source_step_id].variables);
   }
 
   /**

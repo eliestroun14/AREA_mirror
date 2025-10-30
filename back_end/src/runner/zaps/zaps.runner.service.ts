@@ -42,7 +42,7 @@ export class ZapsRunnerService {
 
   async isTriggered(
     zap: zaps,
-  ): Promise<{ id: number; result: RunnerCheckResult<object> }> {
+  ): Promise<{ id: number; result: RunnerCheckResult<any> }> {
     const failureData = {
       id: -1,
       result: {
@@ -85,7 +85,10 @@ export class ZapsRunnerService {
 
     for (const step of steps) {
       const runResult = await this.actionService.executeAction(step, jobsData);
-      jobsData[step.id] = { status: runResult.status, data: runResult.variables };
+      jobsData[step.id] = {
+        status: runResult.status,
+        variables: runResult.variables,
+      };
     }
     await this.saveZapExecution(zap);
   }

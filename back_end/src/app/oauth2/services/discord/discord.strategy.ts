@@ -8,7 +8,7 @@ import {
 } from 'passport-discord-auth';
 import { envConstants } from '@config/env';
 import { callbackOf } from '@config/utils';
-import { services } from '@root/prisma/services-data/services.data';
+import { constants } from '@config/utils';
 import { OAuth2Provider } from '@app/oauth2/oauth2.dto';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, 'discord') {
     const options: StrategyOptions = {
       clientId: envConstants.discord_client_id,
       clientSecret: envConstants.discord_client_secret,
-      callbackUrl: callbackOf(services.discord.slug),
+      callbackUrl: callbackOf(constants.services.discord.slug),
       scope: DiscordStrategy.SCOPES,
     };
 
@@ -32,7 +32,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, 'discord') {
     profile: Profile,
   ): OAuth2Provider {
     return {
-      connection_name: services.discord.name,
+      connection_name: constants.services.discord.name,
       account_identifier: profile.id,
       rate_limit_remaining: undefined,
       rate_limit_reset: null,

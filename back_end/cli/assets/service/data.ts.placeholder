@@ -1,9 +1,9 @@
-import { services } from '@root/prisma/services-data/services.data';
+import { services } from '@config/utils';
 import { Service } from '@root/prisma/services-data/services.dto';
 
 export const <serviceName>Data: Service = {
-  name: services.<serviceName>.name,
-  slug: services.<serviceName>.slug,
+  name: constants.services.<serviceName>.name,
+  slug: constants.services.<serviceName>.slug,
   serviceColor: '#FFFFFF',
   iconUrl: '/assets/<service-name>.png',
   apiBaseUrl: '',

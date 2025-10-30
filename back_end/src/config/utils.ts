@@ -20,6 +20,8 @@ export const constants = {
   },
   services: {
     discord: { name: 'Discord', slug: 'discord' },
+    googleCalendar: { name: 'Calendar', slug: 'calendar' },
+    github: { name: 'Github', slug: 'github' },
   },
 };
 

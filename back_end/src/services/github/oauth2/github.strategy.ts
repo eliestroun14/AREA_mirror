@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy, StrategyOptions } from 'passport-github2'; // EDIT THIS LINE IF AN ERROR OCCURS
 import { envConstants } from '@config/env';
 import { callbackOf } from '@config/utils';
-import { services } from '@root/prisma/services-data/services.data';
+import { constants } from '@config/utils';
 import { OAuth2Provider } from '@app/oauth2/oauth2.dto';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     const options: StrategyOptions = {
       clientID: envConstants.github_client_id,
       clientSecret: envConstants.github_client_secret,
-      callbackURL: callbackOf(services.github.slug),
+      callbackURL: callbackOf(constants.services.github.slug),
       scope: GithubStrategy.SCOPES,
     };
 
@@ -27,7 +27,7 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     profile: Profile,
   ): OAuth2Provider {
     return {
-      connection_name: services.github.name,
+      connection_name: constants.services.github.name,
       account_identifier: profile.id,
       rate_limit_remaining: undefined,
       rate_limit_reset: null,

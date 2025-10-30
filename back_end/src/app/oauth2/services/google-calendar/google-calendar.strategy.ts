@@ -7,7 +7,7 @@ import {
 } from 'passport-google-oauth20';
 import { envConstants } from '@config/env';
 import { callbackOf } from '@config/utils';
-import { services } from '@root/prisma/services-data/services.data';
+import { constants } from '@config/utils';
 import { OAuth2Provider } from '@app/oauth2/oauth2.dto';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class GoogleCalendarStrategy extends PassportStrategy(Strategy, 'google-c
     const options: StrategyOptions = {
       clientID: envConstants.google_calendar_client_id,
       clientSecret: envConstants.google_calendar_client_secret,
-      callbackURL: callbackOf(services.googleCalendar.slug),
+      callbackURL: callbackOf(constants.services.googleCalendar.slug),
       scope: GoogleCalendarStrategy.SCOPES,
     };
 
@@ -37,7 +37,7 @@ export class GoogleCalendarStrategy extends PassportStrategy(Strategy, 'google-c
     console.log("refresh token: ", refreshToken);
     console.log("profile token: ", profile);
     return {
-      connection_name: services.googleCalendar.name,
+      connection_name: constants.services.googleCalendar.name,
       account_identifier: profile.id,
       rate_limit_remaining: undefined,
       rate_limit_reset: null,

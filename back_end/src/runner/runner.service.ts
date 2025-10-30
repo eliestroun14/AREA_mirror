@@ -34,7 +34,7 @@ export class RunnerService {
 
           const jobsData: ZapJobsData = {
             [triggerResult.id]: {
-              data: triggerResult.result.variables,
+              variables: triggerResult.result.variables,
               status: triggerResult.result.status,
             },
           };
@@ -53,7 +53,7 @@ export class RunnerService {
   ) {
     const jobsData: ZapJobsData = {
       [triggerStepId]: {
-        data: data,
+        variables: data,
         status: RunnerExecutionStatus.SUCCESS,
       },
     };
