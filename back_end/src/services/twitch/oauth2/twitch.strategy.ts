@@ -1,11 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import {
-  TwitchProfile,
-  // Strategy,
-  StrategyOptions,
-} from 'passport-twitch';
-import { DoneCallback, Strategy, Scope } from '@hewmen/passport-twitch';
+import { StrategyOptions } from 'passport-twitch';
+import { Strategy } from '@hewmen/passport-twitch';
 import { envConstants } from '@config/env';
 import { callbackOf } from '@config/utils';
 import { constants } from '@config/utils';
@@ -16,7 +12,11 @@ export class TwitchStrategy extends PassportStrategy(
   Strategy,
   constants.services.twitch.slug,
 ) {
-  private static SCOPES: Scope[] = [Scope.UserReadEmail, Scope.UserReadFollows];
+  private static SCOPES: string[] = [
+    'user:read:email',
+    'user:read:follows',
+    'moderator:read:followers',
+  ];
 
   constructor() {
     const options: StrategyOptions = {

@@ -4,6 +4,7 @@ import { TeamsTrigger_OnNewMessage } from '@root/runner/services/teams/teams.tri
 import JobNotFoundError from '@root/runner/errors/job-not-found.error';
 import { GithubOnNewRepositoryPoll } from '@root/services/github/triggers/on-new-repository/github-on-new-repository.poll';
 import { TwitchFollowNewChannelPoll } from '@root/services/twitch/triggers/follow-new-channel/twitch-follow-new-channel.poll';
+import { TwitchNewFollowerOnYourChannelPoll } from '@root/services/twitch/triggers/new-follower-on-your-channel/twitch-new-follower-on-your-channel.poll';
 
 export interface PollTriggerBuilderParams {
   stepId: number;
@@ -32,6 +33,9 @@ export class TriggersRunnerFactory {
     },
     TwitchFollowNewChannelPoll: (builder: PollTriggerBuilderParams) => {
       return new TwitchFollowNewChannelPoll(builder);
+    },
+    TwitchNewFollowerOnYourChannelPoll: (builder: PollTriggerBuilderParams) => {
+      return new TwitchNewFollowerOnYourChannelPoll(builder);
     },
   };
 
