@@ -165,7 +165,7 @@ export default function ExplorePage() {
               sx={{ 
                 height: 220,
                 minWidth: 200,
-                bgcolor: service.services_color || '#4285f4',
+                bgcolor: service.services_color || '#ffffffff',
                 color: 'white',
                 borderRadius: 3,
                 cursor: 'pointer',

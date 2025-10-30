@@ -125,6 +125,12 @@ export class ActionDTO {
   variables: any;
 
   @ApiProperty({
+    description: "Indique si l'action nécessite une connexion utilisateur",
+    example: true,
+  })
+  require_connection: boolean;
+
+  @ApiProperty({
     description: "Indique si l'action est active",
     example: true,
   })
@@ -217,6 +223,12 @@ export class TriggerDTO {
     },
   })
   variables: any;
+
+  @ApiProperty({
+    description: 'Indique si le trigger nécessite une connexion utilisateur',
+    example: true,
+  })
+  require_connection: boolean;
 
   @ApiProperty({
     description: 'Indique si le trigger est actif',
