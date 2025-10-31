@@ -9,7 +9,7 @@ export const twitchNewVideoPostedByYouData: ServiceTrigger = {
   description:
     ' This trigger fires every time there is a new video posted by you.',
   require_connection: true,
-  polling_interval: 1000,
+  polling_interval: 10000,
   fields: {},
   variables: [
     { name: 'VideoId' },

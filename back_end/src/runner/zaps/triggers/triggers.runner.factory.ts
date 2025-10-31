@@ -6,6 +6,8 @@ import { GithubOnNewRepositoryPoll } from '@root/services/github/triggers/on-new
 import { TwitchFollowNewChannelPoll } from '@root/services/twitch/triggers/follow-new-channel/twitch-follow-new-channel.poll';
 import { TwitchNewFollowerOnYourChannelPoll } from '@root/services/twitch/triggers/new-follower-on-your-channel/twitch-new-follower-on-your-channel.poll';
 import { TwitchNewVideoPostedByYouPoll } from '@root/services/twitch/triggers/new-video-posted-by-you/twitch-new-video-posted-by-you.poll';
+import { TwitchNewStreamStartedbyYouPoll } from '@root/services/twitch/triggers/new-stream-startedby-you/twitch-new-stream-startedby-you.poll';
+import { TwitchStreamGoingLiveChannelYouFollowPoll } from '@root/services/twitch/triggers/stream-going-live-channel-you-follow/twitch-stream-going-live-channel-you-follow.poll';
 
 export interface PollTriggerBuilderParams {
   stepId: number;
@@ -40,6 +42,14 @@ export class TriggersRunnerFactory {
     },
     TwitchNewVideoPostedByYouPoll: (builder: PollTriggerBuilderParams) => {
       return new TwitchNewVideoPostedByYouPoll(builder);
+    },
+    TwitchNewStreamStartedbyYouPoll: (builder: PollTriggerBuilderParams) => {
+      return new TwitchNewStreamStartedbyYouPoll(builder);
+    },
+    TwitchStreamGoingLiveChannelYouFollowPoll: (
+      builder: PollTriggerBuilderParams,
+    ) => {
+      return new TwitchStreamGoingLiveChannelYouFollowPoll(builder);
     },
   };
 
