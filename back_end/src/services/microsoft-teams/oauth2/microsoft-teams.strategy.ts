@@ -9,7 +9,7 @@ import { OAuth2Provider } from '@app/oauth2/oauth2.dto';
 @Injectable()
 export class MicrosoftTeamsStrategy extends PassportStrategy(
   Strategy,
-  'teams',
+  'microsoft-teams',
 ) {
   private readonly logger = new Logger(MicrosoftTeamsStrategy.name);
 

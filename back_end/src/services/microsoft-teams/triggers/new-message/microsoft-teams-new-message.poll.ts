@@ -4,23 +4,28 @@ import {
 } from '@root/runner/runner.dto';
 import { PollTriggerBuilderParams } from '@root/runner/zaps/triggers/triggers.runner.factory';
 import { PollTrigger } from '@root/runner/zaps/triggers/triggers.runner.job';
-import { TeamsTrigger_OnNewMessage_Payload } from '@root/runner/services/teams/teams.dto';
+import {
+  MicrosoftTeamsNewMessagePollComparisonData,
+  MicrosoftTeamsNewMessagePollPayload,
+} from '@root/services/microsoft-teams/triggers/new-message/microsoft-teams-new-message.dto';
 
-export class TeamsTrigger_OnNewMessage extends PollTrigger<
-  TeamsTrigger_OnNewMessage_Payload,
-  object
+export class MicrosoftTeamsNewMessagePoll extends PollTrigger<
+  MicrosoftTeamsNewMessagePollPayload,
+  MicrosoftTeamsNewMessagePollComparisonData
 > {
   constructor(params: PollTriggerBuilderParams) {
     super(params);
   }
 
-  protected async _check(): Promise<RunnerCheckResult<object>> {
+  protected async _check(): Promise<
+    RunnerCheckResult<MicrosoftTeamsNewMessagePollComparisonData>
+  > {
     try {
       if (!this.accessToken) {
         return {
           status: RunnerExecutionStatus.FAILURE,
           variables: [],
-          comparison_data: null,
+          comparison_data: {},
           is_triggered: false,
         };
       }
@@ -31,7 +36,7 @@ export class TeamsTrigger_OnNewMessage extends PollTrigger<
         return {
           status: RunnerExecutionStatus.FAILURE,
           variables: [],
-          comparison_data: null,
+          comparison_data: {},
           is_triggered: false,
         };
       }
@@ -64,7 +69,7 @@ export class TeamsTrigger_OnNewMessage extends PollTrigger<
         return {
           status: RunnerExecutionStatus.FAILURE,
           variables: [],
-          comparison_data: null,
+          comparison_data: {},
           is_triggered: false,
         };
       }
@@ -76,32 +81,49 @@ export class TeamsTrigger_OnNewMessage extends PollTrigger<
         return {
           status: RunnerExecutionStatus.SUCCESS,
           variables: [],
-          comparison_data: null,
+          comparison_data: this.lastComparisonData || {},
           is_triggered: false,
         };
       }
 
-      // Transformer les messages en variables pour les actions suivantes
-      const messageData = messages.map((message: any) => [
-        { key: 'message_id', value: message.id },
-        { key: 'message_content', value: message.body?.content || '' },
-        { key: 'sender_name', value: message.from?.user?.displayName || 'Unknown' },
-        { key: 'sender_email', value: message.from?.user?.userPrincipalName || '' },
-        { key: 'created_at', value: message.createdDateTime },
-      ]).flat();
+      // Récupérer le premier message (le plus récent)
+      const latestMessage = messages[0];
+      const latestMessageId = latestMessage.id;
+
+      // Vérifier si c'est un nouveau message
+      const isNewMessage = !this.lastComparisonData?.lastMessageId || 
+                          this.lastComparisonData.lastMessageId !== latestMessageId;
+
+      if (!isNewMessage) {
+        return {
+          status: RunnerExecutionStatus.SUCCESS,
+          variables: [],
+          comparison_data: { lastMessageId: latestMessageId },
+          is_triggered: false,
+        };
+      }
+
+      // Préparer les variables pour les actions suivantes
+      const variables = [
+        { key: 'message_id', value: latestMessage.id },
+        { key: 'message_content', value: latestMessage.body?.content || '' },
+        { key: 'sender_name', value: latestMessage.from?.user?.displayName || 'Unknown' },
+        { key: 'sender_email', value: latestMessage.from?.user?.userPrincipalName || '' },
+        { key: 'created_at', value: latestMessage.createdDateTime },
+      ];
 
       return {
         status: RunnerExecutionStatus.SUCCESS,
-        variables: messageData,
-        comparison_data: null,
+        variables,
+        comparison_data: { lastMessageId: latestMessageId },
         is_triggered: true,
       };
     } catch (error) {
-      console.error('Error in TeamsTrigger_OnNewMessage:', error);
+      console.error('Error in MicrosoftTeamsNewMessagePoll:', error);
       return {
         status: RunnerExecutionStatus.FAILURE,
         variables: [],
-        comparison_data: null,
+        comparison_data: {},
         is_triggered: false,
       };
     }
