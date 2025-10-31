@@ -55,7 +55,7 @@ export class TwitchNewVideoPostedByYouPoll extends PollTrigger<
 
       const videosUrl = new URL('https://api.twitch.tv/helix/videos');
       videosUrl.searchParams.append('user_id', userId);
-      videosUrl.searchParams.append('type', 'upload');
+      videosUrl.searchParams.append('type', 'all');
       videosUrl.searchParams.append('first', '10');
 
       const videosResponse = await fetch(videosUrl.toString(), {
@@ -74,7 +74,7 @@ export class TwitchNewVideoPostedByYouPoll extends PollTrigger<
         };
       }
 
-      const videosData: TwitchVideosResponse = await videosResponse.json();
+      const videosData = (await videosResponse.json()) as TwitchVideosResponse;
       const videos = videosData.data || [];
       const currentVideoIds = videos.map((video) => video.id);
 
