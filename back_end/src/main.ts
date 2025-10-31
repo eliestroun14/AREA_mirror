@@ -7,8 +7,6 @@ import { RunnerModule } from '@root/runner/runner.module';
 import { RunnerService } from '@root/runner/runner.service';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-async function runWorkflow() {}
-
 async function main() {
   const runnerApp = await NestFactory.create(RunnerModule);
   runnerApp.useGlobalFilters(new PrismaClientKnownRequestErrorFilter());
@@ -65,14 +63,14 @@ async function main() {
   let isRunning = true;
   const runnerService = runnerApp.get(RunnerService);
 
-  const runWorkflow = async () => {
+  const startAreaRunner = async () => {
     console.log('Running runner');
     while (isRunning) {
       await runnerService.start();
     }
   };
 
-  runWorkflow()
+  startAreaRunner()
     .then(() => console.log('Stopping runner...'))
     .catch((err) => console.error('An error occurred: ', err));
   await app.listen(process.env.PORT ?? 3000);
