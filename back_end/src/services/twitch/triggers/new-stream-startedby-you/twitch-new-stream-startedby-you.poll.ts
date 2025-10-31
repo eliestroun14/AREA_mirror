@@ -22,7 +22,6 @@ export class TwitchNewStreamStartedbyYouPoll extends PollTrigger<
     RunnerCheckResult<TwitchNewStreamStartedbyYouPollComparisonData>
   > {
     try {
-      // Resolve the authenticated Twitch user (the trigger is always "your" stream)
       const usersResp = await fetch('https://api.twitch.tv/helix/users', {
         method: 'GET',
         headers: {
@@ -39,7 +38,6 @@ export class TwitchNewStreamStartedbyYouPoll extends PollTrigger<
       const userId: string | undefined = usersJson?.data?.[0]?.id;
 
       if (!userId) {
-        // No authenticated user available — nothing to check.
         return {
           status: RunnerExecutionStatus.SUCCESS,
           variables: [],
@@ -48,7 +46,6 @@ export class TwitchNewStreamStartedbyYouPoll extends PollTrigger<
         };
       }
 
-      // Now check streams for the authenticated user id
       const streamsResp = await fetch(
         `https://api.twitch.tv/helix/streams?user_id=${userId}`,
         {

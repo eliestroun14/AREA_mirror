@@ -9,7 +9,7 @@ export const twitchFollowNewChannelData: ServiceTrigger = {
   description:
     'This trigger fires every time you follow a new channel on Twitch.',
   require_connection: true,
-  polling_interval: 1000,
+  polling_interval: 10000,
   fields: {},
   variables: [
     { name: 'ChannelName' },

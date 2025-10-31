@@ -8,7 +8,7 @@ export const twitchNewFollowerOnYourChannelData: ServiceTrigger = {
   name: 'New follower on your channel',
   description: 'Triggers when someone follows your Twitch channel.',
   require_connection: true,
-  polling_interval: 1000,
+  polling_interval: 10000,
   fields: {},
   variables: [
     { name: 'FollowerUserId' },

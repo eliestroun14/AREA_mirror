@@ -24,7 +24,6 @@ export class TwitchStreamGoingLiveChannelYouFollowPoll extends PollTrigger<
     RunnerCheckResult<TwitchStreamGoingLiveChannelYouFollowPollComparisonData>
   > {
     try {
-      // Get authenticated user id (the streams endpoint needs the user context)
       const userResp = await fetch('https://api.twitch.tv/helix/users', {
         headers: {
           Authorization: `Bearer ${this.accessToken}`,
@@ -41,8 +40,8 @@ export class TwitchStreamGoingLiveChannelYouFollowPoll extends PollTrigger<
         };
       }
 
-  const userJson = (await userResp.json()) as { data?: { id?: string }[] };
-  const userId: string | undefined = userJson?.data?.[0]?.id;
+      const userJson = (await userResp.json()) as { data?: { id?: string }[] };
+      const userId: string | undefined = userJson?.data?.[0]?.id;
 
       if (!userId) {
         return {
@@ -80,7 +79,8 @@ export class TwitchStreamGoingLiveChannelYouFollowPoll extends PollTrigger<
         };
       }
 
-      const streamsData = (await streamsResp.json()) as TwitchFollowedStreamsResponse;
+      const streamsData =
+        (await streamsResp.json()) as TwitchFollowedStreamsResponse;
       const streams: TwitchFollowedStream[] = streamsData.data || [];
 
       console.debug(

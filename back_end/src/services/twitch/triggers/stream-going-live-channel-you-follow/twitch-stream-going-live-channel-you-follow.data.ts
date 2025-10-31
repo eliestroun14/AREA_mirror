@@ -9,7 +9,7 @@ export const twitchStreamGoingLiveChannelYouFollowData: ServiceTrigger = {
   description:
     'This Trigger fires every time a stream is going live for the specified Channel that you follow.',
   require_connection: true,
-  polling_interval: 1000,
+  polling_interval: 10000,
   fields: {},
   variables: [
     { name: 'StreamTitle' },
