@@ -1,11 +1,10 @@
 import { PollTrigger } from '@root/runner/zaps/triggers/triggers.runner.job';
-import { ScheduleTrigger_EveryMinutes } from '@root/runner/services/schedule/schedule.workflow';
-import { TeamsTrigger_OnNewMessage } from '@root/runner/services/teams/teams.trigger';
 import JobNotFoundError from '@root/runner/errors/job-not-found.error';
 import { GithubOnNewRepositoryPoll } from '@root/services/github/triggers/on-new-repository/github-on-new-repository.poll';
 import { TwitchFollowNewChannelPoll } from '@root/services/twitch/triggers/follow-new-channel/twitch-follow-new-channel.poll';
 import { TwitchNewFollowerOnYourChannelPoll } from '@root/services/twitch/triggers/new-follower-on-your-channel/twitch-new-follower-on-your-channel.poll';
 import { TwitchNewVideoPostedByYouPoll } from '@root/services/twitch/triggers/new-video-posted-by-you/twitch-new-video-posted-by-you.poll';
+import { MicrosoftTeamsNewMessagePoll } from '@root/services/microsoft-teams/triggers/new-message/microsoft-teams-new-message.poll';
 
 export interface PollTriggerBuilderParams {
   stepId: number;
@@ -23,14 +22,11 @@ type TriggerBuilderFunction = (
 
 export class TriggersRunnerFactory {
   private registers: Record<string, TriggerBuilderFunction> = {
-    ScheduleTrigger_EveryMinutes: (builder: PollTriggerBuilderParams) => {
-      return new ScheduleTrigger_EveryMinutes(builder);
-    },
     GithubOnNewRepositoryPoll: (builder: PollTriggerBuilderParams) => {
       return new GithubOnNewRepositoryPoll(builder);
     },
-    TeamsTrigger_OnNewMessage: (builder: PollTriggerBuilderParams) => {
-      return new TeamsTrigger_OnNewMessage(builder);
+    MicrosoftTeamsNewMessagePoll: (builder: PollTriggerBuilderParams) => {
+      return new MicrosoftTeamsNewMessagePoll(builder);
     },
     TwitchFollowNewChannelPoll: (builder: PollTriggerBuilderParams) => {
       return new TwitchFollowNewChannelPoll(builder);

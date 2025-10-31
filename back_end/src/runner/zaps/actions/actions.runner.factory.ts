@@ -1,10 +1,8 @@
 import { ActionExecutor } from '@root/runner/zaps/actions/actions.runner.job';
 import JobNotFoundError from '@root/runner/errors/job-not-found.error';
-import {
-  TeamsAction_SendMessage,
-  TeamsAction_SendReaction,
-} from '@root/runner/services/teams/teams.actions';
 import DiscordSendMessageExecutor from '@root/services/discord/actions/send-message/discord-send-message.executor';
+import MicrosoftTeamsSendMessageExecutor from '@root/services/microsoft-teams/actions/send-message/microsoft-teams-send-message.executor';
+import MicrosoftTeamsSendReactionExecutor from '@root/services/microsoft-teams/actions/send-reaction/microsoft-teams-send-reaction.executor';
 
 export interface ActionBuilderParams {
   stepId: number;
@@ -21,11 +19,11 @@ export class ActionsRunnerFactory {
     DiscordSendMessageExecutor: (builder: ActionBuilderParams) => {
       return new DiscordSendMessageExecutor(builder);
     },
-    TeamsAction_SendMessage: (builder: ActionBuilderParams) => {
-      return new TeamsAction_SendMessage(builder);
+    MicrosoftTeamsSendMessageExecutor: (builder: ActionBuilderParams) => {
+      return new MicrosoftTeamsSendMessageExecutor(builder);
     },
-    TeamsAction_SendReaction: (builder: ActionBuilderParams) => {
-      return new TeamsAction_SendReaction(builder);
+    MicrosoftTeamsSendReactionExecutor: (builder: ActionBuilderParams) => {
+      return new MicrosoftTeamsSendReactionExecutor(builder);
     },
   };
 
