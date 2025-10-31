@@ -6,7 +6,7 @@
 2. [Table users - Gestion des utilisateurs](#table-users---gestion-des-utilisateurs)
 3. [Table services - Services externes](#table-services---services-externes)
 4. [Table connections - Connexions authentifiées](#table-connections---connexions-authentifiées)
-5. [Table http_request - Requêtes HTTP](#table-http_request---requêtes-http)
+5. [Table http_requests - Requêtes HTTP](#table-http_requests---requêtes-http)
 6. [Table webhooks - Réception temps réel](#table-webhooks---réception-temps-réel)
 7. [Table triggers - Événements déclencheurs](#table-triggers---événements-déclencheurs)
 8. [Table actions - Actions exécutables](#table-actions---actions-exécutables)
@@ -41,15 +41,15 @@ Stocke les informations des utilisateurs de la plateforme Area.
 
 ### Structure
 
-| Colonne | Type | Contraintes | Description |
-|---------|------|-------------|-------------|
-| `id` | INT | PK, AUTO_INCREMENT | Identifiant unique de l'utilisateur |
-| `email` | VARCHAR | UNIQUE, NOT NULL | Email de connexion (doit être unique) |
-| `name` | VARCHAR | NOT NULL | Nom complet de l'utilisateur |
-| `password` | VARCHAR | NOT NULL | Mot de passe hashé (bcrypt/argon2) |
-| `created_at` | TIMESTAMP | DEFAULT NOW() | Date de création du compte |
-| `updated_at` | TIMESTAMP | DEFAULT NOW() | Date de dernière modification |
-| `deleted_at` | TIMESTAMP | NULL | Date de suppression (soft delete) |
+| Colonne      | Type      | Contraintes        | Description                           |
+|--------------|-----------|--------------------|---------------------------------------|
+| `id`         | INT       | PK, AUTO_INCREMENT | Identifiant unique de l'utilisateur   |
+| `email`      | VARCHAR   | UNIQUE, NOT NULL   | Email de connexion (doit être unique) |
+| `name`       | VARCHAR   | NOT NULL           | Nom complet de l'utilisateur          |
+| `password`   | VARCHAR   | NOT NULL           | Mot de passe hashé (bcrypt/argon2)    |
+| `created_at` | TIMESTAMP | DEFAULT NOW()      | Date de création du compte            |
+| `updated_at` | TIMESTAMP | DEFAULT NOW()      | Date de dernière modification         |
+| `deleted_at` | TIMESTAMP | NULL               | Date de suppression (soft delete)     |
 
 ### Relations
 - **1 user → N connections** : Un utilisateur peut avoir plusieurs connexions à différents services
@@ -82,17 +82,17 @@ Répertorie tous les services externes (APIs) disponibles pour créer des automa
 
 ### Structure
 
-| Colonne | Type | Contraintes | Description |
-|---------|------|-------------|-------------|
-| `id` | INT | PK, AUTO_INCREMENT | Identifiant unique du service |
-| `name` | VARCHAR | UNIQUE, NOT NULL | Nom du service (Gmail, Slack, Trello, etc.) |
-| `services_color` | VARCHAR | NULL | Couleur de l'entreprise
-| `icon_url` | VARCHAR | NULL | URL de l'icône du service pour l'interface |
-| `api_base_url` | VARCHAR | NULL | URL de base de l'API du service |
-| `auth_type` | VARCHAR | NOT NULL | Type d'authentification (OAuth2, API_KEY, BASIC, etc.) |
-| `documentation_url` | VARCHAR | NULL | Lien vers la documentation officielle de l'API |
-| `active` | BOOLEAN | DEFAULT TRUE | Indique si le service est actif et disponible |
-| `created_at` | TIMESTAMP | DEFAULT NOW() | Date d'ajout du service |
+| Colonne             | Type      | Contraintes        | Description                                            |
+|---------------------|-----------|--------------------|--------------------------------------------------------|
+| `id`                | INT       | PK, AUTO_INCREMENT | Identifiant unique du service                          |
+| `name`              | VARCHAR   | UNIQUE, NOT NULL   | Nom du service (Gmail, Slack, Trello, etc.)            |
+| `services_color`    | VARCHAR   | NULL               | Couleur de l'entreprise                                |
+| `icon_url`          | VARCHAR   | NULL               | URL de l'icône du service pour l'interface             |
+| `api_base_url`      | VARCHAR   | NULL               | URL de base de l'API du service                        |
+| `auth_type`         | VARCHAR   | NOT NULL           | Type d'authentification (OAuth2, API_KEY, BASIC, etc.) |
+| `documentation_url` | VARCHAR   | NULL               | Lien vers la documentation officielle de l'API         |
+| `active`            | BOOLEAN   | DEFAULT TRUE       | Indique si le service est actif et disponible          |
+| `created_at`        | TIMESTAMP | DEFAULT NOW()      | Date d'ajout du service                                |
 
 ### Relations
 - **1 service → N connections** : Un service peut être connecté par plusieurs utilisateurs
@@ -128,22 +128,26 @@ Stocke les tokens d'authentification permettant aux utilisateurs d'accéder aux 
 
 ### Structure
 
-| Colonne | Type | Contraintes | Description |
-|---------|------|-------------|-------------|
-| `id` | INT | PK, AUTO_INCREMENT | Identifiant unique de la connexion |
-| `user_id` | INT | FK → users.id, NOT NULL | Référence vers l'utilisateur propriétaire |
-| `service_id` | INT | FK → services.id, NOT NULL | Référence vers le service connecté |
-| `access_token` | VARCHAR | NOT NULL | Token d'accès à l'API (crypté en production) |
-| `refresh_token` | VARCHAR | NULL | Token de rafraîchissement pour OAuth2 |
-| `expires_at` | TIMESTAMP | NULL | Date d'expiration du token |
-| `rate_limit_remaining` | INT | DEFAULT 1000 | Nombre de requêtes restantes avant limite |
-| `rate_limit_reset` | TIMESTAMP | NULL | Date de réinitialisation de la limite de requêtes |
-| `connection_name` | VARCHAR | NULL | Nom personnalisé de la connexion |
-| `account_identifier` | VARCHAR | NULL | Identifiant du compte (email, username, etc.) |
-| `scopes` | TEXT | NULL | Permissions accordées (séparées par des espaces ou virgules) |
-| `is_active` | BOOLEAN | DEFAULT TRUE | Indique si la connexion est active |
-| `created_at` | TIMESTAMP | DEFAULT NOW() | Date de création de la connexion |
-| `last_used_at` | TIMESTAMP | NULL | Date de dernière utilisation |
+| Colonne                | Type      | Contraintes                | Description                                                  |
+|------------------------|-----------|----------------------------|--------------------------------------------------------------|
+| `id`                   | INT       | PK, AUTO_INCREMENT         | Identifiant unique de la connexion                           |
+| `user_id`              | INT       | FK → users.id, NOT NULL    | Référence vers l'utilisateur propriétaire                    |
+| `service_id`           | INT       | FK → services.id, NOT NULL | Référence vers le service connecté                           |
+| `access_token`         | VARCHAR   | NOT NULL                   | Token d'accès à l'API (crypté en production)                 |
+| `refresh_token`        | VARCHAR   | NULL                       | Token de rafraîchissement pour OAuth2                        |
+| `expires_at`           | TIMESTAMP | NULL                       | Date d'expiration du token                                   |
+| `rate_limit_remaining` | INT       | DEFAULT 1000               | Nombre de requêtes restantes avant limite                    |
+| `rate_limit_reset`     | TIMESTAMP | NULL                       | Date de réinitialisation de la limite de requêtes            |
+| `connection_name`      | VARCHAR   | NULL                       | Nom personnalisé de la connexion                             |
+| `account_identifier`   | VARCHAR   | NULL                       | Identifiant du compte (email, username, etc.)                |
+| `scopes`               | TEXT      | NULL                       | Permissions accordées (séparées par des espaces ou virgules) |
+| `is_active`            | BOOLEAN   | DEFAULT TRUE               | Indique si la connexion est active                           |
+| `created_at`           | TIMESTAMP | DEFAULT NOW()              | Date de création de la connexion                             |
+| `last_used_at`         | TIMESTAMP | NULL                       | Date de dernière utilisation                                 |
+
+### Composite unique constraints
+
+Those fields are a unique composite : `[user_id, service_id, account_identifier]`
 
 ### Relations
 - **N connections → 1 user** : Plusieurs connexions appartiennent à un utilisateur
@@ -177,7 +181,7 @@ Stocke les tokens d'authentification permettant aux utilisateurs d'accéder aux 
 
 ---
 
-## Table http_request - Requêtes HTTP
+## Table http_requests - Requêtes HTTP
 
 ### Description
 Définit les modèles de requêtes HTTP utilisés par les triggers (polling) et les actions. Cette table permet de configurer comment communiquer avec les APIs externes.
@@ -194,8 +198,8 @@ Définit les modèles de requêtes HTTP utilisés par les triggers (polling) et 
 | `header_schema` | JSON    | NOT NULL           | Structure des headers requis (ex: Authorization)           |
 
 ### Relations
-- **1 http_request → N triggers** : Une requête peut être utilisée par plusieurs triggers
-- **1 http_request → N actions** : Une requête peut être utilisée par plusieurs actions
+- **1 http_requests → N triggers** : Une requête peut être utilisée par plusieurs triggers
+- **1 http_requests → N actions** : Une requête peut être utilisée par plusieurs actions
 
 ### Cas d'usage
 - Définir comment polling un service pour détecter de nouveaux événements
@@ -251,15 +255,19 @@ Configure les webhooks entrants pour recevoir des notifications en temps réel d
 
 ### Structure
 
-| Colonne | Type | Contraintes | Description |
-|---------|------|-------------|-------------|
-| `id` | INT | PK, AUTO_INCREMENT | Identifiant unique du webhook |
-| `header_schema` | JSON | NOT NULL | Structure attendue des headers (peut être vide `{}`) |
-| `body_schema` | JSON | NOT NULL | Structure attendue du payload reçu |
-| `from_url` | VARCHAR | NOT NULL | URL ou domaine du service émetteur |
-| `secret` | VARCHAR | NULL | Secret pour valider l'authenticité du webhook |
-| `total_received` | INT | NULL | Compteur de webhooks reçus (statistiques) |
-| `last_received_at` | TIMESTAMP | NULL | Date du dernier webhook reçu (debugging) |
+| Colonne            | Type      | Contraintes        | Description                                   |
+|--------------------|-----------|--------------------|-----------------------------------------------|
+| `id`               | INT       | PK, AUTO_INCREMENT | Identifiant unique du webhook                 |
+| `from_url`         | VARCHAR   | NOT NULL           | URL ou domaine du service émetteur            |
+| `action`           | VARCHAR   | NOT NULL           | Action du webhook (created, deleted, ...)     |
+| `event`            | VARCHAR   | NOT NULL           | Event du webhook (repository, ...)            |
+| `secret`           | VARCHAR   | NULL               | Secret pour valider l'authenticité du webhook |
+| `total_received`   | INT       | NULL               | Compteur de webhooks reçus (statistiques)     |
+| `last_received_at` | TIMESTAMP | NULL               | Date du dernier webhook reçu (debugging)      |
+
+### Composite unique constraints
+
+Those fields are a unique composite : `[action, event, from_url]`
 
 ### Relations
 - **1 webhook → N triggers** : Un webhook peut déclencher plusieurs triggers différents
@@ -316,25 +324,25 @@ Définit les événements qui peuvent déclencher l'exécution d'un zap. Un trig
 
 ### Structure
 
-| Colonne | Type | Contraintes | Description |
-|---------|------|-------------|-------------|
-| `id` | INT | PK, AUTO_INCREMENT | Identifiant unique du trigger |
-| `service_id` | INT | FK → services.id, NOT NULL | Service associé (Gmail, Slack, etc.) |
-| `http_request_id` | INT | FK → http_request.id, NULL | Requête pour polling/scheduling (NULL si webhook) |
-| `webhook_id` | INT | FK → webhooks.id, NULL | Webhook associé (NULL si polling) |
-| `trigger_type` | VARCHAR | NOT NULL | Type : `Webhook`, `Polling`, `Schedule` |
-| `name` | VARCHAR | NOT NULL | Nom affiché dans l'interface (ex: "Nouveau email reçu") |
-| `description` | VARCHAR | NOT NULL | Description détaillée du trigger |
-| `polling_interval` | INT | NULL | Intervalle en secondes pour le polling (NULL si webhook) |
-| `fields` | JSON | NOT NULL | Champs de configuration affichés dans le front |
-| `variables` | JSON | NOT NULL | Variables disponibles pour les actions suivantes |
-| `is_active` | BOOLEAN | DEFAULT TRUE | Indique si le trigger est disponible |
-| `created_at` | TIMESTAMP | DEFAULT NOW() | Date de création |
-| `updated_at` | TIMESTAMP | DEFAULT NOW() | Date de dernière modification |
+| Colonne            | Type      | Contraintes                 | Description                                              |
+|--------------------|-----------|-----------------------------|----------------------------------------------------------|
+| `id`               | INT       | PK, AUTO_INCREMENT          | Identifiant unique du trigger                            |
+| `service_id`       | INT       | FK → services.id, NOT NULL  | Service associé (Gmail, Slack, etc.)                     |
+| `http_request_id`  | INT       | FK → http_requests.id, NULL | Requête pour polling/scheduling (NULL si webhook)        |
+| `webhook_id`       | INT       | FK → webhooks.id, NULL      | Webhook associé (NULL si polling)                        |
+| `trigger_type`     | VARCHAR   | NOT NULL                    | Type : `Webhook`, `Polling`, `Schedule`                  |
+| `name`             | VARCHAR   | NOT NULL                    | Nom affiché dans l'interface (ex: "Nouveau email reçu")  |
+| `description`      | VARCHAR   | NOT NULL                    | Description détaillée du trigger                         |
+| `polling_interval` | INT       | NULL                        | Intervalle en secondes pour le polling (NULL si webhook) |
+| `fields`           | JSON      | NOT NULL                    | Champs de configuration affichés dans le front           |
+| `variables`        | JSON      | NOT NULL                    | Variables disponibles pour les actions suivantes         |
+| `is_active`        | BOOLEAN   | DEFAULT TRUE                | Indique si le trigger est disponible                     |
+| `created_at`       | TIMESTAMP | DEFAULT NOW()               | Date de création                                         |
+| `updated_at`       | TIMESTAMP | DEFAULT NOW()               | Date de dernière modification                            |
 
 ### Relations
 - **N triggers → 1 service** : Plusieurs triggers peuvent appartenir à un service
-- **N triggers → 1 http_request** : Plusieurs triggers peuvent utiliser la même requête
+- **N triggers → 1 http_requests** : Plusieurs triggers peuvent utiliser la même requête
 - **N triggers → 1 webhook** : Plusieurs triggers peuvent écouter le même webhook
 - **1 trigger → N zap_steps** : Un trigger peut être utilisé dans plusieurs zaps
 
@@ -431,22 +439,22 @@ Définit les actions qui peuvent être exécutées suite à un trigger. Une acti
 
 ### Structure
 
-| Colonne | Type | Contraintes | Description |
-|---------|------|-------------|-------------|
-| `id` | INT | PK, AUTO_INCREMENT | Identifiant unique de l'action |
-| `service_id` | INT | FK → services.id, NOT NULL | Service sur lequel l'action est effectuée |
-| `http_request_id` | INT | FK → http_request.id, NOT NULL | Requête HTTP à exécuter |
-| `name` | VARCHAR | NOT NULL | Nom de l'action (ex: "Envoyer un email") |
-| `description` | VARCHAR | NOT NULL | Description détaillée de l'action |
-| `fields` | JSON | NOT NULL | Champs de configuration pour l'utilisateur |
-| `variables` | JSON | NOT NULL | Variables produites par cette action (output) |
-| `is_active` | BOOLEAN | DEFAULT TRUE | Indique si l'action est disponible |
-| `created_at` | TIMESTAMP | DEFAULT NOW() | Date de création |
-| `updated_at` | TIMESTAMP | DEFAULT NOW() | Date de dernière modification |
+| Colonne           | Type      | Contraintes                     | Description                                   |
+|-------------------|-----------|---------------------------------|-----------------------------------------------|
+| `id`              | INT       | PK, AUTO_INCREMENT              | Identifiant unique de l'action                |
+| `service_id`      | INT       | FK → services.id, NOT NULL      | Service sur lequel l'action est effectuée     |
+| `http_request_id` | INT       | FK → http_requests.id, NOT NULL | Requête HTTP à exécuter                       |
+| `name`            | VARCHAR   | NOT NULL                        | Nom de l'action (ex: "Envoyer un email")      |
+| `description`     | VARCHAR   | NOT NULL                        | Description détaillée de l'action             |
+| `fields`          | JSON      | NOT NULL                        | Champs de configuration pour l'utilisateur    |
+| `variables`       | JSON      | NOT NULL                        | Variables produites par cette action (output) |
+| `is_active`       | BOOLEAN   | DEFAULT TRUE                    | Indique si l'action est disponible            |
+| `created_at`      | TIMESTAMP | DEFAULT NOW()                   | Date de création                              |
+| `updated_at`      | TIMESTAMP | DEFAULT NOW()                   | Date de dernière modification                 |
 
 ### Relations
 - **N actions → 1 service** : Plusieurs actions appartiennent à un service
-- **N actions → 1 http_request** : Plusieurs actions peuvent utiliser la même requête
+- **N actions → 1 http_requests** : Plusieurs actions peuvent utiliser la même requête
 - **1 action → N zap_steps** : Une action peut être utilisée dans plusieurs zaps
 
 ### Cas d'usage
@@ -910,10 +918,10 @@ users
   └─→ zaps
         ├─→ zap_steps
         │     ├─→ triggers ──→ services
-        │     │       ├─→ http_request
+        │     │       ├─→ http_requests
         │     │       └─→ webhooks
         │     └─→ actions ──→ services
-        │           └─→ http_request
+        │           └─→ http_requests
         └─→ zap_executions
               └─→ zap_step_executions ──→ zap_steps
 ```
@@ -922,7 +930,7 @@ users
 
 #### 1. Détection de l'événement
 - **Webhook** : Le service externe appelle notre URL → `webhooks` reçoit les données
-- **Polling** : Notre système interroge l'API via `http_request` à intervalles réguliers
+- **Polling** : Notre système interroge l'API via `http_requests` à intervalles réguliers
 
 #### 2. Identification du zap à exécuter
 ```typescript
@@ -1265,7 +1273,7 @@ Pour supporter des branches conditionnelles :
 ]
 ```
 
-### Exemple 6 : http_request.body_schema (ChatGPT API)
+### Exemple 6 : http_requests.body_schema (ChatGPT API)
 
 ```json
 {

@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 import { Service, Trigger } from "@/types/type";
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
+import { getServiceImageSource } from "@/utils/serviceImageUtils";
 import TriggerCard from "@/components/molecules/trigger-card/trigger-card";
 import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "expo-router";
+import { useApi } from "@/context/ApiContext";
 
 const CreateTriggerService = () => {
   console.log('(CREATE TRIGGER SERVICE)');
@@ -17,8 +19,10 @@ const CreateTriggerService = () => {
   const [loading, setLoading] = useState(true);
   const [triggers, setTriggers] = useState<Trigger[]>([]);
   const [connection, setConnection] = useState<any>(null);
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
   const router = useRouter();
+
+  const { apiUrl } = useApi();
 
   useEffect(() => {
     const getServiceDetails = async () => {
@@ -109,7 +113,7 @@ const CreateTriggerService = () => {
             <View style={[styles.header, { backgroundColor: service.services_color }]}> 
               <Image
                 style={styles.appLogo}
-                source={imageMap[service.id] ?? imageMap["default"]}
+                source={getServiceImageSource(service)}
               />
               <Text style={styles.serviceName}>
                 {service.name}

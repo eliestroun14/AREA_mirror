@@ -10,9 +10,15 @@ export class ServiceDTO {
 
   @ApiProperty({
     description: 'Nom du service',
-    example: 'github',
+    example: 'Github',
   })
   name: string;
+
+  @ApiProperty({
+    description: 'Slug du service',
+    example: 'github',
+  })
+  slug: string;
 
   @ApiProperty({
     description: "URL de l'icône du service",
@@ -119,6 +125,12 @@ export class ActionDTO {
   variables: any;
 
   @ApiProperty({
+    description: "Indique si l'action nécessite une connexion utilisateur",
+    example: true,
+  })
+  require_connection: boolean;
+
+  @ApiProperty({
     description: "Indique si l'action est active",
     example: true,
   })
@@ -211,6 +223,12 @@ export class TriggerDTO {
     },
   })
   variables: any;
+
+  @ApiProperty({
+    description: 'Indique si le trigger nécessite une connexion utilisateur',
+    example: true,
+  })
+  require_connection: boolean;
 
   @ApiProperty({
     description: 'Indique si le trigger est actif',

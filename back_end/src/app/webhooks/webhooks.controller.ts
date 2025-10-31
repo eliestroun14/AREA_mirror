@@ -1,45 +1,59 @@
-import { Body, Controller, Headers, Param, Post } from '@nestjs/common';
-import { WorkflowService } from '@root/workflows/workflows.service';
-import { TRIGGERS } from '@root/workflows/workflows.registers';
-import { ZapsService } from '@app/zaps/zaps.service';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Headers,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { RunnerService } from '@root/runner/runner.service';
+import { RunnerVariableData } from '@root/runner/runner.dto';
+import { ZapsRunnerService } from '@root/runner/zaps/zaps.runner.service';
 
-@Controller('webhooks')
-export class WebhooksController {
-  constructor(
-    private workflowService: WorkflowService,
-    private zapsService: ZapsService,
+export abstract class AREA_WebhookController {
+  protected constructor(
+    protected workflowService: RunnerService,
+    protected zapRunnerService: ZapsRunnerService,
   ) {}
 
-  // @Post('github')
-  // async githubWebhook(
-  //   @Headers() headers: object,
-  //   @Body() body: object,
-  //   @Param() param: object,
-  // ) {
-  //   console.log('New repository created!');
-  //   console.log('body:', body);
-  //
-  //   const event =
-  //     'x-github-event' in headers ? headers['x-github-event'] : null;
-  //   const action = 'action' in body ? body['action'] : null;
-  //
-  //   if (!event || !action) return { status: 'KO' };
-  //
-  //   const zaps = this.zapsService.getAllZaps();
-  //   for (const className in TRIGGERS) {
-  //     const trigger = TRIGGERS[className];
-  //     if (trigger.event === event && trigger.action === action) {
-  //       const triggerClass = new trigger.class();
-  //       const checkResult = await triggerClass.check(null, body);
-  //
-  //       if (checkResult.is_triggered) {
-  //         console.log('Execute actions of trigger !');
-  //       }
-  //     }
-  //   }
-  //
-  //   return {
-  //     status: 'OK',
-  //   };
-  // }
+  protected abstract getVariablesData(
+    headers: object,
+    body: object,
+    queries: object,
+  ): RunnerVariableData[];
+
+  @Post(`:userId/:zapId/:triggerStepId`)
+  async trigger(
+    @Headers() headers: object,
+    @Body() body: object,
+    @Query() queries: object,
+    @Param('userId') paramUserId: string,
+    @Param('zapId') paramZapId: string,
+    @Param('triggerStepId') paramTriggerStepId: string,
+  ) {
+    const userId = Number(paramUserId);
+    const zapId = Number(paramZapId);
+    const triggerStepId = Number(paramTriggerStepId);
+    if (isNaN(userId))
+      throw new BadRequestException(`Invalid id: ${paramUserId}.`);
+    if (isNaN(zapId))
+      throw new BadRequestException(`Invalid id: ${paramZapId}.`);
+    if (isNaN(triggerStepId))
+      throw new BadRequestException(`Invalid id: ${paramTriggerStepId}.`);
+
+    const zap = await this.zapRunnerService.getZap(zapId, userId);
+
+    if (!zap || !zap.is_active)
+      return {
+        message: 'Error: Either the zap do not exists or it is disabled.',
+      };
+
+    const data = this.getVariablesData(headers, body, queries);
+    await this.workflowService.runWebhookActions(zap, triggerStepId, data);
+
+    return {
+      message: 'Done.',
+    };
+  }
 }

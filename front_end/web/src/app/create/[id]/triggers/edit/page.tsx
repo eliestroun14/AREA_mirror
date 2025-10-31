@@ -34,7 +34,7 @@ export default function EditTriggerPage() {
   const router = useRouter()
   const { token } = useAuth()
   const zapId = params.id as string
-  
+
   const [trigger, setTrigger] = useState<TriggerDTO | null>(null)
   const [service, setService] = useState<ServiceDTO | null>(null)
   const [connections, setConnections] = useState<ConnectionDTO[]>([])
@@ -49,8 +49,7 @@ export default function EditTriggerPage() {
   }
 
   const handleUpdateTrigger = async () => {
-    // Only require connection if trigger type is not SCHEDULE
-    if (trigger?.trigger_type !== 'SCHEDULE' && !selectedConnection) {
+    if (trigger?.require_connection && !selectedConnection) {
       setError('Please select a connection')
       return
     }
@@ -64,29 +63,28 @@ export default function EditTriggerPage() {
       setError('Trigger data not loaded')
       return
     }
-    
+
     try {
       setSubmitting(true)
       setError(null)
-      
+
       console.log('Updating trigger with:', {
         zapId,
         triggerId: trigger.id,
         connectionId: selectedConnection,
         payload: formData
       })
-      
-      // Get connection to retrieve accountIdentifier (skip for SCHEDULE triggers)
+
       let accountIdentifier = ''
-      if (trigger.trigger_type !== 'SCHEDULE') {
+      if (trigger.require_connection) {
         const connection = await apiService.getConnectionById(selectedConnection as number, token)
-        
+
         if (!connection.account_identifier) {
           throw new Error('Connection does not have an account identifier')
         }
         accountIdentifier = connection.account_identifier
       }
-      
+
       const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
       const response = await fetch(`${apiBaseUrl}/zaps/${zapId}/trigger`, {
         method: 'PATCH',
@@ -106,12 +104,11 @@ export default function EditTriggerPage() {
         console.error('Update trigger failed:', response.status, errorText)
         throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`)
       }
-      
+
       console.log('✅ Trigger updated successfully')
-      
-      // Redirect to the zap page after successful update
+
       router.push(`/create/${zapId}`)
-      
+
     } catch (err) {
       console.error('❌ Failed to update trigger:', err)
       setError(err instanceof Error ? err.message : 'Failed to update trigger. Please try again.')
@@ -129,30 +126,28 @@ export default function EditTriggerPage() {
 
   const generateTriggerFields = (trigger: TriggerDTO): TriggerField[] => {
     const fields: TriggerField[] = []
-    
+
     const triggerFieldsObj = trigger.fields as Record<string, unknown>
-    
+
     Object.entries(triggerFieldsObj).forEach(([fieldKey, fieldValue]) => {
       const fieldConfig = fieldValue as Record<string, unknown>
-      
-      // Check if the field is active (default to true if not specified)
+
       const isActive = fieldConfig.is_active !== false
-      
-      // Skip inactive fields
+
       if (!isActive) {
         return
       }
-      
+
       const fieldType = (fieldConfig.type as string)?.toLowerCase() || 'string'
       const fieldName = (fieldConfig.field_name as string) || fieldKey.charAt(0).toUpperCase() + fieldKey.slice(1).replace(/_/g, ' ')
       const fieldRequired = (fieldConfig.required as boolean) || false
       const fieldPlaceholder = (fieldConfig.placeholder as string) || ''
       const fieldDefaultValue = (fieldConfig.default_value as string) || ''
       const fieldOrder = (fieldConfig.field_order as number) || 999
-      const selectOptions = Array.isArray(fieldConfig.select_options) && fieldConfig.select_options.length > 0 
-        ? fieldConfig.select_options as string[] 
+      const selectOptions = Array.isArray(fieldConfig.select_options) && fieldConfig.select_options.length > 0
+        ? fieldConfig.select_options as string[]
         : undefined
-      
+
       let inputType: 'text' | 'select' | 'number' | 'date' | 'time' = 'text'
       if (fieldType === 'select' || selectOptions) {
         inputType = 'select'
@@ -163,7 +158,7 @@ export default function EditTriggerPage() {
       } else if (fieldType === 'time') {
         inputType = 'time'
       }
-      
+
       fields.push({
         name: fieldKey,
         type: inputType,
@@ -175,7 +170,7 @@ export default function EditTriggerPage() {
         order: fieldOrder
       })
     })
-    
+
     fields.sort((a, b) => a.order - b.order)
 
     return fields
@@ -190,42 +185,34 @@ export default function EditTriggerPage() {
         if (!token) {
           throw new Error('You must be logged in to access this page')
         }
-        
-        // Fetch existing trigger data for this zap
+
         const existingTrigger = await apiService.getZapTrigger(Number(zapId), token)
-        
+
         if (!existingTrigger) {
           throw new Error('No trigger found for this zap')
         }
 
-        // Set service data
         setService(existingTrigger.service)
-        
-        // Set trigger data
+
         setTrigger(existingTrigger.trigger)
-        
-        // Fetch user connections for this service (skip for SCHEDULE triggers)
+
         try {
           const connectionsData = await apiService.getConnectionsByService(existingTrigger.service.id, token)
           setConnections(connectionsData.connections)
-          
-          // Pre-select the existing connection
+
           setSelectedConnection(existingTrigger.connection.id)
         } catch (connError) {
           console.error('Error fetching connections:', connError)
-          // Only show error if it's not a SCHEDULE trigger
-          if (existingTrigger.trigger.trigger_type !== 'SCHEDULE') {
+          if (existingTrigger.trigger.require_connection) {
             setError('You need to connect your account to this service first')
             setLoading(false)
             return
           }
-          // For SCHEDULE triggers, continue without connections
           setConnections([])
         }
-        
-        // Initialize form data with existing values
+
         setFormData(existingTrigger.step.payload as Record<string, string>)
-        
+
       } catch (err) {
         console.error('Error fetching trigger data:', err)
         setError(err instanceof Error ? err.message : 'An error occurred')
@@ -244,7 +231,7 @@ export default function EditTriggerPage() {
       <Box
         sx={{
           minHeight: "100vh",
-          bgcolor: service?.services_color || '#1976d2',
+          bgcolor: service?.services_color || '#ffffffff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
@@ -260,7 +247,7 @@ export default function EditTriggerPage() {
       <Box
         sx={{
           minHeight: "100vh",
-          bgcolor: service?.services_color || '#1976d2',
+          bgcolor: service?.services_color || '#ffffffff',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -274,7 +261,7 @@ export default function EditTriggerPage() {
         <Button
           onClick={handleBackClick}
           variant="contained"
-          sx={{ bgcolor: 'white', color: service?.services_color || '#1976d2' }}
+          sx={{ bgcolor: 'white', color: service?.services_color || '#ffffffff' }}
         >
           Go Back
         </Button>
@@ -322,7 +309,6 @@ export default function EditTriggerPage() {
         >
           Back
         </Button>
-        
         <Button
           sx={{
             minWidth: 44,
@@ -340,10 +326,10 @@ export default function EditTriggerPage() {
       </Box>
 
       {/* Title */}
-      <Typography 
-        variant="h3" 
-        sx={{ 
-          fontWeight: 700, 
+      <Typography
+        variant="h3"
+        sx={{
+          fontWeight: 700,
           color: 'white',
           fontSize: { xs: '2rem', md: '3rem' },
           textAlign: 'center',
@@ -383,8 +369,8 @@ export default function EditTriggerPage() {
 
       {/* Form Fields */}
       <Container maxWidth="sm">
-        {/* Connection Selection - Only shown if trigger type is not SCHEDULE */}
-        {trigger.trigger_type !== 'SCHEDULE' && (
+  {/* Connection Selection - Only shown if trigger requires a connection */}
+  {trigger.require_connection && (
           <Box
             sx={{
               bgcolor: 'white',
@@ -397,7 +383,7 @@ export default function EditTriggerPage() {
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: serviceColor }}>
               Select Account
             </Typography>
-          
+
           {connections.length === 0 ? (
             <Alert severity="warning" sx={{ mb: 3 }}>
               No connections available for {service.name}.
@@ -499,13 +485,13 @@ export default function EditTriggerPage() {
             {error}
           </Alert>
         )}
-        
+
         <Button
           onClick={handleUpdateTrigger}
           variant="contained"
           size="large"
           fullWidth
-          disabled={(trigger.trigger_type !== 'SCHEDULE' && (!selectedConnection || connections.length === 0)) || submitting}
+          disabled={(trigger.require_connection && (!selectedConnection || connections.length === 0)) || submitting}
           sx={{
             bgcolor: 'white',
             color: serviceColor,

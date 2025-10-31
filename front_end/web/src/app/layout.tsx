@@ -2,6 +2,7 @@
 import { ThemeProvider, CssBaseline } from '@mui/material'
 import theme from '@/theme'
 import ResponsiveAppBar from '@/components/AppBar'
+import RouteGuard from '@/components/RouteGuard'
 import { AuthProvider } from '@/context/AuthContext'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -11,8 +12,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <AuthProvider>
-            <ResponsiveAppBar />
-            {children}
+            <RouteGuard>
+              <ResponsiveAppBar />
+              {children}
+            </RouteGuard>
           </AuthProvider>
         </ThemeProvider>
       </body>

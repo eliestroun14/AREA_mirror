@@ -4,10 +4,11 @@ import { useEffect, useState } from 'react';
 import { Service, Trigger } from "@/types/type";
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
+import { getServiceImageSource } from "@/utils/serviceImageUtils";
 import TriggerFieldCard from "@/components/molecules/trigger-field-card/trigger-field-card";
 import { TriggerField } from "@/types/type";
 import { router } from "expo-router";
-import axios from "axios";
+import { useApi } from "@/context/ApiContext";
 
 type Props = {}
 
@@ -23,7 +24,9 @@ const TriggerFieldsPage = (props: Props) => {
   const [service, setService] = useState<Service | null>(null);
   const [trigger, setTrigger] = useState<Trigger | null>(null);
   const [loading, setLoading] = useState(true);
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+
+  const { apiUrl } = useApi();
 
   useEffect(() => {
     const fetchServiceAndTrigger = async () => {
@@ -95,7 +98,7 @@ const TriggerFieldsPage = (props: Props) => {
           <View style={[styles.header, {backgroundColor: service.services_color}]}>
             <Image
               style={styles.appLogo}
-              source={imageMap[service.id] ?? imageMap["default"]}
+              source={getServiceImageSource(service)}
             />
 
             <Text style={styles.triggerName}>

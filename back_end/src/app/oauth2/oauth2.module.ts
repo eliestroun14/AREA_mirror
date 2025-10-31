@@ -1,25 +1,47 @@
 import { Module } from '@nestjs/common';
-import { Oauth2Controller } from './oauth2.controller';
-import { Oauth2Service } from './oauth2.service';
+import { OAuth2TokenController } from './oauth2-token.controller';
 import { PrismaService } from '@root/prisma/prisma.service';
 import { ServicesService } from '@app/services/services.service';
-import { GmailStrategy } from '@app/oauth2/services/gmail/gmail.strategy';
-import { DiscordStrategy } from '@app/oauth2/services/discord/discord.strategy';
-import { GithubStrategy } from '@app/oauth2/services/github/github.strategy';
+import { DiscordStrategy } from '@root/services/discord/oauth2/discord.strategy';
+import { MicrosoftTeamsStrategy } from '@root/services/microsoft-teams/oauth2/microsoft-teams.strategy';
 import { ConnectionsService } from '@app/users/connections/connections.service';
 import { AuthModule } from '@app/auth/auth.module';
+import { DiscordOAuth2Module } from '@root/services/discord/oauth2/discord.module';
+import { MicrosoftTeamsOAuth2Module } from '@root/services/microsoft-teams/oauth2/microsoft-teams.module';
+import { GoogleCalendarOAuth2Module } from '@root/services/google-calendar/oauth2/google-calendar.module';
+import { GoogleCalendarStrategy } from '@root/services/google-calendar/oauth2/google-calendar.strategy';
+import { TwitchOAuth2Module } from '@root/services/twitch/oauth2/twitch.module';
+import { TwitchStrategy } from '@root/services/twitch/oauth2/twitch.strategy';
+import { YoutubeOAuth2Module } from '@root/services/youtube/oauth2/youtube.module';
+import { YoutubeStrategy } from '@root/services/youtube/oauth2/youtube.strategy';
+import { GoogleDriveOAuth2Module } from '@root/services/google-drive/oauth2/google-drive.module';
+import { GoogleDriveStrategy } from '@root/services/google-drive/oauth2/google-drive.strategy';
+import { GithubStrategy } from '@root/services/github/oauth2/github.strategy';
+import { GithubOAuth2Module } from '@root/services/github/oauth2/github.module';
 
 @Module({
-  imports: [AuthModule],
-  controllers: [Oauth2Controller],
+  imports: [
+    AuthModule,
+    DiscordOAuth2Module,
+    MicrosoftTeamsOAuth2Module,
+    GoogleCalendarOAuth2Module,
+    YoutubeOAuth2Module,
+    GoogleDriveOAuth2Module,
+    TwitchOAuth2Module,
+    GithubOAuth2Module,
+  ],
+  controllers: [OAuth2TokenController],
   providers: [
-    Oauth2Service,
     PrismaService,
     ServicesService,
     ConnectionsService,
-    GmailStrategy,
-    GithubStrategy,
     DiscordStrategy,
+    MicrosoftTeamsStrategy,
+    GoogleCalendarStrategy,
+    TwitchStrategy,
+    YoutubeStrategy,
+    GoogleDriveStrategy,
+    GithubStrategy,
   ],
 })
 export class Oauth2Module {}

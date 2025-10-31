@@ -8,6 +8,7 @@ async function main() {
     data: [
       {
         name: 'Google',
+        slug: 'google',
         icon_url: 'https://example.com/google.png',
         api_base_url: 'https://api.google.com',
         auth_type: 'oauth2',
@@ -15,6 +16,7 @@ async function main() {
       },
       {
         name: 'Spotify',
+        slug: 'spotify',
         icon_url: 'https://example.com/spotify.png',
         api_base_url: 'https://api.spotify.com',
         auth_type: 'oauth2',

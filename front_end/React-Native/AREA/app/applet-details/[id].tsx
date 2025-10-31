@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { AppletsCard } from "@/types/type";
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
+import { getImageBySlug } from "@/utils/serviceImageUtils";
+import { useApi } from "@/context/ApiContext";
 
 type Props = {}
 
@@ -13,7 +15,9 @@ const AppletDetails = (props: Props) => {
   const {id} = useLocalSearchParams();
   const [applet, setApplet] = useState<AppletsCard | null>(null);
   const [loading, setLoading] = useState(true);
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+
+  const { apiUrl } = useApi();
 
   useEffect(() => {
     const fetchApplet = async () => {

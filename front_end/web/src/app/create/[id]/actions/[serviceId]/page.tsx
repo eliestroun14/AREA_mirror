@@ -10,7 +10,6 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import CardActionArea from '@mui/material/CardActionArea'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import CircularProgress from '@mui/material/CircularProgress'
 import { apiService } from '@/services/api'
 import { ServiceDTO, ActionDTO } from '@/types/api'
@@ -39,11 +38,9 @@ export default function ServiceActionsPage() {
         setLoading(true)
         setError(null)
 
-        // Fetch specific service by ID using apiService
         const serviceData = await apiService.getServiceById(Number(serviceId))
         setService(serviceData)
 
-        // Fetch actions for this service using apiService
         const actionsData = await apiService.getActionsByService(serviceId)
         setActions(actionsData)
       } catch (err) {
@@ -66,7 +63,7 @@ export default function ServiceActionsPage() {
       <Box
         sx={{
           minHeight: "100vh",
-          bgcolor: service?.services_color || '#4285F4',
+          bgcolor: service?.services_color || '#ffffffff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
@@ -82,7 +79,7 @@ export default function ServiceActionsPage() {
       <Box
         sx={{
           minHeight: "100vh",
-          bgcolor: '#4285F4',
+          bgcolor: '#ffffffff',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -99,7 +96,7 @@ export default function ServiceActionsPage() {
         <Button
           onClick={handleBackClick}
           variant="contained"
-          sx={{ bgcolor: 'white', color: '#4285F4' }}
+          sx={{ bgcolor: 'white', color: '#ffffffff' }}
         >
           Go Back
         </Button>
@@ -152,27 +149,12 @@ export default function ServiceActionsPage() {
           >
             Back
           </Button>
-          
-          <Button
-            sx={{
-              minWidth: 44,
-              height: 44,
-              borderRadius: '50%',
-              color: 'white',
-              border: '2px solid white',
-              '&:hover': {
-                bgcolor: 'rgba(255, 255, 255, 0.1)'
-              }
-            }}
-          >
-            <HelpOutlineIcon />
-          </Button>
         </Box>
 
-        <Typography 
-          variant="h3" 
-          sx={{ 
-            fontWeight: 700, 
+        <Typography
+          variant="h3"
+          sx={{
+            fontWeight: 700,
             color: 'white',
             fontSize: { xs: '2rem', md: '3rem' },
             textAlign: 'center',
@@ -220,11 +202,11 @@ export default function ServiceActionsPage() {
                   justifyContent: 'center'
                 }}
               >
-                <Typography 
-                  variant="h3" 
-                  sx={{ 
+                <Typography
+                  variant="h3"
+                  sx={{
                     color: 'white',
-                    fontWeight: 700 
+                    fontWeight: 700
                   }}
                 >
                   {service.name.charAt(0).toUpperCase()}
@@ -232,7 +214,7 @@ export default function ServiceActionsPage() {
               </Box>
             )}
           </Box>
-          
+
           <Typography
             variant="h4"
             sx={{
@@ -309,7 +291,7 @@ export default function ServiceActionsPage() {
             <Box
               sx={{
                 display: 'grid',
-                gridTemplateColumns: { 
+                gridTemplateColumns: {
                   xs: '1fr',
                   sm: 'repeat(2, 1fr)',
                   md: 'repeat(3, 1fr)',
@@ -340,11 +322,11 @@ export default function ServiceActionsPage() {
                 >
                   <CardActionArea
                     onClick={() => handleActionClick(action.id)}
-                    sx={{ 
-                      p: 4, 
-                      height: '100%', 
-                      display: 'flex', 
-                      flexDirection: 'column', 
+                    sx={{
+                      p: 4,
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
                       alignItems: 'flex-start',
                       justifyContent: 'flex-start'
                     }}

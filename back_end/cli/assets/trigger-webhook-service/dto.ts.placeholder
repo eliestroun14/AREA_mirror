@@ -1,0 +1,5 @@
+export type <ServiceName><TriggerName>TriggerPayload = object;
+
+export type <ServiceName><TriggerName>Body = object;
+export type <ServiceName><TriggerName>Headers = object;
+export type <ServiceName><TriggerName>Queries = object;

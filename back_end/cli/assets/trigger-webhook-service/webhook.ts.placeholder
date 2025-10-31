@@ -1,0 +1,13 @@
+import { <ServiceName><TriggerName>TriggerPayload } from '@root/services/<service-name>/triggers/<trigger-name>/<service-name>-<trigger-name>.dto';
+import { WebhookTrigger } from '@app/webhooks/webhooks.webhook';
+
+export class <ServiceName><TriggerName>WebhookTrigger extends WebhookTrigger {
+  static override async hook(
+    webhookUrl: string,
+    secret: string,
+    payload: <ServiceName><TriggerName>TriggerPayload,
+    accessToken: string,
+  ): Promise<boolean> {
+    return false;
+  }
+}

@@ -2,17 +2,18 @@ export interface ServiceHttpRequest {
   description: string;
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   endpoint: string;
-  body_schema: object;
-  header_schema: object;
 }
 
 export interface ServiceTriggerWebhook {
-  body_schema: object;
-  header_schema: object;
-  from_url: string;
-  secret: string;
+  slug: string;
   total_received: number;
   last_received_at: number;
+  hook: (
+    webhookUrl: string,
+    secret: string,
+    payload: object,
+    accessToken: string,
+  ) => Promise<boolean>; // Renvoie true si le webhook a bien été créé, false sinon.
 }
 
 export interface ServiceField {
@@ -29,18 +30,17 @@ export interface ServiceField {
 }
 
 export interface ServiceVariable {
-  type: 'string' | 'number' | 'date';
   name: string;
-  key: string;
 }
 
 export interface ServiceTrigger {
   class_name: string;
-  http_request: ServiceHttpRequest | null;
+  http_requests: ServiceHttpRequest | null;
   webhook: ServiceTriggerWebhook | null;
   trigger_type: 'POLLING' | 'SCHEDULE' | 'WEBHOOK';
   name: string;
   description: string;
+  require_connection: boolean;
   polling_interval: number | null;
   fields: Record<string, ServiceField>;
   variables: ServiceVariable[];
@@ -51,9 +51,10 @@ export interface ServiceTrigger {
 
 export interface ServiceAction {
   class_name: string;
-  http_request: ServiceHttpRequest;
+  http_requests: ServiceHttpRequest;
   name: string;
   description: string;
+  require_connection: boolean;
   fields: Record<string, ServiceField>;
   variables: ServiceVariable[];
   is_active: boolean;
@@ -63,6 +64,7 @@ export interface ServiceAction {
 
 export interface Service {
   name: string;
+  slug: string;
   serviceColor: string;
   iconUrl: string;
   apiBaseUrl: string;

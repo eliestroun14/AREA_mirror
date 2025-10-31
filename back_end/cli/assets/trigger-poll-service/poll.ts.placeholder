@@ -1,0 +1,30 @@
+import {
+  RunnerCheckResult,
+  RunnerExecutionStatus,
+} from '@root/runner/runner.dto';
+import { PollTriggerBuilderParams } from '@root/runner/zaps/triggers/triggers.runner.factory';
+import { PollTrigger } from '@root/runner/zaps/triggers/triggers.runner.job';
+import {
+  <ServiceName><TriggerName>PollComparisonData,
+  <ServiceName><TriggerName>PollPayload,
+} from '@root/services/<service-name>/triggers/<trigger-name>/<service-name>-<trigger-name>.dto';
+
+export class <ServiceName><TriggerName>Poll extends PollTrigger<
+  <ServiceName><TriggerName>PollPayload,
+  <ServiceName><TriggerName>PollComparisonData
+> {
+  constructor(params: PollTriggerBuilderParams) {
+    super(params);
+  }
+
+  protected async _check(): Promise<
+    RunnerCheckResult<<ServiceName><TriggerName>PollComparisonData>
+  > {
+    return {
+      status: RunnerExecutionStatus.FAILURE,
+      variables: [],
+      comparison_data: {},
+      is_triggered: false,
+    };
+  }
+}

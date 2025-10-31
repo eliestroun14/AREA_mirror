@@ -1,6 +1,7 @@
 export interface Service {
   id: number;
   name: string;
+  slug: string;
   icon_url: string;
   api_base_url: string;
   services_color: string;
@@ -53,3 +54,11 @@ export interface Action {
   updated_at: string;
 }
 
+export interface Zap {
+  id: number;
+  name: string;
+  description: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}

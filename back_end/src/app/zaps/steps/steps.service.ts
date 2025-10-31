@@ -2,16 +2,16 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PostZapActionBody, PostZapTriggerBody } from '@app/zaps/zaps.dto';
-import { constants } from '@config/utils';
+import { constants, webhookUrlOf } from '@config/utils';
 import { PrismaService } from '@root/prisma/prisma.service';
 import { ConnectionsService } from '@app/users/connections/connections.service';
 import { StepDTO } from '@app/zaps/steps/steps.dto';
 import { ServicesService } from '@app/services/services.service';
-import { TRIGGERS } from '@root/workflows/workflows.registers';
-import { WebhookTriggerJob } from '@root/workflows/workflows.dto';
-import { connect } from 'rxjs';
+import { servicesData } from '@root/prisma/services-data/services.data';
+import { WebhooksService } from '@app/webhooks/webhooks.service';
 
 @Injectable()
 export class StepsService {
@@ -19,6 +19,7 @@ export class StepsService {
     private prisma: PrismaService,
     private connectionsService: ConnectionsService,
     private servicesService: ServicesService,
+    private webhookService: WebhooksService,
   ) {}
 
   async createTriggerStep(
@@ -40,6 +41,9 @@ export class StepsService {
 
     const trigger = await this.prisma.triggers.findUnique({
       where: { id: data.triggerId },
+      include: {
+        service: true,
+      },
     });
     if (!trigger)
       throw new NotFoundException(
@@ -67,7 +71,7 @@ export class StepsService {
         `The connection with account's id ${data.accountIdentifier} of service ${service.name} do not exists.`,
       );
 
-    await this.prisma.zap_steps.create({
+    const triggerStep = await this.prisma.zap_steps.create({
       data: {
         zap_id: zapId,
         trigger_id: data.triggerId,
@@ -75,7 +79,26 @@ export class StepsService {
         step_order: 0,
         connection_id: connection.id,
         payload: data.payload,
+        webhook_id: null,
       },
+    });
+
+    const webhook_id =
+      trigger.trigger_type !== constants.trigger_types.webhook
+        ? null
+        : await this.webhookService.createWebhookFromTriggerStep(
+            userId,
+            zapId,
+            triggerStep.id,
+            trigger,
+            trigger.service,
+            data.payload,
+            connection.access_token,
+          );
+
+    await this.prisma.zap_steps.update({
+      where: { id: triggerStep.id },
+      data: { webhook_id },
     });
   }
 
@@ -237,6 +260,7 @@ export class StepsService {
       zap_id: zapId,
       action_id: null,
       trigger_id: triggerStep.trigger_id,
+      source_step_id: null,
       connection_id: Number(triggerStep.connection_id),
       step_type: 'TRIGGER',
       step_order: triggerStep.step_order,
@@ -281,6 +305,7 @@ export class StepsService {
       zap_id: zapId,
       action_id: step.action_id,
       trigger_id: null,
+      source_step_id: step.source_step_id ?? null,
       connection_id: Number(step.connection_id),
       step_type: 'ACTION' as const,
       step_order: step.step_order,
@@ -309,6 +334,7 @@ export class StepsService {
       zap_id: zapId,
       action_id: actionStep.action_id,
       trigger_id: null,
+      source_step_id: actionStep.source_step_id ?? null,
       connection_id: Number(actionStep.connection_id),
       step_type: 'ACTION' as const,
       step_order: actionStep.step_order,
@@ -327,6 +353,7 @@ export class StepsService {
       accountIdentifier?: string;
       payload?: object;
       stepOrder?: number;
+      fromStepId?: number;
     },
   ): Promise<void> {
     const step = await this.prisma.zap_steps.findFirst({
@@ -347,6 +374,7 @@ export class StepsService {
       connection_id?: number;
       payload?: object;
       step_order?: number;
+      source_step_id?: number | null;
     } = {};
 
     // Si un nouveau actionId est fourni, on vérifie qu'il existe et on récupère le service
@@ -422,6 +450,26 @@ export class StepsService {
     // Mise à jour de step_order si fourni
     if (data.stepOrder !== undefined) {
       updateData.step_order = data.stepOrder;
+    }
+
+    // Mise à jour de la source (source_step_id) si fourni
+    if (data.fromStepId !== undefined) {
+      // Vérifier que la source existe et appartient au même zap
+      const sourceStep = await this.prisma.zap_steps.findFirst({
+        where: { id: data.fromStepId, zap_id: zapId },
+      });
+      if (!sourceStep)
+        throw new NotFoundException(
+          `Source step with id ${data.fromStepId} not found for zap ${zapId}.`,
+        );
+
+      // Vérifier que la source est bien avant l'action (ordre inférieur)
+      if (sourceStep.step_order >= step.step_order)
+        throw new BadRequestException(
+          'Source step must be before the action step in order.',
+        );
+
+      updateData.source_step_id = data.fromStepId;
     }
 
     // Mise à jour du step

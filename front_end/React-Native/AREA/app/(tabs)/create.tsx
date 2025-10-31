@@ -8,8 +8,8 @@ import { useCallback, useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
+import { useApi } from '@/context/ApiContext';
 
-const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 export default function CreateScreen() {
   console.log('(CREATE)');
@@ -28,6 +28,8 @@ export default function CreateScreen() {
   const [actionConnection, setActionConnection] = useState<any>(null);
   const router = useRouter();
   const { user, sessionToken } = useAuth();
+
+  const { apiUrl } = useApi();
 
   // Fetch service and trigger from backend
   useEffect(() => {

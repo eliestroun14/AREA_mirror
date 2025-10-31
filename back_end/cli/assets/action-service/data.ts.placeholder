@@ -1,0 +1,19 @@
+import { ServiceAction } from '@root/prisma/services-data/services.dto';
+
+export const <serviceName><ActionName>Data: ServiceAction = {
+  class_name: '<ServiceName><ActionName>Executor',
+  http_requests: {
+    method: 'POST',
+    endpoint: '',
+    description:
+      '<ActionDescription>',
+  },
+  name: '<ActionTitle>',
+  description: '<ActionDescription>',
+  require_connection: true,
+  fields: {},
+  variables: [],
+  is_active: true,
+  created_at: new Date(Date.now()),
+  updated_at: new Date(Date.now()),
+};

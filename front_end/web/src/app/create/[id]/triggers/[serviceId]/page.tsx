@@ -9,7 +9,6 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import CardActionArea from '@mui/material/CardActionArea'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import CircularProgress from '@mui/material/CircularProgress'
 import { apiService } from '@/services/api'
 import { ServiceDTO, TriggerDTO } from '@/types/api'
@@ -65,7 +64,7 @@ export default function TriggersPage() {
       <Box
         sx={{
           minHeight: "100vh",
-          bgcolor: '#FF8A00',
+          bgcolor: '#ffffffff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
@@ -81,7 +80,7 @@ export default function TriggersPage() {
       <Box
         sx={{
           minHeight: "100vh",
-          bgcolor: '#FF8A00',
+          bgcolor: '#ffffffff',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -98,7 +97,7 @@ export default function TriggersPage() {
         <Button
           onClick={handleBackClick}
           variant="contained"
-          sx={{ bgcolor: 'white', color: '#FF8A00' }}
+          sx={{ bgcolor: 'white', color: '#ffffffff' }}
         >
           Go Back
         </Button>
@@ -106,7 +105,7 @@ export default function TriggersPage() {
     )
   }
 
-  const serviceColor = service?.services_color || '#FF8A00'
+  const serviceColor = service?.services_color || '#ffffffff'
 
   return (
     <Box
@@ -151,27 +150,12 @@ export default function TriggersPage() {
           >
             Back
           </Button>
-          
-          <Button
-            sx={{
-              minWidth: 44,
-              height: 44,
-              borderRadius: '50%',
-              color: 'white',
-              border: '2px solid white',
-              '&:hover': {
-                bgcolor: 'rgba(255, 255, 255, 0.1)'
-              }
-            }}
-          >
-            <HelpOutlineIcon />
-          </Button>
         </Box>
 
-        <Typography 
-          variant="h3" 
-          sx={{ 
-            fontWeight: 700, 
+        <Typography
+          variant="h3"
+          sx={{
+            fontWeight: 700,
             color: 'white',
             fontSize: { xs: '2rem', md: '3rem' },
             textAlign: 'center',
@@ -219,11 +203,11 @@ export default function TriggersPage() {
                   justifyContent: 'center'
                 }}
               >
-                <Typography 
-                  variant="h3" 
-                  sx={{ 
+                <Typography
+                  variant="h3"
+                  sx={{
                     color: 'white',
-                    fontWeight: 700 
+                    fontWeight: 700
                   }}
                 >
                   {service?.name.charAt(0).toUpperCase()}
@@ -231,7 +215,7 @@ export default function TriggersPage() {
               </Box>
             )}
           </Box>
-          
+
           <Typography
             variant="h4"
             sx={{
@@ -301,7 +285,7 @@ export default function TriggersPage() {
           <Box
             sx={{
               display: 'grid',
-              gridTemplateColumns: { 
+              gridTemplateColumns: {
                 xs: '1fr',
                 sm: 'repeat(2, 1fr)',
                 md: 'repeat(3, 1fr)',
@@ -330,11 +314,11 @@ export default function TriggersPage() {
             >
               <CardActionArea
                 onClick={() => handleTriggerClick(trigger.id)}
-                sx={{ 
-                  p: 4, 
-                  height: '100%', 
-                  display: 'flex', 
-                  flexDirection: 'column', 
+                sx={{
+                  p: 4,
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'flex-start',
                   justifyContent: 'flex-start'
                 }}

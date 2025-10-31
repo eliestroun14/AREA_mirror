@@ -7,15 +7,9 @@ async function main() {
   await prisma.webhooks.createMany({
     data: [
       {
-        header_schema: {},
-        body_schema: {},
-        from_url: 'https://webhook.site/1',
         secret: 'secret1',
       },
       {
-        header_schema: {},
-        body_schema: {},
-        from_url: 'https://webhook.site/2',
         secret: 'secret2',
       },
     ],

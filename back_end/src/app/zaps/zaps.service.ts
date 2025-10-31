@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@root/prisma/prisma.service';
 import {
   PostZapBody,
@@ -16,9 +13,7 @@ import { formateDate } from '@config/utils';
 
 @Injectable()
 export class ZapsService {
-  constructor(
-    private prisma: PrismaService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async getAllZaps(): Promise<GetAllZapsResponse> {
     const zaps = await this.prisma.zaps.findMany();

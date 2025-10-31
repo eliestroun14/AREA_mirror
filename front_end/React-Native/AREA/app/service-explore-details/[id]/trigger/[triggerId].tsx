@@ -3,13 +3,16 @@ import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Stack } from "expo-router";
 import axios from "axios";
+import { useApi } from "@/context/ApiContext";
 
 export default function TriggerDetails() {
   const { id, triggerId } = useLocalSearchParams();
   const [trigger, setTrigger] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+
+  const { apiUrl } = useApi();
 
   useEffect(() => {
     const fetchTrigger = async () => {

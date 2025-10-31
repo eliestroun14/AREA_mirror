@@ -3,16 +3,21 @@ import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';
 import { Service } from "@/types/type";
 import { Stack } from 'expo-router';
-import { imageMap } from "@/types/image";
+import { getServiceImageSource } from "@/utils/serviceImageUtils";
 import { useAuth } from "@/context/AuthContext";
 import { useAuthRequest, makeRedirectUri, ResponseType } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import { useRouter, useNavigation } from "expo-router";
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from "react";
+import { useApi } from "@/context/ApiContext";
 
-const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+// const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
+// Get service slug from the service object (now using dynamic slug from backend)
+const getServiceSlug = (service: Service | null): string => {
+  return service?.slug || '';
+};
 
 type Props = {}
 
@@ -24,14 +29,18 @@ const ConnectService = (props: Props) => {
   const [loading, setLoading] = useState(true);
   const { sessionToken } = useAuth();
   const redirectUri = makeRedirectUri();
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+
+  const { apiUrl } = useApi();
+  
+
   const [request, response, promptAsync] = useAuthRequest(
     {
       responseType: ResponseType.Code,
-      clientId: service?.name?.toLowerCase() || '',
+      clientId: getServiceSlug(service),
       redirectUri,
     },
-    { authorizationEndpoint: `${apiUrl}/oauth2/${service?.name?.toLowerCase()}` }
+    { authorizationEndpoint: `${apiUrl}/oauth2/${getServiceSlug(service)}` }
   );
 
 
@@ -45,9 +54,9 @@ const ConnectService = (props: Props) => {
         try {
           console.log('--- OAUTH DEBUG ---');
           console.log('sessionToken:', sessionToken);
-          console.log('POST URL:', `${apiUrl}/oauth2/${service?.name?.toLowerCase()}`);
+          console.log('POST URL:', `${apiUrl}/oauth2/${getServiceSlug(service)}`);
           console.log('POST body:', { code: response.params.code, redirect_uri: redirectUri });
-          const res = await fetch(`${apiUrl}/oauth2/${service?.name?.toLowerCase()}`,
+          const res = await fetch(`${apiUrl}/oauth2/${getServiceSlug(service)}`,
             {
               method: 'GET',
               headers: {
@@ -96,7 +105,7 @@ const ConnectService = (props: Props) => {
 
   const handleOAuth = async () => {
     try {
-      const url = `${apiUrl}/oauth2/${service?.name?.toLowerCase()}?redirect_uri=${encodeURIComponent(redirectUri)}`;
+      const url = `${apiUrl}/oauth2/${getServiceSlug(service)}?redirect_uri=${encodeURIComponent(redirectUri)}`;
       console.log('OAuth GET URL:', url);
       console.log('sessionToken (avant requête):', sessionToken);
       const res = await fetch(url, {
@@ -185,7 +194,7 @@ const ConnectService = (props: Props) => {
         <View style={[styles.header, { backgroundColor: service.services_color }]}> 
           <Image
             style={styles.appLogo}
-            source={imageMap[service.name] ?? imageMap["default"]}
+            source={getServiceImageSource(service)}
           />
           <Text style={styles.serviceName}>{service.name}</Text>
           <Text style={styles.serviceDescription}>{service.documentation_url}</Text>
@@ -195,12 +204,12 @@ const ConnectService = (props: Props) => {
           >
             <Text style={styles.connectButtonText}>Connect</Text>
           </TouchableOpacity>
-          <Text style={{ color: 'red', textAlign: 'center', marginTop: 20 }}>
+          <Text style={styles.textWarning}>
             You must connect your account to this service before creating an action.
           </Text>
           {!sessionToken && (
-            <Text style={{ color: 'red', textAlign: 'center', marginTop: 10 }}>
-              Veuillez vous connecter pour lier ce service.
+            <Text style={styles.textWarning}>
+              Please log in to link this service..
             </Text>
           )}
         </View>
@@ -224,8 +233,8 @@ const styles = StyleSheet.create({
   },
 
   appLogo: {
-    width: 80,
-    height: 80,
+    width: 120,
+    height: 120,
     alignSelf: "center",
     marginTop: 70
   },
@@ -268,6 +277,17 @@ const styles = StyleSheet.create({
 
   content: {
     alignSelf: "center"
+  },
+
+  textWarning: {
+    fontSize: 16,
+    lineHeight: 20,
+    color: '#d40000ff',
+    alignSelf: "center",
+    maxWidth: 300,
+    marginTop: 10,
+    textAlign: "center",
+    fontWeight: "500",
   },
 
 })

@@ -11,12 +11,15 @@ import Divider from '@mui/material/Divider'
 import Paper from '@mui/material/Paper'
 import GoogleIcon from '@mui/icons-material/Google'
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+
 export default function SignupPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
   const handleSignup = async () => {
     if (password !== confirmPassword) {
@@ -24,7 +27,7 @@ export default function SignupPage() {
       return
     }
     try {
-      const res = await fetch('http://localhost:8080/auth/sign-up', {
+      const res = await fetch(`${API_BASE_URL}/auth/sign-up`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

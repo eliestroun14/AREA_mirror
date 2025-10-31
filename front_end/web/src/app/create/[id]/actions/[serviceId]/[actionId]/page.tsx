@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import StepSourceSelector from '@/components/StepSourceSelector'
 import { useParams, useRouter } from 'next/navigation'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -38,35 +39,28 @@ interface ActionField {
 
 const generateActionFields = (action: ActionDTO): ActionField[] => {
   const fields: ActionField[] = []
-  
-  // Parse fields from the action (it's a JSON object from the API)
+
   const actionFieldsObj = action.fields as Record<string, unknown>
-  
-  // Iterate through each field in the action.fields object
+
   Object.entries(actionFieldsObj).forEach(([fieldKey, fieldValue]) => {
-    // fieldValue should be an object with properties like type, label, required, options, etc.
     const fieldConfig = fieldValue as Record<string, unknown>
-    
-    // Check if the field is active (default to true if not specified)
+
     const isActive = fieldConfig.is_active !== false
-    
-    // Skip inactive fields
+
     if (!isActive) {
       return
     }
-    
-    // Extract field configuration with all the new properties
+
     const fieldType = (fieldConfig.type as string)?.toLowerCase() || 'string'
     const fieldName = (fieldConfig.field_name as string) || fieldKey.charAt(0).toUpperCase() + fieldKey.slice(1).replace(/_/g, ' ')
     const fieldRequired = (fieldConfig.required as boolean) || false
     const fieldPlaceholder = (fieldConfig.placeholder as string) || ''
     const fieldDefaultValue = (fieldConfig.default_value as string) || ''
     const fieldOrder = (fieldConfig.field_order as number) || 999
-    const selectOptions = Array.isArray(fieldConfig.select_options) && fieldConfig.select_options.length > 0 
+    const selectOptions = Array.isArray(fieldConfig.select_options) && fieldConfig.select_options.length > 0
       ? fieldConfig.select_options as string[] 
       : undefined
-    
-    // Map API type to input type
+
     let inputType = 'text'
     if (fieldType === 'select' || selectOptions) {
       inputType = 'select'
@@ -77,7 +71,7 @@ const generateActionFields = (action: ActionDTO): ActionField[] => {
     } else if (fieldType === 'textarea') {
       inputType = 'textarea'
     }
-    
+
     fields.push({
       name: fieldKey,
       type: inputType,
@@ -89,8 +83,7 @@ const generateActionFields = (action: ActionDTO): ActionField[] => {
       order: fieldOrder
     })
   })
-  
-  // Sort fields by order
+
   fields.sort((a, b) => a.order - b.order)
 
   return fields
@@ -103,42 +96,107 @@ export default function ActionConfigPage() {
   const zapId = params.id as string
   const serviceId = params.serviceId as string
   const actionId = params.actionId as string
-  
+
   const [service, setService] = useState<ServiceDTO | null>(null)
   const [action, setAction] = useState<ActionDTO | null>(null)
   const [connections, setConnections] = useState<ConnectionDTO[]>([])
   const [selectedConnection, setSelectedConnection] = useState<number | ''>("")
   const [formData, setFormData] = useState<Record<string, string>>({})
+  const [selectedFromStepId, setSelectedFromStepId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [triggerStepId, setTriggerStepId] = useState<number | null>(null)
   const [existingActionsCount, setExistingActionsCount] = useState(0)
+  const [actionStepId, setActionStepId] = useState<number | null>(null)
   const [triggerVariables, setTriggerVariables] = useState<Record<string, unknown>>({})
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const [currentFieldName, setCurrentFieldName] = useState<string>('')
 
-  const handleOAuth2Connect = () => {
-    if (!service) {
-      console.error('❌ No service found')
-      return
+  useEffect(() => {
+    console.log('🔊 Setting up postMessage listener...');
+
+    const handleMessage = (event: MessageEvent) => {
+      console.log('📨 Message received:', event.data);
+      console.log('📍 Message origin:', event.origin);
+
+      const allowedOrigins = [
+        'https://manech.va.sauver.le.monde.area.projects.epitech.bzh',
+        'http://localhost:8081',
+        'http://localhost:8080',
+        'http://localhost:3001',
+        'http://127.0.0.1:8081',
+        window.location.origin
+      ];
+
+      if (!allowedOrigins.includes(event.origin)) {
+        console.warn('⚠️ Message from unauthorized origin:', event.origin);
+        return;
+      }
+
+      if (event.data?.type === 'oauth_success') {
+        console.log('✅ OAuth success detected, reloading page...');
+        window.location.reload();
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    console.log('✅ PostMessage listener ready');
+
+    return () => {
+      console.log('🔇 Removing postMessage listener...');
+      window.removeEventListener('message', handleMessage);
+    };
+  }, []);
+
+const handleOAuth2Connect = async () => {
+    if (!service || !token) {
+      console.error('❌ No service or token found');
+      alert('No authentication token found. Please login again.');
+      return;
     }
-    if (!token) {
-      console.error('❌ No token found')
-      alert('No authentication token found. Please login again.')
-      return
+
+    try {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiBaseUrl}/oauth2/encrypt-token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          platform: 'web',
+        }),
+  });
+      if (!response.ok) {
+        throw new Error('Failed to encrypt token');
+      }
+
+      const { encryptedToken } = await response.json();
+
+      const oauth2Slug = service.slug;
+      const oauthUrl = `${apiBaseUrl}/oauth2/${oauth2Slug}?token=${encodeURIComponent(encryptedToken)}`;
+
+      console.log('🔗 Opening OAuth URL');
+
+      const oauthWindow = window.open(
+        oauthUrl,
+        'oauth_window',
+        'width=600,height=700,left=100,top=100'
+      );
+
+      if (!oauthWindow) {
+        alert('Please allow popups for this site to connect your account.');
+        return;
+      }
+
+      console.log('✅ OAuth window opened');
+
+    } catch (error) {
+      console.error('❌ Error initiating OAuth:', error);
+      alert('Failed to initiate OAuth connection. Please try again.');
     }
-    
-    console.log('✅ Service:', service.name)
-    console.log('✅ Token (first 20 chars):', token.substring(0, 20) + '...')
-    
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-    const oauth2Slug = service.name.toLowerCase()
-    const oauthUrl = `${apiBaseUrl}/oauth2/${oauth2Slug}?token=${encodeURIComponent(token)}`
-    
-    console.log('🔗 Opening OAuth URL:', oauthUrl)
-    window.open(oauthUrl, '_blank')
-  }
+  };
 
   const handleBackClick = () => {
     router.push(`/create/${zapId}/actions/${serviceId}`)
@@ -164,12 +222,12 @@ export default function ActionConfigPage() {
   const handleInsertVariable = (variableName: string) => {
     const currentValue = formData[currentFieldName] || ''
     const newValue = currentValue + `{{${variableName}}}`
-    
+
     setFormData(prev => ({
       ...prev,
       [currentFieldName]: newValue
     }))
-    
+
     handleCloseVariablesMenu()
   }
 
@@ -188,7 +246,6 @@ export default function ActionConfigPage() {
       return
     }
 
-    // Validation basique
     const actionFields = generateActionFields(action)
     const missingFields = actionFields
       .filter(field => field.required && !formData[field.name])
@@ -202,30 +259,28 @@ export default function ActionConfigPage() {
     try {
       setSubmitting(true)
       setError(null)
-      
+
       console.log('Creating action with:', {
         zapId,
         actionId: action.id,
         connectionId: selectedConnection,
-        fromStepId: triggerStepId,
+        fromStepId: selectedFromStepId ?? triggerStepId,
         stepOrder: existingActionsCount + 1,
         payload: formData
       })
-      
-      // Call API to create the action
+
       await apiService.createZapAction(
         Number(zapId),
         action.id,
         selectedConnection as number,
-        triggerStepId,
+        selectedFromStepId ?? triggerStepId,
         existingActionsCount + 1,
         formData,
         token
       )
-      
+
       console.log('✅ Action created successfully')
-      
-      // Navigate back to main create page
+
       router.push(`/create/${zapId}`)
     } catch (error) {
       console.error('Failed to create action:', error)
@@ -247,14 +302,12 @@ export default function ActionConfigPage() {
           return
         }
 
-        // Fetch service and action details from API
         const serviceData = await apiService.getServiceById(Number(serviceId))
         setService(serviceData)
 
         const actionData = await apiService.getActionById(Number(serviceId), Number(actionId))
         setAction(actionData)
 
-        // Fetch available connections for this service
         const connectionsData = await apiService.getConnectionsByService(Number(serviceId), token)
         setConnections(connectionsData.connections)
 
@@ -263,19 +316,18 @@ export default function ActionConfigPage() {
           setSelectedConnection(connectionsData.connections[0].id)
         }
 
-        // Check if user needs to connect their account
-        if (connectionsData.connections.length === 0) {
+        // Check if user needs to connect their account (only if action requires a connection)
+        if ((actionData as Partial<Record<'require_connection', boolean>>).require_connection && connectionsData.connections.length === 0) {
           setError('You need to connect your account to this service first')
           setLoading(false)
           return
         }
 
-        // Fetch trigger step to get fromStepId and variables
         try {
           const triggerData = await apiService.getZapTrigger(Number(zapId), token)
           if (triggerData?.step?.id) {
             setTriggerStepId(triggerData.step.id)
-            // Store trigger variables for use in action fields
+            setSelectedFromStepId(triggerData.step.id)
             if (triggerData.trigger?.variables) {
               setTriggerVariables(triggerData.trigger.variables)
             }
@@ -295,13 +347,17 @@ export default function ActionConfigPage() {
         try {
           const actionsData = await apiService.getZapActions(Number(zapId), token)
           setExistingActionsCount(actionsData.length)
+          const found = actionsData.find(a => a.action?.id === Number(actionId))
+          if (found && found.step && found.step.id) {
+            setActionStepId(found.step.id)
+          } else {
+            setActionStepId(null)
+          }
         } catch (actionsError) {
           console.error('Error fetching existing actions:', actionsError)
-          // If no actions exist, that's fine - count will be 0
           setExistingActionsCount(0)
         }
-        
-        // Initialize formData with default values
+
         const actionFields = generateActionFields(actionData)
         const initialData: Record<string, string> = {}
         actionFields.forEach((field: ActionField) => {
@@ -310,7 +366,7 @@ export default function ActionConfigPage() {
           }
         })
         setFormData(initialData)
-        
+
       } catch (err) {
         console.error('Error fetching action details:', err)
         setError(err instanceof Error ? err.message : 'An error occurred')
@@ -324,9 +380,35 @@ export default function ActionConfigPage() {
     }
   }, [serviceId, actionId, zapId, token])
 
+  useEffect(() => {
+    const fetchVariablesForSelectedSource = async () => {
+      try {
+        if (!token) return;
+
+        if (selectedFromStepId === null) {
+          setTriggerVariables({})
+          return
+        }
+
+        if (triggerStepId && selectedFromStepId === triggerStepId) {
+          const triggerData = await apiService.getZapTrigger(Number(zapId), token)
+          setTriggerVariables(triggerData?.trigger?.variables || {})
+        } else {
+          const actionData = await apiService.getZapActionById(Number(zapId), selectedFromStepId as number, token)
+          setTriggerVariables(actionData?.action?.variables || {})
+        }
+      } catch (err) {
+        console.error('Failed to fetch variables for selected source:', err)
+        setTriggerVariables({})
+      }
+    }
+
+    fetchVariablesForSelectedSource()
+  }, [selectedFromStepId, triggerStepId, zapId, token])
+
   const renderField = (field: ActionField) => {
     const hasVariables = Object.keys(triggerVariables).length > 0
-    
+
     return (
       <Box key={field.name}>
         <FormControl fullWidth>
@@ -385,7 +467,7 @@ export default function ActionConfigPage() {
             />
           )}
         </FormControl>
-        
+
         {/* Button to insert variables */}
         {hasVariables && (
           <Button
@@ -396,11 +478,11 @@ export default function ActionConfigPage() {
               mt: 1,
               textTransform: 'none',
               fontSize: '0.875rem',
-              borderColor: serviceColor || '#1976d2',
-              color: serviceColor || '#1976d2',
+              borderColor: serviceColor || '#ffffffff',
+              color: serviceColor || '#ffffffff',
               '&:hover': {
-                borderColor: serviceColor || '#1976d2',
-                bgcolor: `${serviceColor || '#1976d2'}15`
+                borderColor: serviceColor || '#ffffffff',
+                bgcolor: `${serviceColor || '#ffffffff'}15`
               }
             }}
           >
@@ -416,7 +498,7 @@ export default function ActionConfigPage() {
       <Box
         sx={{
           minHeight: "100vh",
-          bgcolor: service?.services_color || '#1976d2',
+          bgcolor: service?.services_color || '#ffffffff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
@@ -465,28 +547,13 @@ export default function ActionConfigPage() {
           >
             Back
           </Button>
-          
-          <Button
-            sx={{
-              minWidth: 44,
-              height: 44,
-              borderRadius: '50%',
-              color: 'white',
-              border: '2px solid white',
-              '&:hover': {
-                bgcolor: 'rgba(255, 255, 255, 0.1)'
-              }
-            }}
-          >
-            <HelpOutlineIcon />
-          </Button>
         </Box>
 
         {/* Title */}
-        <Typography 
-          variant="h3" 
-          sx={{ 
-            fontWeight: 700, 
+        <Typography
+          variant="h3"
+          sx={{
+            fontWeight: 700,
             color: 'white',
             fontSize: { xs: '2rem', md: '3rem' },
             textAlign: 'center',
@@ -537,11 +604,11 @@ export default function ActionConfigPage() {
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: service.services_color }}>
               Select Account
             </Typography>
-            
+
             <Alert severity="info" sx={{ mb: 3 }}>
               You need to connect your {service.name} account to use this action.
             </Alert>
-            
+
             <Button
               onClick={handleOAuth2Connect}
               variant="contained"
@@ -595,7 +662,7 @@ export default function ActionConfigPage() {
       <Box
         sx={{
           minHeight: "100vh",
-          bgcolor: service?.services_color || '#1976d2',
+          bgcolor: service?.services_color || '#ffffffff',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -609,11 +676,11 @@ export default function ActionConfigPage() {
         <Typography variant="body1" sx={{ color: 'white', mb: 4, textAlign: 'center', maxWidth: 600 }}>
           {error}
         </Typography>
-        
+
         <Button
           onClick={handleBackClick}
           variant="contained"
-          sx={{ bgcolor: 'white', color: service?.services_color || '#1976d2' }}
+          sx={{ bgcolor: 'white', color: service?.services_color || '#ffffffff' }}
         >
           Go Back
         </Button>
@@ -661,7 +728,7 @@ export default function ActionConfigPage() {
         >
           Back
         </Button>
-        
+
         <Button
           sx={{
             minWidth: 44,
@@ -679,10 +746,10 @@ export default function ActionConfigPage() {
       </Box>
 
       {/* Title */}
-      <Typography 
-        variant="h3" 
-        sx={{ 
-          fontWeight: 700, 
+      <Typography
+        variant="h3"
+        sx={{
+          fontWeight: 700,
           color: 'white',
           fontSize: { xs: '2rem', md: '3rem' },
           textAlign: 'center',
@@ -694,7 +761,6 @@ export default function ActionConfigPage() {
 
       {/* Action Icon and Description */}
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 6 }}>
-
         <Typography
           variant="h4"
           sx={{
@@ -704,9 +770,8 @@ export default function ActionConfigPage() {
             textAlign: 'center'
           }}
         >
-          {action.name}
+          {action?.name}
         </Typography>
-
         <Typography
           variant="body1"
           sx={{
@@ -716,13 +781,42 @@ export default function ActionConfigPage() {
             mb: 6
           }}
         >
-          {action.description}
+          {action?.description}
         </Typography>
       </Box>
 
+      {/* Step source selector*/}
+      {service && (
+        <Container maxWidth="sm" sx={{ mb: 3 }}>
+          <Box
+            sx={{
+              bgcolor: 'white',
+              borderRadius: 3,
+              p: 4,
+              mb: 3,
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+            }}
+          >
+            <Typography variant="h6" sx={{ mb: 1, fontWeight: 600, color: serviceColor }}>
+              Source step
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
+              Choose your variable source for this action.
+            </Typography>
+            <StepSourceSelector
+              zapId={Number(zapId)}
+              currentStepId={actionStepId ?? null}
+              token={token ?? ''}
+              onSelectFromStep={(id) => setSelectedFromStepId(id)}
+            />
+          </Box>
+        </Container>
+      )}
+
       {/* Form Fields */}
       <Container maxWidth="sm">
-        {/* Connection Selection - Always shown first */}
+        {/* Connection Selection - Only shown if action requires a connection */}
+        {action?.require_connection && (
         <Box
           sx={{
             bgcolor: 'white',
@@ -735,7 +829,7 @@ export default function ActionConfigPage() {
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: serviceColor }}>
             Select Account
           </Typography>
-          
+
           {connections.length === 0 ? (
             <Box>
               <Alert severity="info" sx={{ mb: 3 }}>
@@ -763,9 +857,9 @@ export default function ActionConfigPage() {
           ) : (
             <FormControl fullWidth required>
               <InputLabel>Account</InputLabel>
-              <Select
+              <Select<number | string>
                 value={selectedConnection}
-                onChange={(e) => setSelectedConnection(e.target.value as number)}
+                onChange={(e) => setSelectedConnection((e.target.value as string) === '' ? '' : Number(e.target.value))}
                 label="Account"
                 sx={{
                   bgcolor: 'white',
@@ -791,9 +885,10 @@ export default function ActionConfigPage() {
               </Select>
             </FormControl>
           )}
-        </Box>
+  </Box>
+  )}
 
-        {actionFields.length > 0 && (
+  {actionFields.length > 0 && (
           <Box
             sx={{
               bgcolor: 'white',
@@ -825,9 +920,9 @@ export default function ActionConfigPage() {
         >
           <Box sx={{ p: 2, maxWidth: 400 }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, color: serviceColor }}>
-              Available Variables from Trigger
+              Available Variables from Source step
             </Typography>
-            
+
             {Object.keys(triggerVariables).length === 0 ? (
               <Typography variant="body2" color="text.secondary">
                 No variables available
@@ -835,13 +930,12 @@ export default function ActionConfigPage() {
             ) : (
               <List sx={{ p: 0 }}>
                 {Object.entries(triggerVariables).map(([variableKey, variableValue]) => {
-                  // Handle the structure: { type: "string", name: "Prompt", key: "data.prompt" }
                   const variable = variableValue as Record<string, unknown>
                   const displayName = (variable.name as string) || variableKey
                   const variableName = (variable.name as string) || variableKey
                   const variableType = (variable.type as string) || 'unknown'
                   const variableKeyPath = (variable.key as string) || ''
-                  
+
                   return (
                     <ListItem key={variableKey} disablePadding>
                       <ListItemButton
@@ -898,13 +992,13 @@ export default function ActionConfigPage() {
             {error}
           </Alert>
         )}
-        
+
         <Button
           onClick={handleCreateAction}
           variant="contained"
           size="large"
           fullWidth
-          disabled={!selectedConnection || connections.length === 0 || submitting}
+          disabled={(action?.require_connection && (!selectedConnection || connections.length === 0)) || submitting}
           sx={{
             bgcolor: 'white',
             color: serviceColor,
@@ -927,10 +1021,10 @@ export default function ActionConfigPage() {
               <CircularProgress size={24} sx={{ color: serviceColor, mr: 2 }} />
               Creating action...
             </>
-          ) : (
-            'Create action'
-          )}
-        </Button>
+            ) : (
+              'Create action'
+            )}
+          </Button>
       </Container>
     </Box>
   )

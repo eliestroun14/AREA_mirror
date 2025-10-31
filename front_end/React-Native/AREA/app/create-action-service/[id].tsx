@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 import { Service, Action } from "@/types/type";
 import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
+import { getServiceImageSource } from "@/utils/serviceImageUtils";
 import ActionCard from "@/components/molecules/action-card/action-card";
 import { useAuth } from "@/context/AuthContext";
 import axios from "axios";
 import { useRouter } from "expo-router";
+import { useApi } from "@/context/ApiContext";
 
 
 const styles = StyleSheet.create({
@@ -62,8 +64,11 @@ const CreateActionService = ({allTriggers}: Props) => {
   const [loading, setLoading] = useState(true);
   const [actions, setActions] = useState<Action[]>([]);
   const [connection, setConnection] = useState<any>(null);
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
   const router = useRouter();
+
+  const { apiUrl } = useApi();
+
 
   useEffect(() => {
     const fetchServiceAndActions = async () => {
@@ -162,7 +167,7 @@ const CreateActionService = ({allTriggers}: Props) => {
                 <View style={[styles.header, {backgroundColor: service.services_color}]}> 
                   <Image
                     style={styles.appLogo}
-                    source={imageMap[service.name] ?? imageMap["default"]}
+                    source={getServiceImageSource(service)}
                   />
                   <Text style={styles.serviceName}>
                     {service.name}

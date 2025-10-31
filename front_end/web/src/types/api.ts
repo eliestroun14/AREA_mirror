@@ -2,6 +2,7 @@
 export interface ServiceDTO {
   id: number;
   name: string;
+  slug: string;
   icon_url: string | null;
   api_base_url: string | null;
   services_color: string;
@@ -19,6 +20,7 @@ export interface ActionDTO {
   description: string;
   fields: Record<string, unknown>;
   variables: Record<string, unknown>;
+  require_connection: boolean;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -35,6 +37,7 @@ export interface TriggerDTO {
   polling_interval: number | null;
   fields: Record<string, unknown>;
   variables: Record<string, unknown>;
+  require_connection: boolean;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -63,6 +66,14 @@ export interface ZapDTO {
   updated_at: string;
 }
 
+export interface ActivityDTO {
+  type: string;
+  title: string;
+  description?: string | null;
+  created_at: string;
+  meta?: Record<string, unknown> | null;
+}
+
 // API Response types
 export type GetAllServicesResponse = ServiceDTO[];
 export type GetServiceResponse = ServiceDTO;
@@ -73,3 +84,4 @@ export type GetTriggerByServiceResponse = TriggerDTO | null;
 export type GetAllConnectionsResponse = { connections: ConnectionDTO[] };
 export type GetConnectionsByServiceResponse = { connections: ConnectionDTO[] };
 export type GetAllZapsResponse = ZapDTO[];
+export type GetUserActivitiesResponse = { activities: ActivityDTO[] };
