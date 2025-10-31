@@ -316,7 +316,7 @@ fields: {
   repository: {
     // [...]
     key: 'repository',              // Nom de la variable dans laquelle sera enregistré les données entrées par l'utilisateur
-    name: 'Nom du dépôt github',
+    field_name: 'Nom du dépôt github',
     type: 'string',                 // Type de la donnée
     // [...]
   },
@@ -324,7 +324,7 @@ fields: {
 ```
 Alors dans votre payload vous aurez :
 ```typescript
-export interface <ServiceName><TriggerName>PollPayload {
+export type <ServiceName><TriggerName>TriggerPayload = {
     // Nom de la variable dans laquelle sera enregistré les données entrées par l'utilisateur
     // \/\/\/\/
     repository: string;
@@ -334,7 +334,7 @@ export interface <ServiceName><TriggerName>PollPayload {
 ```
 
 - `<ServiceName><TriggerName>Body` & `<ServiceName><TriggerName>Headers` & `<ServiceName><TriggerName>Queries`
-Lorsque le service va faire un appel API vers l'API de l'AREA, les données du trigger seront présentent
+Lorsque le service va faire un appel API vers l'API de l'AREA, les données du trigger seront présentes
 dans le body de la requête, les headers ou encore les queries. Ces types dépendent entièrement de la
 requête que le service fera. Vous trouverez dans la documentation de ce dernier la manière dont il répartie
 les différentes données.
@@ -515,7 +515,7 @@ fields: {
   repository: {
     // [...]
     key: 'repository',              // Nom de la variable dans laquelle sera enregistré les données entrées par l'utilisateur
-    name: 'Nom du dépôt github',
+    field_name: 'Nom du dépôt github',
     type: 'string',                 // Type de la donnée
     // [...]
   },
@@ -742,7 +742,7 @@ fields: {
   message: {
     // [...]
     key: 'message',                 // Nom de la variable dans laquelle sera enregistré les données entrées par l'utilisateur
-    name: 'Message',
+    field_name: 'Message',
     type: 'string',                 // Type de la donnée
     // [...]
   },
@@ -750,7 +750,7 @@ fields: {
 ```
 Alors dans votre payload vous aurez :
 ```typescript
-export interface <ServiceName><ActionName>ExecutorPayload {
+export type <ServiceName><ActionName>ExecutorPayload = {
   // Nom de la variable dans laquelle sera enregistré les données entrées par l'utilisateur
   // \/\/
   message: string;
