@@ -1,5 +1,6 @@
 import { constants } from '@config/utils';
 import { Service } from '@root/prisma/services-data/services.dto';
+import { youtubeNewVideoUploadData } from '@root/services/youtube/triggers/new-video-upload/youtube-new-video-upload.data';
 
 export const youtubeData: Service = {
   name: constants.services.youtube.name,
@@ -10,6 +11,8 @@ export const youtubeData: Service = {
   authType: 'oauth2',
   documentationUrl: 'https://developers.google.com/youtube/v3/docs',
   isActive: true,
-  triggers: [],
+  triggers: [
+    youtubeNewVideoUploadData,
+  ],
   actions: [],
 };

@@ -8,9 +8,10 @@ import { ConnectionsService } from '@app/users/connections/connections.service';
 import { ServicesService } from '@app/services/services.service';
 import { WebhooksService } from '@app/webhooks/webhooks.service';
 import { GithubOnNewIssueWebhookController } from '@root/services/github/triggers/on-new-issue/github-on-new-issue.controller';
+import { YoutubeNewVideoUploadWebhookController } from '@root/services/youtube/triggers/new-video-upload/youtube-new-video-upload.controller';
 
 @Module({
-  controllers: [GithubOnNewIssueWebhookController],
+  controllers: [GithubOnNewIssueWebhookController, YoutubeNewVideoUploadWebhookController],
   providers: [
     ConnectionsService,
     WebhooksService,
