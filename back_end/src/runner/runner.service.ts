@@ -25,12 +25,13 @@ export class RunnerService {
         if (!zap.is_active) continue;
         try {
           const triggerResult = await this.zapRunnerService.isTriggered(zap);
-          if (!triggerResult.result.is_triggered) continue;
 
           await this.zapRunnerService.saveComparisonData(
             zap.id,
             triggerResult.result.comparison_data,
           );
+
+          if (!triggerResult.result.is_triggered) continue;
 
           const jobsData: ZapJobsData = {
             [triggerResult.id]: {

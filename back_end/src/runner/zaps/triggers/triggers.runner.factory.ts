@@ -3,6 +3,7 @@ import { ScheduleTrigger_EveryMinutes } from '@root/runner/services/schedule/sch
 import { TeamsTrigger_OnNewMessage } from '@root/runner/services/teams/teams.trigger';
 import JobNotFoundError from '@root/runner/errors/job-not-found.error';
 import { GithubOnNewRepositoryPoll } from '@root/services/github/triggers/on-new-repository/github-on-new-repository.poll';
+import { YoutubeNewLikeOnVideoPoll } from '@root/services/youtube/triggers/new-like-on-video/youtube-new-like-on-video.poll';
 
 export interface PollTriggerBuilderParams {
   stepId: number;
@@ -29,6 +30,9 @@ export class TriggersRunnerFactory {
     TeamsTrigger_OnNewMessage: (builder: PollTriggerBuilderParams) => {
       return new TeamsTrigger_OnNewMessage(builder);
     },
+    YoutubeNewLikeOnVideoPoll: (builder: PollTriggerBuilderParams) => {
+      return new YoutubeNewLikeOnVideoPoll(builder);
+    }
   };
 
   /**
