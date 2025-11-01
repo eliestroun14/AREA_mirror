@@ -8,12 +8,21 @@ import { useAuth } from "@/context/AuthContext";
 type Props = {
   serviceTrigger?: Service;
   trigger?: Trigger;
-  serviceAction?: Service;
-  action?: Action;
+  serviceAction?: Service;  // Keep for backward compatibility
+  action?: Action;  // Keep for backward compatibility
+  actions?: Array<{
+    service: Service;
+    action: Action;
+    connection: any;
+    formData?: string;
+    fromStepId?: string;
+    uniqueId: string;
+  }>;
+  onAddMoreActions?: () => void;
   onPress?: () => void;
 };
 
-const CreateCard = ({ serviceTrigger, trigger, serviceAction, action, onPress }: Props) => {
+const CreateCard = ({ serviceTrigger, trigger, serviceAction, action, actions = [], onAddMoreActions, onPress }: Props) => {
   console.log('(CREATE CARD)');
   const { isAuthenticated } = useAuth();
 
@@ -28,7 +37,8 @@ const CreateCard = ({ serviceTrigger, trigger, serviceAction, action, onPress }:
   }
 
   const hasTrigger = serviceTrigger && trigger;
-  const hasAction = serviceAction && action;
+  const hasActions = actions.length > 0;
+  const hasLegacyAction = serviceAction && action;  // For backward compatibility
 
   if (!hasTrigger) {
     return (
@@ -51,7 +61,7 @@ const CreateCard = ({ serviceTrigger, trigger, serviceAction, action, onPress }:
         </View>
       </View>
     );
-  } else if (hasTrigger && !hasAction) {
+  } else if (hasTrigger && !hasActions && !hasLegacyAction) {
     return (
       <View style={styles.container}>
         <TouchableOpacity>
@@ -80,24 +90,46 @@ const CreateCard = ({ serviceTrigger, trigger, serviceAction, action, onPress }:
         </TouchableOpacity>
       </View>
     );
-  } else if (hasTrigger && hasAction) {
+  } else {
+    // Has trigger and actions
+    const actionsToDisplay = hasActions ? actions : (hasLegacyAction ? [{ service: serviceAction!, action: action!, connection: null, uniqueId: 'legacy' }] : []);
+    
     return (
       <View style={styles.container}>
+        {/* Trigger Card */}
         <TouchableOpacity onPress={onPress}>
-          <View style={[styles.buttonTriggered, { backgroundColor: serviceTrigger.services_color }]}> 
+          <View style={[styles.buttonTriggered, { backgroundColor: serviceTrigger!.services_color }]}> 
             <Text style={styles.text}>If</Text>
-            <Image style={styles.appLogo} source={getServiceImageSource(serviceTrigger)} />
+            <Image style={styles.appLogo} source={getServiceImageSource(serviceTrigger!)} />
             <Text style={styles.triggerName}>{trigger?.name}</Text>
           </View>
         </TouchableOpacity>
-        <View style={styles.middleLine} />
-        <TouchableOpacity>
-          <View style={[styles.buttonTriggered, { backgroundColor: serviceAction?.services_color }]}> 
-            <Text style={styles.text}>Then</Text>
-            <Image style={styles.appLogo} source={getServiceImageSource(serviceAction)} />
-            <Text style={styles.triggerName}>{action?.name}</Text>
+        
+        {/* Action Cards */}
+        {actionsToDisplay.map((actionItem) => (
+          <View key={actionItem.uniqueId}>
+            <View style={styles.middleLine} />
+            <TouchableOpacity>
+              <View style={[styles.buttonTriggered, { backgroundColor: actionItem.service.services_color }]}> 
+                <Text style={styles.text}>Then</Text>
+                <Image style={styles.appLogo} source={getServiceImageSource(actionItem.service)} />
+                <Text style={styles.triggerName}>{actionItem.action.name}</Text>
+              </View>
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
+        ))}
+        
+        {/* Add More Actions Button */}
+        {hasActions && onAddMoreActions && (
+          <View>
+            <View style={styles.middleLine} />
+            <TouchableOpacity onPress={onAddMoreActions}>
+              <View style={[styles.buttonAddMore, { backgroundColor: "#000" }]}> 
+                <Text style={styles.addMoreText}>+ Add Another Action</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     );
   }
@@ -173,5 +205,21 @@ const styles = StyleSheet.create({
     width: 10,
     height: 80,
     backgroundColor: "#c5c5c5ff",
+  },
+  buttonAddMore: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
+    padding: 12,
+    height: 80,
+    borderWidth: 2,
+    borderColor: "#666",
+    borderStyle: "dashed",
+  },
+  addMoreText: {
+    fontSize: 22,
+    color: "#eee",
+    fontWeight: "bold",
   },
 });

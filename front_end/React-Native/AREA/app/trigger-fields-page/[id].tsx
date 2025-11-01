@@ -10,6 +10,7 @@ import { TriggerField } from "@/types/type";
 import { router } from "expo-router";
 import { useApi } from "@/context/ApiContext";
 import { useAuth } from "@/context/AuthContext";
+import { useZapCreation } from "@/context/ZapCreationContext";
 import axios from "axios";
 
 type Props = {}
@@ -31,6 +32,7 @@ const TriggerFieldsPage = (props: Props) => {
 
   const { apiUrl } = useApi();
   const { sessionToken, user } = useAuth();
+  const { setZapId } = useZapCreation();
 
   useEffect(() => {
     const fetchServiceAndTrigger = async () => {
@@ -93,6 +95,9 @@ const TriggerFieldsPage = (props: Props) => {
       const zapRes = await axios.post(`${apiUrl}/zaps`, zapPayload, { headers: authHeaders });
       const zapId = zapRes.data.id;
       console.log('[TriggerFields] Zap created with id:', zapId);
+      
+      // Save zapId to context for persistence
+      setZapId(zapId.toString());
       
       // Create the trigger step
       const triggerPayload = {
