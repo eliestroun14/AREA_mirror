@@ -1,5 +1,7 @@
 import { PollTrigger } from '@root/runner/zaps/triggers/triggers.runner.job';
 import JobNotFoundError from '@root/runner/errors/job-not-found.error';
+import { YoutubeNewLikeOnVideoPoll } from '@root/services/youtube/triggers/new-like-on-video/youtube-new-like-on-video.poll';
+import { YoutubeNewSubscriberPoll } from '@root/services/youtube/triggers/new-subscriber/youtube-new-subscriber.poll';
 import { TwitchFollowNewChannelPoll } from '@root/services/twitch/triggers/follow-new-channel/twitch-follow-new-channel.poll';
 import { TwitchNewFollowerOnYourChannelPoll } from '@root/services/twitch/triggers/new-follower-on-your-channel/twitch-new-follower-on-your-channel.poll';
 import { TwitchNewVideoPostedByYouPoll } from '@root/services/twitch/triggers/new-video-posted-by-you/twitch-new-video-posted-by-you.poll';
@@ -61,6 +63,12 @@ export class TriggersRunnerFactory {
     ) => {
       return new TwitchStreamGoingLiveChannelYouFollowPoll(builder);
     },
+    YoutubeNewLikeOnVideoPoll: (builder: PollTriggerBuilderParams) => {
+      return new YoutubeNewLikeOnVideoPoll(builder);
+    },
+    YoutubeNewSubscriberPoll: (builder: PollTriggerBuilderParams) => {
+      return new YoutubeNewSubscriberPoll(builder);
+    }
   };
 
   /**
