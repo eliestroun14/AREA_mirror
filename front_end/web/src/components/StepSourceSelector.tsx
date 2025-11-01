@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Select, MenuItem, FormControl, InputLabel, Box, Typography, CircularProgress } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import { apiService } from '@/services/api';
@@ -29,7 +29,13 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [initialLoadDone, setInitialLoadDone] = useState(false);
+
+  const initialLoadDoneRef = useRef(false);
+  const onSelectRef = useRef(onSelectFromStep);
+
+  useEffect(() => {
+    onSelectRef.current = onSelectFromStep;
+  }, [onSelectFromStep]);
 
   useEffect(() => {
     const fetchSteps = async () => {
@@ -113,10 +119,10 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({
 
           setSelectedStepId(stepToSelect);
 
-          if (!initialLoadDone && stepToSelect !== '' && onSelectFromStep) {
+          if (!initialLoadDoneRef.current && stepToSelect !== '' && onSelectRef.current) {
             console.log('📤 Initial load: Notifying parent of selection:', stepToSelect);
-            onSelectFromStep(stepToSelect as number);
-            setInitialLoadDone(true);
+            onSelectRef.current(stepToSelect as number);
+            initialLoadDoneRef.current = true;
           }
 
         } else {
@@ -151,9 +157,9 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({
 
           setSelectedStepId(stepToSelect);
 
-          if (!initialLoadDone && stepToSelect !== '' && onSelectFromStep) {
-            onSelectFromStep(stepToSelect as number);
-            setInitialLoadDone(true);
+          if (!initialLoadDoneRef.current && stepToSelect !== '' && onSelectRef.current) {
+            onSelectRef.current(stepToSelect as number);
+            initialLoadDoneRef.current = true;
           }
         }
       } catch (e) {
@@ -165,7 +171,7 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({
     };
 
     if (zapId && token) fetchSteps();
-  }, [zapId, currentStepId, token, initialLoadDone, onSelectFromStep]);
+  }, [zapId, currentStepId, token]);
 
   const handleSelect = async (event: SelectChangeEvent) => {
     const value = event.target.value;
