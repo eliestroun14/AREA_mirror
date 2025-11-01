@@ -1,6 +1,7 @@
 import { constants } from '@config/utils';
 import { Service } from '@root/prisma/services-data/services.dto';
 import { googleDriveNewFileInFolderData } from './triggers/new-file-in-folder/google-drive-new-file-in-folder.data';
+import { googleDriveNewPhotoInFolderData } from './triggers/new-photo-in-folder/google-drive-new-photo-in-folder.data';
 
 export const googleDriveData: Service = {
   name: constants.services.googleDrive.name,
@@ -13,6 +14,7 @@ export const googleDriveData: Service = {
   isActive: true,
   triggers: [
     googleDriveNewFileInFolderData,
+    googleDriveNewPhotoInFolderData
   ],
   actions: [],
 };
