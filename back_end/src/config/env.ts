@@ -42,6 +42,10 @@ export const envConstants = {
   microsoft_teams_client_secret:
     process.env.TEAMS_CLIENT_SECRET ?? 'TEAMS_CLIENT_SECRET',
 
+  microsoft_onedrive_client_id: process.env.MICROSOFT_ONEDRIVE_CLIENT_ID ?? 'MICROSOFT_ONEDRIVE_CLIENT_ID',
+  microsoft_onedrive_client_secret:
+    process.env.MICROSOFT_ONEDRIVE_CLIENT_SECRET ?? 'MICROSOFT_ONEDRIVE_CLIENT_SECRET',
+
   token_encryption_key:
     process.env.TOKEN_ENCRYPTION_KEY ??
     '331240132d30fe6405292ee8dffb7f8dafe19585afd9f1e2fac0607f6cb3c408',

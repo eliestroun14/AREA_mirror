@@ -7,6 +7,9 @@ import { TwitchNewVideoPostedByYouPoll } from '@root/services/twitch/triggers/ne
 import { TwitchNewStreamStartedbyYouPoll } from '@root/services/twitch/triggers/new-stream-startedby-you/twitch-new-stream-startedby-you.poll';
 import { TwitchStreamGoingLiveChannelYouFollowPoll } from '@root/services/twitch/triggers/stream-going-live-channel-you-follow/twitch-stream-going-live-channel-you-follow.poll';
 import { MicrosoftTeamsNewMessagePoll } from '@root/services/microsoft-teams/triggers/new-message/microsoft-teams-new-message.poll';
+import { OneDriveNewFileAddedPoll } from '@root/services/microsoft-onedrive/triggers/new-file-added/onedrive-new-file-added.poll';
+import { OneDriveFileModifiedPoll } from '@root/services/microsoft-onedrive/triggers/file-modified/onedrive-file-modified.poll';
+import { OneDriveStorageQuotaWarningPoll } from '@root/services/microsoft-onedrive/triggers/storage-quota-warning/onedrive-storage-quota-warning.poll';
 
 export interface PollTriggerBuilderParams {
   stepId: number;
@@ -29,6 +32,15 @@ export class TriggersRunnerFactory {
     },
     MicrosoftTeamsNewMessagePoll: (builder: PollTriggerBuilderParams) => {
       return new MicrosoftTeamsNewMessagePoll(builder);
+    },
+    OneDriveNewFileAddedPoll: (builder: PollTriggerBuilderParams) => {
+      return new OneDriveNewFileAddedPoll(builder);
+    },
+    OneDriveFileModifiedPoll: (builder: PollTriggerBuilderParams) => {
+      return new OneDriveFileModifiedPoll(builder);
+    },
+    OneDriveStorageQuotaWarningPoll: (builder: PollTriggerBuilderParams) => {
+      return new OneDriveStorageQuotaWarningPoll(builder);
     },
     TwitchFollowNewChannelPoll: (builder: PollTriggerBuilderParams) => {
       return new TwitchFollowNewChannelPoll(builder);

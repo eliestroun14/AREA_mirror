@@ -8,7 +8,7 @@ export const microsoftTeamsNewMessageData: ServiceTrigger = {
   name: 'New Message',
   description: 'Trigger when a new message is posted in a Teams channel',
   require_connection: true,
-  polling_interval: 30000, // 30 seconds
+  polling_interval: 1800000, // 30 min
   fields: {
     team_id: {
       key: 'team_id',
