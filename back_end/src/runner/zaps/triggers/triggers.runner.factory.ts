@@ -4,6 +4,7 @@ import { TeamsTrigger_OnNewMessage } from '@root/runner/services/teams/teams.tri
 import JobNotFoundError from '@root/runner/errors/job-not-found.error';
 import { GithubOnNewRepositoryPoll } from '@root/services/github/triggers/on-new-repository/github-on-new-repository.poll';
 import { YoutubeNewLikeOnVideoPoll } from '@root/services/youtube/triggers/new-like-on-video/youtube-new-like-on-video.poll';
+import { YoutubeNewSubscriberPoll } from '@root/services/youtube/triggers/new-subscriber/youtube-new-subscriber.poll';
 
 export interface PollTriggerBuilderParams {
   stepId: number;
@@ -32,6 +33,9 @@ export class TriggersRunnerFactory {
     },
     YoutubeNewLikeOnVideoPoll: (builder: PollTriggerBuilderParams) => {
       return new YoutubeNewLikeOnVideoPoll(builder);
+    },
+    YoutubeNewSubscriberPoll: (builder: PollTriggerBuilderParams) => {
+      return new YoutubeNewSubscriberPoll(builder);
     }
   };
 

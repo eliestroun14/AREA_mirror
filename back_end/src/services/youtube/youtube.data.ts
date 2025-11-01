@@ -2,6 +2,7 @@ import { constants } from '@config/utils';
 import { Service } from '@root/prisma/services-data/services.dto';
 import { youtubeNewVideoUploadData } from '@root/services/youtube/triggers/new-video-upload/youtube-new-video-upload.data';
 import { youtubeNewLikeOnVideoData } from '@root/services/youtube/triggers/new-like-on-video/youtube-new-like-on-video.data'
+import { youtubeNewSubscriberData } from './triggers/new-subscriber/youtube-new-subscriber.data';
 
 export const youtubeData: Service = {
   name: constants.services.youtube.name,
@@ -15,6 +16,7 @@ export const youtubeData: Service = {
   triggers: [
     youtubeNewVideoUploadData,
     youtubeNewLikeOnVideoData,
+    youtubeNewSubscriberData,
   ],
   actions: [],
 };
