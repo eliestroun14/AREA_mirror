@@ -202,7 +202,9 @@ export default function TriggerFieldsPage() {
       const fieldRequired = (fieldConfig.required as boolean) || false
       const fieldPlaceholder = (fieldConfig.placeholder as string) || ''
       const fieldDefaultValue = (fieldConfig.default_value as string) || ''
-      const fieldOrder = (fieldConfig.field_order as number) || 999
+      const rawFieldOrder = (fieldConfig.field_order as unknown)
+      const parsedFieldOrder = Number(rawFieldOrder)
+      const fieldOrder = Number.isFinite(parsedFieldOrder) ? parsedFieldOrder : 999
       const selectOptions = Array.isArray(fieldConfig.select_options) && fieldConfig.select_options.length > 0
         ? fieldConfig.select_options as string[]
         : undefined
