@@ -8,7 +8,7 @@ import { OAuth2Provider } from '@app/oauth2/oauth2.dto';
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
-  private static SCOPES: string[] = ['email', 'identify'];
+  private static SCOPES: string[] = ['email', 'identify', 'admin:org_hook'];
 
   constructor() {
     const options: StrategyOptions = {
