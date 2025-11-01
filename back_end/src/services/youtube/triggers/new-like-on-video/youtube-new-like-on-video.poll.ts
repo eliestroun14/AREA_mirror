@@ -33,7 +33,7 @@ export class YoutubeNewLikeOnVideoPoll extends PollTrigger<
   > {
 
     const response = await fetch (
-      `https://www.googleapis.com/youtube/v3/videos?part=id,snippet&myRating=like`,
+      `https://www.googleapis.com/youtube/v3/videos?part=id,snippet&myRating=like&maxResults=50`,
       {
         method: 'GET',
         headers: {
@@ -77,30 +77,40 @@ export class YoutubeNewLikeOnVideoPoll extends PollTrigger<
       }
     }
 
-    const newLikedVideos = likedVideos.items.filter((value) => {
-      return this.lastComparisonData?.likedVideosId.includes(value.id);
+    const newLikedVideos = likedVideos.items.filter((video) => {
+      return !this.lastComparisonData?.likedVideosId.includes(video.id);
     });
 
     if (newLikedVideos.length > 0) {
-      this.lastComparisonData?.likedVideosId.concat(newLikedVideos[0].id);
+      const updatedComparisonData: YoutubeNewLikeOnVideoPollComparisonData = {
+        likedVideosId: [
+          ...this.lastComparisonData.likedVideosId,
+          newLikedVideos[0].id,
+        ],
+      };
+
       return {
         status: RunnerExecutionStatus.SUCCESS,
-        comparison_data: this.lastComparisonData,
+        comparison_data: updatedComparisonData,
         variables: [
           {
             key: 'VideoName',
             value: newLikedVideos[0].snippet.title,
-          }
+          },
+          {
+            key: 'VideoURL',
+            value: `https://www.youtube.com/watch?v=${newLikedVideos[0].id}`,
+          },
         ],
         is_triggered: true,
-      }
+      };
     } else {
       return {
         status: RunnerExecutionStatus.SUCCESS,
         comparison_data: this.lastComparisonData,
         variables: [],
         is_triggered: false,
-      }
+      };
     }
   }
 }
