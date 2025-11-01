@@ -11,9 +11,10 @@ import { useApi } from '@/context/ApiContext';
 
 export default function SelectActionService() {
 
-  const { triggerId, serviceTriggerId } = useLocalSearchParams<{
+  const { triggerId, serviceTriggerId, zapId } = useLocalSearchParams<{
     triggerId?: string;
-    serviceTriggerId?: string
+    serviceTriggerId?: string;
+    zapId?: string;
   }>();
 
   const [search, setSearch] = useState("");
@@ -75,6 +76,7 @@ export default function SelectActionService() {
               item={item}
               triggerId={triggerId}
               serviceTriggerId={serviceTriggerId}
+              zapId={zapId}
               />}
             ListHeaderComponent={() =>
                 <View style={styles.searchBar}>

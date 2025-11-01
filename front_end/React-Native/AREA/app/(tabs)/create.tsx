@@ -15,7 +15,13 @@ export default function CreateScreen() {
   console.log('(CREATE)');
 
   const { triggerId, serviceTriggerId } = useLocalSearchParams<{ triggerId?: string; serviceTriggerId?: string }>();
-  const { actionId, serviceActionId } = useLocalSearchParams<{ actionId?: string; serviceActionId?: string }>();
+  const { actionId, serviceActionId, zapId, fromStepId, actionFormData } = useLocalSearchParams<{ 
+    actionId?: string; 
+    serviceActionId?: string;
+    zapId?: string;
+    fromStepId?: string;
+    actionFormData?: string;
+  }>();
 
   const [serviceTrigger, setServiceTrigger] = useState<Service | undefined>();
   const [trigger, setTrigger] = useState<Trigger | undefined>();
@@ -166,13 +172,26 @@ export default function CreateScreen() {
       console.log('[Finish] Trigger step payload:', triggerPayload);
       const triggerStepRes = await axios.post(`${apiUrl}/zaps/${zapId}/trigger`, triggerPayload, { headers: authHeaders });
       console.log('[Finish] Trigger step response:', triggerStepRes.data);
-      const fromStepId = triggerStepRes.data?.id || 1;
+      
+      // Parse form data if provided
+      let actionPayloadData = {};
+      if (actionFormData) {
+        try {
+          actionPayloadData = JSON.parse(actionFormData);
+        } catch (e) {
+          console.warn('Failed to parse action form data:', e);
+        }
+      }
+      
+      // Use provided fromStepId or default to trigger step
+      const sourceStepId = fromStepId ? Number(fromStepId) : triggerStepRes.data?.id || 1;
+      
       const actionPayload = {
         actionId: action.id,
-        fromStepId,
+        fromStepId: sourceStepId,
         stepOrder: 1,
         accountIdentifier: actionConnection.account_identifier,
-        payload: {},
+        payload: actionPayloadData,
       };
       console.log('[Finish] Action step payload:', actionPayload);
       const actionStepRes = await axios.post(`${apiUrl}/zaps/${zapId}/action`, actionPayload, { headers: authHeaders });

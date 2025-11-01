@@ -1,24 +1,25 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Trigger } from "@/types/type";
+import { Action } from "@/types/type";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 
 type Props = {
-  item: Trigger;
+  item: Action;
   backgroundColor: string;
   serviceActionId?: string;
   triggerId?: string;
   serviceTriggerId?: string;
+  zapId?: string;
 };
 
-const ActionCard = ({ item, backgroundColor, serviceActionId, triggerId, serviceTriggerId }: Props) => {
+const ActionCard = ({ item, backgroundColor, serviceActionId, triggerId, serviceTriggerId, zapId }: Props) => {
 
   const [isConnected, setIsConnected] = useState<Boolean>(true);
   const hasFields = Object.keys(item.fields).length > 0;
 
   if (isConnected === false) {
     return (
-      <Link href={`/connect-service/${item.service.toLocaleLowerCase()}`} asChild>
+      <Link href={`/connect-service/${serviceActionId}`} asChild>
         <TouchableOpacity style={styles.container}>
           <View style={[styles.button, { backgroundColor: backgroundColor, height: 60 }]}>
             <Text style={styles.buttonText}>
@@ -38,7 +39,8 @@ const ActionCard = ({ item, backgroundColor, serviceActionId, triggerId, service
               actionId: item.id,
               serviceActionId: serviceActionId,
               triggerId: triggerId,
-              serviceTriggerId: serviceTriggerId
+              serviceTriggerId: serviceTriggerId,
+              zapId: zapId
             }
           })
         )}>
@@ -60,7 +62,8 @@ const ActionCard = ({ item, backgroundColor, serviceActionId, triggerId, service
               actionId: item.id,
               serviceActionId: serviceActionId,
               triggerId: triggerId,
-              serviceTriggerId: serviceTriggerId
+              serviceTriggerId: serviceTriggerId,
+              zapId: zapId
             }
           })
         )}

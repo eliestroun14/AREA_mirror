@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList } from "react-native";
+import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList, ScrollView } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from 'react';
 import { Service, Trigger, Action } from "@/types/type";
@@ -6,6 +6,7 @@ import { Stack } from 'expo-router';
 import { imageMap } from "@/types/image";
 import { getServiceImageSource } from "@/utils/serviceImageUtils";
 import ActionFieldCard from "@/components/molecules/action-field-card/action-field-card";
+import StepSourceSelector from "@/components/molecules/step-source-selector/step-source-selector";
 import { TriggerField } from "@/types/type";
 import { router } from "expo-router";
 import { useApi } from "@/context/ApiContext";
@@ -15,19 +16,21 @@ type Props = {}
 const ActionFieldsPage = (props: Props) => {
   console.log('(ACTION FIELDS PAGE)');
 
-  const { id, actionId, serviceActionId, triggerId, serviceTriggerId } = useLocalSearchParams<{
+  const { id, actionId, serviceActionId, triggerId, serviceTriggerId, zapId } = useLocalSearchParams<{
     id?: string;
     actionId?: string;
     serviceActionId?: string;
     triggerId?: string;
     serviceTriggerId?: string;
+    zapId?: string;
   }>();
 
   const [service, setService] = useState<Service | null>(null);
   const [action, setAction] = useState<Action | null>(null);
   const [loading, setLoading] = useState(true);
-  // const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
-
+  const [selectedFromStepId, setSelectedFromStepId] = useState<number | null>(null);
+  const [formData, setFormData] = useState<Record<string, string>>({});
+  
   const { apiUrl } = useApi();
 
 
@@ -52,6 +55,16 @@ const ActionFieldsPage = (props: Props) => {
         const actionData: Action = await actionRes.json();
         setAction(actionData);
         console.log('Action fields:', actionData.fields);
+        
+        // Initialize form data with default values
+        const fieldsArray = Object.entries(actionData.fields);
+        const initialFormData: Record<string, string> = {};
+        fieldsArray.forEach(([key, field]) => {
+          const fieldData = field as TriggerField;
+          initialFormData[key] = fieldData.default_value || '';
+        });
+        setFormData(initialFormData);
+        
       } catch (err) {
         setService(null);
         setAction(null);
@@ -62,6 +75,42 @@ const ActionFieldsPage = (props: Props) => {
     };
     fetchServiceAndAction();
   }, [serviceActionId, actionId, apiUrl]);
+
+  const handleFieldChange = (fieldName: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [fieldName]: value
+    }));
+  };
+
+  const handleContinue = () => {
+    // Validate required fields
+    const fieldsArray = Object.entries(action?.fields || {});
+    const missingRequired = fieldsArray
+      .filter(([key, field]) => {
+        const fieldData = field as TriggerField;
+        return fieldData.required && !formData[key]?.trim();
+      })
+      .map(([key, field]) => (field as TriggerField).field_name);
+
+    if (missingRequired.length > 0) {
+      alert(`Please fill in the following required fields: ${missingRequired.join(', ')}`);
+      return;
+    }
+
+    router.push({
+      pathname: "/(tabs)/create",
+      params: {
+        actionId: action?.id,
+        serviceActionId: service?.id,
+        triggerId: triggerId,
+        serviceTriggerId: serviceTriggerId,
+        zapId: zapId,
+        fromStepId: selectedFromStepId,
+        actionFormData: JSON.stringify(formData)
+      }
+    });
+  };
 
   if (loading) {
     return (
@@ -80,7 +129,7 @@ const ActionFieldsPage = (props: Props) => {
   }
 
   const fieldsArray = Object.entries(action.fields).map(([key, field]) => ({
-    id: key,
+    fieldId: key, // Use fieldId instead of id to avoid conflicts
     ...(field as TriggerField)
   }));
 
@@ -99,7 +148,8 @@ const ActionFieldsPage = (props: Props) => {
           }}
         />
         <View style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
-          <View style={[styles.header, {backgroundColor: service.services_color}]}> 
+          <ScrollView style={[styles.header, {backgroundColor: service.services_color}]} 
+                      contentContainerStyle={{ paddingBottom: 150 }}> 
             <Image
               style={styles.appLogo}
               source={getServiceImageSource(service)}
@@ -110,31 +160,43 @@ const ActionFieldsPage = (props: Props) => {
             <Text style={styles.actionDescription}>
               {action.description}
             </Text>
-            <FlatList
-              data={fieldsArray}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <ActionFieldCard item={item} />
-              )}
-              contentContainerStyle={{ padding: 16 }}
-            />
-            <TouchableOpacity style={styles.connectButton}
-              onPress={() => (
-              router.push({
-                pathname: "/(tabs)/create",
-                params: {
-                  actionId: action.id,
-                  serviceActionId: service.id,
-                  triggerId: triggerId,
-                  serviceTriggerId: serviceTriggerId
-                }
-              })
-            )}>
+            
+            {/* Source Selection Section */}
+            {zapId && (
+              <View style={styles.sourceSection}>
+                <StepSourceSelector
+                  zapId={Number(zapId)}
+                  selectedFromStepId={selectedFromStepId}
+                  onSelectFromStep={setSelectedFromStepId}
+                  serviceColor={service.services_color}
+                />
+              </View>
+            )}
+            
+            {/* Action Fields */}
+            <View style={styles.fieldsContainer}>
+              {fieldsArray.map((item) => (
+                <ActionFieldCard 
+                  key={item.fieldId} 
+                  item={{...item, id: item.fieldId}} 
+                  zapId={zapId ? Number(zapId) : undefined}
+                  sourceStepId={selectedFromStepId}
+                  serviceColor={service.services_color}
+                  onFieldChange={handleFieldChange}
+                  value={formData[item.fieldId]}
+                />
+              ))}
+            </View>
+            
+            <TouchableOpacity 
+              style={styles.connectButton}
+              onPress={handleContinue}
+            >
               <Text style={styles.connectButtonText}>
                   Continue
               </Text>
             </TouchableOpacity>
-          </View>
+          </ScrollView>
         </View>
     </>
   )
@@ -178,6 +240,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textAlign: "center",
     fontWeight: "500"
+  },
+
+  sourceSection: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    margin: 16,
+    padding: 16,
+    borderRadius: 12,
+  },
+
+  fieldsContainer: {
+    paddingHorizontal: 16,
   },
 
   connectButton: {

@@ -105,44 +105,60 @@ const ConnectService = (props: Props) => {
 
   const handleOAuth = async () => {
     try {
-      const url = `${apiUrl}/oauth2/${getServiceSlug(service)}?redirect_uri=${encodeURIComponent(redirectUri)}`;
-      console.log('OAuth GET URL:', url);
-      console.log('sessionToken (avant requête):', sessionToken);
-      const res = await fetch(url, {
-        method: 'GET',
+      console.log('Starting OAuth flow for service:', getServiceSlug(service));
+      console.log('Session token:', sessionToken);
+      
+      if (!sessionToken) {
+        Alert.alert('Error', 'No authentication token found. Please login again.');
+        return;
+      }
+
+      // Step 1: Encrypt the token for OAuth2
+      console.log('Step 1: Encrypting token...');
+      const encryptResponse = await fetch(`${apiUrl}/oauth2/encrypt-token`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${sessionToken || ''}`,
+          'Authorization': `Bearer ${sessionToken}`,
         },
-        credentials: 'include',
-        redirect: 'manual',
+        body: JSON.stringify({
+          platform: 'mobile',
+        }),
       });
-      let redirect = res.headers.get('Location');
-      console.log('Redirection Location:', redirect);
-      if (!redirect) {
-        try {
-          const data = await res.json();
-          console.log('Redirection body:', data);
-          redirect = data.redirect || data.url || null;
-        } catch (e) {
-          console.log('No JSON body for redirect:', e);
-          if (res.url && res.url.startsWith('http')) {
-            redirect = res.url;
-            console.log('Fallback redirection via res.url:', redirect);
-          }
-        }
+
+      if (!encryptResponse.ok) {
+        const errorText = await encryptResponse.text();
+        console.error('Failed to encrypt token:', errorText);
+        Alert.alert('Error', 'Failed to prepare authentication. Please try again.');
+        return;
       }
-      if (redirect) {
-        const result = await WebBrowser.openAuthSessionAsync(redirect, redirectUri);
-        console.log('WebBrowser result:', result);
+
+      const { encryptedToken } = await encryptResponse.json();
+      console.log('Token encrypted successfully');
+
+      // Step 2: Build OAuth URL with encrypted token
+      const oauthUrl = `${apiUrl}/oauth2/${getServiceSlug(service)}?token=${encodeURIComponent(encryptedToken)}`;
+      console.log('OAuth URL:', oauthUrl);
+
+      // Step 3: Open OAuth in WebBrowser
+      console.log('Opening OAuth session...');
+      const result = await WebBrowser.openAuthSessionAsync(oauthUrl, redirectUri);
+      console.log('WebBrowser result:', result);
+
+      if (result.type === 'success') {
+        console.log('OAuth success result:', result);
+        Alert.alert('Success', 'Service connected successfully!');
+        // Navigate back to refresh the connection status
+        router.back();
+      } else if (result.type === 'cancel') {
+        console.log('User cancelled OAuth flow');
       } else {
-        Alert.alert('Erreur: pas de redirection trouvée.');
-        console.log('Réponse brute:', res);
+        console.log('OAuth flow result:', result);
       }
-    } catch (e) {
-      Alert.alert('Erreur réseau lors de la connexion au service.');
-      console.log('Network error:', e);
+
+    } catch (error) {
+      console.error('OAuth error:', error);
+      Alert.alert('Error', 'Failed to connect service. Please check your connection and try again.');
     }
   };
 
