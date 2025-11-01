@@ -5,7 +5,6 @@ export async function getApiBaseUrl(): Promise<string> {
     const stored = await AsyncStorage.getItem('backend_ip');
     if (stored) {
       const { ip } = JSON.parse(stored);
-      console.log('Retrieved IP:', ip);
       if (ip) {
         return `${ip}`;
       }
