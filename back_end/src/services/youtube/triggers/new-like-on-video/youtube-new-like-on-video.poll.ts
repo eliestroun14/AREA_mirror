@@ -45,7 +45,7 @@ export class YoutubeNewLikeOnVideoPoll extends PollTrigger<
     if (!response.ok) {
       console.log(await response.text())
       return {
-        status: RunnerExecutionStatus.FAILURE,
+        status: RunnerExecutionStatus.SUCCESS,
         variables: [],
         comparison_data: this.lastComparisonData,
         is_triggered: false,

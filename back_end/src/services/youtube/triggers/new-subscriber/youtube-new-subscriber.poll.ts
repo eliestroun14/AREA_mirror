@@ -37,7 +37,7 @@ export class YoutubeNewSubscriberPoll extends PollTrigger<
       console.log("#########################")
       console.log(await response.text())
       return {
-        status: RunnerExecutionStatus.FAILURE,
+        status: RunnerExecutionStatus.SUCCESS,
         variables: [],
         comparison_data: this.lastComparisonData,
         is_triggered: false,
@@ -58,7 +58,7 @@ export class YoutubeNewSubscriberPoll extends PollTrigger<
       console.log("########################################################")
       console.log(subCount);
       return {
-        status: RunnerExecutionStatus.FAILURE,
+        status: RunnerExecutionStatus.SUCCESS,
         variables: [],
         comparison_data: this.lastComparisonData,
         is_triggered: false,
