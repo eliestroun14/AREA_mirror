@@ -6,6 +6,11 @@ import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogActions from '@mui/material/DialogActions'
 import EditIcon from '@mui/icons-material/Edit'
 import CheckIcon from '@mui/icons-material/Check'
 import { useRouter, useParams } from 'next/navigation'
@@ -46,6 +51,8 @@ function CreateZapPageContent() {
   }>>([])
   const [loadingTrigger, setLoadingTrigger] = useState(true)
   const [loadingActions, setLoadingActions] = useState(true)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   // Charger les informations du zap
   useEffect(() => {
@@ -137,11 +144,33 @@ function CreateZapPageContent() {
   }
 
   const handleCancelClick = () => {
-    if (zapId) {
-      console.log('Cancel clicked: Deleting zap', zapId)
-      apiService.deleteZap(zapId).catch(err => console.error('Failed to delete zap:', err))
+    // Open confirmation dialog instead of deleting immediately
+    setConfirmOpen(true)
+  }
+
+  const handleCloseConfirm = () => {
+    setConfirmOpen(false)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!zapId) {
+      setConfirmOpen(false)
+      router.push('/explore')
+      return
     }
-    router.push('/explore')
+
+    try {
+      setDeleting(true)
+      await apiService.deleteZap(zapId)
+      setConfirmOpen(false)
+      router.push('/explore')
+    } catch (err) {
+      console.error('Failed to delete zap:', err)
+      // keep dialog closed and let user continue
+      setConfirmOpen(false)
+    } finally {
+      setDeleting(false)
+    }
   }
 
   const handleEditName = () => {
@@ -263,6 +292,31 @@ function CreateZapPageContent() {
           }}
         />
       </IconButton>
+
+      {/* Confirmation dialog for Cancel (delete zap) */}
+      <Dialog
+        open={confirmOpen}
+        onClose={handleCloseConfirm}
+        aria-labelledby="confirm-delete-title"
+      >
+        <DialogTitle id="confirm-delete-title">Delete applet?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this applet? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirm} disabled={deleting}>Cancel</Button>
+          <Button
+            onClick={handleConfirmDelete}
+            color="error"
+            variant="contained"
+            disabled={deleting}
+          >
+            {deleting ? <CircularProgress size={20} color="inherit" /> : 'Delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Header */}
       <Box sx={{ textAlign: 'center', mb: 6, mt: 8 }}>
