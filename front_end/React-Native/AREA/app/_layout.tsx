@@ -7,6 +7,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { ApiProvider } from '@/context/ApiContext';
+import { ZapCreationProvider } from '@/context/ZapCreationContext';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -28,16 +29,18 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <ApiProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="modal"
-              options={{ presentation: 'modal', title: 'Modal' }}
-            />
-          </Stack>
-          <StatusBar style="auto" />
-        </ThemeProvider>
+        <ZapCreationProvider>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="modal"
+                options={{ presentation: 'modal', title: 'Modal' }}
+              />
+            </Stack>
+            <StatusBar style="auto" />
+          </ThemeProvider>
+        </ZapCreationProvider>
       </ApiProvider>
     </AuthProvider>
   );

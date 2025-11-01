@@ -53,10 +53,11 @@ type Props = {
 const CreateActionService = ({allTriggers}: Props) => {
   console.log('(CREATE ACTION SERVICE)');
 
-  const { id, triggerId, serviceTriggerId } = useLocalSearchParams<{
+  const { id, triggerId, serviceTriggerId, zapId } = useLocalSearchParams<{
     id?: string;
     triggerId?: string;
     serviceTriggerId?: string;
+    zapId?: string;
   }>();
 
   const { isAuthenticated, sessionToken } = useAuth();
@@ -162,6 +163,7 @@ const CreateActionService = ({allTriggers}: Props) => {
                 serviceActionId={service.id.toString()}
                 triggerId={triggerId}
                 serviceTriggerId={serviceTriggerId}
+                zapId={zapId}
               />}
               ListHeaderComponent={() => (
                 <View style={[styles.header, {backgroundColor: service.services_color}]}> 

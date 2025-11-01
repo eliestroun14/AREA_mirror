@@ -14,6 +14,7 @@ export const ApiProvider = ({ children }: { children: ReactNode }) => {
 
   const reloadApiUrl = async () => {
     const url = await getApiBaseUrl();
+    console.log('API URL set to:', url);
     setApiUrl(url);
   };
 

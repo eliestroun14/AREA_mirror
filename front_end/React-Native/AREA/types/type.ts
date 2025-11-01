@@ -62,3 +62,36 @@ export interface Zap {
   created_at: string;
   updated_at: string;
 }
+
+export interface TriggerField {
+  id: string;
+  type: string;
+  field_name: string;
+  placeholder?: string;
+  default_value?: string;
+  required?: boolean;
+  options?: Array<{
+    label: string;
+    value: string;
+  }>;
+}
+
+export interface ZapStep {
+  id: number;
+  zap_id: number;
+  action_id: number | null;
+  trigger_id: number | null;
+  source_step_id: number | null;
+  connection_id: number;
+  step_type: 'TRIGGER' | 'ACTION';
+  step_order: number;
+  payload: object;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StepInfo {
+  id: number;
+  name: string;
+  step_order: number;
+}

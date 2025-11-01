@@ -20,6 +20,11 @@ async function main() {
       'http://localhost:3002',
       'http://localhost',
       'https://manech.va.sauver.le.monde.area.projects.epitech.bzh',
+      'http://192.168.1.12:3000',
+      'http://192.168.1.12:8080',
+      'http://192.168.1.12:8081',
+      // Allow any origin from local network for development
+      /^http:\/\/192\.168\.1\.\d+:\d+$/,
     ],
     credentials: true,
     exposedHeaders: ['Content-Disposition'],
