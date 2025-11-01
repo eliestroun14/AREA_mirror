@@ -13,6 +13,9 @@ export const youtubeNewLikeOnVideoData: ServiceTrigger = {
   variables: [
     {
       name: "VideoName"
+    },
+    {
+      name: "VideoURL"
     }
   ],
   is_active: true,
