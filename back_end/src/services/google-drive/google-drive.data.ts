@@ -1,5 +1,6 @@
 import { constants } from '@config/utils';
 import { Service } from '@root/prisma/services-data/services.dto';
+import { googleDriveNewFileInFolderData } from './triggers/new-file-in-folder/google-drive-new-file-in-folder.data';
 
 export const googleDriveData: Service = {
   name: constants.services.googleDrive.name,
@@ -10,6 +11,8 @@ export const googleDriveData: Service = {
   authType: 'oauth2',
   documentationUrl: 'https://developers.google.com/drive/api/v3/reference',
   isActive: true,
-  triggers: [],
+  triggers: [
+    googleDriveNewFileInFolderData,
+  ],
   actions: [],
 };
