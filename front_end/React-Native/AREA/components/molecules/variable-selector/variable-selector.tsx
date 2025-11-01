@@ -47,27 +47,32 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
     setError(null);
 
     try {
-      const headers = sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {};
-      
-      // First, determine if the source step is a trigger or action
-      const stepResponse = await fetch(`${apiUrl}/zaps/${zapId}/steps`, {
-        headers
-      });
-      
-      if (!stepResponse.ok) {
-        throw new Error('Failed to fetch step information');
+      const headers: Record<string, string> = {};
+      if (sessionToken) {
+        headers['Authorization'] = `Bearer ${sessionToken}`;
       }
       
-      const steps = await stepResponse.json();
-      const sourceStep = steps.find((step: any) => step.id === sourceStepId);
-      
-      if (!sourceStep) {
-        throw new Error('Source step not found');
+      // First, determine if the source step is a trigger or action
+      // Fetch trigger to check
+      let isTrigger = false;
+      try {
+        const triggerResponse = await fetch(`${apiUrl}/zaps/${zapId}/trigger`, {
+          headers
+        });
+        
+        if (triggerResponse.ok) {
+          const triggerData = await triggerResponse.json();
+          if (triggerData.step?.id === sourceStepId) {
+            isTrigger = true;
+          }
+        }
+      } catch (err) {
+        console.warn('Could not fetch trigger:', err);
       }
 
       let variablesResponse;
       
-      if (sourceStep.step_type === 'TRIGGER') {
+      if (isTrigger) {
         // Fetch trigger variables
         variablesResponse = await fetch(`${apiUrl}/zaps/${zapId}/trigger`, {
           headers
@@ -88,7 +93,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
       // Extract variables from the response
       let variablesObj = {};
       
-      if (sourceStep.step_type === 'TRIGGER') {
+      if (isTrigger) {
         variablesObj = data.trigger?.variables || {};
       } else {
         variablesObj = data.action?.variables || {};
@@ -199,52 +204,57 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   button: {
-    borderWidth: 1,
-    borderRadius: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    borderWidth: 1.5,
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     backgroundColor: 'transparent',
     alignSelf: 'flex-start',
   },
   buttonText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   error: {
-    color: 'red',
+    color: '#ff4444',
     fontSize: 12,
     marginTop: 4,
   },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   modalContent: {
     backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 20,
-    width: '90%',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
+    paddingHorizontal: 20,
     maxHeight: '70%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: '700',
     color: '#333',
   },
   closeButton: {
     padding: 4,
   },
   closeButtonText: {
-    fontSize: 18,
+    fontSize: 24,
     color: '#666',
+    fontWeight: '300',
   },
   variableList: {
     maxHeight: 400,
@@ -257,6 +267,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 8,
     backgroundColor: '#f8f8f8',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   variableInfo: {
     flex: 1,
@@ -273,17 +285,17 @@ const styles = StyleSheet.create({
     fontFamily: 'monospace',
   },
   typeBadge: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
     marginLeft: 12,
   },
   typeText: {
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: 11,
+    fontWeight: '600',
   },
   noVariables: {
-    padding: 20,
+    padding: 30,
     alignItems: 'center',
   },
   noVariablesText: {

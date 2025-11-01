@@ -49,9 +49,9 @@ const ActionFieldCard = ({
           </Text>
         </View>
 
-        <View style={[styles.input, {height: 60 }]}>
+        <View style={[styles.input, { minHeight: 48 }]}>
           <TextInput
-            style={[styles.inputControl, { flex: 1, width: "100%", height: "100%" }]}
+            style={[styles.inputControl, { flex: 1, width: "100%", minHeight: 48 }]}
             placeholder={item.placeholder}
             placeholderTextColor='#6b7280'
             value={dataAction}
@@ -80,9 +80,9 @@ const ActionFieldCard = ({
           </Text>
         </View>
 
-        <View style={[styles.input, {height: 120 }]}>
+        <View style={[styles.input, { minHeight: 120 }]}>
           <TextInput
-            style={[styles.inputControl, { flex: 1, width: "100%", height: "100%" }]}
+            style={[styles.inputControl, { flex: 1, width: "100%", minHeight: 100 }]}
             placeholder={item.placeholder}
             placeholderTextColor='#6b7280'
             value={dataAction}
@@ -112,9 +112,9 @@ const ActionFieldCard = ({
           </Text>
         </View>
 
-        <View style={[styles.input]}>
+        <View style={[styles.input, { minHeight: 48 }]}>
           <Picker
-            style={[styles.inputControl, { flex: 1, width: "100%", height: "100%" }]}
+            style={[styles.inputControl, { flex: 1, width: "100%", height: 48 }]}
             selectedValue={dataAction}
             onValueChange={(val: string) => handleValueChange(val)}
           >
@@ -137,9 +137,9 @@ const ActionFieldCard = ({
         </Text>
       </View>
 
-      <View style={[styles.input, {height: 60 }]}>
+      <View style={[styles.input, { minHeight: 48 }]}>
         <TextInput
-          style={[styles.inputControl, { flex: 1, width: "100%", height: "100%" }]}
+          style={[styles.inputControl, { flex: 1, width: "100%", minHeight: 48 }]}
           placeholder={item.placeholder}
           placeholderTextColor='#6b7280'
           value={dataAction}
@@ -163,16 +163,15 @@ export default ActionFieldCard;
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 10,
-    marginVertical: 10,
+    marginVertical: 12,
   },
 
   input: {
-    alignItems: "flex-start",
-    backgroundColor: "#e6e3e3ff",
-    borderRadius: 10,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
     padding: 12,
-    height: 60,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
 
   inputControl: {
@@ -184,15 +183,14 @@ const styles = StyleSheet.create({
   buttonText: {
     flex: 1,
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
 
   fieldTitle: {
-    flex: 1,
-    fontSize: 18,
-    color: "#eee",
-    fontWeight: "bold",
-    marginBottom: 10
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '600',
+    marginBottom: 8,
   },
 
   required: {

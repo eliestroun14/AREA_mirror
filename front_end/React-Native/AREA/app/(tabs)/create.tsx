@@ -149,29 +149,62 @@ export default function CreateScreen() {
       return;
     }
     console.log('[Finish] Button pressed');
-    router.replace('/(tabs)/explore');
     setLoading(true);
     setError(null);
     setSuccess(false);
     try {
       const authHeaders = sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {};
-      console.log('[Finish] Creating zap...');
-      const zapPayload = {
-        name: `Zap: ${trigger.name} -> ${action.name}`,
-        description: `Auto-created zap from mobile UI`,
-      };
-      console.log('[Finish] Zap payload:', zapPayload);
-      const zapRes = await axios.post(`${apiUrl}/zaps`, zapPayload, { headers: authHeaders });
-      const zapId = zapRes.data.id;
-      console.log('[Finish] Zap created with id:', zapId);
-      const triggerPayload = {
-        triggerId: trigger.id,
-        accountIdentifier: triggerConnection.account_identifier,
-        payload: {},
-      };
-      console.log('[Finish] Trigger step payload:', triggerPayload);
-      const triggerStepRes = await axios.post(`${apiUrl}/zaps/${zapId}/trigger`, triggerPayload, { headers: authHeaders });
-      console.log('[Finish] Trigger step response:', triggerStepRes.data);
+      
+      // Use the existing zapId if provided, otherwise create a new zap
+      let currentZapId: number;
+      let triggerStepId: number | undefined;
+      
+      if (zapId) {
+        // Zap already created in trigger fields page, reuse it
+        currentZapId = Number(zapId);
+        console.log('[Finish] Using existing zap with id:', currentZapId);
+        
+        // Update the zap name to include the action
+        try {
+          await axios.put(`${apiUrl}/zaps/${currentZapId}`, {
+            name: `Zap: ${trigger.name} -> ${action.name}`,
+          }, { headers: authHeaders });
+          console.log('[Finish] Updated zap name');
+        } catch (err) {
+          console.warn('[Finish] Failed to update zap name:', err);
+        }
+        
+        // Get the trigger step ID from the existing zap
+        try {
+          const triggerRes = await axios.get(`${apiUrl}/zaps/${currentZapId}/trigger`, { headers: authHeaders });
+          triggerStepId = triggerRes.data?.id; // The API returns StepDTO directly with id property
+          console.log('[Finish] Found existing trigger step with id:', triggerStepId);
+        } catch (err) {
+          console.warn('[Finish] Failed to get trigger step:', err);
+        }
+      } else {
+        // No zapId provided, create a new zap (fallback for old flow)
+        console.log('[Finish] Creating new zap...');
+        const zapPayload = {
+          name: `Zap: ${trigger.name} -> ${action.name}`,
+          description: `Auto-created zap from mobile UI`,
+        };
+        console.log('[Finish] Zap payload:', zapPayload);
+        const zapRes = await axios.post(`${apiUrl}/zaps`, zapPayload, { headers: authHeaders });
+        currentZapId = zapRes.data.id;
+        console.log('[Finish] Zap created with id:', currentZapId);
+        
+        // Create the trigger step
+        const triggerPayload = {
+          triggerId: trigger.id,
+          accountIdentifier: triggerConnection.account_identifier,
+          payload: {},
+        };
+        console.log('[Finish] Trigger step payload:', triggerPayload);
+        const triggerStepRes = await axios.post(`${apiUrl}/zaps/${currentZapId}/trigger`, triggerPayload, { headers: authHeaders });
+        console.log('[Finish] Trigger step response:', triggerStepRes.data);
+        triggerStepId = triggerStepRes.data?.id;
+      }
       
       // Parse form data if provided
       let actionPayloadData = {};
@@ -184,7 +217,7 @@ export default function CreateScreen() {
       }
       
       // Use provided fromStepId or default to trigger step
-      const sourceStepId = fromStepId ? Number(fromStepId) : triggerStepRes.data?.id || 1;
+      const sourceStepId = fromStepId ? Number(fromStepId) : triggerStepId || 1;
       
       const actionPayload = {
         actionId: action.id,
@@ -194,11 +227,21 @@ export default function CreateScreen() {
         payload: actionPayloadData,
       };
       console.log('[Finish] Action step payload:', actionPayload);
-      const actionStepRes = await axios.post(`${apiUrl}/zaps/${zapId}/action`, actionPayload, { headers: authHeaders });
+      const actionStepRes = await axios.post(`${apiUrl}/zaps/${currentZapId}/action`, actionPayload, { headers: authHeaders });
       console.log('[Finish] Action step response:', actionStepRes.data);
       setSuccess(true);
+      
+      // Clear the state to allow creating new zaps
+      setServiceTrigger(undefined);
+      setTrigger(undefined);
+      setServiceAction(undefined);
+      setAction(undefined);
+      setTriggerConnection(null);
+      setActionConnection(null);
+      
+      // Navigate to My Applets page after a short delay
       setTimeout(() => {
-        router.replace('/(tabs)/profile');
+        router.replace('/(tabs)/my-applets');
       }, 1200);
     } catch (err: any) {
       if (err.response) {

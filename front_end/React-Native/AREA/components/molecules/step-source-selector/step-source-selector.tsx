@@ -36,56 +36,88 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({
     setError(null);
     
     try {
-      const headers = sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {};
+      const headers: Record<string, string> = {};
+      if (sessionToken) {
+        headers['Authorization'] = `Bearer ${sessionToken}`;
+      }
       
-      // Fetch all steps for this zap
-      const response = await fetch(`${apiUrl}/zaps/${zapId}/steps`, {
+      // Fetch trigger and actions separately (matching web implementation)
+      let zapTrigger = null;
+      try {
+        const triggerResponse = await fetch(`${apiUrl}/zaps/${zapId}/trigger`, {
+          headers
+        });
+        
+        if (triggerResponse.ok) {
+          const triggerData = await triggerResponse.json();
+          zapTrigger = triggerData;
+        }
+      } catch (err) {
+        console.warn('Failed to fetch zap trigger (ignored):', err);
+      }
+      
+      // Fetch all actions
+      const actionsResponse = await fetch(`${apiUrl}/zaps/${zapId}/actions`, {
         headers
       });
       
-      if (!response.ok) {
-        throw new Error('Failed to fetch steps');
+      if (!actionsResponse.ok) {
+        throw new Error('Failed to fetch actions');
       }
       
-      const data = await response.json();
+      const actionsData = await actionsResponse.json();
       
-      // Filter out steps that come after the current step (only allow previous steps as sources)
+      // Build available steps list
       let availableSteps: StepInfo[] = [];
       
       if (currentStepId) {
-        // Find current step order
-        const currentStep = data.find((step: any) => step.id === currentStepId);
-        const currentOrder = currentStep ? currentStep.step_order : Infinity;
+        // Find current action to get its step_order
+        const currentAction = actionsData.find((stepData: any) => stepData.step?.id === currentStepId);
+        const currentOrder = currentAction?.step?.step_order ?? Infinity;
         
         // Only include steps with lower order (previous steps)
-        availableSteps = data
-          .filter((step: any) => step.step_order < currentOrder)
-          .map((step: any) => {
-            // Determine the name based on step type
-            let name = '';
-            if (step.step_type === 'TRIGGER') {
-              name = 'Trigger';
-            } else {
-              name = `Action ${step.step_order}`;
-            }
-            
-            return {
-              id: step.id,
-              name,
-              step_order: step.step_order
-            };
-          })
-          .sort((a, b) => a.step_order - b.step_order);
+        availableSteps = actionsData
+          .filter((stepData: any) => (stepData.step?.step_order ?? 0) < currentOrder)
+          .map((stepData: any) => ({
+            id: stepData.step.id,
+            name: stepData.action?.name || `Action ${stepData.step.step_order}`,
+            step_order: stepData.step.step_order
+          }));
+        
+        // Add trigger if it exists and comes before current step
+        if (zapTrigger && zapTrigger.step && zapTrigger.step.step_order < currentOrder) {
+          const triggerEntry: StepInfo = {
+            id: zapTrigger.step.id,
+            name: `Trigger — ${zapTrigger.service?.name || 'Trigger'}`,
+            step_order: zapTrigger.step.step_order
+          };
+          if (!availableSteps.find(s => s.id === triggerEntry.id)) {
+            availableSteps.push(triggerEntry);
+          }
+        }
       } else {
-        // For new actions, include all existing steps
-        availableSteps = data
-          .map((step: any) => ({
-            id: step.id,
-            name: step.step_type === 'TRIGGER' ? 'Trigger' : `Action ${step.step_order}`,
-            step_order: step.step_order
-          }))
-          .sort((a, b) => a.step_order - b.step_order);
+        // For new actions, include all existing actions
+        availableSteps = actionsData.map((stepData: any) => ({
+          id: stepData.step.id,
+          name: stepData.action?.name || `Action ${stepData.step.step_order}`,
+          step_order: stepData.step.step_order
+        }));
+        
+        // Add trigger if it exists
+        if (zapTrigger && zapTrigger.step) {
+          const triggerEntry: StepInfo = {
+            id: zapTrigger.step.id,
+            name: `Trigger — ${zapTrigger.service?.name || 'Trigger'}`,
+            step_order: zapTrigger.step.step_order
+          };
+          if (!availableSteps.find(s => s.id === triggerEntry.id)) {
+            availableSteps.push(triggerEntry);
+          }
+        }
       }
+      
+      // Sort by step_order
+      availableSteps = availableSteps.sort((a: StepInfo, b: StepInfo) => a.step_order - b.step_order);
       
       setSteps(availableSteps);
       
@@ -94,6 +126,8 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({
         const triggerStep = availableSteps.find(step => step.step_order === 0);
         if (triggerStep) {
           onSelectFromStep(triggerStep.id);
+        } else if (availableSteps.length > 0) {
+          onSelectFromStep(availableSteps[0].id);
         }
       }
       
@@ -139,11 +173,6 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Variable Source</Text>
-      <Text style={styles.description}>
-        Choose which step's data to use for variables in this action
-      </Text>
-      
       <TouchableOpacity
         style={[styles.selector, { borderColor: serviceColor }]}
         onPress={() => setModalVisible(true)}
@@ -196,18 +225,7 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 16,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
-  },
-  description: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 12,
+    marginVertical: 4,
   },
   selector: {
     flexDirection: 'row',
@@ -215,65 +233,75 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderRadius: 8,
-    padding: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     backgroundColor: 'white',
   },
   selectorText: {
     fontSize: 16,
     flex: 1,
+    fontWeight: '500',
   },
   arrow: {
     fontSize: 12,
     marginLeft: 8,
   },
   error: {
-    color: 'red',
+    color: '#ff4444',
     fontSize: 14,
     marginTop: 8,
   },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   modalContent: {
     backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 20,
-    width: '90%',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
+    paddingHorizontal: 20,
     maxHeight: '70%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: '700',
     color: '#333',
   },
   closeButton: {
     padding: 4,
   },
   closeButtonText: {
-    fontSize: 18,
+    fontSize: 24,
     color: '#666',
+    fontWeight: '300',
   },
   stepList: {
-    maxHeight: 300,
+    maxHeight: 400,
   },
   stepItem: {
     padding: 16,
     borderRadius: 8,
     marginBottom: 8,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8f8f8',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   stepText: {
     fontSize: 16,
     color: '#333',
+    fontWeight: '500',
   },
 });
 

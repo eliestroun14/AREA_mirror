@@ -1,23 +1,37 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity, FlatList, ScrollView } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { StyleSheet, View, ScrollView, Alert } from 'react-native';
+import { useLocalSearchParams, Stack, router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Service, Trigger, Action } from "@/types/type";
-import { Stack } from 'expo-router';
-import { imageMap } from "@/types/image";
-import { getServiceImageSource } from "@/utils/serviceImageUtils";
-import ActionFieldCard from "@/components/molecules/action-field-card/action-field-card";
-import StepSourceSelector from "@/components/molecules/step-source-selector/step-source-selector";
-import { TriggerField } from "@/types/type";
-import { router } from "expo-router";
-import { useApi } from "@/context/ApiContext";
 
-type Props = {}
+// Hooks
+import { useActionData } from '@/hooks/useActionData';
+import { useFormData } from '@/hooks/useFormData';
 
-const ActionFieldsPage = (props: Props) => {
-  console.log('(ACTION FIELDS PAGE)');
+// Utils
+import { validateRequiredFields, convertFieldsToArray } from '@/utils/formValidation';
 
-  const { id, actionId, serviceActionId, triggerId, serviceTriggerId, zapId } = useLocalSearchParams<{
-    id?: string;
+// Components
+import LoadingView from '@/components/atoms/loading-view/loading-view';
+import ErrorView from '@/components/atoms/error-view/error-view';
+import PrimaryButton from '@/components/atoms/primary-button/primary-button';
+import ActionFieldsPageHeader from '@/components/molecules/action-fields-page-header/action-fields-page-header';
+import SourceSelectionCard from '@/components/molecules/source-selection-card/source-selection-card';
+import ActionFieldsCard from '@/components/molecules/action-fields-card/action-fields-card';
+
+/**
+ * Action Fields Page
+ * Allows users to configure action fields with variable support
+ */
+const ActionFieldsPage = () => {
+  console.log('[ActionFieldsPage] Mounted');
+
+  // Route params
+  const {
+    actionId,
+    serviceActionId,
+    triggerId,
+    serviceTriggerId,
+    zapId
+  } = useLocalSearchParams<{
     actionId?: string;
     serviceActionId?: string;
     triggerId?: string;
@@ -25,253 +39,139 @@ const ActionFieldsPage = (props: Props) => {
     zapId?: string;
   }>();
 
-  const [service, setService] = useState<Service | null>(null);
-  const [action, setAction] = useState<Action | null>(null);
-  const [loading, setLoading] = useState(true);
+  // State
   const [selectedFromStepId, setSelectedFromStepId] = useState<number | null>(null);
-  const [formData, setFormData] = useState<Record<string, string>>({});
+
+  // Custom hooks
+  const { service, action, loading, error } = useActionData({
+    serviceActionId,
+    actionId
+  });
   
-  const { apiUrl } = useApi();
+  const { formData, handleFieldChange, initializeFormData } = useFormData();
 
-
+  // Initialize form data when action is loaded
   useEffect(() => {
-    const fetchServiceAndAction = async () => {
-      setLoading(true);
-      try {
-        if (!serviceActionId || !actionId) {
-          setService(null);
-          setAction(null);
-          setLoading(false);
-          return;
-        }
-        // Fetch service
-        const serviceRes = await fetch(`${apiUrl}/services/${serviceActionId}`);
-        if (!serviceRes.ok) throw new Error('Service not found');
-        const serviceData: Service = await serviceRes.json();
-        setService(serviceData);
-        // Fetch action
-        const actionRes = await fetch(`${apiUrl}/services/${serviceActionId}/actions/${actionId}`);
-        if (!actionRes.ok) throw new Error('Action not found');
-        const actionData: Action = await actionRes.json();
-        setAction(actionData);
-        console.log('Action fields:', actionData.fields);
-        
-        // Initialize form data with default values
-        const fieldsArray = Object.entries(actionData.fields);
-        const initialFormData: Record<string, string> = {};
-        fieldsArray.forEach(([key, field]) => {
-          const fieldData = field as TriggerField;
-          initialFormData[key] = fieldData.default_value || '';
-        });
-        setFormData(initialFormData);
-        
-      } catch (err) {
-        setService(null);
-        setAction(null);
-        console.log('[ActionFieldsPage] Error fetching service or action:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchServiceAndAction();
-  }, [serviceActionId, actionId, apiUrl]);
+    if (action) {
+      initializeFormData(action);
+    }
+  }, [action]);
 
-  const handleFieldChange = (fieldName: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [fieldName]: value
-    }));
-  };
-
+  // Handle continue button
   const handleContinue = () => {
-    // Validate required fields
-    const fieldsArray = Object.entries(action?.fields || {});
-    const missingRequired = fieldsArray
-      .filter(([key, field]) => {
-        const fieldData = field as TriggerField;
-        return fieldData.required && !formData[key]?.trim();
-      })
-      .map(([key, field]) => (field as TriggerField).field_name);
+    const validation = validateRequiredFields(action, formData);
 
-    if (missingRequired.length > 0) {
-      alert(`Please fill in the following required fields: ${missingRequired.join(', ')}`);
+    if (!validation.isValid) {
+      Alert.alert(
+        'Missing Required Fields',
+        `Please fill in the following required fields: ${validation.missingFields.join(', ')}`
+      );
       return;
     }
 
     router.push({
-      pathname: "/(tabs)/create",
+      pathname: '/(tabs)/create',
       params: {
         actionId: action?.id,
         serviceActionId: service?.id,
-        triggerId: triggerId,
-        serviceTriggerId: serviceTriggerId,
-        zapId: zapId,
+        triggerId,
+        serviceTriggerId,
+        zapId,
         fromStepId: selectedFromStepId,
         actionFormData: JSON.stringify(formData)
       }
     });
   };
 
+  // Loading state
   if (loading) {
-    return (
-      <View style={styles.container}>
-        <Text>Chargement...</Text>
-      </View>
-    );
+    return <LoadingView message="Loading action..." />;
+  }
+
+  // Error states
+  if (error) {
+    return <ErrorView message={error} type="error" />;
   }
 
   if (!service || !action) {
+    return <ErrorView message="Service or Action not found" type="error" />;
+  }
+
+  if (!zapId) {
     return (
-      <View style={styles.container}>
-        <Text>Service ou Action non trouvé</Text>
-      </View>
+      <ErrorView
+        message="No zap ID found. Please start from the beginning."
+        type="warning"
+      />
     );
   }
 
-  const fieldsArray = Object.entries(action.fields).map(([key, field]) => ({
-    fieldId: key, // Use fieldId instead of id to avoid conflicts
-    ...(field as TriggerField)
-  }));
+  // Convert fields to array format
+  const fieldsArray = convertFieldsToArray(action);
 
   return (
     <>
       <Stack.Screen
-          options={{
-            title: "Complete action fields",
-            headerStyle: {
-              backgroundColor: service.services_color,
-            },
-            headerTintColor: '#fff',
-            headerTitleStyle: {
-              fontWeight: 'bold',
-            },
-          }}
-        />
-        <View style={{ flex: 1, backgroundColor: "#e8ecf4"}}>
-          <ScrollView style={[styles.header, {backgroundColor: service.services_color}]} 
-                      contentContainerStyle={{ paddingBottom: 150 }}> 
-            <Image
-              style={styles.appLogo}
-              source={getServiceImageSource(service)}
-            />
-            <Text style={styles.actionName}>
-              {action.name}
-            </Text>
-            <Text style={styles.actionDescription}>
-              {action.description}
-            </Text>
-            
-            {/* Source Selection Section */}
-            {zapId && (
-              <View style={styles.sourceSection}>
-                <StepSourceSelector
-                  zapId={Number(zapId)}
-                  selectedFromStepId={selectedFromStepId}
-                  onSelectFromStep={setSelectedFromStepId}
-                  serviceColor={service.services_color}
-                />
-              </View>
-            )}
-            
-            {/* Action Fields */}
-            <View style={styles.fieldsContainer}>
-              {fieldsArray.map((item) => (
-                <ActionFieldCard 
-                  key={item.fieldId} 
-                  item={{...item, id: item.fieldId}} 
-                  zapId={zapId ? Number(zapId) : undefined}
-                  sourceStepId={selectedFromStepId}
-                  serviceColor={service.services_color}
-                  onFieldChange={handleFieldChange}
-                  value={formData[item.fieldId]}
-                />
-              ))}
-            </View>
-            
-            <TouchableOpacity 
-              style={styles.connectButton}
-              onPress={handleContinue}
-            >
-              <Text style={styles.connectButtonText}>
-                  Continue
-              </Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </View>
-    </>
-  )
-}
+        options={{
+          title: 'Complete action fields',
+          headerStyle: {
+            backgroundColor: service.services_color,
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+      <View style={styles.container}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* Header Section */}
+          <ActionFieldsPageHeader service={service} action={action} />
 
-export default ActionFieldsPage
+          {/* Source Selection */}
+          <SourceSelectionCard
+            zapId={Number(zapId)}
+            selectedFromStepId={selectedFromStepId}
+            onSelectFromStep={setSelectedFromStepId}
+            serviceColor={service.services_color}
+          />
+
+          {/* Action Fields */}
+          <ActionFieldsCard
+            fields={fieldsArray}
+            zapId={Number(zapId)}
+            sourceStepId={selectedFromStepId}
+            serviceColor={service.services_color}
+            formData={formData}
+            onFieldChange={handleFieldChange}
+          />
+
+          {/* Continue Button */}
+          <PrimaryButton
+            title="Continue"
+            onPress={handleContinue}
+            backgroundColor={service.services_color}
+          />
+        </ScrollView>
+      </View>
+    </>
+  );
+};
+
+export default ActionFieldsPage;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    backgroundColor: '#e8ecf4',
   },
-
-  header: {
-    paddingBottom: 30,
-    marginBottom: 10,
-    height: "100%"
+  scrollView: {
+    flex: 1,
   },
-
-  appLogo: {
-    width: 80,
-    height: 80,
-    alignSelf: "center",
-    marginTop: 70
+  scrollContent: {
+    paddingBottom: 150,
   },
-
-  actionName: {
-    fontSize: 25,
-    fontWeight: 'bold',
-    alignSelf: "center",
-    marginTop: 20,
-    color: '#fff'
-  },
-
-  actionDescription: {
-    fontSize: 16,
-    lineHeight: 20,
-    color: '#fff',
-    alignSelf: "center",
-    maxWidth: 300,
-    marginTop: 10,
-    textAlign: "center",
-    fontWeight: "500"
-  },
-
-  sourceSection: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    margin: 16,
-    padding: 16,
-    borderRadius: 12,
-  },
-
-  fieldsContainer: {
-    paddingHorizontal: 16,
-  },
-
-  connectButton: {
-  position: 'absolute',
-  bottom: 80,
-  left: 20,
-  right: 20,
-  height: 80,
-  backgroundColor: "#fff",
-  borderRadius: 100,
-  alignItems: "center",
-  justifyContent: "center",
-},
-
-  connectButtonText: {
-    fontSize: 25,
-    fontWeight: "bold",
-  },
-
-  content: {
-    alignSelf: "center"
-  },
-
-})
+});
