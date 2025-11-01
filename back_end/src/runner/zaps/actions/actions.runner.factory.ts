@@ -3,6 +3,7 @@ import JobNotFoundError from '@root/runner/errors/job-not-found.error';
 import DiscordSendMessageExecutor from '@root/services/discord/actions/send-message/discord-send-message.executor';
 import MicrosoftTeamsSendMessageExecutor from '@root/services/microsoft-teams/actions/send-message/microsoft-teams-send-message.executor';
 import MicrosoftTeamsSendReactionExecutor from '@root/services/microsoft-teams/actions/send-reaction/microsoft-teams-send-reaction.executor';
+import GithubCreateAnIssueExecutor from '@root/services/github/actions/create-an-issue/github-create-an-issue.executor';
 
 export interface ActionBuilderParams {
   stepId: number;
@@ -24,6 +25,9 @@ export class ActionsRunnerFactory {
     },
     MicrosoftTeamsSendReactionExecutor: (builder: ActionBuilderParams) => {
       return new MicrosoftTeamsSendReactionExecutor(builder);
+    },
+    GithubCreateAnIssueExecutor: (builder: ActionBuilderParams) => {
+      return new GithubCreateAnIssueExecutor(builder);
     },
   };
 

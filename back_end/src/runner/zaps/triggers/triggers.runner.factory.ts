@@ -1,12 +1,14 @@
 import { PollTrigger } from '@root/runner/zaps/triggers/triggers.runner.job';
 import JobNotFoundError from '@root/runner/errors/job-not-found.error';
-import { GithubOnNewRepositoryPoll } from '@root/services/github/triggers/on-new-repository/github-on-new-repository.poll';
 import { TwitchFollowNewChannelPoll } from '@root/services/twitch/triggers/follow-new-channel/twitch-follow-new-channel.poll';
 import { TwitchNewFollowerOnYourChannelPoll } from '@root/services/twitch/triggers/new-follower-on-your-channel/twitch-new-follower-on-your-channel.poll';
 import { TwitchNewVideoPostedByYouPoll } from '@root/services/twitch/triggers/new-video-posted-by-you/twitch-new-video-posted-by-you.poll';
 import { TwitchNewStreamStartedbyYouPoll } from '@root/services/twitch/triggers/new-stream-startedby-you/twitch-new-stream-startedby-you.poll';
 import { TwitchStreamGoingLiveChannelYouFollowPoll } from '@root/services/twitch/triggers/stream-going-live-channel-you-follow/twitch-stream-going-live-channel-you-follow.poll';
 import { MicrosoftTeamsNewMessagePoll } from '@root/services/microsoft-teams/triggers/new-message/microsoft-teams-new-message.poll';
+import {
+  GithubOnNewPersonnalRepositoryPoll
+} from '@root/services/github/triggers/on-new-personnal-repository/github-on-new-personnal-repository.poll';
 
 export interface PollTriggerBuilderParams {
   stepId: number;
@@ -24,8 +26,8 @@ type TriggerBuilderFunction = (
 
 export class TriggersRunnerFactory {
   private registers: Record<string, TriggerBuilderFunction> = {
-    GithubOnNewRepositoryPoll: (builder: PollTriggerBuilderParams) => {
-      return new GithubOnNewRepositoryPoll(builder);
+    GithubOnNewPersonnalRepositoryPoll: (builder: PollTriggerBuilderParams) => {
+      return new GithubOnNewPersonnalRepositoryPoll(builder);
     },
     MicrosoftTeamsNewMessagePoll: (builder: PollTriggerBuilderParams) => {
       return new MicrosoftTeamsNewMessagePoll(builder);
