@@ -116,7 +116,7 @@ Pour cela, il vous suffit d'éditer le fichier `back_end/src/app/oauth2/oauth2.m
 ```typescript
 // [...]
 import { <ServiceName>OAuth2Module } from '@app/oauth2/services/<service-name>/<service-name>.module';
-import { <ServiceName>Strategy } from '@app/oauth2/services/<service-name>/<service-name>.strategy';
+import { <ServiceName>Strategy } from '@root/services/<service-name>/oauth2/<service-name>.strategy';
 // [...]
 ```
 
@@ -167,7 +167,7 @@ Si votre trigger est de type `webhook`, suivez [ces étapes](#trigger-de-type-we
 
 Avant de créer un trigger, il faut comprendre certaines notions.
 
-#### Les fichiers service-name-trigger-name.data.ts
+#### Les fichiers <service-name>-<trigger-name>.data.ts
 
 Ces fichiers décrivent un trigger. Ils contiennent :
 - Le titre du trigger
@@ -188,13 +188,13 @@ __Exemple :__
 ```typescript
 import { ServiceTrigger } from '@root/prisma/services-data/services.dto';
 
-export const serviceNameTriggerNameData: ServiceTrigger = {
-  class_name: 'GithubOnNewRepositoryPollTrigger',
+export const githubOnNewRepositoryData: ServiceTrigger = {
+  class_name: 'GithubOnNewRepositoryPoll',
   http_requests: null,
   webhook: null,
   trigger_type: 'POLLING',
-  name: 'On new repository',
-  description: 'Run a zap when a github repository is created.',
+  name: 'New repository',
+  description: 'Run the zap when a new repository is created.',
   require_connection: true,
   polling_interval: 1000,
   fields: {
@@ -236,14 +236,14 @@ Lors de l'exécution de la commande, les fichiers nécéssaires à la création 
 > Ce script est exécutable dans n'importe quel dossier du projet.
 
 Le script va générer 4 fichiers :
-- `service-name-trigger-name.controller.ts`: Contient la route sur laquelle les données du webhook seront reçu.
-- `service-name-trigger-name.data.ts`: Contient les informations générales du trigger.
-- `service-name-trigger-name.webhook.ts`: Contient la classe permettant de lier le service avec le zap. 
+- `<service-name>-<trigger-name>.controller.ts`: Contient la route sur laquelle les données du webhook seront reçu.
+- `<service-name>-<trigger-name>.data.ts`: Contient les informations générales du trigger.
+- `<service-name>-<trigger-name>.webhook.ts`: Contient la classe permettant de lier le service avec le zap. 
 
 > [!NOTE]
 > La classe de webhook du trigger permet d'indiquer au service sur quelle route envoyer les données lorsque le trigger est déclenché.
 
-- `service-name-trigger-name.dto.ts`: Contient les typages du trigger.
+- `<service-name>-<trigger-name>.dto.ts`: Contient les typages du trigger.
 
 > [!NOTE]
 > Les typages du trigger sont principalement utilisés dans la classe de webhook du trigger ainsi que dans la classe du contrôleur du webhook.
@@ -272,13 +272,13 @@ Il faut également enregistrer les données générales du trigger.
 Pour cela, vous devez éditer le fichier `/back_end/src/services/<service-name>/<service-name>.data.ts` de la manière suivante :
 ```typescript
 // [...]
-import { serviceNameTriggerNameData } from '@root/services/<service-name>/triggers/<trigger-name>/<service-name>-<trigger-name>.data';
+import { <serviceName><TriggerName>Data } from '@root/services/<service-name>/triggers/<trigger-name>/<service-name>-<trigger-name>.data';
 
-export const serviceNameData: Service = {
+export const <serviceName>Data: Service = {
     // [...]
     triggers: [
       // [...]
-      serviceNameTriggerNameData, // Ajoutez les données générales de votre trigger ici
+      <serviceName><TriggerName>Data, // Ajoutez les données générales de votre trigger ici
     ],
     // [...]
 };
@@ -291,7 +291,7 @@ Il manque l'implémentation de la logique.
 
 ##### Typage
 
-Dans le fichier `service-name-trigger-name.dto.ts`, vous avez 2 types :
+Dans le fichier `<service-name>-<trigger-name>.dto.ts`, vous avez 2 types :
 ```typescript
 export type <ServiceName><TriggerName>TriggerPayload = {
   // Ajoutez les types de vos champs ici
@@ -316,7 +316,7 @@ fields: {
   repository: {
     // [...]
     key: 'repository',              // Nom de la variable dans laquelle sera enregistré les données entrées par l'utilisateur
-    name: 'Nom du dépôt github',
+    field_name: 'Nom du dépôt github',
     type: 'string',                 // Type de la donnée
     // [...]
   },
@@ -324,7 +324,7 @@ fields: {
 ```
 Alors dans votre payload vous aurez :
 ```typescript
-export interface <ServiceName><TriggerName>PollPayload {
+export type <ServiceName><TriggerName>TriggerPayload = {
     // Nom de la variable dans laquelle sera enregistré les données entrées par l'utilisateur
     // \/\/\/\/
     repository: string;
@@ -334,12 +334,12 @@ export interface <ServiceName><TriggerName>PollPayload {
 ```
 
 - `<ServiceName><TriggerName>Body` & `<ServiceName><TriggerName>Headers` & `<ServiceName><TriggerName>Queries`
-Lorsque le service va faire un appel API vers l'API de l'AREA, les données du trigger seront présentent
+Lorsque le service va faire un appel API vers l'API de l'AREA, les données du trigger seront présentes
 dans le body de la requête, les headers ou encore les queries. Ces types dépendent entièrement de la
 requête que le service fera. Vous trouverez dans la documentation de ce dernier la manière dont il répartie
 les différentes données.
 
-Par exemple, si votre trigger a une variable `RepositoryName` d'enregistré dans ses données (dans le fichier `service-name-trigger-name.data.ts`),
+Par exemple, si votre trigger a une variable `RepositoryName` d'enregistré dans ses données (dans le fichier `service-name-<trigger-name>.data.ts`),
 c'est dans ces types que vous allez récupérer la valeur de cette variable. Imaginons que lorsque vous recevez votre requête,
 on vous dit dans la documentation que le nom du repository se trouve dans `repository.name` dans le body de la requête. Dans ce cas,
 vous allez définir le type du body sur :
@@ -353,11 +353,11 @@ export type <ServiceName><TriggerName>Body = {
 
 ##### Données générales
 
-Pour comprendre l'utilité du fichier `service-name-trigger-name.data.ts`, lisez [cette partie de la documentation](#les-fichiers-service-name-trigger-namedatats).
+Pour comprendre l'utilité du fichier `<service-name>-<trigger-name>.data.ts`, lisez [cette partie de la documentation](#les-fichiers-service-name-trigger-namedatats).
 
 ##### Classe Webhook
 
-Dans le fichier `service-name-trigger-name.webhook.ts`, vous avez une classe de type WebhookTrigger :
+Dans le fichier `<service-name>-<trigger-name>.webhook.ts`, vous avez une classe de type WebhookTrigger :
 ```typescript
 // [...]
 
@@ -389,7 +389,7 @@ Pour savoir si la création du hook a réussi ou échoué, référez-vous à la 
 
 ##### Classe Controller
 
-Dans le fichier `service-name-trigger-name.controller.ts`, vous avez une classe de type `AREA_WebhookController` :
+Dans le fichier `<service-name>-<trigger-name>.controller.ts`, vous avez une classe de type `AREA_WebhookController` :
 ```typescript
 // [...]
 
@@ -419,7 +419,7 @@ Cette méthode contient plusieurs paramètres :
 - `body`: Le body de la requête du webhook.
 - `queries`: Les queries de la requête du webhook.
 
-Pour plus d'information sur ces paramètres, lisez la partie du fichier [`service-name-trigger-name.dto.ts`](#typage)
+Pour plus d'information sur ces paramètres, lisez la partie du fichier [`<service-name>-<trigger-name>.dto.ts`](#typage)
 
 ##### Tests
 
@@ -441,14 +441,14 @@ Lors de l'exécution de la commande, les fichiers nécéssaires à la création 
 > Ce script est exécutable dans n'importe quel dossier du projet.
 
 Le script va générer 3 fichiers :
-- `service-name-trigger-name.data.ts`: Contient les informations générales du trigger.
-- `service-name-trigger-name.poll.ts`: Contient la classe de polling du trigger.
+- `<service-name>-<trigger-name>.data.ts`: Contient les informations générales du trigger.
+- `<service-name>-<trigger-name>.poll.ts`: Contient la classe de polling du trigger.
 
 > [!NOTE]
 > La classe de polling du trigger permet de faire une requête API vers le service afin de mettre à jour les données et
 > de vérifier si le trigger s'est déclenché ou non.
 
-- `service-name-trigger-name.dto.ts`: Contient les typages du trigger.
+- `<service-name>-<trigger-name>.dto.ts`: Contient les typages du trigger.
 
 > [!NOTE]
 > Les typages du trigger sont principalement utilisés dans la classe de polling du trigger.
@@ -462,8 +462,8 @@ Pour cela, ajouter votre trigger dans le fichier [`triggers.runner.factory.ts`](
 export class TriggersRunnerFactory {
     private registers: Record<string, TriggerBuilderFunction> = {
         // [...]
-        <ServiceName><TriggerName>PollTrigger: (builder: PollTriggerBuilderParams) => {
-            return new <ServiceName><TriggerName>PollTrigger(builder);
+        <ServiceName><TriggerName>Poll: (builder: PollTriggerBuilderParams) => {
+            return new <ServiceName><TriggerName>Poll(builder);
         },
     };
 
@@ -477,13 +477,13 @@ Il faut également enregistrer les données générales du trigger.
 Pour cela, vous devez éditer le fichier `/back_end/src/services/<service-name>/<service-name>.data.ts` de la manière suivante :
 ```typescript
 // [...]
-import { serviceNameTriggerNameData } from '@root/services/<service-name>/triggers/<trigger-name>/<service-name>-<trigger-name>.data';
+import { <serviceName><TriggerName>Data } from '@root/services/<service-name>/triggers/<trigger-name>/<service-name>-<trigger-name>.data';
 
-export const serviceNameData: Service = {
+export const <serviceName>Data: Service = {
     // [...]
     triggers: [
       // [...]
-      serviceNameTriggerNameData, // Ajoutez les données générales de votre trigger ici
+      <serviceName><TriggerName>Data, // Ajoutez les données générales de votre trigger ici
     ],
     // [...]
 };
@@ -496,7 +496,7 @@ Il manque l'implémentation de la logique.
 
 ##### Typage
 
-Dans le fichier `service-name-trigger-name.dto.ts`, vous avez 2 types :
+Dans le fichier `<service-name>-<trigger-name>.dto.ts`, vous avez 2 types :
 ```typescript
 export interface <ServiceName><TriggerName>PollPayload {
     // Ajoutez les types de vos champs ici
@@ -515,7 +515,7 @@ fields: {
   repository: {
     // [...]
     key: 'repository',              // Nom de la variable dans laquelle sera enregistré les données entrées par l'utilisateur
-    name: 'Nom du dépôt github',
+    field_name: 'Nom du dépôt github',
     type: 'string',                 // Type de la donnée
     // [...]
   },
@@ -549,11 +549,11 @@ les repositories de l'API du service.
 
 ##### Données générales
 
-Pour comprendre l'utilité du fichier `service-name-trigger-name.data.ts`, lisez [cette partie de la documentation](#les-fichiers-service-name-trigger-namedatats).
+Pour comprendre l'utilité du fichier `<service-name>-<trigger-name>.data.ts`, lisez [cette partie de la documentation](#les-fichiers-service-name-trigger-namedatats).
 
 ##### Classe Poll
 
-Dans le fichier `service-name-trigger-name.poll.ts`, vous avez une classe de type PollTrigger :
+Dans le fichier `<service-name>-<trigger-name>.poll.ts`, vous avez une classe de type PollTrigger :
 ```typescript
 // [...]
 
@@ -607,7 +607,7 @@ Pour ajouter une action, vous devez dans un premier temps avoir configuré l'oau
 
 Avant de créer une action, il faut comprendre certaines notions.
 
-#### Les fichiers service-name-action-name.data.ts
+#### Les fichiers <service-name>-<action-name>.data.ts
 
 Ces fichiers décrivent une action. Ils contiennent :
 - Le titre de l'action
@@ -669,7 +669,7 @@ export const discordSendMessageData: ServiceAction = {
 Pour créer une action, vous devez dans un premier temps générer les fichiers
 requis à l'aide du script [`add_service_action.sh`](/back_end/cli/add_service_action.sh) disponible dans le dossier [`cli`](/back_end/cli) :
 ```bash
-$ add_service_action.sh service-name action-name 'Action title' 'Action description'
+$ add_service_action.sh service-name <action-name> 'Action title' 'Action description'
 ```
 
 Lors de l'exécution de la commande, les fichiers nécéssaires à la création de votre action seront générés automatiquement.
@@ -678,9 +678,9 @@ Lors de l'exécution de la commande, les fichiers nécéssaires à la création 
 > Ce script est exécutable dans n'importe quel dossier du projet.
 
 Le script va générer 3 fichiers :
-- `service-name-action-name.data.ts`: Contient les informations générales due l'action.
-- `service-name-action-name.executor.ts`: Contient la classe permettant d'exécuter la requête API de l'action.
-- `service-name-action-name.dto.ts`: Contient les typages de l'action.
+- `<service-name>-<action-name>.data.ts`: Contient les informations générales due l'action.
+- `<service-name>-<action-name>.executor.ts`: Contient la classe permettant d'exécuter la requête API de l'action.
+- `<service-name>-<action-name>.dto.ts`: Contient les typages de l'action.
 
 > [!NOTE]
 > Les typages de l'action sont principalement utilisés dans la classe d'exécution de l'action.
@@ -708,13 +708,13 @@ Il faut également enregistrer les données générales de l'action.
 Pour cela, vous devez éditer le fichier `/back_end/src/services/<service-name>/<service-name>.data.ts` de la manière suivante :
 ```typescript
 // [...]
-import { serviceNameActionNameData } from '@root/services/<service-name>/actions/<trigger-name>/<service-name>-<trigger-name>.data';
+import { <serviceName><ActionName>Data } from '@root/services/<service-name>/actions/<trigger-name>/<service-name>-<trigger-name>.data';
 
-export const serviceNameData: Service = {
+export const <serviceName>Data: Service = {
   // [...]
   actions: [
     // [...]
-    serviceNameActionNameData, // Ajoutez les données générales de votre action ici
+    <serviceName><ActionName>Data, // Ajoutez les données générales de votre action ici
   ],
   // [...]
 };
@@ -727,7 +727,7 @@ Il manque l'implémentation de la logique.
 
 ##### Typage
 
-Dans le fichier `service-name-action-name.dto.ts`, vous avez 1 type :
+Dans le fichier `<service-name>-<action-name>.dto.ts`, vous avez 1 type :
 ```typescript
 export interface <ServiceName><ActionName>ExecutorPayload {
   // Ajoutez les types de vos champs ici
@@ -742,7 +742,7 @@ fields: {
   message: {
     // [...]
     key: 'message',                 // Nom de la variable dans laquelle sera enregistré les données entrées par l'utilisateur
-    name: 'Message',
+    field_name: 'Message',
     type: 'string',                 // Type de la donnée
     // [...]
   },
@@ -750,7 +750,7 @@ fields: {
 ```
 Alors dans votre payload vous aurez :
 ```typescript
-export interface <ServiceName><ActionName>ExecutorPayload {
+export type <ServiceName><ActionName>ExecutorPayload = {
   // Nom de la variable dans laquelle sera enregistré les données entrées par l'utilisateur
   // \/\/
   message: string;
@@ -761,11 +761,11 @@ export interface <ServiceName><ActionName>ExecutorPayload {
 
 ##### Données générales
 
-Pour comprendre l'utilité du fichier `service-name-action-name.data.ts`, lisez [cette partie de la documentation](#les-fichiers-service-name-action-namedatats).
+Pour comprendre l'utilité du fichier `service-name-<action-name>.data.ts`, lisez [cette partie de la documentation](#les-fichiers-service-name-action-namedatats).
 
 ##### Classe Executor
 
-Dans le fichier `service-name-action-name.executor.ts`, vous avez une classe de type ActionExecuton :
+Dans le fichier `<service-name>-<action-name>.executor.ts`, vous avez une classe de type ActionExecuton :
 ```typescript
 // [...]
 
@@ -789,7 +789,7 @@ Dans cette classe, vous avez accès à l'attribut suivant de la classe :
 La valeur de retour contient plusieurs informations :
 - `status` : **Si une erreur s'est produite**, définissez cette valeur sur `RunnerExecutionStatus.FAILURE`. 
 Dans le cas contraire, définissez cette valeur sur `RunnerExecutionStatus.SUCCESS`.
-- `variables` : Liste des variables de votre action. Remplissez-le en fonction des variables que vous avez définies dans le fichier `service-name-action-name.data.ts`.
+- `variables` : Liste des variables de votre action. Remplissez-le en fonction des variables que vous avez définies dans le fichier `<service-name>-<action-name>.data.ts`.
 
 ##### Tests
 

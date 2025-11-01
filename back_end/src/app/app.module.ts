@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthModule } from '@app/auth/auth.module';
 import { PrismaService } from '@root/prisma/prisma.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -10,6 +10,7 @@ import { AboutJsonModule } from './aboutJson/aboutJson.module';
 import { Oauth2Module } from './oauth2/oauth2.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 import { DownloadModule } from './download/download.module';
+import { XMLBodyMiddleware } from '@root/middlewares/xml-body.middleware';
 
 @Module({
   imports: [
@@ -31,4 +32,8 @@ import { DownloadModule } from './download/download.module';
   controllers: [],
   providers: [PrismaService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(XMLBodyMiddleware).forRoutes('webhooks/*');
+  }
+}

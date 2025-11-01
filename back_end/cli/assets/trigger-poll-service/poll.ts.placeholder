@@ -20,30 +20,11 @@ export class <ServiceName><TriggerName>Poll extends PollTrigger<
   protected async _check(): Promise<
     RunnerCheckResult<<ServiceName><TriggerName>PollComparisonData>
   > {
-    const newRepository = 'example-name';
-    const comparisonData = this.lastComparisonData
-      ? this.lastComparisonData
-      : { repositories: [] };
-
-    if (comparisonData.repositories.includes(newRepository))
-      return {
-        status: RunnerExecutionStatus.SUCCESS,
-        variables: [],
-        comparison_data: comparisonData,
-        is_triggered: false,
-      };
-
-    comparisonData.repositories.push(newRepository);
     return {
-      status: RunnerExecutionStatus.SUCCESS,
-      variables: [
-        {
-          key: 'RepositoryName',
-          value: newRepository,
-        },
-      ],
-      comparison_data: comparisonData,
-      is_triggered: true,
+      status: RunnerExecutionStatus.FAILURE,
+      variables: [],
+      comparison_data: {},
+      is_triggered: false,
     };
   }
 }

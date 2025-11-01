@@ -1,10 +1,19 @@
 import { PollTrigger } from '@root/runner/zaps/triggers/triggers.runner.job';
-import { ScheduleTrigger_EveryMinutes } from '@root/runner/services/schedule/schedule.workflow';
-import { TeamsTrigger_OnNewMessage } from '@root/runner/services/teams/teams.trigger';
 import JobNotFoundError from '@root/runner/errors/job-not-found.error';
-import { GithubOnNewRepositoryPoll } from '@root/services/github/triggers/on-new-repository/github-on-new-repository.poll';
 import { YoutubeNewLikeOnVideoPoll } from '@root/services/youtube/triggers/new-like-on-video/youtube-new-like-on-video.poll';
 import { YoutubeNewSubscriberPoll } from '@root/services/youtube/triggers/new-subscriber/youtube-new-subscriber.poll';
+import { TwitchFollowNewChannelPoll } from '@root/services/twitch/triggers/follow-new-channel/twitch-follow-new-channel.poll';
+import { TwitchNewFollowerOnYourChannelPoll } from '@root/services/twitch/triggers/new-follower-on-your-channel/twitch-new-follower-on-your-channel.poll';
+import { TwitchNewVideoPostedByYouPoll } from '@root/services/twitch/triggers/new-video-posted-by-you/twitch-new-video-posted-by-you.poll';
+import { TwitchNewStreamStartedbyYouPoll } from '@root/services/twitch/triggers/new-stream-startedby-you/twitch-new-stream-startedby-you.poll';
+import { TwitchStreamGoingLiveChannelYouFollowPoll } from '@root/services/twitch/triggers/stream-going-live-channel-you-follow/twitch-stream-going-live-channel-you-follow.poll';
+import { MicrosoftTeamsNewMessagePoll } from '@root/services/microsoft-teams/triggers/new-message/microsoft-teams-new-message.poll';
+import {
+  GithubOnNewPersonnalRepositoryPoll
+} from '@root/services/github/triggers/on-new-personnal-repository/github-on-new-personnal-repository.poll';
+import { OneDriveNewFileAddedPoll } from '@root/services/microsoft-onedrive/triggers/new-file-added/onedrive-new-file-added.poll';
+import { OneDriveFileModifiedPoll } from '@root/services/microsoft-onedrive/triggers/file-modified/onedrive-file-modified.poll';
+import { OneDriveStorageQuotaWarningPoll } from '@root/services/microsoft-onedrive/triggers/storage-quota-warning/onedrive-storage-quota-warning.poll';
 
 export interface PollTriggerBuilderParams {
   stepId: number;
@@ -22,14 +31,37 @@ type TriggerBuilderFunction = (
 
 export class TriggersRunnerFactory {
   private registers: Record<string, TriggerBuilderFunction> = {
-    ScheduleTrigger_EveryMinutes: (builder: PollTriggerBuilderParams) => {
-      return new ScheduleTrigger_EveryMinutes(builder);
+    GithubOnNewPersonnalRepositoryPoll: (builder: PollTriggerBuilderParams) => {
+      return new GithubOnNewPersonnalRepositoryPoll(builder);
     },
-    GithubOnNewRepositoryPoll: (builder: PollTriggerBuilderParams) => {
-      return new GithubOnNewRepositoryPoll(builder);
+    MicrosoftTeamsNewMessagePoll: (builder: PollTriggerBuilderParams) => {
+      return new MicrosoftTeamsNewMessagePoll(builder);
     },
-    TeamsTrigger_OnNewMessage: (builder: PollTriggerBuilderParams) => {
-      return new TeamsTrigger_OnNewMessage(builder);
+    OneDriveNewFileAddedPoll: (builder: PollTriggerBuilderParams) => {
+      return new OneDriveNewFileAddedPoll(builder);
+    },
+    OneDriveFileModifiedPoll: (builder: PollTriggerBuilderParams) => {
+      return new OneDriveFileModifiedPoll(builder);
+    },
+    OneDriveStorageQuotaWarningPoll: (builder: PollTriggerBuilderParams) => {
+      return new OneDriveStorageQuotaWarningPoll(builder);
+    },
+    TwitchFollowNewChannelPoll: (builder: PollTriggerBuilderParams) => {
+      return new TwitchFollowNewChannelPoll(builder);
+    },
+    TwitchNewFollowerOnYourChannelPoll: (builder: PollTriggerBuilderParams) => {
+      return new TwitchNewFollowerOnYourChannelPoll(builder);
+    },
+    TwitchNewVideoPostedByYouPoll: (builder: PollTriggerBuilderParams) => {
+      return new TwitchNewVideoPostedByYouPoll(builder);
+    },
+    TwitchNewStreamStartedbyYouPoll: (builder: PollTriggerBuilderParams) => {
+      return new TwitchNewStreamStartedbyYouPoll(builder);
+    },
+    TwitchStreamGoingLiveChannelYouFollowPoll: (
+      builder: PollTriggerBuilderParams,
+    ) => {
+      return new TwitchStreamGoingLiveChannelYouFollowPoll(builder);
     },
     YoutubeNewLikeOnVideoPoll: (builder: PollTriggerBuilderParams) => {
       return new YoutubeNewLikeOnVideoPoll(builder);

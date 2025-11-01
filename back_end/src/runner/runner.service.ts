@@ -26,9 +26,16 @@ export class RunnerService {
         try {
           const triggerResult = await this.zapRunnerService.isTriggered(zap);
 
+          if (triggerResult.result.status === RunnerExecutionStatus.FAILURE)
+            continue;
+
+          const zapExecution = await this.zapRunnerService.saveZapExecution(
+            zap,
+            triggerResult.result.is_triggered,
+          );
           await this.zapRunnerService.saveComparisonData(
             zap.id,
-            triggerResult.result.comparison_data,
+            triggerResult.result.comparison_data as object | null,
           );
 
           if (!triggerResult.result.is_triggered) continue;
@@ -39,7 +46,15 @@ export class RunnerService {
               status: triggerResult.result.status,
             },
           };
-          await this.zapRunnerService.executeActionsOf(zap, jobsData);
+          const isFullyDone = await this.zapRunnerService.executeActionsOf(
+            zap,
+            zapExecution,
+            jobsData,
+          );
+          await this.zapRunnerService.finishZapExecution(
+            zapExecution,
+            isFullyDone,
+          );
         } catch (e) {
           this.logger.error((e as Error).message);
         }
@@ -52,12 +67,21 @@ export class RunnerService {
     triggerStepId: number,
     data: RunnerVariableData[],
   ) {
+    const zapExecution = await this.zapRunnerService.saveZapExecution(
+      zap,
+      true,
+    );
     const jobsData: ZapJobsData = {
       [triggerStepId]: {
         variables: data,
         status: RunnerExecutionStatus.SUCCESS,
       },
     };
-    await this.zapRunnerService.executeActionsOf(zap, jobsData);
+    const isFullyDone = await this.zapRunnerService.executeActionsOf(
+      zap,
+      zapExecution,
+      jobsData,
+    );
+    await this.zapRunnerService.finishZapExecution(zapExecution, isFullyDone);
   }
 }
