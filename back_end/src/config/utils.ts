@@ -24,6 +24,7 @@ export const constants = {
     googleDrive: { name: 'Drive', slug: 'drive' },
     github: { name: 'Github', slug: 'github' },
     microsoftTeams: { name: 'Microsoft Teams', slug: 'microsoft-teams' },
+    microsoftOnedrive: { name: 'OneDrive', slug: 'microsoft-onedrive' },
     twitch: { name: 'Twitch', slug: 'twitch' },
     youtube: { name: 'Youtube', slug: 'youtube' },
   },

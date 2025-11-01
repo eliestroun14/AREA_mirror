@@ -3,6 +3,7 @@ import { discordData } from '@root/services/discord/discord.data';
 import { googleCalendarData } from '@root/services/google-calendar/google-calendar.data';
 import { twitchData } from '@root/services/twitch/twitch.data';
 import { microsoftTeamsData } from '@root/services/microsoft-teams/microsoft-teams.data';
+import { microsoftOnedriveData } from '@root/services/microsoft-onedrive/microsoft-onedrive.data';
 import { youtubeData } from '@root/services/youtube/youtube.data';
 import { googleDriveData } from '@root/services/google-drive/google-drive.data';
 import { githubData } from '@root/services/github/github.data';
@@ -26,6 +27,7 @@ export const servicesData: Service[] = [
   googleDriveData,
   twitchData,
   microsoftTeamsData,
+  microsoftOnedriveData,
   youtubeData,
   githubData,
 ];

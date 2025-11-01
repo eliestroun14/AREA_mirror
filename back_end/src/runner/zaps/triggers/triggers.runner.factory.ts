@@ -9,6 +9,9 @@ import { MicrosoftTeamsNewMessagePoll } from '@root/services/microsoft-teams/tri
 import {
   GithubOnNewPersonnalRepositoryPoll
 } from '@root/services/github/triggers/on-new-personnal-repository/github-on-new-personnal-repository.poll';
+import { OneDriveNewFileAddedPoll } from '@root/services/microsoft-onedrive/triggers/new-file-added/onedrive-new-file-added.poll';
+import { OneDriveFileModifiedPoll } from '@root/services/microsoft-onedrive/triggers/file-modified/onedrive-file-modified.poll';
+import { OneDriveStorageQuotaWarningPoll } from '@root/services/microsoft-onedrive/triggers/storage-quota-warning/onedrive-storage-quota-warning.poll';
 
 export interface PollTriggerBuilderParams {
   stepId: number;
@@ -31,6 +34,15 @@ export class TriggersRunnerFactory {
     },
     MicrosoftTeamsNewMessagePoll: (builder: PollTriggerBuilderParams) => {
       return new MicrosoftTeamsNewMessagePoll(builder);
+    },
+    OneDriveNewFileAddedPoll: (builder: PollTriggerBuilderParams) => {
+      return new OneDriveNewFileAddedPoll(builder);
+    },
+    OneDriveFileModifiedPoll: (builder: PollTriggerBuilderParams) => {
+      return new OneDriveFileModifiedPoll(builder);
+    },
+    OneDriveStorageQuotaWarningPoll: (builder: PollTriggerBuilderParams) => {
+      return new OneDriveStorageQuotaWarningPoll(builder);
     },
     TwitchFollowNewChannelPoll: (builder: PollTriggerBuilderParams) => {
       return new TwitchFollowNewChannelPoll(builder);
