@@ -33,26 +33,20 @@ export class OneDriveFileModifiedPoll extends PollTrigger<
       const { folder_path } = this.payload;
       let apiPath = '/v1.0/me/drive/root/children';
       
-      // If a specific folder path is provided, navigate to it
       if (folder_path && folder_path !== '/' && folder_path.trim() !== '') {
-        // Clean the path - remove leading/trailing slashes and encode properly
         let cleanPath = folder_path.trim();
         if (cleanPath.startsWith('/')) cleanPath = cleanPath.slice(1);
         if (cleanPath.endsWith('/')) cleanPath = cleanPath.slice(0, -1);
         
-        // For Microsoft Graph API, we need to encode each path segment properly
         if (cleanPath) {
-          // Split path into segments and encode each one
           const pathSegments = cleanPath.split('/').map(segment => encodeURIComponent(segment));
           const encodedPath = pathSegments.join('/');
           apiPath = `/v1.0/me/drive/root:/${encodedPath}:/children`;
         }
       }
 
-      // Build the URL with parameters
       const params = new URLSearchParams();
-      params.append('$orderby', 'lastModifiedDateTime desc');
-      params.append('$top', '10'); // Limit to 10 files
+      params.append('$top', '50'); // Increase limit to get more files for sorting
       
       // Note: Removed date filter for now to avoid API issues
       // if (this.lastExecution) {
@@ -71,10 +65,7 @@ export class OneDriveFileModifiedPoll extends PollTrigger<
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Failed to fetch OneDrive files:', response.status, response.statusText);
-        console.error('API URL:', url);
-        console.error('Error response:', errorText);
+        console.error('Failed to fetch OneDrive files:', response.statusText);
         return {
           status: RunnerExecutionStatus.FAILURE,
           variables: [],
@@ -98,8 +89,15 @@ export class OneDriveFileModifiedPoll extends PollTrigger<
         };
       }
 
+      // Sort files by modification date manually (most recent first)
+      const sortedFiles = onlyFiles.sort((a: any, b: any) => {
+        const dateA = new Date(a.lastModifiedDateTime).getTime();
+        const dateB = new Date(b.lastModifiedDateTime).getTime();
+        return dateB - dateA; // Descending order (newest first)
+      });
+
       // Get the most recently modified file
-      const latestModifiedFile = onlyFiles[0];
+      const latestModifiedFile = sortedFiles[0];
       const currentModifiedDateTime = latestModifiedFile.lastModifiedDateTime;
 
       // Check if this is a newly modified file

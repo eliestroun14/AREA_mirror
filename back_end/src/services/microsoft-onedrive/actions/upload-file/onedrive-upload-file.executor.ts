@@ -27,7 +27,6 @@ export default class OneDriveUploadFileExecutor extends ActionExecutor<OneDriveU
       // Build the API path
       let apiPath = `/v1.0/me/drive/root:/${filename}:/content`;
       
-      // If a folder path is specified, include it in the path
       if (folder_path && folder_path !== '/' && folder_path.trim() !== '') {
         const cleanPath = folder_path.startsWith('/') ? folder_path.slice(1) : folder_path;
         const cleanFilename = filename.startsWith('/') ? filename.slice(1) : filename;
@@ -36,7 +35,6 @@ export default class OneDriveUploadFileExecutor extends ActionExecutor<OneDriveU
 
       const url = `https://graph.microsoft.com${apiPath}`;
 
-      // Convert content to buffer for upload
       const contentBuffer = Buffer.from(file_content, 'utf8');
 
       const response = await fetch(url, {
