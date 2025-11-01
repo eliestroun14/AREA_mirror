@@ -35,17 +35,7 @@ export const ZapCreationProvider = ({ children }: { children: ReactNode }) => {
   const [zapId, setZapId] = useState<string | undefined>();
 
   const addAction = (action: ActionInstance) => {
-    console.log('[ZapCreationContext] Adding action:', {
-      actionId: action.action.id,
-      actionName: action.action.name,
-      uniqueId: action.uniqueId,
-      currentLength: actions.length
-    });
-    setActions(prev => {
-      const newActions = [...prev, action];
-      console.log('[ZapCreationContext] New actions array length:', newActions.length);
-      return newActions;
-    });
+    setActions(prev => [...prev, action]);
   };
 
   const clearActions = () => {
@@ -53,7 +43,6 @@ export const ZapCreationProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const resetAll = () => {
-    console.log('[ZapCreationContext] Resetting all state');
     setServiceTrigger(undefined);
     setTrigger(undefined);
     setActions([]);

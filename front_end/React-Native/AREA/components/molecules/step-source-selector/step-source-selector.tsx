@@ -35,76 +35,56 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({
     setLoading(true);
     setError(null);
     
-    console.log('[StepSourceSelector] Fetching steps for zapId:', zapId, 'currentStepId:', currentStepId);
-    
     try {
       const headers: Record<string, string> = {};
       if (sessionToken) {
         headers['Authorization'] = `Bearer ${sessionToken}`;
       }
       
-      // Fetch trigger and actions separately (matching web implementation)
       let zapTrigger = null;
       try {
         const triggerResponse = await fetch(`${apiUrl}/zaps/${zapId}/trigger`, {
           headers
         });
         
-        console.log('[StepSourceSelector] Trigger response status:', triggerResponse.status);
-        
         if (triggerResponse.ok) {
           const triggerData = await triggerResponse.json();
-          console.log('[StepSourceSelector] Trigger data:', triggerData);
           
-          // The API returns just a step object, wrap it to match expected format
-          // Check if it's a step object (has step_type === 'TRIGGER')
           if (triggerData && triggerData.step_type === 'TRIGGER') {
             zapTrigger = {
               step: triggerData,
-              trigger: { name: 'Trigger' }, // Default name, can be enhanced later
-              service: { name: 'Service' } // Default name, can be enhanced later
+              trigger: { name: 'Trigger' },
+              service: { name: 'Service' }
             };
           }
         }
       } catch (err) {
-        console.warn('[StepSourceSelector] Failed to fetch zap trigger (ignored):', err);
+        console.warn('Failed to fetch trigger:', err);
       }
       
-      // Fetch all actions
       const actionsResponse = await fetch(`${apiUrl}/zaps/${zapId}/actions`, {
         headers
       });
-      
-      console.log('[StepSourceSelector] Actions response status:', actionsResponse.status);
       
       if (!actionsResponse.ok) {
         throw new Error('Failed to fetch actions');
       }
       
       const actionsData = await actionsResponse.json();
-      console.log('[StepSourceSelector] Actions data:', actionsData);
-      
-      // Build available steps list
       let availableSteps: StepInfo[] = [];
       
       if (currentStepId) {
-        // Find current action to get its step_order
         const currentAction = actionsData.find((stepData: any) => stepData.id === currentStepId);
         const currentOrder = currentAction?.step_order ?? Infinity;
         
-        console.log('[StepSourceSelector] Current step order:', currentOrder);
-        
-        // Only include steps with lower order (previous steps)
-        // actionsData is an array of step objects, not wrapped objects
         availableSteps = actionsData
           .filter((stepData: any) => (stepData.step_order ?? 0) < currentOrder)
           .map((stepData: any) => ({
             id: stepData.id,
-            name: `Action ${stepData.step_order}`, // We don't have action names from this endpoint
+            name: `Action ${stepData.step_order}`,
             step_order: stepData.step_order
           }));
         
-        // Add trigger if it exists and comes before current step
         if (zapTrigger && zapTrigger.step && zapTrigger.step.step_order < currentOrder) {
           const triggerEntry: StepInfo = {
             id: zapTrigger.step.id,
@@ -116,9 +96,6 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({
           }
         }
       } else {
-        // For new actions (being created), only show trigger and any existing actions
-        // Don't include the current action being created
-        // actionsData is an array of step objects
         availableSteps = actionsData
           .filter((stepData: any) => stepData.id)
           .map((stepData: any) => ({
@@ -127,7 +104,6 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({
             step_order: stepData.step_order
           }));
         
-        // Add trigger if it exists (trigger is always available as a source)
         if (zapTrigger && zapTrigger.step) {
           const triggerEntry: StepInfo = {
             id: zapTrigger.step.id,
@@ -140,27 +116,20 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({
         }
       }
       
-      // Sort by step_order
       availableSteps = availableSteps.sort((a: StepInfo, b: StepInfo) => a.step_order - b.step_order);
-      
-      console.log('[StepSourceSelector] Available steps:', availableSteps);
-      
       setSteps(availableSteps);
       
-      // Auto-select trigger if no source is selected and trigger exists
       if (!selectedFromStepId && availableSteps.length > 0) {
         const triggerStep = availableSteps.find(step => step.step_order === 0);
         if (triggerStep) {
-          console.log('[StepSourceSelector] Auto-selecting trigger step:', triggerStep.id);
           onSelectFromStep(triggerStep.id);
         } else if (availableSteps.length > 0) {
-          console.log('[StepSourceSelector] Auto-selecting first step:', availableSteps[0].id);
           onSelectFromStep(availableSteps[0].id);
         }
       }
       
     } catch (err) {
-      console.error('[StepSourceSelector] Error fetching steps:', err);
+      console.error('Error fetching steps:', err);
       setError('Failed to fetch available steps');
     } finally {
       setLoading(false);
@@ -178,8 +147,6 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({
     if (selectedStep) {
       return `${selectedStep.name} (Step ${selectedStep.step_order})`;
     }
-    // If step is not in the current steps array, show a placeholder
-    // This can happen when the component is re-fetching
     return 'Selected source';
   };
 
@@ -200,7 +167,6 @@ const StepSourceSelector: React.FC<StepSourceSelectorProps> = ({
     </TouchableOpacity>
   );
 
-  // Show the selector even if there are no steps yet (will show loading or "No sources available")
   return (
     <View style={styles.container}>
       <TouchableOpacity

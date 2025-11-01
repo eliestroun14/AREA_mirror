@@ -46,16 +46,12 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
     setLoading(true);
     setError(null);
 
-    console.log('[VariableSelector] Fetching variables for sourceStepId:', sourceStepId);
-
     try {
       const headers: Record<string, string> = {};
       if (sessionToken) {
         headers['Authorization'] = `Bearer ${sessionToken}`;
       }
       
-      // First, determine if the source step is a trigger or action
-      // The API returns a flat step object, not wrapped
       let isTrigger = false;
       let stepData = null;
       
@@ -66,21 +62,16 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
         
         if (triggerResponse.ok) {
           const triggerStepData = await triggerResponse.json();
-          console.log('[VariableSelector] Trigger step data:', triggerStepData);
           
-          // Check if this step's ID matches the source step ID
           if (triggerStepData.id === sourceStepId) {
             isTrigger = true;
             stepData = triggerStepData;
           }
         }
       } catch (err) {
-        console.warn('[VariableSelector] Could not fetch trigger:', err);
+        console.warn('Could not fetch trigger:', err);
       }
 
-      console.log('[VariableSelector] Is trigger?', isTrigger);
-
-      // If not a trigger, it must be an action - fetch the action step
       if (!isTrigger) {
         const actionResponse = await fetch(`${apiUrl}/zaps/${zapId}/actions/${sourceStepId}`, {
           headers
@@ -91,22 +82,15 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
         }
 
         stepData = await actionResponse.json();
-        console.log('[VariableSelector] Action step data:', stepData);
       }
 
       if (!stepData) {
         throw new Error('Step data not found');
       }
 
-      // Now fetch the trigger/action definition to get variables
       let variablesObj = {};
 
       if (isTrigger && stepData.trigger_id) {
-        // Fetch the trigger definition from services API
-        console.log('[VariableSelector] Fetching trigger definition for trigger_id:', stepData.trigger_id);
-        
-        // We need to find which service this trigger belongs to
-        // First get all services, then find the trigger
         const servicesResponse = await fetch(`${apiUrl}/services`, { headers });
         if (servicesResponse.ok) {
           const services = await servicesResponse.json();
@@ -119,7 +103,6 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
                 const trigger = triggers.find((t: any) => t.id === stepData.trigger_id);
                 
                 if (trigger) {
-                  console.log('[VariableSelector] Found trigger definition:', trigger);
                   variablesObj = trigger.variables || {};
                   break;
                 }
@@ -130,10 +113,6 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
           }
         }
       } else if (!isTrigger && stepData.action_id) {
-        // Fetch the action definition from services API
-        console.log('[VariableSelector] Fetching action definition for action_id:', stepData.action_id);
-        
-        // We need to find which service this action belongs to
         const servicesResponse = await fetch(`${apiUrl}/services`, { headers });
         if (servicesResponse.ok) {
           const services = await servicesResponse.json();
@@ -146,7 +125,6 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
                 const action = actions.find((a: any) => a.id === stepData.action_id);
                 
                 if (action) {
-                  console.log('[VariableSelector] Found action definition:', action);
                   variablesObj = action.variables || {};
                   break;
                 }
@@ -158,20 +136,15 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
         }
       }
 
-      console.log('[VariableSelector] Variables object:', variablesObj);
-
-      // Convert variables object/array to array format
       let variablesArray: Variable[] = [];
       
       if (Array.isArray(variablesObj)) {
-        // Variables is already an array
         variablesArray = variablesObj.map((variable: any) => ({
           name: variable.name || variable.key,
           type: variable.type || 'unknown',
           key: variable.key || variable.name
         }));
       } else if (typeof variablesObj === 'object') {
-        // Variables is an object, convert to array
         variablesArray = Object.entries(variablesObj).map(([key, value]: [string, any]) => ({
           name: value.name || key,
           type: value.type || 'unknown',
@@ -179,11 +152,10 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
         }));
       }
 
-      console.log('[VariableSelector] Variables array:', variablesArray);
       setVariables(variablesArray);
       
     } catch (err) {
-      console.error('[VariableSelector] Error fetching variables:', err);
+      console.error('Error fetching variables:', err);
       setError('Failed to fetch variables');
       setVariables([]);
     } finally {
@@ -211,7 +183,6 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
     </TouchableOpacity>
   );
 
-  // Don't show button if no source is selected or no variables available
   if (!sourceStepId) {
     return null;
   }

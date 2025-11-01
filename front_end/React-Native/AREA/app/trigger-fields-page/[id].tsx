@@ -16,7 +16,6 @@ import axios from "axios";
 type Props = {}
 
 const TriggerFieldsPage = (props: Props) => {
-  console.log('(TRIGGER FIELDS PAGE)');
 
   const { id, triggerId, serviceTriggerId } = useLocalSearchParams<{
     id?: string;
@@ -86,7 +85,6 @@ const TriggerFieldsPage = (props: Props) => {
     try {
       const authHeaders = sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {};
       
-      console.log('[TriggerFields] Creating zap...');
       // Create the zap
       const zapPayload = {
         name: `Zap: ${trigger.name}`,
@@ -94,20 +92,16 @@ const TriggerFieldsPage = (props: Props) => {
       };
       const zapRes = await axios.post(`${apiUrl}/zaps`, zapPayload, { headers: authHeaders });
       const zapId = zapRes.data.id;
-      console.log('[TriggerFields] Zap created with id:', zapId);
       
       // Save zapId to context for persistence
       setZapId(zapId.toString());
       
-      // Create the trigger step
       const triggerPayload = {
         triggerId: trigger.id,
         accountIdentifier: connection.account_identifier,
-        payload: {}, // TODO: collect from fields if needed
+        payload: {},
       };
-      console.log('[TriggerFields] Creating trigger step...');
       await axios.post(`${apiUrl}/zaps/${zapId}/trigger`, triggerPayload, { headers: authHeaders });
-      console.log('[TriggerFields] Trigger step created');
       
       // Navigate to action selection with zapId
       router.push({
@@ -129,7 +123,7 @@ const TriggerFieldsPage = (props: Props) => {
   if (loading) {
     return (
       <View style={styles.container}>
-        <Text>Chargement...</Text>
+        <Text>Loading...</Text>
       </View>
     );
   }
@@ -137,7 +131,7 @@ const TriggerFieldsPage = (props: Props) => {
   if (!service || !trigger) {
     return (
       <View style={styles.container}>
-        <Text>Service ou trigger non trouvé.</Text>
+        <Text>Service or trigger not found.</Text>
       </View>
     );
   }

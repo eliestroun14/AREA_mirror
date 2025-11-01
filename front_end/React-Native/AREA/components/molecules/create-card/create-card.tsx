@@ -23,7 +23,6 @@ type Props = {
 };
 
 const CreateCard = ({ serviceTrigger, trigger, serviceAction, action, actions = [], onAddMoreActions, onPress }: Props) => {
-  console.log('(CREATE CARD)');
   const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {

@@ -13,8 +13,6 @@ import { useZapCreation } from '@/context/ZapCreationContext';
 
 
 export default function CreateScreen() {
-  console.log('(CREATE)');
-
   const { triggerId, serviceTriggerId } = useLocalSearchParams<{ triggerId?: string; serviceTriggerId?: string }>();
   const { actionId, serviceActionId, zapId: zapIdParam, fromStepId, actionFormData } = useLocalSearchParams<{ 
     actionId?: string; 
@@ -24,7 +22,6 @@ export default function CreateScreen() {
     actionFormData?: string;
   }>();
 
-  // Use context for persistent state
   const {
     serviceTrigger,
     setServiceTrigger,
@@ -48,15 +45,12 @@ export default function CreateScreen() {
 
   const { apiUrl } = useApi();
 
-  // Sync zapId from URL params to context
   useEffect(() => {
     if (zapIdParam && zapIdParam !== zapId) {
       setZapId(zapIdParam);
-      console.log('[Create] ZapId synced from params:', zapIdParam);
     }
   }, [zapIdParam]);
 
-  // Fetch service and trigger from backend
   useEffect(() => {
     const fetchServiceAndTrigger = async () => {
       if (!serviceTriggerId || !triggerId) return;
@@ -65,7 +59,6 @@ export default function CreateScreen() {
         if (!serviceRes.ok) throw new Error('Service not found');
         const serviceData: Service = await serviceRes.json();
         setServiceTrigger(serviceData);
-        // Fetch trigger details
         const triggerRes = await fetch(`${apiUrl}/services/${serviceTriggerId}/triggers/${triggerId}`);
         if (!triggerRes.ok) throw new Error('Trigger not found');
         const triggerData: Trigger = await triggerRes.json();
@@ -78,15 +71,12 @@ export default function CreateScreen() {
     fetchServiceAndTrigger();
   }, [serviceTriggerId, triggerId]);
 
-  // Fetch service and action from backend and add to actions array
   useEffect(() => {
     const fetchServiceAndAction = async () => {
       if (!serviceActionId || !actionId) return;
       
-      // Create a unique key for this navigation to detect if we already processed these exact params
       const paramsKey = `${actionId}-${serviceActionId}-${actionFormData}-${fromStepId}`;
       if (paramsKey === lastProcessedActionParams) {
-        console.log('[Create] Skipping duplicate action params:', paramsKey);
         return;
       }
       
@@ -95,12 +85,10 @@ export default function CreateScreen() {
         if (!serviceRes.ok) throw new Error('Service not found');
         const serviceData: Service = await serviceRes.json();
         
-        // Fetch action details
         const actionRes = await fetch(`${apiUrl}/services/${serviceActionId}/actions/${actionId}`);
         if (!actionRes.ok) throw new Error('Action not found');
         const actionData: Action = await actionRes.json();
         
-        // Fetch connection for this service
         let connection = null;
         if (sessionToken) {
           try {
@@ -113,16 +101,8 @@ export default function CreateScreen() {
           }
         }
         
-        // Generate unique ID for this action instance
         const uniqueId = `${actionData.id}-${Date.now()}`;
         
-        console.log('[Create] Adding new action to array:', {
-          actionId: actionData.id,
-          uniqueId,
-          currentArrayLength: actions.length
-        });
-        
-        // Add the new action using context
         addAction({
           service: serviceData,
           action: actionData,
@@ -132,7 +112,6 @@ export default function CreateScreen() {
           uniqueId,
         });
         
-        // Mark these params as processed
         setLastProcessedActionParams(paramsKey);
       } catch (err) {
         console.error('Error fetching action:', err);
@@ -141,7 +120,6 @@ export default function CreateScreen() {
     fetchServiceAndAction();
   }, [serviceActionId, actionId, apiUrl, sessionToken, actionFormData, fromStepId]);
 
-  // Fetch connections for trigger service only (action connections are fetched when adding actions)
   useEffect(() => {
     const fetchConnections = async () => {
       if (!sessionToken) return;
@@ -186,7 +164,6 @@ export default function CreateScreen() {
     }, [serviceTrigger, trigger, actions])
   );
 
-  // Helper: get accountIdentifier (for demo, just use user.email or prompt user)
   const accountIdentifier = user?.email || 'demo@area.com';
 
   const handleFinish = async () => {
@@ -203,27 +180,21 @@ export default function CreateScreen() {
       return;
     }
     
-    console.log('[Finish] Button pressed');
     setLoading(true);
     setError(null);
     setSuccess(false);
     try {
       const authHeaders = sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {};
       
-      // Use the existing zapId if provided, otherwise create a new zap
       let currentZapId: number;
       let triggerStepId: number | undefined;
       
       if (zapId) {
-        // Zap already created in trigger fields page, reuse it
         currentZapId = Number(zapId);
-        console.log('[Finish] Using existing zap with id:', currentZapId);
         
-        // Build zap name with all actions
         const actionNames = actions.map(a => a.action.name).join(', ');
         const zapName = `Zap: ${trigger.name} -> ${actionNames}`;
         
-        // Update the zap name to include all actions
         try {
           await axios.put(`${apiUrl}/zaps/${currentZapId}`, {
             name: zapName,
