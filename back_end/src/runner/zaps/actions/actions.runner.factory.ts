@@ -6,6 +6,9 @@ import MicrosoftTeamsSendReactionExecutor from '@root/services/microsoft-teams/a
 import GithubCreateAnIssueExecutor from '@root/services/github/actions/create-an-issue/github-create-an-issue.executor';
 import OneDriveUploadFileExecutor from '@root/services/microsoft-onedrive/actions/upload-file/onedrive-upload-file.executor';
 import OneDriveCreateFolderExecutor from '@root/services/microsoft-onedrive/actions/create-folder/onedrive-create-folder.executor';
+import GoogleCalendarCreateNewEventExecutor from '@root/services/google-calendar/actions/create-new-event/google-calendar-create-new-event.executor';
+import { googleCalendarCreateNewEventData } from '@root/services/google-calendar/actions/create-new-event/google-calendar-create-new-event.data';
+import { DocumentBuilder } from '@nestjs/swagger';
 
 export interface ActionBuilderParams {
   stepId: number;
@@ -36,6 +39,9 @@ export class ActionsRunnerFactory {
     },
     OneDriveCreateFolderExecutor: (builder: ActionBuilderParams) => {
       return new OneDriveCreateFolderExecutor(builder);
+    },
+    GoogleCalendarCreateNewEventExecutor: (builder: ActionBuilderParams) => {
+      return new GoogleCalendarCreateNewEventExecutor(builder);
     },
   };
 
