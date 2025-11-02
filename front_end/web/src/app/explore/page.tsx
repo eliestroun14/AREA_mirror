@@ -28,8 +28,8 @@ export default function ExplorePage() {
         setLoading(true);
         setError(null);
         
-        const backendServices = await apiService.getAllServices();
-        setServices(backendServices);
+  const backendServices = await apiService.getAllServices();
+  setServices(backendServices.filter((s) => Boolean(s.is_active)));
         
       } catch (err) {
         console.error('Failed to fetch services from backend:', err);
@@ -58,8 +58,8 @@ export default function ExplorePage() {
         setLoading(true);
         setError(null);
         
-        const backendServices = await apiService.getAllServices();
-        setServices(backendServices);
+  const backendServices = await apiService.getAllServices();
+  setServices(backendServices.filter((s) => Boolean(s.is_active)));
         
       } catch (err) {
         console.error('Failed to fetch services from backend:', err);

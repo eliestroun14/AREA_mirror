@@ -39,6 +39,15 @@ export default function TriggersPage() {
 
         // Fetch specific service by ID using apiService
         const serviceData = await apiService.getServiceById(Number(serviceId))
+
+        // If the service is not explicitly active, don't show its triggers
+        if (!serviceData || !Boolean(serviceData.is_active)) {
+          setService(null)
+          setTriggers([])
+          setError('This service is inactive or not available')
+          return
+        }
+
         setService(serviceData)
 
         // Fetch triggers for this service using apiService

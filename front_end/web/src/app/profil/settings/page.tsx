@@ -557,46 +557,6 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Notifications Section */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-            <NotificationsIcon sx={{ mr: 2, color: 'primary.main' }} />
-            <Typography variant="h6">Notification Preferences</Typography>
-          </Box>
-
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={userSettings.emailNotifications}
-                  onChange={(e) => setUserSettings(prev => ({ ...prev, emailNotifications: e.target.checked }))}
-                />
-              }
-              label="Email Notifications"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={userSettings.pushNotifications}
-                  onChange={(e) => setUserSettings(prev => ({ ...prev, pushNotifications: e.target.checked }))}
-                />
-              }
-              label="Push Notifications"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={userSettings.marketingEmails}
-                  onChange={(e) => setUserSettings(prev => ({ ...prev, marketingEmails: e.target.checked }))}
-                />
-              }
-              label="Marketing Emails"
-            />
-          </Box>
-        </CardContent>
-      </Card>
-
       {/* Danger Section */}
       <Card sx={{ mb: 3, border: '1px solid', borderColor: 'error.main' }}>
         <CardContent>

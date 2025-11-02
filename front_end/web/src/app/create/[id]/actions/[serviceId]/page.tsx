@@ -39,6 +39,15 @@ export default function ServiceActionsPage() {
         setError(null)
 
         const serviceData = await apiService.getServiceById(Number(serviceId))
+
+        // If the service is not explicitly active, don't show its actions
+        if (!serviceData || !Boolean(serviceData.is_active)) {
+          setService(null)
+          setActions([])
+          setError('This service is inactive or not available')
+          return
+        }
+
         setService(serviceData)
 
         const actionsData = await apiService.getActionsByService(serviceId)
