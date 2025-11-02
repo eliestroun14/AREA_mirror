@@ -9,7 +9,7 @@ import { OAuth2Provider } from '@app/oauth2/oauth2.dto';
 @Injectable()
 export class GoogleDriveStrategy extends PassportStrategy(
   Strategy,
-  constants.services.googleCalendar.slug,
+  constants.services.googleDrive.slug,
 ) {
   private static SCOPES: string[] = [
     'email',
