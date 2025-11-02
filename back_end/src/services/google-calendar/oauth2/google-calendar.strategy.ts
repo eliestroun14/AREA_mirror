@@ -15,7 +15,13 @@ export class GoogleCalendarStrategy extends PassportStrategy(
   Strategy,
   constants.services.googleCalendar.slug,
 ) {
-  private static SCOPES: string[] = ['email', 'identify'];
+  private static SCOPES: string[] = [
+    'email',
+    'profile',
+    'https://www.googleapis.com/auth/calendar.readonly',
+    // 'https://www.googleapis.com/auth/calendar',
+    // 'https://www.googleapis.com/auth/calendar.upload',
+  ];
 
   constructor() {
     const options: StrategyOptions = {

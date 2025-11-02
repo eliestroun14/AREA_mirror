@@ -17,6 +17,7 @@ import { OneDriveStorageQuotaWarningPoll } from '@root/services/microsoft-onedri
 import { GoogleDriveNewFileInFolderPoll } from '@root/services/google-drive/triggers/new-file-in-folder/google-drive-new-file-in-folder.poll';
 import { GoogleDriveNewPhotoInFolderPoll } from '@root/services/google-drive/triggers/new-photo-in-folder/google-drive-new-photo-in-folder.poll';
 import { GoogleDriveNewVideoInFolderPoll } from '@root/services/google-drive/triggers/new-video-in-folder/google-drive-new-video-in-folder.poll';
+import { GoogleCalendarNewEventCreatedPoll } from '@root/services/google-calendar/triggers/new-event-created/google-calendar-new-event-created.poll';
 
 export interface PollTriggerBuilderParams {
   stepId: number;
@@ -81,6 +82,9 @@ export class TriggersRunnerFactory {
     GoogleDriveNewVideoInFolderPoll: (builder: PollTriggerBuilderParams) => {
       return new GoogleDriveNewVideoInFolderPoll(builder);
     },
+    GoogleCalendarNewEventCreatedPoll: (builder: PollTriggerBuilderParams) => {
+      return new GoogleCalendarNewEventCreatedPoll(builder);
+    }
   };
 
   /**

@@ -1,5 +1,6 @@
 import { constants } from '@config/utils';
 import { Service } from '@root/prisma/services-data/services.dto';
+import { googleCalendarNewEventCreatedData } from './triggers/new-event-created/google-calendar-new-event-created.data';
 
 export const googleCalendarData: Service = {
   name: constants.services.googleCalendar.name,
@@ -11,6 +12,8 @@ export const googleCalendarData: Service = {
   documentationUrl:
     'https://developers.google.com/workspace/calendar/api/v3/reference',
   isActive: true,
-  triggers: [],
+  triggers: [
+    googleCalendarNewEventCreatedData,
+  ],
   actions: [],
 };
