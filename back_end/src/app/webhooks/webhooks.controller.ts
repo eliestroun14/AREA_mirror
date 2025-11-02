@@ -23,6 +23,10 @@ export abstract class AREA_WebhookController {
     queries: object,
   ): RunnerVariableData[];
 
+  protected verify(headers: object, body: object, queries: object): boolean {
+    return true;
+  }
+
   @Post(`:userId/:zapId/:triggerStepId`)
   async trigger(
     @Headers() headers: object,
@@ -49,8 +53,10 @@ export abstract class AREA_WebhookController {
         message: 'Error: Either the zap do not exists or it is disabled.',
       };
 
-    const data = this.getVariablesData(headers, body, queries);
-    await this.workflowService.runWebhookActions(zap, triggerStepId, data);
+    if (this.verify(headers, body, queries)) {
+      const data = this.getVariablesData(headers, body, queries);
+      await this.workflowService.runWebhookActions(zap, triggerStepId, data);
+    }
 
     return {
       message: 'Done.',

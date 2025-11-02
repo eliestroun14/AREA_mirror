@@ -7,8 +7,6 @@ import { RunnerModule } from '@root/runner/runner.module';
 import { RunnerService } from '@root/runner/runner.service';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-async function runWorkflow() {}
-
 async function main() {
   const runnerApp = await NestFactory.create(RunnerModule);
   runnerApp.useGlobalFilters(new PrismaClientKnownRequestErrorFilter());
@@ -16,12 +14,16 @@ async function main() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
     origin: [
-      'http://localhost:3000',
       'http://localhost:8081',
-      'http://localhost:3001',
-      'http://localhost:3002',
       'http://localhost',
+      'http://127.0.0.1:8081',
+      'http://127.0.0.1',
       'https://manech.va.sauver.le.monde.area.projects.epitech.bzh',
+      'http://192.168.1.12:3000',
+      'http://192.168.1.12:8080',
+      'http://192.168.1.12:8081',
+      // Allow any origin from local network for development
+      /^http:\/\/192\.168\.1\.\d+:\d+$/,
     ],
     credentials: true,
     exposedHeaders: ['Content-Disposition'],
@@ -65,14 +67,14 @@ async function main() {
   let isRunning = true;
   const runnerService = runnerApp.get(RunnerService);
 
-  const runWorkflow = async () => {
+  const startAreaRunner = async () => {
     console.log('Running runner');
     while (isRunning) {
       await runnerService.start();
     }
   };
 
-  runWorkflow()
+  startAreaRunner()
     .then(() => console.log('Stopping runner...'))
     .catch((err) => console.error('An error occurred: ', err));
   await app.listen(process.env.PORT ?? 3000);

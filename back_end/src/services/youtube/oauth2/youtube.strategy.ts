@@ -15,7 +15,13 @@ export class YoutubeStrategy extends PassportStrategy(
   Strategy,
   constants.services.youtube.slug,
 ) {
-  private static SCOPES: string[] = ['email', 'identify'];
+  private static SCOPES: string[] = [
+    'email',
+    'profile',
+    'https://www.googleapis.com/auth/youtube.readonly',
+    // 'https://www.googleapis.com/auth/youtube',
+    // 'https://www.googleapis.com/auth/youtube.upload',
+  ];
 
   constructor() {
     const options: StrategyOptions = {

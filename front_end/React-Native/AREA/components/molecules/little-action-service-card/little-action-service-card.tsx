@@ -8,16 +8,18 @@ type Props = {
   item: Service
   triggerId?: string;
   serviceTriggerId?: string;
+  zapId?: string;
 };
 
-const LittleActionServiceCard = ({ item, triggerId, serviceTriggerId }: Props) => {
+const LittleActionServiceCard = ({ item, triggerId, serviceTriggerId, zapId }: Props) => {
 
   const href = {
     pathname: "/create-action-service/[id]" as const,
     params: {
       id: item.id,
       triggerId: triggerId,
-      serviceTriggerId: serviceTriggerId
+      serviceTriggerId: serviceTriggerId,
+      zapId: zapId
     }
   };
 

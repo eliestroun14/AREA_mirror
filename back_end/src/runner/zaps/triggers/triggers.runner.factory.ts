@@ -1,12 +1,23 @@
 import { PollTrigger } from '@root/runner/zaps/triggers/triggers.runner.job';
 import JobNotFoundError from '@root/runner/errors/job-not-found.error';
-import { GithubOnNewRepositoryPoll } from '@root/services/github/triggers/on-new-repository/github-on-new-repository.poll';
+import { YoutubeNewLikeOnVideoPoll } from '@root/services/youtube/triggers/new-like-on-video/youtube-new-like-on-video.poll';
+import { YoutubeNewSubscriberPoll } from '@root/services/youtube/triggers/new-subscriber/youtube-new-subscriber.poll';
 import { TwitchFollowNewChannelPoll } from '@root/services/twitch/triggers/follow-new-channel/twitch-follow-new-channel.poll';
 import { TwitchNewFollowerOnYourChannelPoll } from '@root/services/twitch/triggers/new-follower-on-your-channel/twitch-new-follower-on-your-channel.poll';
 import { TwitchNewVideoPostedByYouPoll } from '@root/services/twitch/triggers/new-video-posted-by-you/twitch-new-video-posted-by-you.poll';
 import { TwitchNewStreamStartedbyYouPoll } from '@root/services/twitch/triggers/new-stream-startedby-you/twitch-new-stream-startedby-you.poll';
 import { TwitchStreamGoingLiveChannelYouFollowPoll } from '@root/services/twitch/triggers/stream-going-live-channel-you-follow/twitch-stream-going-live-channel-you-follow.poll';
 import { MicrosoftTeamsNewMessagePoll } from '@root/services/microsoft-teams/triggers/new-message/microsoft-teams-new-message.poll';
+import {
+  GithubOnNewPersonnalRepositoryPoll
+} from '@root/services/github/triggers/on-new-personnal-repository/github-on-new-personnal-repository.poll';
+import { OneDriveNewFileAddedPoll } from '@root/services/microsoft-onedrive/triggers/new-file-added/onedrive-new-file-added.poll';
+import { OneDriveFileModifiedPoll } from '@root/services/microsoft-onedrive/triggers/file-modified/onedrive-file-modified.poll';
+import { OneDriveStorageQuotaWarningPoll } from '@root/services/microsoft-onedrive/triggers/storage-quota-warning/onedrive-storage-quota-warning.poll';
+import { GoogleDriveNewFileInFolderPoll } from '@root/services/google-drive/triggers/new-file-in-folder/google-drive-new-file-in-folder.poll';
+import { GoogleDriveNewPhotoInFolderPoll } from '@root/services/google-drive/triggers/new-photo-in-folder/google-drive-new-photo-in-folder.poll';
+import { GoogleDriveNewVideoInFolderPoll } from '@root/services/google-drive/triggers/new-video-in-folder/google-drive-new-video-in-folder.poll';
+import { GoogleCalendarNewEventCreatedPoll } from '@root/services/google-calendar/triggers/new-event-created/google-calendar-new-event-created.poll';
 
 export interface PollTriggerBuilderParams {
   stepId: number;
@@ -24,11 +35,20 @@ type TriggerBuilderFunction = (
 
 export class TriggersRunnerFactory {
   private registers: Record<string, TriggerBuilderFunction> = {
-    GithubOnNewRepositoryPoll: (builder: PollTriggerBuilderParams) => {
-      return new GithubOnNewRepositoryPoll(builder);
+    GithubOnNewPersonnalRepositoryPoll: (builder: PollTriggerBuilderParams) => {
+      return new GithubOnNewPersonnalRepositoryPoll(builder);
     },
     MicrosoftTeamsNewMessagePoll: (builder: PollTriggerBuilderParams) => {
       return new MicrosoftTeamsNewMessagePoll(builder);
+    },
+    OneDriveNewFileAddedPoll: (builder: PollTriggerBuilderParams) => {
+      return new OneDriveNewFileAddedPoll(builder);
+    },
+    OneDriveFileModifiedPoll: (builder: PollTriggerBuilderParams) => {
+      return new OneDriveFileModifiedPoll(builder);
+    },
+    OneDriveStorageQuotaWarningPoll: (builder: PollTriggerBuilderParams) => {
+      return new OneDriveStorageQuotaWarningPoll(builder);
     },
     TwitchFollowNewChannelPoll: (builder: PollTriggerBuilderParams) => {
       return new TwitchFollowNewChannelPoll(builder);
@@ -47,6 +67,24 @@ export class TriggersRunnerFactory {
     ) => {
       return new TwitchStreamGoingLiveChannelYouFollowPoll(builder);
     },
+    YoutubeNewLikeOnVideoPoll: (builder: PollTriggerBuilderParams) => {
+      return new YoutubeNewLikeOnVideoPoll(builder);
+    },
+    YoutubeNewSubscriberPoll: (builder: PollTriggerBuilderParams) => {
+      return new YoutubeNewSubscriberPoll(builder);
+    },
+    GoogleDriveNewFileInFolderPoll: (builder: PollTriggerBuilderParams) => {
+      return new GoogleDriveNewFileInFolderPoll(builder);
+    },
+    GoogleDriveNewPhotoInFolderPoll: (builder: PollTriggerBuilderParams) => {
+      return new GoogleDriveNewPhotoInFolderPoll(builder);
+    },
+    GoogleDriveNewVideoInFolderPoll: (builder: PollTriggerBuilderParams) => {
+      return new GoogleDriveNewVideoInFolderPoll(builder);
+    },
+    GoogleCalendarNewEventCreatedPoll: (builder: PollTriggerBuilderParams) => {
+      return new GoogleCalendarNewEventCreatedPoll(builder);
+    }
   };
 
   /**

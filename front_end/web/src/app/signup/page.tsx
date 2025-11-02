@@ -93,6 +93,10 @@ export default function SignupPage() {
                 fullWidth
                 variant="outlined"
                 startIcon={<GoogleIcon />}
+                onClick={async (e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.preventDefault();
+                  window.location.href = `${API_BASE_URL}/auth/sign-in/google`;
+                }}
                 sx={{
                   py: 1.5,
                   borderRadius: 2,

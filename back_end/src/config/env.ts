@@ -11,9 +11,11 @@ export const envConstants = {
   web_oauth2_success_redirect_url:
     process.env.WEB_SUCCESS_OAUTH2_REDIRECT_URL ??
     'http://127.0.0.1/oauth2/success',
+  web_home_url: process.env.WEB_HOME_URL ?? 'http://127.0.0.1/',
 
   mobile_oauth2_success_redirect_url:
     process.env.MOBILE_SUCCESS_OAUTH2_REDIRECT_URL ?? 'area://oauth2/success',
+  mobile_home_url: process.env.MOBILE_HOME_URL ?? 'area://home',
 
   discord_client_id: process.env.DISCORD_CLIENT_ID ?? 'DISCORD_CLIENT_ID',
   discord_client_secret: process.env.DISCORD_CLIENT_SECRET ?? 'DISCORD_SECRET',
@@ -41,6 +43,10 @@ export const envConstants = {
   microsoft_teams_client_id: process.env.TEAMS_CLIENT_ID ?? 'TEAMS_CLIENT_ID',
   microsoft_teams_client_secret:
     process.env.TEAMS_CLIENT_SECRET ?? 'TEAMS_CLIENT_SECRET',
+
+  microsoft_onedrive_client_id: process.env.MICROSOFT_ONEDRIVE_CLIENT_ID ?? 'MICROSOFT_ONEDRIVE_CLIENT_ID',
+  microsoft_onedrive_client_secret:
+    process.env.MICROSOFT_ONEDRIVE_CLIENT_SECRET ?? 'MICROSOFT_ONEDRIVE_CLIENT_SECRET',
 
   token_encryption_key:
     process.env.TOKEN_ENCRYPTION_KEY ??
