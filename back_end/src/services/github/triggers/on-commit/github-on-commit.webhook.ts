@@ -31,6 +31,11 @@ export class GithubOnCommitWebhookTrigger extends WebhookTrigger {
       body,
     });
 
+    if (!response.ok) {
+      console.log('Response status: ', response.status);
+      console.log('Response ok: ', response.ok);
+      console.log('Response txt: ', await response.text());
+    }
     return response.ok && response.status === 201;
   }
 }

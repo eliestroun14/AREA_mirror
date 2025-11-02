@@ -31,6 +31,11 @@ export class GithubOnNewRepositoryIssueWebhookTrigger extends WebhookTrigger {
       body,
     });
 
+    if (!response.ok) {
+      console.log('webhookUrl:', webhookUrl);
+      console.log('endpoint:', endpoint);
+      console.log(await response.text());
+    }
     return response.ok && response.status === 201;
   }
 }
