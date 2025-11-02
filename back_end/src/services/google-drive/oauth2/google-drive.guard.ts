@@ -4,5 +4,5 @@ import { constants } from '@config/utils';
 
 @Injectable()
 export class GoogleDriveOAuthGuard extends AREA_AuthGuard(
-  constants.services.googleCalendar.slug,
+  constants.services.googleDrive.slug,
 ) {}

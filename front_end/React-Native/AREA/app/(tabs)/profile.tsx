@@ -539,10 +539,10 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    backgroundColor: '#075eec',
+    backgroundColor: '#000000ff',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#075eec',
+    borderColor: '#000000ff',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
