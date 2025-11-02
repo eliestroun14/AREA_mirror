@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@root/prisma/prisma.service';
-import { Prisma, users } from '@prisma/client';
+import { Prisma, users, connections } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -37,6 +37,15 @@ export class UsersService {
     return this.prisma.users.update({
       data,
       where,
+    });
+  }
+
+  async linkSSO(user: users, sso_connection: connections): Promise<void> {
+    await this.prisma.users.update({
+      where: { id: user.id },
+      data: {
+        sso_connection_id: sso_connection.id,
+      },
     });
   }
 

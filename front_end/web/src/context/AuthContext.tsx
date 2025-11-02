@@ -26,6 +26,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           return value;
         }
       }
+
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+      fetch(`${apiBaseUrl}/users/me`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      }).then(async (res) => {
+        const data = res.ok ? await res.json() : null;
+        if (data)
+          setToken(data.token);
+      }).catch((err) => {
+        console.error(err);
+      })
+
       // Only check localStorage, as session_token cookie is httpOnly
       // and cannot be read by JavaScript
       //const localStorageToken = localStorage.getItem('access_token');

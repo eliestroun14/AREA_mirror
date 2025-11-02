@@ -140,9 +140,10 @@ class ApiService {
   async getZapById(zapId: number, token: string): Promise<ZapDTO> {
     try {
       const response = await fetch(`${API_BASE_URL}/zaps/${zapId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        // headers: {
+        //   'Authorization': `Bearer ${token}`
+        // },
+          credentials: 'include',
       });
 
       if (!response.ok) {
