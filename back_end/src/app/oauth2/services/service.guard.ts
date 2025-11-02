@@ -12,7 +12,10 @@ import {
   StrategyCallbackRequest,
 } from '@app/oauth2/oauth2.dto';
 
-export function AREA_AuthGuard(serviceName: string) {
+export function AREA_AuthGuard(
+  serviceName: string,
+  requireToken: boolean = true,
+) {
   @Injectable()
   class OAuth2Guard extends AuthGuard(serviceName) {
     constructor() {
@@ -21,33 +24,37 @@ export function AREA_AuthGuard(serviceName: string) {
 
     getAuthenticateOptions(context: ExecutionContext): any {
       const request = context.switchToHttp().getRequest<Request>();
-      const encryptedToken =
-        (request.query.token as string) || (request.query.state as string);
-      console.log('[OAuthGuard] Query token param:', encryptedToken);
 
-      if (!encryptedToken) {
-        console.error('[OAuthGuard] Encrypted token required but not found');
-        throw new UnauthorizedException('Encrypted token required');
+      if (requireToken) {
+        const encryptedToken =
+          (request.query.token as string) || (request.query.state as string);
+        console.log('[OAuthGuard] Query token param:', encryptedToken);
+
+        if (!encryptedToken) {
+          console.error('[OAuthGuard] Encrypted token required but not found');
+          throw new UnauthorizedException('Encrypted token required');
+        }
+
+        const decrypted = Crypto.decryptJWT(encryptedToken);
+        console.log('[OAuthGuard] Decrypted token:', decrypted);
+
+        if (!decrypted) {
+          console.error('[OAuthGuard] Invalid or expired encrypted token');
+          throw new UnauthorizedException('Invalid or expired encrypted token');
+        }
+
+        request['oauth_jwt'] = decrypted.jwt;
+
+        const callbackToken = Crypto.encryptJWT(
+          decrypted.jwt,
+          decrypted.platform,
+        );
+
+        return {
+          state: callbackToken,
+        };
       }
-
-      const decrypted = Crypto.decryptJWT(encryptedToken);
-      console.log('[OAuthGuard] Decrypted token:', decrypted);
-
-      if (!decrypted) {
-        console.error('[OAuthGuard] Invalid or expired encrypted token');
-        throw new UnauthorizedException('Invalid or expired encrypted token');
-      }
-
-      request['oauth_jwt'] = decrypted.jwt;
-
-      const callbackToken = Crypto.encryptJWT(
-        decrypted.jwt,
-        decrypted.platform,
-      );
-
-      return {
-        state: callbackToken,
-      };
+      return {};
     }
 
     handleRequest<TUser = JwtPayload>(
@@ -57,16 +64,6 @@ export function AREA_AuthGuard(serviceName: string) {
       context: ExecutionContext,
       status?: unknown,
     ): TUser {
-      console.log("err:");
-      console.log(err);
-      console.log("user:");
-      console.log(user);
-      console.log("info:");
-      console.log(info);
-      console.log("context:");
-      console.log(context);
-      console.log("status:");
-      console.log(status);
       const req: StrategyCallbackRequest = context.switchToHttp().getRequest();
       req.provider = user;
       return req.user as TUser;

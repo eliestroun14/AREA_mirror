@@ -7,6 +7,7 @@ import { microsoftOnedriveData } from '@root/services/microsoft-onedrive/microso
 import { youtubeData } from '@root/services/youtube/youtube.data';
 import { googleDriveData } from '@root/services/google-drive/google-drive.data';
 import { githubData } from '@root/services/github/github.data';
+import { googleOauthLoginData } from '@root/services/google-oauth-login/google-oauth-login.data';
 
 // N'AJOUTEZ PLUS VOS SERVICES ICI ! REGARDEZ LA DOC !
 // N'AJOUTEZ PLUS VOS SERVICES ICI ! REGARDEZ LA DOC !
@@ -30,4 +31,5 @@ export const servicesData: Service[] = [
   microsoftOnedriveData,
   youtubeData,
   githubData,
+  googleOauthLoginData,
 ];

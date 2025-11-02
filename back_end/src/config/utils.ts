@@ -27,6 +27,7 @@ export const constants = {
     microsoftOnedrive: { name: 'OneDrive', slug: 'microsoft-onedrive' },
     twitch: { name: 'Twitch', slug: 'twitch' },
     youtube: { name: 'Youtube', slug: 'youtube' },
+    googleOauthLogin: { name: 'Google OAuth2', slug: 'google-oauth-login' },
   },
 };
 

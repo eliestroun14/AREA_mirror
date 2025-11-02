@@ -1,21 +1,44 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { AuthService } from '@app/auth/auth.service';
 import { SignInBody, SignInResponse, SignUpBody } from '@app/auth/auth.dto';
 import { UserDTO } from '@app/users/users.dto';
 import type { Response } from 'express';
+import { GoogleOauthLoginOAuthGuard } from '@root/services/google-oauth-login/oauth2/google-oauth-login.guard';
+import type { StrategyCallbackRequest } from '@app/oauth2/oauth2.dto';
+import type * as express from 'express';
+import { RequestWithQuery } from '@app/oauth2/services/service.dto';
+import { Crypto } from '@config/crypto';
+import { envConstants } from '@config/env';
+import { type GoogleStrategyCallbackRequest } from '@root/services/google-oauth-login/oauth2/google-oauth-login.dto';
+import { ConnectionsService } from '@app/users/connections/connections.service';
+import { constants } from '@config/utils';
+import { UsersService } from '@app/users/users.service';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private userService: UsersService,
+    private connectionService: ConnectionsService,
+    private authService: AuthService,
+  ) {}
 
   @HttpCode(HttpStatus.OK)
   @Post('sign-up')
@@ -88,5 +111,97 @@ export class AuthController {
       .json({
         session_token: token,
       });
+  }
+
+  @Get('sign-in/google')
+  @UseGuards(GoogleOauthLoginOAuthGuard)
+  @ApiOperation({
+    summary: "S'inscrire avec Google",
+    description:
+      "Redirige l'utilisateur vers la page d'authentification Google pour connecter son compte.",
+  })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirection vers Google OAuth2',
+  })
+  public async googleSignIn() {}
+
+  @Get(`sign-in/google/callback`)
+  @UseGuards(GoogleOauthLoginOAuthGuard)
+  @ApiOperation({
+    summary: 'Callback OAuth2 Google',
+    description:
+      'Endpoint de callback après authentification Google. Enregistre la connexion Google et redirige vers la page home.',
+  })
+  @ApiQuery({
+    name: 'code',
+    description: "Code d'autorisation OAuth2 retourné par Discord",
+    required: true,
+  })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirection vers la page home',
+  })
+  @ApiResponse({
+    status: 500,
+    description: "Erreur lors de l'enregistrement de la connexion",
+  })
+  public async googleSignInRedirect(
+    @Req() req: GoogleStrategyCallbackRequest,
+    @Res() res: express.Response,
+  ) {
+    let user = await this.userService.getUserByEmail(
+      req.provider.emails[0].value,
+    );
+
+    if (!user) {
+      user = await this.authService.signUp({
+        name: req.provider.displayName,
+        password: '',
+        email: req.provider.emails[0].value,
+      });
+    }
+    if (!user.sso_connection_id) {
+      const sso_connection = await this.connectionService.createConnection(
+        constants.services.googleOauthLogin.name,
+        user.id,
+        req.provider,
+      );
+      await this.userService.linkSSO(user, sso_connection);
+    }
+
+    const token = await this.authService.signInSSO(user.email);
+    const redirectUri = this.getRedirectUrl(req);
+
+    res
+      .cookie('session_token', token, {
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true,
+      })
+      .status(HttpStatus.OK)
+      .redirect(redirectUri);
+  }
+
+  private getRedirectUrl(req: StrategyCallbackRequest): string {
+    const reqWithQuery = req as RequestWithQuery;
+    const stateRaw =
+      reqWithQuery.query &&
+      typeof reqWithQuery.query === 'object' &&
+      typeof reqWithQuery.query['state'] === 'string'
+        ? reqWithQuery.query['state']
+        : '';
+
+    if (stateRaw) {
+      const decrypted = Crypto.decryptJWT(stateRaw);
+      if (
+        decrypted?.platform === 'mobile' &&
+        envConstants.mobile_home_url
+      ) {
+        return envConstants.mobile_home_url;
+      }
+    }
+
+    return envConstants.web_home_url;
   }
 }

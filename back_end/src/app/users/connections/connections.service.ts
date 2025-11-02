@@ -19,7 +19,7 @@ export class ConnectionsService {
     serviceName: string,
     userId: number,
     provider: OAuth2Provider,
-  ): Promise<void> {
+  ): Promise<connections> {
     const service = await this.servicesService.getServiceByName(serviceName);
 
     if (!service)
@@ -47,7 +47,7 @@ export class ConnectionsService {
     });
 
     if (connection) {
-      await this.prisma.connections.update({
+      return await this.prisma.connections.update({
         where: {
           user_id_service_id_account_identifier: {
             user_id: connection.user_id,
@@ -58,7 +58,7 @@ export class ConnectionsService {
         data,
       });
     } else {
-      await this.prisma.connections.create({ data });
+      return await this.prisma.connections.create({ data });
     }
   }
 
