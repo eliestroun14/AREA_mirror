@@ -94,9 +94,9 @@ export default function ExploreScreen() {
           renderItem={renderItem}
           ListHeaderComponent={() => (
             <View style={styles.header}>
-              <View style={styles.searchBar}>
+              {/* <View style={styles.searchBar}>
                 <SearchBar value={search} onChangeText={setSearch} placeholder="Search..." />
-              </View>
+              </View> */}
 
               {/* <View style={styles.Cards}>
                 <NewsCard category='Popular'

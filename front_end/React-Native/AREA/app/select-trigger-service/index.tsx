@@ -65,11 +65,11 @@ export default function SelectTriggerService() {
           data={services}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => <LittleTriggerServiceCard item={item} />}
-          ListHeaderComponent={() => (
-            <View style={styles.searchBar}>
-              <SearchBar value={search} onChangeText={setSearch} placeholder='Search...' />
-            </View>
-          )}
+          // ListHeaderComponent={() => (
+            // <View style={styles.searchBar}>
+            //   <SearchBar value={search} onChangeText={setSearch} placeholder='Search...' />
+            // </View>
+          // )}
         />
       </SafeAreaView>
     </>
