@@ -9,15 +9,18 @@ datasource db {
 }
 
 model users {
-  id          Int           @id @default(autoincrement())
-  email       String        @unique
-  name        String
-  password    String
-  created_at  DateTime      @default(now())
-  updated_at  DateTime      @default(now())
-  deleted_at  DateTime?
-  connections connections[]
-  zaps        zaps[]
+  id                Int           @id @default(autoincrement())
+  email             String        @unique
+  name              String
+  password          String
+  sso_connection_id Int?          @unique
+  created_at        DateTime      @default(now())
+  updated_at        DateTime      @default(now())
+  deleted_at        DateTime?
+
+  sso_connection    connections?   @relation("user_oauth_login", fields: [sso_connection_id], references: [id], onDelete: Cascade)
+  connections   connections[]
+  zaps          zaps[]
 }
 
 model services {
@@ -52,6 +55,7 @@ model connections {
   is_active            Boolean     @default(true)
   created_at           DateTime    @default(now())
   last_used_at         DateTime?
+  sso_user             users?      @relation("user_oauth_login")
   user                 users       @relation(fields: [user_id], references: [id], onDelete: Cascade)
   service              services    @relation(fields: [service_id], references: [id], onDelete: Cascade)
   dependent_steps      zap_steps[]

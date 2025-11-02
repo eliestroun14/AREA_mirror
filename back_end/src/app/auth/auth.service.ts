@@ -27,10 +27,21 @@ export class AuthService {
     }
   }
 
+  async signInSSO(email: string): Promise<string> {
+    const user = await this.usersService.getUserByEmail(email);
+
+    if (!user) throw new UnauthorizedException('Invalid credentials.');
+
+    const payload: JwtPayload = { userId: Number(user.id ?? '0') };
+    return this.jwtService.signAsync(payload);
+  }
+
   async signIn(email: string, password: string): Promise<string> {
     const users = await this.usersService.getUserByEmail(email);
     const isValidCredentials =
-      users && (await bcrypt.compare(password, users.password));
+      users &&
+      users.sso_connection_id === null &&
+      (await bcrypt.compare(password, users.password));
 
     if (!isValidCredentials)
       throw new UnauthorizedException('Invalid credentials.');

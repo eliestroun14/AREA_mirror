@@ -40,6 +40,7 @@ import {
 } from '@app/users/connections/connection.dto';
 import { ActivityService } from '@app/users/activity/activity.service';
 import { GetUserActivitiesResponse } from '@app/users/activity/activity.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @ApiTags('users')
 @Controller('users')
@@ -48,6 +49,7 @@ export class UsersController {
     private service: UsersService,
     private connectionsService: ConnectionsService,
     private activityService: ActivityService,
+    private jwtService: JwtService,
   ) {}
 
   @HttpCode(HttpStatus.OK)
@@ -77,12 +79,14 @@ export class UsersController {
 
     if (!user) throw new ForbiddenException('You are not authenticated.');
 
+    const payload = { userId: Number(user.id ?? '0') };
     return {
       id: user.id,
       email: user.email,
       name: user.name,
       created_at: new Date(user.created_at).toUTCString(),
       updated_at: new Date(user.updated_at).toUTCString(),
+      token: await this.jwtService.signAsync(payload),
     };
   }
 

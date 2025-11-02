@@ -37,7 +37,9 @@ export class UserDTO {
 }
 
 // GET
-export type GetMeResponse = UserDTO;
+export type GetMeResponse = UserDTO & {
+  token: string;
+};
 
 // PUT
 export class PutMeBody {
