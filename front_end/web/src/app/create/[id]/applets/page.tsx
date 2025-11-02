@@ -45,8 +45,9 @@ export default function CreateAppletsPage() {
     const fetchServices = async () => {
       try {
         setLoading(true)
-        const data = await apiService.getAllServices()
-        setServices(data)
+  const data = await apiService.getAllServices()
+  // Keep only services explicitly marked as active
+  setServices(data.filter((s) => Boolean(s.is_active)))
       } catch (err) {
         console.error('Error fetching services:', err)
         setServices([])

@@ -48,9 +48,8 @@ export default function ActionsPage() {
         setLoading(true)
         setError(null)
 
-        // Fetch all services from API
-        const servicesData = await apiService.getAllServices()
-        setServices(servicesData)
+  const servicesData = await apiService.getAllServices()
+  setServices(servicesData.filter((s) => Boolean(s.is_active)))
         
       } catch (err) {
         console.error('Error fetching services:', err)

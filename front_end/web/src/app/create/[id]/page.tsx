@@ -82,16 +82,23 @@ function CreateZapPageContent() {
       try {
         setLoadingTrigger(true)
         const triggerData = await apiService.getZapTrigger(zapId, token)
-        
-        if (triggerData) {
-          setSelectedTrigger({
-            triggerId: triggerData.trigger.id,
-            serviceId: triggerData.service.id,
-            serviceName: triggerData.service.name,
-            serviceColor: triggerData.service.services_color,
-            trigger: triggerData.trigger.name,
-            data: triggerData.step.payload as Record<string, unknown>
-          })
+
+          if (triggerData) {
+          // Only show the trigger if its service is explicitly active
+          if (triggerData.service && Boolean(triggerData.service.is_active)) {
+            setSelectedTrigger({
+              triggerId: triggerData.trigger.id,
+              serviceId: triggerData.service.id,
+              serviceName: triggerData.service.name,
+              serviceColor: triggerData.service.services_color,
+              trigger: triggerData.trigger.name,
+              data: triggerData.step.payload as Record<string, unknown>
+            })
+          } else {
+            // If the service is inactive, don't set a selected trigger
+            setSelectedTrigger(null)
+            console.warn('Trigger service is inactive; hiding the trigger in UI')
+          }
         }
       } catch (error) {
         console.log('No trigger configured yet:', error)
@@ -117,16 +124,24 @@ function CreateZapPageContent() {
         const actionsData = await apiService.getZapActions(zapId, token)
         
         if (actionsData && actionsData.length > 0) {
-          const actions = actionsData.map(actionData => ({
-            stepId: actionData.step.id,
-            actionId: actionData.action.id,
-            serviceId: actionData.service.id,
-            serviceName: actionData.service.name,
-            serviceColor: actionData.service.services_color,
-            action: actionData.action.name,
-            data: actionData.step.payload as Record<string, unknown>
-          }))
-          setSelectedActions(actions)
+          const activeActionsData = actionsData.filter(a => a.service && Boolean(a.service.is_active))
+
+          if (activeActionsData.length > 0) {
+            const actions = activeActionsData.map(actionData => ({
+              stepId: actionData.step.id,
+              actionId: actionData.action.id,
+              serviceId: actionData.service.id,
+              serviceName: actionData.service.name,
+              serviceColor: actionData.service.services_color,
+              action: actionData.action.name,
+              data: actionData.step.payload as Record<string, unknown>
+            }))
+            setSelectedActions(actions)
+          } else {
+            setSelectedActions([])
+          }
+        } else {
+          setSelectedActions([])
         }
       } catch (error) {
         console.log('No actions configured yet:', error)
