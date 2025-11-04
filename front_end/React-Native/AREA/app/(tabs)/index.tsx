@@ -37,11 +37,11 @@ export default function HomeScreen() {
 
         <View style={styles.homeConfig}>
 
-          <View style={styles.searchBar}>
+          {/* <View style={styles.searchBar}>
             <SearchBar value={search}
               onChangeText={setSearch}
               placeholder='Search...' />
-          </View>
+          </View> */}
 
           <Text style={styles.text}>
             Suggested Applets
@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     alignSelf: "center",
+    textAlign: "center",
   },
 
   image: {
