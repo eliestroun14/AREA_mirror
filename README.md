@@ -145,7 +145,22 @@ Pour intégrer les services externes, vous devez créer des applications OAuth2 
 |----------|-------------|---------|
 | `DOWNLOAD_FILE_PATH` | Chemin pour télécharger les fichiers (ex: APK mobile) | `/path/to/your/app.apk` |
 
-### Lancement du projet
+#### 3. Fichier `.env.local` dans le dossier `web/`
+
+| Variable | Description | Exemple |
+|----------|-------------|---------|
+| `NEXT_PUBLIC_API_URL` | Url de l'api | `https://api.manech.va.sauver.le.monde.area.projects.epitech.bzh` |
+
+
+#### 4. Fichier `.env` dans le dossier `React-Native/AREA/`
+
+| Variable | Description | Exemple |
+|----------|-------------|---------|
+| `EXPO_PUBLIC_API_BASE_URL` | Url de l'api | `https://api.manech.va.sauver.le.monde.area.projects.epitech.bzh` |
+| `EXPO_TOKEN` |token expo | `u6eX...` |
+
+
+### Lancement du projetf
 
 #### Avec Docker (recommandé)
 
